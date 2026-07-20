@@ -1,9 +1,9 @@
 import { Text, View, StyleSheet } from "react-native";
 
-export default function Index() {
+export default function Perfil() {
   return (
     <View style={styles.container}>
-      <Text>Finnitus</Text>
+      <Text>vai aparecer o usuariozinho</Text>
     </View>
   );
 }
