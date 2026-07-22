@@ -53,7 +53,7 @@ export const Cores = {
 
 //como usar:
 
-/* import { Cores } from "@/shared/theme/cores";
+/* import { Cores } from "@/shared/constants/Cores";
 
 <View style={{ backgroundColor: Cores.fundo.principal }} />
 
