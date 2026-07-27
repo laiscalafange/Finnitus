@@ -1,5 +1,6 @@
 import { View, StyleSheet } from 'react-native'
-import { LinearGradient } from 'expo-linear-gradient'  
+import { LinearGradient } from 'expo-linear-gradient'
+import { GRADIENTS } from '@/shared/constants/Gradientes'  
 
 export function Card({ children, style , gradiente }: {
   children: React.ReactNode
@@ -8,11 +9,10 @@ export function Card({ children, style , gradiente }: {
 }) {
   return (
     
-    <LinearGradient
-      colors={gradiente}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.base, style]}
+  <LinearGradient
+       colors={gradiente}
+       start={GRADIENTS.background.start}
+       end={GRADIENTS.background.end}
     >
       {children}
     </LinearGradient>
