@@ -11,13 +11,13 @@ export function Input({ label, erro, icone, placeholder, secureTextEntry, keyboa
   onChangeText?: (text: string) => void
 }) {
   return (
-    <View style={styles.wrapper}>  //wrapper garante que cada Input tenha um espaço embaixo quando você colocar vários em sequência
+    <View style={styles.wrapper}>  {/*wrapper garante que cada Input tenha um espaço embaixo quando você colocar vários em sequência*/}
 
       {label && <Text style={styles.label}>{label}</Text>}
 
-      <View style={[styles.campo, erro ? styles.campoErro : null]}>  //se der erro ,muda pro style de erro
+      <View style={[styles.campo, erro ? styles.campoErro : null]}>  {/*se der erro ,muda pro style de erro*/}
         {icone && <View style={styles.icone}>{icone}</View>}
-       // Mesmo coisa pro erro e icone , só aparecem se você passar.
+       {/* Mesmo coisa pro erro e icone , só aparecem se você passar. */}
         <TextInput
           style={styles.input}
           placeholder={placeholder}
@@ -30,7 +30,7 @@ export function Input({ label, erro, icone, placeholder, secureTextEntry, keyboa
       </View>
 
       {erro && <Text style={styles.erro}>{erro}</Text>}
-//basicamente configurando as funções do input , colocando valores e comportamentos específicos
+{/*basicamente configurando as funções do input , colocando valores e comportamentos específicos*/}
     </View>
   )
 }
