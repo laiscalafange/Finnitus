@@ -1,17 +1,17 @@
-import { Text, View, StyleSheet } from "react-native";
+
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
+
 
 export default function Index() {
-  return (
-    <View style={styles.container}>
-      <Text>Finnitus</Text>
-    </View>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    //joga o usuário para a tela de login assim que ele abrir o app
+    router.replace("/autenticacao/login");
+  }, []);
+
+  return null;
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+
