@@ -1,14 +1,14 @@
 // arquivo criado para testar os componentes
 
-import { useState } from "react";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { Plus } from "lucide-react-native";
+import { useState } from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { Button } from "../shared/components/Button";
-import { Progress } from "../shared/components/Progress";
 import { Avatar } from "../shared/components/Avatar";
-import { Modal } from "../shared/components/Modal";
+import { Button } from "../shared/components/Button";
 import { FAB } from "../shared/components/Fab";
+import { Modal } from "../shared/components/Modal";
+import { Progress } from "../shared/components/Progress";
 
 export default function TestComponents() {
   const [progresso, setProgresso] = useState(40);
@@ -23,7 +23,7 @@ export default function TestComponents() {
         {/* Button */}
         <Text style={styles.secao}>Button</Text>
         <View style={styles.grupo}>
-          <Button titulo="Botão primário" variante="primario" />
+          <Button titulo="entrar" variante="primario" />
           <Button titulo="Botão outline" variante="outline" />
         </View>
 
