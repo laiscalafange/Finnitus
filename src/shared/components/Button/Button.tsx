@@ -7,6 +7,7 @@ import { ButtonProps } from "./ButtonTypes";
 export function Button({
   titulo,
   variante = "primario",
+  onPress,
 }: ButtonProps) {
   const isPrimario = variante === "primario";
 
@@ -15,6 +16,7 @@ export function Button({
       style={({ pressed }) => [
         pressed && { opacity: 0.8 },
       ]}
+      onPress={onPress}
     >
       <LinearGradient
         colors={
