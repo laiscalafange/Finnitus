@@ -39,6 +39,8 @@ export const styles = StyleSheet.create({
     lineHeight: 20,
   },
   iconeInput: {
-    fontSize: 16,
-  },
+  width: 20,
+  height: 20,
+  resizeMode: "contain",
+},
 });
