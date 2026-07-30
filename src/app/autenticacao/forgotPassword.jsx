@@ -8,7 +8,8 @@ import { useState } from 'react';
 
 
 export default function RecuperarSenha() {
-  
+  const roteador = useRouter();
+
   const [email, setEmail] = useState('');
 
   return (
@@ -37,7 +38,7 @@ export default function RecuperarSenha() {
       <Button
         variante="primario"
         titulo="Enviar"
-        onPress={() => {}} // navegação entra depois
+        onPress={() => roteador.push("/autenticacao/emailSent")} // navegação entra depois
       />
     </View>
   );
