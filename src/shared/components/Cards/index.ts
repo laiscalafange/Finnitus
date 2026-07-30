@@ -1,3 +1,3 @@
 
 export { Card } from "./Cards";
-export type { CardsProps } from "./CardsTypes";
+export type { CardProps } from "./CardsTypes";
