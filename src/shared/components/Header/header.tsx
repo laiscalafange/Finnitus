@@ -2,13 +2,14 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { GRADIENTS } from '../../constants/Gradientes'
 import { styles } from './HeaderStyles'
+import { HeaderProps } from "./HeaderTypes";
 
-export function Header({ titulo, subtitulo, onNotificacao, onMenu }: {
-  titulo: string
-  subtitulo?: string
-  onNotificacao?: () => void
-  onMenu?: () => void
-}) {
+export function Header({ 
+  titulo, 
+  subtitulo, 
+  onNotificacao, 
+  onMenu 
+}: HeaderProps) {
   return (
     <LinearGradient
       colors={GRADIENTS.header.colors}

@@ -1,3 +1,4 @@
-export interface ButtonTabProps{
-
+export interface ButtonTabProps {
+  aoPress: () => void;
+  icone?: string;
 }

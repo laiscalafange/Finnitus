@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import { styles } from './FloatingButtonStyles'
 
 const ABAS = [
@@ -9,10 +9,12 @@ const ABAS = [
   { chave: 'perfil',       icone: '👤' },
 ]
 
-export function BottomTab({ abaAtiva, aoPress }: {
-  abaAtiva: string
-  aoPress: (aba: string) => void
-}) {
+import { FloatingButtonProps } from "./FloatingButtonTypes";
+
+export function FloatingButton({
+  abaAtiva,
+  aoPress,
+}: FloatingButtonProps) {
   return (
     <View style={styles.container}>
       {ABAS.map(aba => {

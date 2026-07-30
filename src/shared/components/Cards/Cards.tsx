@@ -1,11 +1,13 @@
 import { LinearGradient } from 'expo-linear-gradient'
 import { styles } from './CardsStyles'
+import { CardProps } from "./CardsTypes";
 
-export function Card({ children, style, gradiente }: {
-  children: React.ReactNode
-  style?: any
-  gradiente: [string, string]
-}) {
+export function Card({
+  children,
+  style,
+  gradiente,
+}: CardProps) {
+
   return (
     <LinearGradient
       colors={gradiente}
