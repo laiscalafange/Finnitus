@@ -25,7 +25,9 @@ export default function TestComponents() {
         <View style={styles.grupo}>
           <Button titulo="entrar" variante="primario" />
           <Button titulo="Botão outline" variante="outline" />
+          
         </View>
+
 
         {/* Progress */}
         <Text style={styles.secao}>Progress</Text>

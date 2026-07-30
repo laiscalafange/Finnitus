@@ -1,5 +1,6 @@
 import { useRouter } from "expo-router";
-import { Text, View, StyleSheet, Button } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
+import { Button } from "../../shared/components/Button";
 
 export default function Login() {
   const roteador = useRouter();
@@ -16,6 +17,11 @@ export default function Login() {
         title="ir para tela inicial"
         onPress={() => roteador.push("/paginaInicial")}
       />
+
+      <Button
+    titulo="Esqueci minha senha"
+    onPress={() => roteador.push("/autenticacao/forgotPassword")}
+/>
     </View>
   );
 }
