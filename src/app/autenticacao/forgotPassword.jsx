@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Image } from "react-native";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/forgotPasswordStyles";
@@ -28,7 +28,10 @@ export default function RecuperarSenha() {
         <Input
           label="Email"
           placeholder="Email"
-          icone={<Text style={styles.iconeInput}>✉️</Text>}
+          icone={<Image
+      source={require("../../../assets/icones/email.png")}
+      style={styles.iconeInput}
+    />}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -38,7 +41,7 @@ export default function RecuperarSenha() {
       <Button
         variante="primario"
         titulo="Enviar"
-        onPress={() => roteador.push("/autenticacao/emailSent")} // navegação entra depois
+        onPress={() => roteador.push("/autenticacao/emailSent")} // navegação para a página de email enviado
       />
     </View>
   );
