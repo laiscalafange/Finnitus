@@ -33,7 +33,7 @@ export default function RootLayout() {
 
       {/* Tela de Recuperação de Senha */}
       <Stack.Screen
-        name="autenticacao/recuperarSenha"
+        name="autenticacao/forgotPassword"
         options={{
           title: "Recuperar Senha",
         }}
