@@ -7,7 +7,6 @@ import { FourInput } from "../../shared/components/Four";
 import { styles } from "../../styles/VerifyEmailStyles";
 
 export default function VerificacaoEmail() {
-  // remove TypeScript generic since this is a .jsx file
   
   const { email } = useLocalSearchParams();
 

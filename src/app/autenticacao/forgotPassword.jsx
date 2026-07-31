@@ -13,7 +13,7 @@ router.push({
 
 
 
-export default function RecuperarSenha() {
+export default function forgotPassword() {
   const roteador = useRouter();
 
   const [email, setEmail] = useState('');
