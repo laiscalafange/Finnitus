@@ -27,7 +27,7 @@ export default function EmailSent() {
       <Button
         variante="primario"
         titulo="Ok!"
-        onPress={() => roteador.push("/autenticacao/emailSent")} // navegação para mudar senha
+        onPress={() => roteador.push("/emailSent")} // navegação para mudar senha
       /> {/*daria para fazer com que essa página ficasse uns 5segundos na tela e redirecionasse para a página de troca de senha*/ }  
     </View>
   );
