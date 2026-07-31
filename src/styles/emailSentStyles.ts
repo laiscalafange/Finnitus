@@ -17,19 +17,26 @@ export const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  icone: {
+    width: 96,
+    height: 96,
+    resizeMode: 'contain',
+    marginBottom: 24,
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 28,
     color: Cores.base.branco,
     marginBottom: 8,
+    textAlign: 'center',
   },
   tituloDestaque: {
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 28,
     color: Cores.destaque.limao,
-    textDecorationLine: 'underline',
-    textDecorationColor: Cores.roxo.claro,
   },
   subtitulo: {
     fontFamily: FONTS.quicksand.regular,
@@ -37,10 +44,11 @@ export const styles = StyleSheet.create({
     color: Cores.texto.principal,
     marginBottom: 32,
     lineHeight: 20,
+    textAlign: 'center',
   },
   iconeInput: {
-  width: 20,
-  height: 20,
-  resizeMode: "contain",
-},
+    width: 20,
+    height: 20,
+    resizeMode: "contain",
+  },
 });

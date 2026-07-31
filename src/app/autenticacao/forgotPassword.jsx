@@ -4,6 +4,12 @@ import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/forgotPasswordStyles";
 import { useState } from 'react';
+import { router } from "expo-router";
+
+router.push({
+  pathname: "/verificacao-email",
+  params: { email: "usuario@gmail.com" },
+});
 
 
 
@@ -14,7 +20,7 @@ export default function RecuperarSenha() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.breadcrumb}>Troca de senha</Text>
+  
 
       <View style={styles.content}>
         <Text style={styles.titulo}>

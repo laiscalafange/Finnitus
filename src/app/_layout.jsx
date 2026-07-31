@@ -1,9 +1,51 @@
 import { Stack } from "expo-router";
+import { useFonts } from "expo-font";
+import {
+  Raleway_400Regular,
+  Raleway_500Medium,
+  Raleway_600SemiBold,
+  Raleway_700Bold,
+  Raleway_800ExtraBold,
+} from "@expo-google-fonts/raleway";
+import {
+  Quicksand_400Regular,
+  Quicksand_500Medium,
+  Quicksand_600SemiBold,
+  Quicksand_700Bold,
+} from "@expo-google-fonts/quicksand";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
 
-// Função principal do layout quee define a navegação do aplicativo
+// Mantém a splash screen visível até as fontes carregarem
+SplashScreen.preventAutoHideAsync();
+
+// Função principal do layout que define a navegação do aplicativo
 export default function RootLayout() {
-  return (
+  const [fontsLoaded] = useFonts({
+    Raleway_400Regular,
+    Raleway_500Medium,
+    Raleway_600SemiBold,
+    Raleway_700Bold,
+    Raleway_800ExtraBold,
+    Quicksand_400Regular,
+    Quicksand_500Medium,
+    Quicksand_600SemiBold,
+    Quicksand_700Bold,
+  });
 
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  // Enquanto as fontes não carregam, não renderiza nada
+  // (a splash screen fica visível nesse meio tempo)
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  return (
     // Inicia a navegação em pilha (Stack)
     <Stack>
 

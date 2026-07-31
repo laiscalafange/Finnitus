@@ -7,28 +7,27 @@ export default function EmailSent() {
   const roteador = useRouter();
 
   return (
-  
-     <View style={styles.content}>
-  <Image
-    source={require("../../../assets/icones/sent.png")}
-    style={styles.icone}
-  />
-
+    <View style={styles.container}>
       <View style={styles.content}>
+        <Image
+          source={require("../../../assets/icones/sent.png")}
+          style={styles.icone}
+        />
+
         <Text style={styles.titulo}>
           <Text style={styles.tituloDestaque}>Email</Text> enviado
         </Text>
 
         <Text style={styles.subtitulo}>
           Verifique seu email para redefinir sua senha
-        </Text> 
+        </Text>
       </View>
 
       <Button
         variante="primario"
         titulo="Ok!"
-        onPress={() => roteador.push("/autenticacao/emailSent")} // navegação para mudar senha
-      /> {/*daria para fazer com que essa página ficasse uns 5segundos na tela e redirecionasse para a página de troca de senha*/ }  
+        onPress={() => roteador.push("/autenticacao/resetPassword")}
+      />
     </View>
   );
 }
