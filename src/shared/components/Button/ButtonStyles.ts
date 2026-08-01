@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { RFValue } from "react-native-responsive-fontsize";
 
 export const styles = StyleSheet.create({
   // Base do botão
@@ -7,14 +8,15 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: "center",
     justifyContent: "center",
-    width: 399,
-    height: 49,
+    width: "100%",
+    height: 50,
+    marginBottom: 10,
   },
 
   // Texto padrão
   textoBase: {
     fontWeight: "700",
-    fontSize: 15,
+    fontSize: RFValue(18),
   },
 
   // Variantes

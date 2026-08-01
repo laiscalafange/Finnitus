@@ -11,11 +11,11 @@ const roteador = useRouter();
 
       <Button
       title="Não lembra tua senha? te ajudo bebe"
-      onPress={() => roteador.push("autenticacao/recuperarSenha")}
+      onPress={() => roteador.push("/recuperarSenha")}
       />
       <Button
         title="faz login agora"
-        onPress={() => roteador.push("autenticacao/login")}
+        onPress={() => roteador.push("/login")}
       />
     </View>
   );

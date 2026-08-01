@@ -21,6 +21,8 @@ SplashScreen.preventAutoHideAsync();
 
 // Função principal do layout que define a navegação do aplicativo
 export default function RootLayout() {
+
+  // Carrega as fontes antes do aplicativo iniciar
   const [fontsLoaded] = useFonts({
     Raleway_400Regular,
     Raleway_500Medium,
@@ -39,53 +41,52 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  // Enquanto as fontes não carregam, não renderiza nada
+  // Enquanto as fontes carregam, não renderiza nada
   // (a splash screen fica visível nesse meio tempo)
   if (!fontsLoaded) {
     return null;
   }
 
   return (
-    // Inicia a navegação em pilha (Stack)
+    // Navegação em pilha (Stack)
     <Stack>
 
       {/* Tela inicial do aplicativo */}
       <Stack.Screen
         name="index"
         options={{
-          headerShown: false, // Esconde a barra superior
+          headerShown: false,
         }}
       />
 
-      {/* Tela de Login */}
+      {/* Tela de onboarding */}
       <Stack.Screen
-        name="autenticacao/login"
+        name="onboarding/BemVindo"
         options={{
-          title: "Login", // Título exibido no topo
+          headerShown: false,
         }}
       />
 
-      {/* Tela de Cadastro */}
       <Stack.Screen
-        name="autenticacao/cadastro"
+        name="/onboarding/Trilhe"
         options={{
-          title: "Cadastro",
+          headerShown: false,
         }}
       />
 
-      {/* Tela de Recuperação de Senha */}
+      {/* Grupo de autenticação */}
       <Stack.Screen
-        name="autenticacao/forgotPassword"
+        name="(auth)"
         options={{
-          title: "Recuperar Senha",
+          headerShown: false,
         }}
       />
 
-      {/* Grupo das abas do aplicativo */}
+      {/* Grupo das abas */}
       <Stack.Screen
         name="(tabs)"
         options={{
-          headerShown: false, // Não mostra cabeçalho nas tabs
+          headerShown: false,
         }}
       />
 

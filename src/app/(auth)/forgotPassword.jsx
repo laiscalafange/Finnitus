@@ -47,7 +47,7 @@ export default function forgotPassword() {
       <Button
         variante="primario"
         titulo="Enviar"
-        onPress={() => roteador.push("/autenticacao/emailSent")} // navegação para a página de email enviado
+        onPress={() => roteador.push("/emailSent")} // navegação para a página de email enviado
       />
     </View>
   );

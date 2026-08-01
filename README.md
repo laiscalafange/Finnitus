@@ -54,3 +54,13 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+npm install react-native-responsive-fontsize
+
+npx expo install @expo-google-fonts/raleway
+
+npx expo install @expo-google-fonts/quicksand
+
+npx expo install lucide-react-native react-native-svgnpx expo
+
+npx expo install expo-linear-gradient

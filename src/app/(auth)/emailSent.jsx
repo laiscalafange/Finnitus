@@ -26,8 +26,13 @@ export default function EmailSent() {
       <Button
         variante="primario"
         titulo="Ok!"
+<<<<<<< HEAD:src/app/autenticacao/emailSent.jsx
         onPress={() => roteador.push("/autenticacao/resetPassword")}
       />
+=======
+        onPress={() => roteador.push("/emailSent")} // navegação para mudar senha
+      /> {/*daria para fazer com que essa página ficasse uns 5segundos na tela e redirecionasse para a página de troca de senha*/ }  
+>>>>>>> 844c3a3be042faf0ea318af045a949260b8afdd0:src/app/(auth)/emailSent.jsx
     </View>
   );
 }

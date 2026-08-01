@@ -11,7 +11,7 @@ export default function Login() {
 
       <Button
         title="Não tem conta? Cadastre-se"
-        onPress={() => roteador.push("autenticacao/cadastro")}
+        onPress={() => roteador.push("/cadastro")}
       />
       <Button
         title="ir para tela inicial"
@@ -20,7 +20,7 @@ export default function Login() {
 
       <Button
     titulo="Esqueci minha senha"
-    onPress={() => roteador.push("/autenticacao/forgotPassword")}
+    onPress={() => roteador.push("/forgotPassword")}
 />
     </View>
   );
