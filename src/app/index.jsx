@@ -13,10 +13,3 @@ export default function Index() {
 
   return null;
 }
-
-/*import TestComponents from "./testcomponents";
-
-export default function Index() {
-  return <TestComponents />;
-}
-*/

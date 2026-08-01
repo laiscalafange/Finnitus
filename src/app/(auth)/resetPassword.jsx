@@ -52,7 +52,7 @@ export default function RecuperarSenha() {
       <Button
         variante="primario"
         titulo="Enviar"
-        onPress={() => roteador.push("/autenticacao/verifyEmail")} // navegação para digitar codigo de redefinição de senha
+        onPress={() => roteador.push("/verifyEmail")} // navegação para digitar codigo de redefinição de senha
       />
     </View>
   );
