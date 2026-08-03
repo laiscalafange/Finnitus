@@ -19,6 +19,8 @@ export function Avatar({ image, name, size = 48 }: AvatarProps) {
     width: size,
     height: size,
     borderRadius: size / 2,
+    borderWidth: 10,
+    borderColor: "#0B0B0F",
   };
 
   if (image) {
