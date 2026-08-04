@@ -59,7 +59,7 @@ export default function RootLayout() {
 
       {/* Tela de onboarding */}
       <Stack.Screen
-        name="onboarding/BemVindo"
+        name="/onboarding/BemVindo"
         options={{
           headerShown: false,
         }}

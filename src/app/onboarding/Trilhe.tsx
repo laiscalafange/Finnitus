@@ -12,23 +12,26 @@ return (
       <BackgroundGradient />
 
       <View style={styles.content}>
-        <Text style={styles.title}>
-          Seja
-        </Text>
         <Text style={styles.title2}>
-          bem-vindo
+          Trilhe{" "} 
+          <Text style={styles.title}>
+          seu
+          </Text>
         </Text>
         <Text style={styles.title}>
-          ao Finnitus
+         caminho
+        </Text>
+        <Text style={styles.title}>
+          conosco
         </Text>
 
         <Text style={styles.subtitle}>
-          Comece aqui a
+          Dê inicio a sua
         </Text>
         <Text style={styles.subtitle}>
-         sua jornada
+         gestão
         </Text>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
           financeira
         </Text>
       </View>
@@ -37,7 +40,7 @@ return (
         <Button
                 variante="primario"
                 titulo="Continuar"
-                onPress={() => roteador.push("/Trilhe")}
+                onPress={() => roteador.push("/")}
               />
               
         <Button
