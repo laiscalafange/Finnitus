@@ -8,7 +8,7 @@ export default function Index() {
 
   useEffect(() => {
     //joga o usuário para a tela de login assim que ele abrir o app
-    router.replace("onboarding/BemVindo");
+    router.replace("/onboarding/Trilhe");
   }, []);
 
   return null;
