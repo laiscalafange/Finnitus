@@ -20,13 +20,13 @@ export const styles = StyleSheet.create({
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 28,
+    fontSize: 46,
     color: Cores.base.branco,
     marginBottom: 8,
   },
   tituloDestaque: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 28,
+    fontSize: 46,
     color: Cores.destaque.limao,
     textDecorationLine: 'underline',
     textDecorationColor: Cores.roxo.claro,
