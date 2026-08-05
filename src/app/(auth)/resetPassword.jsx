@@ -14,12 +14,12 @@ export default function RecuperarSenha() {
   const [confirmarSenha, setConfirmarSenha] = useState('');
 
   function trocarSenha() {
-  if (senha !== confirmarSenha) {
+  if (senha === "" || senha !== confirmarSenha) {
     alert("As senhas não coincidem.");
     return;
   }
 
-  roteador.push("/configuracaoInicial/FinancialData");
+  roteador.push("/configuracaoInicial/FinancialData"); // trocar dps para
 }
 
   return (
