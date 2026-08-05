@@ -11,7 +11,7 @@ export default function EmailSent() {
   useEffect(() => {
   const timer = setTimeout(() => {
     router.replace("/resetPassword");
-  }, 5000);
+  }, 3000);
 
   return () => clearTimeout(timer);
 }, []);
@@ -33,11 +33,7 @@ export default function EmailSent() {
         </Text>
       </View>
 
-      <Button
-        variante="primario"
-        titulo="Ok!"
-        onPress={() => router.push("/resetPassword")}
-      />
+     
     </View>
   );
 }
