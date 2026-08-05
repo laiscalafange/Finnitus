@@ -11,6 +11,16 @@ export default function RecuperarSenha() {
   const roteador = useRouter();
 
   const [senha, setSenha] = useState('');
+  const [confirmarSenha, setConfirmarSenha] = useState('');
+
+  function trocarSenha() {
+  if (senha !== confirmarSenha) {
+    alert("As senhas não coincidem.");
+    return;
+  }
+
+  roteador.push("/configuracaoInicial/FinancialData");
+}
 
   return (
     <View style={styles.container}>
@@ -31,9 +41,9 @@ export default function RecuperarSenha() {
       source={require("../../../assets/icones/password.png")}
       style={styles.iconeInput}
     />}
-          value={senha}
-          onChangeText={setSenha}
-          keyboardType="password"
+          secureTextEntry
+  value={senha}
+  onChangeText={setSenha}
         />
 
         <Input
@@ -43,17 +53,17 @@ export default function RecuperarSenha() {
       source={require("../../../assets/icones/password.png")}
       style={styles.iconeInput}
     />}
-          value={senha}
-          onChangeText={setSenha}
-          keyboardType="password"
+          secureTextEntry
+          value={confirmarSenha}
+          onChangeText={setConfirmarSenha}
         />
       </View>
 
       <Button
-        variante="primario"
-        titulo="Enviar"
-        onPress={() => roteador.push("/verifyEmail")} // navegação para digitar codigo de redefinição de senha
-      />
+  variante="primario"
+  titulo="Enviar"
+  onPress={trocarSenha}
+/>
     </View>
   );
 }
