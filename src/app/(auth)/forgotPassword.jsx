@@ -4,12 +4,12 @@ import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/forgotPasswordStyles";
 import { useState } from 'react';
-import { router } from "expo-router";
+//import { router } from "expo-router";
 
-router.push({
+/*router.push({
   pathname: "/verificacao-email",
   params: { email: "usuario@gmail.com" },
-});
+});*/
 
 
 
@@ -36,7 +36,10 @@ export default function forgotPassword() {
           placeholder="Email"
           icone={<Image
       source={require("../../../assets/icones/email.png")}
-      style={styles.iconeInput}
+      style={{
+    width: 40,
+    height: 40,
+  }}
     />}
           value={email}
           onChangeText={setEmail}

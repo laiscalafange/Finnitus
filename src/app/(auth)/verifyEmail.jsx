@@ -24,7 +24,7 @@ export default function VerificacaoEmail() {
     try {
       // await validarCodigo(email, codigo);
       setErro(false);
-      router.push("/proxima-tela");
+      router.push("/proxima-tela"); // navegação para a próxima tela após validação bem-sucedida
     } catch {
       setErro(true);
     } finally {
