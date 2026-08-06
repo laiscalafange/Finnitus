@@ -10,11 +10,11 @@ export default function Login() {
       <Text>login</Text>
 
       <Button
-        title="Não tem conta? Cadastre-se"
+        titulo="Não tem conta? Cadastre-se"
         onPress={() => roteador.push("/cadastro")}
       />
       <Button
-        title="ir para tela inicial"
+        titulo="ir para tela inicial"
         onPress={() => roteador.push("/paginaInicial")}
       />
 
