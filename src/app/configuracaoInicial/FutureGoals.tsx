@@ -5,6 +5,8 @@ import { Wand2, Plane, Car, Home, CreditCard, Wrench, Plus } from "lucide-react-
 import { SelectCard } from "../../shared/components/SelectCard";
 import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/FutureGoalsStyles";
+import { useRouter } from "expo-router";
+
 
 const OPTIONS = [
   { id: "emergencia", label: "Fundo de emergência", icon: Wand2 },
@@ -18,6 +20,7 @@ const OPTIONS = [
 
 export default function MetasFuturas() {
   const [selecionados, setSelecionados] = useState<string[]>([]);
+  const roteador = useRouter();
 
   function toggle(id: string) {
     setSelecionados((prev) =>
@@ -69,11 +72,16 @@ export default function MetasFuturas() {
       </ScrollView>
 
       <View style={styles.botao}>
-  <Button
+  {/*<Button
     variante="primario"
     titulo="Confirmar"
     onPress={() => console.log(selecionados)}
-  />
+  />*/}
+  <Button
+    variante="primario"
+    titulo="Confirmar"
+    onPress={() => roteador.push("/configuracaoInicial/FutureVision")}
+    />
 </View>
 
     </View>
