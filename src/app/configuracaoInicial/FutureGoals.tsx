@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, ScrollView, Text } from "react-native";
 import { Wand2, Plane, Car, Home, CreditCard, Wrench, Plus } from "lucide-react-native";
-
+import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { SelectCard } from "../../shared/components/SelectCard";
 import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/FutureGoalsStyles";
@@ -31,6 +31,9 @@ export default function MetasFuturas() {
   }
 
   return (
+    <View style={{ flex: 1 }}>
+          <BackgroundGradient />
+
     <View style={styles.container}>
 
       {/* Cabeçalho */}
@@ -84,6 +87,7 @@ export default function MetasFuturas() {
     />
 </View>
 
+    </View>
     </View>
   );
 }

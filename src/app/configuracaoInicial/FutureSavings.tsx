@@ -5,10 +5,10 @@ import { Button } from "../../shared/components/Button";
 // deixei o mesmo por que o estilo é o mesmo da página de esqueci minha senha
 import { styles } from "../../styles/forgotPasswordStyles";
 import { useState } from 'react';
+import { BackgroundGradient } from "../../shared/components/backgroundGradient";
+import { JSX } from "react";
 
-
-
-export default function DadosFinanceiros() {
+export default function DadosFinanceiros(): JSX.Element {
   const roteador = useRouter();
 
   const [economiaFutura, setEconomiaFutura] = useState(0);//ou "0"?
@@ -16,9 +16,10 @@ export default function DadosFinanceiros() {
 
 
   return (
-    <View style={styles.container}>
-  
+    <View style={{ flex: 1 }}>
+      <BackgroundGradient />
 
+    <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.titulo}>
           <Text style={styles.tituloDestaque}>Economia</Text> futura
@@ -35,9 +36,9 @@ export default function DadosFinanceiros() {
       source={require("../../../assets/icones/economia.png")}
       style={styles.iconeInput}
     />}
-          value={economiaFutura}
-          onChangeText={setEconomiaFutura}
-          keyboardType="numeric"
+          value={economiaFutura.toString()}
+  onChangeText={(text) => setEconomiaFutura(Number(text))}
+  keyboardType="numeric"
         />
 
         <Input
@@ -47,8 +48,8 @@ export default function DadosFinanceiros() {
       source={require("../../../assets/icones/calendar.png")}
       style={styles.iconeInput}
     />}
-          value={tempo}
-          onChangeText={setTempo}
+          value={tempo.toString()}
+          onChangeText={(text) => setTempo(Number(text))}
           keyboardType="numeric" // "calendar" ou "numeric"?
         />
       </View>
@@ -58,6 +59,7 @@ export default function DadosFinanceiros() {
         titulo="Confirmar"
         onPress={() => roteador.push("/configuracaoInicial/FutureGoals")} // navegação para terceira página do onboarding financeiro
       />
+    </View>
     </View>
   );
 }

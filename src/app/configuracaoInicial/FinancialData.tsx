@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { Text, View, Image } from "react-native";
-
+import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/forgotPasswordStyles";
@@ -13,6 +13,9 @@ export default function DadosFinanceiros() {
   const [despesas, setDespesas] = useState<string>("");
 
   return (
+    <View style={{ flex: 1 }}>
+      <BackgroundGradient />
+
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.titulo}>
@@ -62,6 +65,7 @@ export default function DadosFinanceiros() {
           roteador.push("/configuracaoInicial/FutureSavings")
         }
       />
+    </View>
     </View>
   );
 }
