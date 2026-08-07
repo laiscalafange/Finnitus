@@ -4,12 +4,16 @@ import Svg, {Defs, RadialGradient, Stop, Rect,} from "react-native-svg";
 export function BackgroundGradient() {
   return (
     <Svg
-      width="100%"
-      height="100%"
-      style={{
-        position: "absolute",
-      }}
-    >
+  width="100%"
+  height="100%"
+  style={{
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  }}
+>
       <Defs>
 
         <RadialGradient
