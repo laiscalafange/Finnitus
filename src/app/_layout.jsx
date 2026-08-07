@@ -66,11 +66,11 @@ export default function RootLayout() {
   registrá-las individualmente neste Stack principal.
 */}
       <Stack.Screen
-  name="onboarding"
-  options={{
-    headerShown: false,
-  }}
-/>
+        name="onboarding"
+        options={{
+          headerShown: false,
+        }}
+      />
 
       {/* Grupo de autenticação */}
       <Stack.Screen

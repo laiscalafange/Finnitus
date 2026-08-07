@@ -16,6 +16,15 @@ export const styles = StyleSheet.create({
   left: 10,
 },
 
+ content2: {
+  flex: 1,
+  zIndex: 1,
+  position: "absolute",
+  padding: 24,
+  top: 220,
+  left: 10,
+},
+
  conteiner: {
   position: "absolute",
   bottom: 50,
@@ -27,20 +36,28 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.raleway.bold,
     fontSize: RFValue(50),
     color: Cores.base.branco,
-    marginBottom: -7,
+    marginBottom: -15,
   },
   title2: {
     fontFamily: FONTS.raleway.bold,
     fontSize: RFValue(50),
     color: Cores.destaque.limao,
-    marginBottom: -7,
+    marginBottom: -5,
   },
 
   subtitle: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: RFValue(25),
-    color: Cores.destaque.limao,
-    marginBottom: -20,
+    color: Cores.base.branco,
+    marginBottom: -5,
   },
+  subtitle2: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: RFValue(25),
+    color: Cores.roxo.principal,
+    marginBottom: -5,
+  },
+
+  
 
 });
