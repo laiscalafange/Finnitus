@@ -1,6 +1,7 @@
 import React from "react";
-import {View,Text,StyleSheet,TouchableOpacity,} from "react-native";
+import {View,Text,StyleSheet,TouchableOpacity,Image} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { FONTS } from "../../../shared/constants/Tipografia";
 
 export function HeaderPerfil() {
   return (
@@ -21,12 +22,18 @@ export function HeaderPerfil() {
 
         {/* Premium */}
         <TouchableOpacity>
-          <Text style={styles.coroa}>👑</Text>
+         <Image
+          source={require("../../../../assets/icones/coroa.png")}
+          style={styles.coroa}
+          />
         </TouchableOpacity>
 
         {/* Sino */}
         <TouchableOpacity>
-          <Text style={styles.sino}>🔔</Text>
+         <Image
+          source={require("../../../../assets/icones/sino.png")}
+          style={styles.coroa}
+          />
         </TouchableOpacity>
 
       </View>
@@ -53,14 +60,14 @@ const styles = StyleSheet.create({
 
   titulo: {
     color: "#B7FF00",
-    fontSize: 25,
-    fontWeight: "bold",
+    fontSize: 27,
+    fontFamily: FONTS.raleway.bold,
   },
 
   subtitulo: {
     color: "#B7FF00",
-    fontSize: 10,
-    fontWeight: "bold",
+    fontSize: 12,
+    fontFamily: FONTS.raleway.regular,
     marginTop: -2,
   },
 
@@ -72,10 +79,14 @@ const styles = StyleSheet.create({
   },
 
   sino: {
-    fontSize: 18,
+     width: 24,
+     height: 24,
+     resizeMode: "contain",
   },
 
   coroa: {
-    fontSize: 22,
+     width: 24,
+     height: 24,
+     resizeMode: "contain",
   },
 });

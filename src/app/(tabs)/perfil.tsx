@@ -1,17 +1,18 @@
-import {View,Text,StyleSheet,TouchableOpacity,ScrollView,} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
 import { HeaderPerfil } from "../../shared/components/Header";
 import { Avatar } from "../../shared/components/Avatar";
 import { Card } from "../../shared/components/Cards";
 import { LinearGradient } from "expo-linear-gradient";
+import { FONTS } from "../../shared/constants/Tipografia";
 
 export default function Perfil() {
   return (
     <LinearGradient
-    colors={["#160B24", "#08070A", "#160B24"]}
-    start={{ x: 0, y: 0 }}
-    end={{ x: 1, y: 1 }}
-    style={styles.container}
->
+      colors={["#160B24", "#08070A", "#160B24"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
@@ -46,9 +47,17 @@ export default function Perfil() {
             gradiente={["#712edc", "#281542"]}
             style={styles.cardPremium}
           >
-            <Text style={styles.premiumTitulo}>
-              👑 Seja <Text style={styles.premiumVerde}>PREMIUM</Text>
-            </Text>
+
+            <View style={styles.premiumTituloContainer}>
+                <Image
+                  source={require("../../../assets/icones/coroa.png")}
+                  style={styles.coroa}
+                />
+
+              <Text style={styles.premiumTitulo}>
+                Seja <Text style={styles.premiumVerde}>PREMIUM</Text>
+              </Text>
+            </View>
 
             <Text style={styles.premiumTexto}>
               Desbloqueie recursos exclusivos e{"\n"}
@@ -73,9 +82,10 @@ export default function Perfil() {
                 Editar conta
               </Text>
 
-              <Text style={styles.iconeCard}>
-                ⚙
-              </Text>
+              <Image
+                source={require("../../../assets/icones/EngrenagemPerfil.png")}
+                style={styles.EngrenagemPerfil}
+              />
             </Card>
 
             <Card
@@ -87,9 +97,10 @@ export default function Perfil() {
                 bancários
               </Text>
 
-              <Text style={styles.iconeCard}>
-                👤
-              </Text>
+              <Image
+                source={require("../../../assets/icones/BonecoPerfil.png")}
+                style={styles.BonecoPerfil}
+              />
             </Card>
 
           </View>
@@ -99,18 +110,23 @@ export default function Perfil() {
             gradiente={["#712edc", "#281542"]}
             style={styles.cardConfiguracoes}
           >
-
             <Text style={styles.tituloSecao}>
               Configurações
             </Text>
 
             <TouchableOpacity style={styles.item}>
-              <Text style={styles.itemIcone}>⚙</Text>
+              <Image
+                source={require("../../../assets/icones/Configurar.png")}
+                style={styles.itemIcone}
+              />
               <Text style={styles.itemTexto}>Configurar</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.item}>
-              <Text style={styles.itemIcone}>🛡</Text>
+              <Image
+                source={require("../../../assets/icones/Segurança.png")}
+                style={styles.itemIcone}
+              />
               <Text style={styles.itemTexto}>Segurança</Text>
             </TouchableOpacity>
 
@@ -119,24 +135,31 @@ export default function Perfil() {
             </Text>
 
             <TouchableOpacity style={styles.item}>
-              <Text style={styles.itemIcone}>☎</Text>
+              <Image
+                source={require("../../../assets/icones/Telefone.png")}
+                style={styles.itemIcone}
+              />
               <Text style={styles.itemTexto}>Contate-nos</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.item}>
-              <Text style={styles.itemIcone}>ⓘ</Text>
+              <Image
+                source={require("../../../assets/icones/Ajuda.png")}
+                style={styles.itemIcone}
+              />
               <Text style={styles.itemTexto}>Ajuda</Text>
             </TouchableOpacity>
-
           </Card>
 
         </View>
 
       </ScrollView>
 
-    </LinearGradient>
+    </LinearGradient >
   );
 }
+
+//CSS
 
 const styles = StyleSheet.create({
 
@@ -157,13 +180,14 @@ const styles = StyleSheet.create({
     marginTop: 0,
     color: "#A84FFF",
     fontSize: 25,
-    fontWeight: "bold",
+    fontFamily: FONTS.raleway.bold,
   },
 
   usuario: {
     marginTop: 2,
     color: "#7136A8",
     fontSize: 12,
+    fontFamily: FONTS.raleway.regular
   },
 
   /* ESPAÇO DOS CARDS */
@@ -174,8 +198,13 @@ const styles = StyleSheet.create({
 
   /* PREMIUM */
 
+  premiumTituloContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
   cardPremium: {
-    marginTop: 25,
+    marginTop: 20,
     padding: 12,
     borderRadius: 6,
   },
@@ -183,7 +212,14 @@ const styles = StyleSheet.create({
   premiumTitulo: {
     color: "#A84FFF",
     fontSize: 19,
-    fontWeight: "bold",
+    fontFamily: FONTS.raleway.bold,
+  },
+
+  coroa: {
+    width: 35,
+    height: 35,
+    marginRight: 10,
+    resizeMode: "contain",
   },
 
   premiumVerde: {
@@ -194,22 +230,22 @@ const styles = StyleSheet.create({
     color: "#A84FFF",
     fontSize: 13,
     marginTop: 3,
+    fontFamily: FONTS.raleway.regular,
   },
 
   botaoPremium: {
     height: 32,
     backgroundColor: "#8739E8",
     borderRadius: 20,
-
     alignItems: "center",
     justifyContent: "center",
-
     marginTop: 8,
   },
 
   botaoTexto: {
     color: "#B8FF00",
     fontSize: 18,
+    fontFamily: FONTS.raleway.regular,
   },
 
   /* CARDS DE EDIÇÃO */
@@ -223,20 +259,29 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 172,
     padding: 8,
+    paddingRight: 0,
     borderRadius: 6,
   },
 
   cardTitulo: {
     color: "#A84FFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: FONTS.raleway.bold,
   },
 
-  iconeCard: {
-    color: "#7B32E5",
-    fontSize: 75,
-    textAlign: "right",
+  EngrenagemPerfil: {
+    width: 130,
+    height: 130,
+    resizeMode: "contain",
+    alignSelf: "flex-end",
     marginTop: 5,
+  },
+
+  BonecoPerfil: {
+    width: 70,
+    height: 105,
+    resizeMode: "contain",
+    alignSelf: "flex-end",
   },
 
   /* CONFIGURAÇÕES */
@@ -250,7 +295,7 @@ const styles = StyleSheet.create({
   tituloSecao: {
     color: "#A84FFF",
     fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: FONTS.raleway.bold,
     marginBottom: 8,
   },
 
@@ -261,14 +306,16 @@ const styles = StyleSheet.create({
   },
 
   itemIcone: {
-    color: "#C58AFF",
-    fontSize: 18,
-    width: 32,
+    width: 22,
+    height: 22,
+    resizeMode: "contain",
+    marginRight: 10,
   },
 
   itemTexto: {
     color: "#A84FFF",
     fontSize: 15,
+    fontFamily: FONTS.raleway.regular,
   },
 
 });

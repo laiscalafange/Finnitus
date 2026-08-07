@@ -59,7 +59,12 @@ export default function RootLayout() {
         }}
       />
 
-      {/* Tela de onboarding */}
+      {/* 
+  Registra o grupo de rotas de onboarding.
+  As telas internas (BemVindo e Trilhe) são gerenciadas pelo
+  arquivo app/onboarding/_layout.jsx, portanto não é necessário
+  registrá-las individualmente neste Stack principal.
+*/}
       <Stack.Screen
         name="onboarding"
         options={{

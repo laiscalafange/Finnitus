@@ -1,10 +1,20 @@
-import { Text, View, Image } from 'react-native';
-import { Button } from "../../shared/components/Button";
-import { styles } from "../../styles/emailSentStyles";
+import { useEffect } from "react";
+import { Text, View, Image } from "react-native";
 import { useRouter } from "expo-router";
 
+import { Button } from "../../shared/components/Button";
+import { styles } from "../../styles/emailSentStyles";
+
 export default function EmailSent() {
-  const roteador = useRouter();
+  const router = useRouter();
+
+  useEffect(() => {
+  const timer = setTimeout(() => {
+    router.replace("/resetPassword");
+  }, 3000);
+
+  return () => clearTimeout(timer);
+}, []);
 
   return (
     <View style={styles.container}>
@@ -19,15 +29,11 @@ export default function EmailSent() {
         </Text>
 
         <Text style={styles.subtitulo}>
-          Verifique seu email para redefinir sua senha
+          Verifique seu email para redefinir sua senha.
         </Text>
       </View>
 
-      <Button
-        variante="primario"
-        titulo="Ok!"
-        onPress={() => roteador.push("/resetPassword")} // navegação para mudar senha
-      /> {/*daria para fazer com que essa página ficasse uns 5segundos na tela e redirecionasse para a página de troca de senha*/ }  
+     
     </View>
   );
 }

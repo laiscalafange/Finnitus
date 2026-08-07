@@ -1,28 +1,23 @@
+import { JSX, useState } from "react";
 import { useRouter } from "expo-router";
-import { Text, View, StyleSheet, Image } from "react-native";
+import { Text, View, Image } from "react-native";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
+import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { styles } from "../../styles/forgotPasswordStyles";
-import { useState } from 'react';
-import { router } from "expo-router";
 
-router.push({
-  pathname: "/verificacao-email",
-  params: { email: "usuario@gmail.com" },
-});
-
-
-
-export default function forgotPassword() {
+export default function ForgotPassword(): JSX.Element {
   const roteador = useRouter();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState<string>("");
 
   return (
-    <View style={styles.container}>
-  
+   <View style={{ flex: 1 }}>
+      <BackgroundGradient />
 
-      <View style={styles.content}>
+
+      <View style={styles.container}>
+  <View style={styles.content}>
         <Text style={styles.titulo}>
           <Text style={styles.tituloDestaque}>Troca</Text> de senha
         </Text>
@@ -34,10 +29,12 @@ export default function forgotPassword() {
         <Input
           label="Email"
           placeholder="Email"
-          icone={<Image
-      source={require("../../../assets/icones/email.png")}
-      style={styles.iconeInput}
-    />}
+          icone={
+            <Image
+  source={require("../../../assets/icones/email.png")}
+  style={styles.iconeInput}
+/>
+          }
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -47,8 +44,9 @@ export default function forgotPassword() {
       <Button
         variante="primario"
         titulo="Enviar"
-        onPress={() => roteador.push("/emailSent")} // navegação para a página de email enviado
+        onPress={() => roteador.push("/emailSent")}
       />
-    </View>
+   </View>
+   </View>
   );
 }

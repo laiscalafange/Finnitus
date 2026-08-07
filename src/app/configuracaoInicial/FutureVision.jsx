@@ -1,19 +1,15 @@
 import { useRouter } from "expo-router";
 import { Text, View, StyleSheet, Image } from "react-native";
-import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 // deixei o mesmo por que o estilo é o mesmo da página de esqueci minha senha
-import { styles } from "../../styles/forgotPasswordStyles";
+import { styles } from "../../styles/FutureVisionStyles";
 import { useState } from 'react';
+import { Benefit } from "../../shared/components/Benefit/Benefit";
 
 
 
 export default function FutureVision() {
   const roteador = useRouter();
-
-  const [economiaFutura, setEconomiaFutura] = useState(0);//ou "0"?
-  const [tempo, setTempo] = useState(0);
-
 
   return (
     <View style={styles.container}>
@@ -21,43 +17,39 @@ export default function FutureVision() {
 
       <View style={styles.content}>
         <Text style={styles.titulo}>
-          <Text style={styles.tituloDestaque}>Economia</Text> futura
+          <Text style={styles.tituloDestaque}>Visão</Text> de futuro
         </Text>
 
         <Text style={styles.subtitulo}>
-          Fundos de emergência são essenciais para lidar com imprevistos financeiros. Vamos calcular quanto você precisa economizar para ter uma reserva financeira adequada.
+          Resultados futuros
         </Text>
 
-        <Input
-          label="economia futura"
-          placeholder="Quanto quer economizar?"
-          icone={<Image
-      source={require("../../../assets/icones/economia.png")}
-      style={styles.iconeInput}
-    />}
-          value={economiaFutura}
-          onChangeText={setEconomiaFutura}
-          keyboardType="numeric"
-        />
+        <View style={styles.cards}>
+          <Benefit
+            icon="💲"
+            title="Controle seus gastos"
+            description="Registre despesas e entenda para onde seu dinheiro vai"
+          />
 
-        <Input
-          label="Tempo estimado"
-          placeholder="Por quanto tempo deseja economizar?"
-          icone={<Image
-      source={require("../../../assets/icones/calendar.png")}
-      style={styles.iconeInput}
-    />}
-          value={tempo}
-          onChangeText={setTempo}
-          keyboardType="numeric" // "calendar" ou "numeric"?
-        />
+          <Benefit
+            icon="💸"
+            title="Decisões financeiras melhores"
+            description="Escolhas mais seguras para seu futuro"
+          />
+
+          <Benefit
+            icon="💰"
+            title="Crie o hábito de poupar"
+            description="Dicas práticas para guardar dinheiro no dia a dia"
+          />
       </View>
+      
 
       <Button
-        variante="primario"
-        titulo="Confirmar"
-        onPress={() => roteador.push("/configuracaoInicial/FutureVision")} // navegação para terceira página do onboarding financeiro
+        titulo="Começar jornada"
+        onPress={() => roteador.push("/proximaTela")}
       />
     </View>
+      </View> 
   );
-}
+} 
