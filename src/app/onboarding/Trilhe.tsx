@@ -1,8 +1,9 @@
 import { View, Text } from "react-native";
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
-import { styles } from "../../styles/bemVindoStyle";
+import { styles } from "../../styles/TrilheStyles";
 import { useRouter } from "expo-router";
 import { Button } from "../../shared/components/Button";
+import { Underline } from "../../shared/components/underline";
 
 export default function Trilhe() {
 const roteador = useRouter();
@@ -12,19 +13,26 @@ return (
       <BackgroundGradient />
 
       <View style={styles.content}>
-        <Text style={styles.title2}>
-          Trilhe{" "} 
+       <View style={styles.linha}>
+         <View>
+            <Text style={styles.title2}>
+              Trilhe
+            </Text>
+          <Underline width={85} />
+          </View>
           <Text style={styles.title}>
-          seu
-          </Text>
-        </Text>
+              seu
+            </Text>
+      </View>
         <Text style={styles.title}>
          caminho
         </Text>
         <Text style={styles.title}>
           conosco
         </Text>
+      </View>
 
+      <View style={styles.content2}>
         <Text style={styles.subtitle}>
           Dê inicio a sua
         </Text>
@@ -32,7 +40,7 @@ return (
          gestão
         </Text>
         <Text style={styles.subtitle}>
-          financeira
+          financeira.
         </Text>
       </View>
 
@@ -40,7 +48,7 @@ return (
         <Button
                 variante="primario"
                 titulo="Continuar"
-                onPress={() => roteador.push("/")}
+                onPress={() => roteador.push("/onboarding/Conheca")}
               />
               
         <Button

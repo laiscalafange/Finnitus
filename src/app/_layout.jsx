@@ -61,14 +61,7 @@ export default function RootLayout() {
 
       {/* Tela de onboarding */}
       <Stack.Screen
-        name="/onboarding/BemVindo"
-        options={{
-          headerShown: false,
-        }}
-      />
-
-      <Stack.Screen
-        name="/onboarding/Trilhe"
+        name="onboarding"
         options={{
           headerShown: false,
         }}

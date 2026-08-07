@@ -21,7 +21,9 @@ return (
         <Text style={styles.title}>
           ao Finnitus
         </Text>
+        </View>
 
+      <View style={styles.content2}>
         <Text style={styles.subtitle}>
           Comece aqui a
         </Text>
@@ -29,7 +31,7 @@ return (
          sua jornada
         </Text>
         <Text style={styles.subtitle2}>
-          financeira
+          financeira.
         </Text>
       </View>
 
