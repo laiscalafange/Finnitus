@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
   outline: {
     backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: "#7E3BED",
+    borderColor: "#7e3bed",
   },
 
   // Cores do texto
