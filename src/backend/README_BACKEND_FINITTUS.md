@@ -189,7 +189,7 @@ Não é necessário criar as tabelas manualmente quando o projeto estiver utiliz
 
 # 8. Arquivo `.env`
 
-Na raiz do backend:
+Na raiz do backend, crie:
 
 ```text
 src/backend/.env
@@ -198,7 +198,7 @@ src/backend/.env
 criar:
 
 ```env
-DATABASE_URL="mysql://root:@localhost:3307/finitus_test"
+abra o arquivo .env.example e copie e altere com as informações certas no .env
 ```
 
 A estrutura da URL é:
