@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     height: 50,
-    marginBottom: 10,
+    marginBottom: 20,
   },
 
   // Texto padrão
@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
   outline: {
     backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: "#7E3BED",
+    borderColor: "#7e3bed",
   },
 
   // Cores do texto
