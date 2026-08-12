@@ -16,14 +16,14 @@ Legenda: ✅ concluído · 🔵 em andamento · ⬜ a fazer
 - Rota `GET /health`
 - Script `npm run dev` funcionando
 
-## Fase 2 — Estrutura de pastas 🔵 (concluindo agora)
+## Fase 2 — Estrutura de pastas ✅
 - `routes/` + `controllers/` (feito, com `/health` como exemplo)
 - ⬜ `config/` — validação centralizada das variáveis de `.env` (evita `process.env` espalhado pelo código)
 - ⬜ `lib/prisma.ts` — instância única do Prisma Client (evitar criar uma conexão nova em cada arquivo)
 - ⬜ `middlewares/` — pasta criada (vazia por enquanto, vai receber tratamento de erro e depois autenticação)
 - ⬜ `services/` — pasta criada (vazia por enquanto, vai receber a lógica de negócio)
 
-## Fase 3 — Prisma: modelo `User` ⬜
+## Fase 3 — Prisma: modelo `User` ✅
 - Definir `User` no `schema.prisma` (id, name, email único, password, createdAt, updatedAt)
 - Rodar `npx prisma migrate dev --name create_user`
 - Conferir a tabela criada no phpMyAdmin
