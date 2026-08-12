@@ -3,7 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { FONTS } from "../../constants/Tipografia";
 
-export function HeaderNotificacao() {
+export interface HeaderInternoProps {
+  titulo: string;
+  subtitulo: string;
+}
+
+export function HeaderInterno({
+  titulo,
+  subtitulo,
+}: HeaderInternoProps) {
   return (
     <LinearGradient
       colors={["#8f4df9", "#863fdc", "#160B24"]}
@@ -14,8 +22,8 @@ export function HeaderNotificacao() {
     >
       {/* Título */}
       <View>
-        <Text style={styles.titulo}>Notificação</Text>
-        <Text style={styles.subtitulo}>Detalhes</Text>
+        <Text style={styles.titulo}>{titulo}</Text>
+        <Text style={styles.subtitulo}>{subtitulo}</Text>
       </View>
 
       {/* Ícones */}
@@ -23,14 +31,14 @@ export function HeaderNotificacao() {
         <TouchableOpacity>
           <Image
             source={require("../../../../assets/icones/coroa.png")}
-            style={styles.coroa}
+            style={styles.icone}
           />
         </TouchableOpacity>
 
         <TouchableOpacity>
           <Image
             source={require("../../../../assets/icones/sino.png")}
-            style={styles.coroa}
+            style={styles.icone}
           />
         </TouchableOpacity>
       </View>
@@ -75,13 +83,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
 
-  sino: {
-    width: 24,
-    height: 24,
-    resizeMode: "contain",
-  },
-
-  coroa: {
+  icone: {
     width: 24,
     height: 24,
     resizeMode: "contain",

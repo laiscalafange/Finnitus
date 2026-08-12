@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { HeaderNotificacao } from "../../shared/components/Header";
+import { HeaderInterno } from "../../shared/components/Header";
 import { CardNotificacao, TipoNotificacao } from "../../shared/components/CardsNotificacoes";
 import { Cores } from "../../shared/constants/Cores";
 import { FONTS } from "../../shared/constants/Tipografia";
@@ -51,7 +51,9 @@ export default function Notificacoes() {
             >
 
                 {/* Cabeçalho */}
-                <HeaderNotificacao />
+                <HeaderInterno
+                titulo="Notificações"
+                subtitulo="Detalhes" />
 
                 {/* Lista de notificações */}
                 <View style={styles.conteudoLista}>

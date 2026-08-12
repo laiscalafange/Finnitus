@@ -10,6 +10,7 @@ export function Button({
   onPress,
 }: ButtonProps) {
   const isPrimario = variante === "primario";
+  const isSecundario = variante === "secundario";
 
   return (
     <Pressable
@@ -22,7 +23,9 @@ export function Button({
         colors={
           isPrimario
             ? ["#482287", "#7E3BED"]
-            : ["transparent", "transparent"]
+            : isSecundario
+              ? ["#6931c5", "#482287"]
+              : ["transparent", "transparent"]
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}

@@ -12,10 +12,11 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { HeaderPremium } from "../../shared/components/Header";
+import { HeaderInterno } from "../../shared/components/Header";
 import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Cores } from "../../shared/constants/Cores";
 import { FONTS } from "../../shared/constants/Tipografia";
+import { Button } from "../../shared/components/Button";
 
 // Formato de cada plano exibido no carrossel
 interface Plano {
@@ -97,7 +98,10 @@ export default function Premium() {
       style={styles.fundo}
     >
       <SafeAreaView style={styles.safe}>
-        <HeaderPremium/>
+        <HeaderInterno
+          titulo="Seja Premium!"
+          subtitulo="Detalhes"
+        />
 
         {/* Seletor de plano */}
         <View style={styles.abas}>
@@ -166,8 +170,12 @@ export default function Premium() {
                     </View>
                   ))}
 
-                  <TouchableOpacity style={styles.botao} activeOpacity={0.8}>
-                    <Text style={styles.botaoTexto}>Obter agora</Text>
+                  <TouchableOpacity>
+                    <Button
+                      titulo="Obter Agora"
+                      variante="terciario"
+                      onPress={() => { }}
+                    />
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => router.back()}>
@@ -312,20 +320,6 @@ const styles = StyleSheet.create({
     color: Cores.base.branco,
   },
 
-  botao: {
-    marginTop: 8,
-    borderWidth: 1.5,
-    borderColor: Cores.destaque.limao,
-    borderRadius: 5,
-    paddingVertical: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  botaoTexto: {
-    fontFamily: FONTS.quicksand.bold,
-    fontSize: 20,
-    color: Cores.destaque.limao,
-  },
   naoObrigado: {
     textAlign: "center",
     fontFamily: FONTS.quicksand.regular,
