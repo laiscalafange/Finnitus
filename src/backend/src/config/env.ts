@@ -28,4 +28,7 @@ export const env = {
   DATABASE_USER: getEnvVarOptional("DATABASE_USER", "root"),
   DATABASE_PASSWORD: getEnvVarOptional("DATABASE_PASSWORD", ""),
   DATABASE_NAME: getEnvVar("DATABASE_NAME"),
+
+    JWT_SECRET: getEnvVar("JWT_SECRET"),
+    JWT_EXPIRES_IN: getEnvVarOptional("JWT_EXPIRES_IN", "7d"),
 };
