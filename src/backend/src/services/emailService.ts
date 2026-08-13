@@ -1,37 +1,39 @@
 import nodemailer from "nodemailer";
+import type { Transporter } from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+import { env } from "../config/env.js";
 
-// função para enviar o código de recuperação de senha por email
-export async function enviarCodigoPorEmail(
-  email: string,
-  codigo: string
-) {
-  await transporter.sendMail({
-    from: `"Finnitus" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Código de recuperação de senha - Finnitus",
-    text: `
-Olá!
+let transporter: Transporter | null = null;
 
-Recebemos uma solicitação para alterar a senha da sua conta Finnitus.
+function getTransporter(): Transporter {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: env.EMAIL_HOST,
+      port: env.EMAIL_PORT,
+      secure: env.EMAIL_SECURE,
+      auth: {
+        user: env.EMAIL_USER,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+  }
 
-Seu código de recuperação é:
+  return transporter;
+}
 
-${codigo}
+interface SendEmailParams {
+  to: string;
+  subject: string;
+  html: string;
+}
 
-Esse código é válido por 10 minutos.
+export async function sendEmail({ to, subject, html }: SendEmailParams): Promise<void> {
+  const activeTransporter = getTransporter();
 
-Se você não solicitou a alteração da senha, ignore este e-mail.
-
-Atenciosamente,
-Equipe Finnitus
-    `,
+  await activeTransporter.sendMail({
+    from: env.EMAIL_FROM,
+    to,
+    subject,
+    html,
   });
 }
