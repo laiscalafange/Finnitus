@@ -27,6 +27,7 @@ export function Button({
             : isSecundario
               ? ["#6931c5", "#482287"]
               : ["transparent", "transparent"]
+              
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
