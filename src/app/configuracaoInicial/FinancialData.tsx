@@ -5,6 +5,8 @@ import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/forgotPasswordStyles";
+import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+
 
 export default function DadosFinanceiros() {
   const roteador = useRouter();
@@ -18,6 +20,8 @@ export default function DadosFinanceiros() {
 
     <View style={styles.container}>
       <View style={styles.content}>
+        <ProgressDots total={4} atual={1} />
+
         <Text style={styles.titulo}>
           <Text style={styles.tituloDestaque}>Dados</Text> financeiros
         </Text>

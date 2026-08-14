@@ -5,9 +5,13 @@ import { useLocalSearchParams, router } from "expo-router";
 import { Button } from "../../shared/components/Button/Button";
 import { FourInput } from "../../shared/components/Four";
 import { styles } from "../../styles/VerifyEmailStyles";
+import { BackgroundGradient } from "../../shared/components/backgroundGradient";
+
+// Código fixo só para teste/demonstração da tela
+const CODIGO_TESTE = "1234";
 
 export default function VerificacaoEmail() {
-  
+
   const { email } = useLocalSearchParams();
 
   const [codigo, setCodigo] = useState("");
@@ -21,15 +25,17 @@ export default function VerificacaoEmail() {
     }
 
     setCarregando(true);
-    try {
-      // await validarCodigo(email, codigo);
-      setErro(false);
-      router.push("/proxima-tela"); // navegação para a próxima tela após validação bem-sucedida
-    } catch {
-      setErro(true);
-    } finally {
+
+    // Simula um delay de rede pra parecer real na demonstração
+    setTimeout(() => {
+      if (codigo === CODIGO_TESTE) {
+        setErro(false);
+        router.push("/resetPassword");
+      } else {
+        setErro(true);
+      }
       setCarregando(false);
-    }
+    }, 600);
   }
 
   function handleReenviar() {
@@ -37,7 +43,9 @@ export default function VerificacaoEmail() {
   }
 
   return (
-    
+    <View style={{ flex: 1 }}>
+              <BackgroundGradient />
+
     <View style={styles.container}>
       <Text style={styles.titulo}>
         <Text style={styles.tituloDestaque}>Verificação</Text> de E-mail
@@ -64,11 +72,13 @@ export default function VerificacaoEmail() {
           variante="primario"
           onPress={handleValidar}
         />
+      
 
         <Pressable onPress={handleReenviar}>
           <Text style={styles.reenviar}>Reenviar código</Text>
         </Pressable>
       </View>
     </View>
+      </View>
   );
 }

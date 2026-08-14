@@ -11,9 +11,16 @@ export const styles = StyleSheet.create({
 
   icon: {
     fontSize: 30,
-    color: Cores.destaque.limao,
+    color: Cores.roxo.claro,
     marginTop: 2,
   },
+
+  iconImage: {
+  width: 30,
+  height: 30,
+  resizeMode: "contain",
+  marginTop: 2,
+},
 
   texts: {
     flex: 1,
