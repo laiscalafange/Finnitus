@@ -21,7 +21,7 @@ return (
         <Text style={styles.title2}>
         guiar
         </Text>
-        <Underline width={85} />
+        <Underline width={90} marginLeft={30} />
         </View>
        <Text style={styles.title}> 
         pelo
@@ -47,7 +47,7 @@ return (
         <Button
                 variante="primario"
                 titulo="Continuar"
-                onPress={() => roteador.push("/")}
+                onPress={() => roteador.push("/onboarding/exPlano")}
               />
               
         <Button

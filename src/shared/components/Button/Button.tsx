@@ -1,4 +1,4 @@
-import { Pressable, Text } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { styles } from "./ButtonStyles";
@@ -6,6 +6,7 @@ import { ButtonProps } from "./ButtonTypes";
 
 export function Button({
   titulo,
+  icone,
   variante = "primario",
   onPress,
 }: ButtonProps) {
@@ -34,14 +35,18 @@ export function Button({
           styles[variante],
         ]}
       >
-        <Text
-          style={[
-            styles.textoBase,
-            styles[`texto_${variante}`],
-          ]}
-        >
-          {titulo}
-        </Text>
+        <View style={styles.conteudoBotao}>
+          {icone}
+
+          <Text
+            style={[
+              styles.textoBase,
+              styles[`texto_${variante}`],
+            ]}
+          >
+            {titulo}
+          </Text>
+        </View>
       </LinearGradient>
     </Pressable>
   );

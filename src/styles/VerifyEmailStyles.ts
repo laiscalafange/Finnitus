@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
 import { Cores } from "../shared/constants/Cores";
 import { FONTS } from "../shared/constants/Tipografia";
+import { RFValue } from "react-native-responsive-fontsize";
 
 export const styles = StyleSheet.create({
   container: {
@@ -12,7 +13,7 @@ export const styles = StyleSheet.create({
 
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 32,
+    fontSize: RFValue(35),
     color: Cores.base.branco,
     marginBottom: 24,
   },
@@ -24,7 +25,7 @@ export const styles = StyleSheet.create({
 
   subtitulo: {
     fontFamily: FONTS.raleway.regular,
-    fontSize: 16,
+    fontSize: RFValue(20),
     color: Cores.base.branco,
     lineHeight: 24,
     marginBottom: 40,
@@ -43,15 +44,18 @@ export const styles = StyleSheet.create({
   },
 
   rodape: {
-    marginTop: "auto",
-    marginBottom: 40,
-    gap: 20,
+  position: "absolute",
+  bottom: 50,
+  width: "100%",
+  alignSelf: "center",
+
   },
 
   reenviar: {
-    fontFamily: FONTS.raleway.regular,
-    textAlign: "center",
-    color: Cores.roxo.claro,
-    fontSize: 15,
+    fontFamily: "Raleway_600SemiBold",
+    fontSize: 16,
+    color: "#9B5CF6",
+    alignSelf: "center",
+    marginTop: -10,
   },
 });

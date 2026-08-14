@@ -1,5 +1,8 @@
+import { ReactNode } from "react";
+
 export interface ButtonProps {
   titulo: string;
-  variante?: "primario" | "outline" | "secundario" | "terciario";
+  icone?: ReactNode;
+  variante?: "primario" | "outline";
   onPress?: () => void;
 }

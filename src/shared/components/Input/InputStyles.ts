@@ -30,7 +30,7 @@ export const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: FONTS.quicksand.regular,
+    fontFamily: FONTS.quicksand.bold,
     fontSize: 15,
     color: Cores.base.branco,
   },

@@ -65,13 +65,14 @@ export default function RecuperarSenha(): JSX.Element {
         />
         </View>
       
-
+</View>
+       <View style={styles.conteiner}>
       <Button
         variante="primario"
         titulo="Enviar"
         onPress={trocarSenha}
       />
-    </View>
+      </View>
     </View>
   );
 }

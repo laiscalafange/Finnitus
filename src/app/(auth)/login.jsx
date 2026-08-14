@@ -1,35 +1,77 @@
+import { View, Text, Image, Pressable } from "react-native";
+import { BackgroundGradient } from "../../shared/components/backgroundGradient";
+import { styles } from "../../styles/loginStyles";
 import { useRouter } from "expo-router";
-import { Text, View, StyleSheet } from "react-native";
 import { Button } from "../../shared/components/Button";
+import { Underline } from "../../shared/components/underline";
+import { Input } from "../../shared/components/Input";
+import { useState } from "react";
 
 export default function Login() {
-  const roteador = useRouter();
+const roteador = useRouter();
 
-  return (
-    <View style={styles.container}>
-      <Text>login</Text>
+const [email, setEmail] = useState("");
+const [senha, setSenha] = useState("");
 
-      <Button
-        titulo="Não tem conta? Cadastre-se"
-        onPress={() => roteador.push("/cadastro")}
-      />
-      <Button
-        titulo="ir para tela inicial"
-        onPress={() => roteador.push("/paginaInicial")}
-      />
+return (
+    <View style={{ flex: 1 }}>
+      <BackgroundGradient />
 
-      <Button
-    titulo="Esqueci minha senha"
-    onPress={() => roteador.push("/forgotPassword")}
-/>
+    <View style={styles.content}>
+        <Text style={styles.title2}>
+       Entre na <Text style={styles.title}>
+        sua conta </Text>
+        </Text>
+    </View>
+
+      <View style={styles.content2}>
+        <Text style={styles.subtitle}>
+          Preencha seus dados.
+        </Text>
+      </View>
+
+      <View style={styles.content3}>
+            <Input
+              label="Email"
+              placeholder="Digite seu Email"
+              icone={
+                <Image
+                  source={require("../../../assets/icones/email3.png")}
+                  style={styles.iconeInput}
+                />
+              }
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+            />
+            <Input
+          label="Senha"
+          placeholder="Digite sua senha"
+          icone={
+            <Image
+              source={require("../../../assets/icones/senha.png")}
+              style={styles.iconeInput}
+            />
+          }
+          secureTextEntry
+          value={senha}
+          onChangeText={setSenha}
+          />
+      </View>
+
+       <View style={styles.conteiner}>
+       <Button
+          variante="primario"
+          titulo="Confirmar"
+          onPress={() => roteador.push("/paginaInicial")}
+        />
+
+      <Pressable onPress={() => roteador.push("/forgotPassword")}>
+      <Text style={styles.texto}>
+        Esqueceu sua senha?
+      </Text>
+    </Pressable>
+        </View>
     </View>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+} 

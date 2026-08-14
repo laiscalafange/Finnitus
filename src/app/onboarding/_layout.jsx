@@ -11,6 +11,11 @@ export default function OnboardingLayout() {
       <Stack.Screen name="Trilhe" />
       <Stack.Screen name="Conheca" />
       <Stack.Screen name="Guiar" />
+      <Stack.Screen name="exPlano" />
+      <Stack.Screen name="exMetas" />
+      <Stack.Screen name="exDashboard" />
+      <Stack.Screen name="exCalendario" />
+      <Stack.Screen name="exPlanoB" />
     </Stack>
   );
 }
