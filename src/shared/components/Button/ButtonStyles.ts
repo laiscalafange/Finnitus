@@ -1,5 +1,6 @@
 import { StyleSheet } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
+import { FONTS } from "../../constants/Tipografia";
 
 export const styles = StyleSheet.create({
   botaoBase: {
@@ -19,7 +20,7 @@ export const styles = StyleSheet.create({
   },
 
   textoBase: {
-    fontWeight: "700",
+    fontFamily: FONTS.raleway.bold,
     fontSize: RFValue(18),
   },
 

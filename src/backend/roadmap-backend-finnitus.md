@@ -16,31 +16,34 @@ Legenda: ✅ concluído · 🔵 em andamento · ⬜ a fazer
 - Rota `GET /health`
 - Script `npm run dev` funcionando
 
-## Fase 2 — Estrutura de pastas 🔵 (concluindo agora)
+## Fase 2 — Estrutura de pastas ✅
 - `routes/` + `controllers/` (feito, com `/health` como exemplo)
 - ⬜ `config/` — validação centralizada das variáveis de `.env` (evita `process.env` espalhado pelo código)
 - ⬜ `lib/prisma.ts` — instância única do Prisma Client (evitar criar uma conexão nova em cada arquivo)
 - ⬜ `middlewares/` — pasta criada (vazia por enquanto, vai receber tratamento de erro e depois autenticação)
 - ⬜ `services/` — pasta criada (vazia por enquanto, vai receber a lógica de negócio)
 
-## Fase 3 — Prisma: modelo `User` ⬜
+## Fase 3 — Prisma: modelo `User` ✅
 - Definir `User` no `schema.prisma` (id, name, email único, password, createdAt, updatedAt)
 - Rodar `npx prisma migrate dev --name create_user`
 - Conferir a tabela criada no phpMyAdmin
 
-## Fase 4 — Cadastro e login básico ⬜
+## Fase 4 — Cadastro e login básico ✅
 > Pré-requisito das telas seguintes: recuperação de senha e onboarding financeiro só fazem sentido para um usuário que já existe e está autenticado. Se você **já tem** essas telas/rotas prontas em outro lugar, pulamos essa fase — só me confirma quando chegarmos lá.
 - `bcrypt` para hash de senha no cadastro
 - `POST /register` (cadastro)
 - `POST /login` + emissão de JWT
 - Middleware `auth.middleware.ts` para proteger rotas depois
 
-## Fase 5 — Prisma: modelo `PasswordReset` ⬜
+## Fase 5 — Prisma: modelo `PasswordReset` ✅
 - Campos: id, userId (FK), codeHash, expiresAt, used, createdAt
 - Migration
 - Explicação de por que armazenar hash do código e não o código puro
+- npx prisma migrate dev --name create_password_reset
 
 ## Fase 6 — Envio de e-mail (Nodemailer) ⬜
+- npm install nodemailer
+- npm install -D @types/nodemailer
 - Configuração SMTP no `.env` (`EMAIL_USER`, `EMAIL_PASSWORD`, host/porta do provedor)
 - `services/email.service.ts` com função reutilizável de envio
 

@@ -1,7 +1,7 @@
 // monta o Express (middlewares, rotas) e exporta o app, mas não coloca ele pra escutar em nenhuma porta.
 
 import express from "express";
-import routes from "../../routes/index.js";
+import routes from "../routes/index.js";
 
 const app = express();
 
