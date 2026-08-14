@@ -5,7 +5,6 @@ import { FONTS } from "../shared/constants/Tipografia";
 export const styles = StyleSheet.create({
    container: {
         flex: 1,
-    backgroundColor: Cores.fundo.principal,
     justifyContent: 'space-between',
     padding: 23,
   },
@@ -35,7 +34,7 @@ export const styles = StyleSheet.create({
   },
 
    cards: {
-    gap: 10,
+    gap: 24,
   },
   iconeInput: {
   width: 35,

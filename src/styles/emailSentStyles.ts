@@ -5,7 +5,6 @@ import { FONTS } from '../shared/constants/Tipografia';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Cores.fundo.principal,
     justifyContent: 'space-between',
     padding: 23,
   },

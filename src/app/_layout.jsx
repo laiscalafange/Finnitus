@@ -88,6 +88,13 @@ export default function RootLayout() {
         }}
       />
 
+      <Stack.Screen
+        name="configuracaoInicial"
+        options={{
+          headerShown: false,
+        }}
+      />
+
     </Stack>
   );
 }
