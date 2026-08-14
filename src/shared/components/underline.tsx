@@ -1,30 +1,27 @@
-// components/Underline.tsx
-
 import { View } from "react-native";
 
 export function Underline({
   width = 80,
-  color = "#9B5CF6",
+  marginTop = 8,
+  marginBottom = -12,
+  marginLeft = 30,
 }: {
   width?: number;
-  color?: string;
+  marginTop?: number;
+  marginBottom?: number;
+  marginLeft?: number;
 }) {
   return (
     <View
       style={{
-        width: 100,
+        width,
         height: 4,
-        backgroundColor: color,
+        backgroundColor: "#9B5CF6",
         borderRadius: 0,
 
-        // Espaço entre o texto e a linha
-        marginTop: 8,
-        marginBottom: -12,
-        // Deslocamento horizontal
-        marginLeft: 30,
-
-        // Deslocamento vertical
-        // top: 2,
+        marginTop,
+        marginBottom,
+        marginLeft,
       }}
     />
   );

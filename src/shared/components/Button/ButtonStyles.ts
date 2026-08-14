@@ -2,7 +2,6 @@ import { StyleSheet } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
 
 export const styles = StyleSheet.create({
-  // Base do botão
   botaoBase: {
     padding: 6,
     borderRadius: 6,
@@ -13,13 +12,17 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  // Texto padrão
+  conteudoBotao: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   textoBase: {
     fontWeight: "700",
     fontSize: RFValue(18),
   },
 
-  // Variantes
   primario: {},
 
   outline: {
@@ -28,12 +31,15 @@ export const styles = StyleSheet.create({
     borderColor: "#7e3bed",
   },
 
-  // Cores do texto
   texto_primario: {
     color: "#B7FF00",
   },
 
   texto_outline: {
     color: "#7E3BED",
+  },
+
+  icone: {
+    marginRight: 10,
   },
 });

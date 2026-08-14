@@ -3,6 +3,7 @@ import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { styles } from "../../styles/bemVindoStyle";
 import { useRouter } from "expo-router";
 import { Button } from "../../shared/components/Button";
+import { Underline } from "../../shared/components/underline";
 
 export default function BemVindo() {
 const roteador = useRouter();
@@ -21,6 +22,7 @@ return (
         <Text style={styles.title}>
           ao Finnitus
         </Text>
+        <Underline width={170} marginLeft={80} />
         </View>
 
       <View style={styles.content2}>

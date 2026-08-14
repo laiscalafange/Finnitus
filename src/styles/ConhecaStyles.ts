@@ -13,7 +13,6 @@ export const styles = StyleSheet.create({
   padding: 24,
   position: "absolute",
   top: 100,
-  left: 10,
 },
 
  content2: {
@@ -21,8 +20,7 @@ export const styles = StyleSheet.create({
   zIndex: 1,
   position: "absolute",
   padding: 24,
-  top: 220,
-  left: 10,
+  top: 230,
 },
 
  conteiner: {
@@ -42,7 +40,7 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.raleway.bold,
     fontSize: RFValue(50),
     color: Cores.destaque.limao,
-    marginBottom: -5,
+    marginBottom: -15,
   },
 
   subtitle: {
@@ -58,6 +56,10 @@ export const styles = StyleSheet.create({
     marginBottom: -5,
   },
 
-  
+  linha: {
+  flexDirection: "row",
+  alignItems: "flex-end",
+  gap: 8,
+},
 
 });

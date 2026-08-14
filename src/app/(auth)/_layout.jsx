@@ -4,35 +4,20 @@ export default function AuthLayout() {
 
   return (
 
-    <Stack>
-      <Stack.Screen
-        name="cadastro"
-        options={{
-          title: "Cadastro",
-        }}
-      />
-
-      <Stack.Screen
-        name="emailSent"
-        options={{
-          title: "Email Enviado",
-        }}
-      />
-
-      <Stack.Screen
-        name="forgotPassword"
-        options={{
-          title: "Esqueci a Senha",
-        }}
-      />
-
-      <Stack.Screen
-        name="login"
-        options={{
-          title: "Login",
-        }}
-      />
-
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="inicie" />
+      <Stack.Screen name="cadastro" />
+      <Stack.Screen name="emailSent" />
+      <Stack.Screen name="forgotPassword" />
+      <Stack.Screen name="login" />
+      <Stack.Screen name="resetPassword" />
+      <Stack.Screen name="verifyEmail" />
+      <Stack.Screen name="escolha" />
+      <Stack.Screen name="voltando" />
     </Stack>
 
   );

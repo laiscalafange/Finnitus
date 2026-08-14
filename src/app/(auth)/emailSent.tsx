@@ -10,7 +10,7 @@ export default function EmailSent() {
 
   useEffect(() => {
   const timer = setTimeout(() => {
-    router.replace("/resetPassword");
+    router.replace("/verifyEmail");
   }, 3000);
 
   return () => clearTimeout(timer);

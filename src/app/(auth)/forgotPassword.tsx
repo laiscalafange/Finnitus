@@ -41,12 +41,15 @@ export default function ForgotPassword(): JSX.Element {
         />
       </View>
 
+</View>
+
+     <View style={styles.conteiner}>
       <Button
         variante="primario"
         titulo="Enviar"
         onPress={() => roteador.push("/emailSent")}
       />
-   </View>
+      </View>
    </View>
   );
 }

@@ -16,19 +16,20 @@ return (
         <Text style={styles.title}>
          Conheça o
         </Text>
+        <View style={styles.linha}>
         <Text style={styles.title2}>
           Finn!
         </Text>
-        <Underline width={85} />
+        <Underline width={100} marginLeft={-120} />
+        </View>
       </View>
 
       <View style={styles.content2}>
         <Text style={styles.subtitle}>
-         Seu novo
-        </Text>
-        <Text style={styles.subtitle2}>
+         Seu novo <Text style={styles.subtitle2}>
          ajudante
         </Text>
+        </Text> 
         <Text style={styles.subtitle}>
           financeiro digital.
         </Text>

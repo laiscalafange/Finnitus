@@ -18,7 +18,7 @@ return (
             <Text style={styles.title2}>
               Trilhe
             </Text>
-          <Underline width={85} />
+          <Underline width={100} marginLeft={30} />
           </View>
           <Text style={styles.title}>
               seu
@@ -34,13 +34,10 @@ return (
 
       <View style={styles.content2}>
         <Text style={styles.subtitle}>
-          Dê inicio a sua
+          Dê inicio a sua 
         </Text>
         <Text style={styles.subtitle}>
-         gestão
-        </Text>
-        <Text style={styles.subtitle}>
-          financeira.
+         gestão financeira.
         </Text>
       </View>
 

@@ -1,12 +1,15 @@
 import { StyleSheet } from 'react-native';
 import { Cores } from '../shared/constants/Cores';
 import { FONTS } from '../shared/constants/Tipografia';
+import { RFValue } from "react-native-responsive-fontsize";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
-    padding: 23,
+  zIndex: 1,
+  padding: 24,
+  position: "absolute",
+  top: 70,
   },
   
   /*breadcrumb: {
@@ -22,21 +25,28 @@ export const styles = StyleSheet.create({
 
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 42,
+    fontSize: RFValue(40),
     color: Cores.base.branco,
     marginBottom: 8,
   },
+
+  conteiner: {
+  position: "absolute",
+  bottom: 50,
+  width: "90%",
+  alignSelf: "center",
+},
   
   tituloDestaque: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 42,
+    fontSize: RFValue(40),
     color: Cores.destaque.limao,
     textDecorationColor: Cores.roxo.claro,
   },
   
   subtitulo: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 28,
+    fontSize: RFValue(23),
     color: Cores.texto.principal,
     marginBottom: 32,
     lineHeight: 30,
