@@ -6,6 +6,8 @@ import { SelectCard } from "../../shared/components/SelectCard";
 import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/FutureGoalsStyles";
 import { useRouter } from "expo-router";
+import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+
 
 
 const OPTIONS = [
@@ -35,9 +37,12 @@ export default function MetasFuturas() {
           <BackgroundGradient />
 
     <View style={styles.container}>
+      
 
       {/* Cabeçalho */}
       <View style={styles.header}>
+        <ProgressDots total={4} atual={3} />
+
   <Text style={styles.titulo}>
     <Text style={styles.tituloDestaque}>Metas</Text> futuras
   </Text>

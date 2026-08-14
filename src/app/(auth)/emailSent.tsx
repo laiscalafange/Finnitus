@@ -1,9 +1,8 @@
 import { useEffect } from "react";
 import { Text, View, Image } from "react-native";
 import { useRouter } from "expo-router";
-
-import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/emailSentStyles";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 
 export default function EmailSent() {
   const router = useRouter();
@@ -17,6 +16,9 @@ export default function EmailSent() {
 }, []);
 
   return (
+    <View style={{ flex: 1 }}>
+          <BackgroundGradient />
+          
     <View style={styles.container}>
       <View style={styles.content}>
         <Image
@@ -31,6 +33,7 @@ export default function EmailSent() {
         <Text style={styles.subtitulo}>
           Verifique seu email para redefinir sua senha.
         </Text>
+      </View>
       </View>
 
      

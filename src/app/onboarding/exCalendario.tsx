@@ -1,9 +1,9 @@
-import { View, Text, Image } from "react-native";
-import { BackgroundGradient } from "../../shared/components/backgroundGradient";
-import { styles } from "../../styles/exCalenStyles";
 import { useRouter } from "expo-router";
+import { Image, Text, View } from "react-native";
+import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
 import { Underline } from "../../shared/components/underline";
+import { styles } from "../../styles/exCalenStyles";
 
 export default function exCalendario() {
 const roteador = useRouter();

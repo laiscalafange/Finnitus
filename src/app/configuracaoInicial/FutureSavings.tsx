@@ -7,6 +7,8 @@ import { styles } from "../../styles/forgotPasswordStyles";
 import { useState } from 'react';
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { JSX } from "react";
+import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+
 
 export default function DadosFinanceiros(): JSX.Element {
   const roteador = useRouter();
@@ -21,6 +23,8 @@ export default function DadosFinanceiros(): JSX.Element {
 
     <View style={styles.container}>
       <View style={styles.content}>
+        <ProgressDots total={4} atual={2} />
+
         <Text style={styles.titulo}>
           <Text style={styles.tituloDestaque}>Economia</Text> futura
         </Text>
