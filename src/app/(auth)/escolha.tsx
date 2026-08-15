@@ -1,4 +1,4 @@
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, useWindowDimensions } from "react-native";
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { styles } from "../../styles/escolhaStyles";
 import { useRouter } from "expo-router";
@@ -8,11 +8,22 @@ import { Underline } from "../../shared/components/underline";
 export default function Escolha() {
 const roteador = useRouter();
 
+const { height } = useWindowDimensions();
+
+  const topContent = height * 0.100;
+  const topContent2 = height * 0.42;
+
 return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
 
-    <View style={styles.content}>
+    <View style={[
+          styles.content,
+          {
+            top: topContent,
+          },
+        ]}
+      >
       <View style={styles.linha}>
        <View>
         <Text style={styles.title2}>
@@ -29,7 +40,13 @@ return (
       </Text>
     </View>
 
-      <View style={styles.content2}>
+      <View style={[
+          styles.content2,
+          {
+            top: topContent2,
+          },
+        ]}
+      >
         <Text style={styles.subtitle}>
           Continue com o email ou outros serviços.
         </Text>
