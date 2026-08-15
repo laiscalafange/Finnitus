@@ -12,7 +12,6 @@ export const styles = StyleSheet.create({
   zIndex: 1,
   padding: 24,
   position: "absolute",
-  top: 100,
 },
 
  content2: {
@@ -20,7 +19,6 @@ export const styles = StyleSheet.create({
   zIndex: 1,
   position: "absolute",
   padding: 24,
-  top: 230,
 },
 
  conteiner: {

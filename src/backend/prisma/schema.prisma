@@ -9,27 +9,108 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
 }
 
-model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// ========================================
+// USUÁRIO
+// ========================================
 
-  passwordResets PasswordReset[]
+model Usuario {
+  id_Usuario      Int      @id @default(autoincrement())
+  Unome           String   @db.VarChar(100)
+  Usenha          String   @db.VarChar(255)
+  Uemail          String   @db.VarChar(100)
+  Utelefone       String   @db.VarChar(15)
+  Udata_nasc      DateTime @db.Date
+  Udata_cadastro  DateTime
+  UTipo           String
 }
 
-model PasswordReset {
-  id        String   @id @default(cuid())
-  userId    String
-  codeHash  String
-  expiresAt DateTime
-  used      Boolean  @default(false)
-  createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+// ========================================
+// ENTRADA DINHEIRO
+// ========================================
+
+model EntradaDinheiro {
+  id_Dinheiro   Int      @id @default(autoincrement())
+  id_Usuario    Int
+  Dnome         String   @db.VarChar(100)
+  Dvalor        Decimal  @db.Decimal(10, 2)
+  Ddata         DateTime @db.Date
+  Ddescricao    String   @db.VarChar(50)
+}
+
+
+// ========================================
+// GASTOS
+// ========================================
+
+model Gastos {
+  id_Gasto      Int      @id @default(autoincrement())
+  id_Usuario    Int
+  Gnome         String   @db.VarChar(100)
+  Gvalor        Decimal  @db.Decimal(10, 2)
+  Gcategoria    String   @db.VarChar(50)
+  Gdata         DateTime @db.Date
+  Gdescricao    String   @db.VarChar(50)
+}
+
+
+// ========================================
+// METAS
+// ========================================
+
+model Metas {
+  id_Meta          Int      @id @default(autoincrement())
+  id_Usuario       Int
+  Mnome            String   @db.VarChar(100)
+  Mvalor_objetivo  Decimal  @db.Decimal(10, 2)
+  Mvalor_atual     Decimal  @db.Decimal(10, 2)
+  Mprazo           DateTime @db.Date
+  Mstatus          String
+}
+
+
+// ========================================
+// IMPREVISTOS - PLANO B
+// ========================================
+
+model Imprevistos {
+  id_Imprevisto      Int      @id @default(autoincrement())
+  id_Usuario         Int
+  Inome              String   @db.VarChar(100)
+  Ivalor             Decimal  @db.Decimal(10, 2)
+  solucao_escolhida  String   @db.VarChar(100)
+  Idata              DateTime @db.Date
+  Idescricao         String   @db.VarChar(50)
+}
+
+
+// ========================================
+// EVENTOS - CALENDÁRIO
+// ========================================
+
+model Eventos {
+  id_Evento          Int      @id @default(autoincrement())
+  id_Usuario         Int
+  Enome              String   @db.VarChar(100)
+  impacto_financeiro Decimal  @db.Decimal(10, 2)
+  Edata              DateTime @db.Date
+  Edescricao         String   @db.VarChar(50)
+}
+
+
+// ========================================
+// ANÁLISE SENTIMENTAL
+// ========================================
+
+model AnaliseSentimental {
+  id_Sentimento       Int      @id @default(autoincrement())
+  id_Usuario          Int
+  Shumor              String   @db.VarChar(40)
+  nivel_estresse      Int
+  estado_sentimental  String   @db.VarChar(50)
+  Sdata               DateTime @db.Date
+  Scomentario         String   @db.VarChar(50)
 }
