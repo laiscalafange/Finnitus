@@ -1,12 +1,16 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import { useRouter } from "expo-router";
 import { HeaderPerfil } from "../../shared/components/Header";
 import { Avatar } from "../../shared/components/Avatar";
 import { Card } from "../../shared/components/Cards";
 import { LinearGradient } from "expo-linear-gradient";
-import { FONTS } from "../../shared/constants/Tipografia";
-import { Cores } from '@/shared/constants/Cores';
+import { styles } from "../../styles/perfil";
 
 export default function Perfil() {
+  // Hook do Expo Router usado pra navegar entre as telas
+  // (router.push troca de tela mantendo a pilha de navegação, então dá pra voltar)
+  const router = useRouter();
+
   return (
     <LinearGradient
       colors={["#160B24", "#08070A", "#160B24"]}
@@ -19,21 +23,25 @@ export default function Perfil() {
         contentContainerStyle={styles.conteudo}
       >
 
-        {/* Cabeçalho */}
+        {/* Cabeçalho fixo do topo (voltar, título, etc) */}
         <HeaderPerfil />
 
-        {/* Informações do perfil */}
+        {/* Informações do perfil (avatar + nome + username) */}
         <View style={styles.profile}>
 
+          {/* TODO: quando o back estiver pronto, o "name" do Avatar
+              deve vir dos dados do usuário logado (ex: `${usuario.nome} ${usuario.sobrenome}`) */}
           <Avatar
             name="Usuário"
             size={200}
           />
 
+          {/* TODO: puxar nome + sobrenome do usuário logado quando o back estiver pronto */}
           <Text style={styles.nome}>
             Usuário
           </Text>
 
+          {/* TODO: puxar username/@ do usuário logado quando o back estiver pronto */}
           <Text style={styles.usuario}>
             @User_TwT
           </Text>
@@ -50,10 +58,10 @@ export default function Perfil() {
           >
 
             <View style={styles.premiumTituloContainer}>
-                <Image
-                  source={require("../../../assets/icones/coroa.png")}
-                  style={styles.coroa}
-                />
+              <Image
+                source={require("../../../assets/icones/coroa.png")}
+                style={styles.coroa}
+              />
 
               <Text style={styles.premiumTitulo}>
                 Seja <Text style={styles.premiumVerde}>PREMIUM</Text>
@@ -65,48 +73,68 @@ export default function Perfil() {
               relatórios avançados
             </Text>
 
-            <TouchableOpacity style={styles.botaoPremium}>
+            {/* Único elemento clicável do card, leva pra tela de assinatura Premium */}
+            <TouchableOpacity
+              style={styles.botaoPremium}
+              onPress={() => router.push("/")}
+            >
               <Text style={styles.botaoTexto}>
                 Assine já
               </Text>
             </TouchableOpacity>
           </Card>
 
-          {/* CARDS DE EDIÇÃO */}
+          {/* CARDS DE EDIÇÃO (conta e dados bancários) */}
           <View style={styles.linhaCards}>
 
-            <Card
-              gradiente={["#7c4dff", "#3b1b92"]}
-              style={styles.cardEdicao}
+            {/* CARD "Editar conta" — clicável, leva pra tela de edição de conta */}
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.85}
+              onPress={() => router.push("/")}
             >
-              <Text style={styles.cardTitulo}>
-                Editar conta
-              </Text>
+              <Card
+                gradiente={["#7c4dff", "#3b1b92"]}
+                style={styles.cardEdicao}
+              >
+                <Text style={styles.cardTitulo}>
+                  Editar conta
+                </Text>
 
-              <Image
-                source={require("../../../assets/icones/EngrenagemPerfil.png")}
-                style={styles.EngrenagemPerfil}
-              />
-            </Card>
+                <Image
+                  source={require("../../../assets/icones/EngrenagemPerfil.png")}
+                  style={styles.EngrenagemPerfil}
+                />
+              </Card>
+            </TouchableOpacity>
 
-            <Card
-              gradiente={["#7c4dff", "#3b1b92"]}
-              style={styles.cardEdicao}
+            {/* CARD "Editar dados bancários" — clicável, leva pra tela de dados bancários */}
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.85}
+              onPress={() => router.push("/")}
             >
-              <Text style={styles.cardTitulo}>
-                Editar dados{"\n"}
-                bancários
-              </Text>
+              <Card
+                gradiente={["#7c4dff", "#3b1b92"]}
+                style={styles.cardEdicao}
+              >
+                <Text style={styles.cardTitulo}>
+                  Editar dados{"\n"}
+                  bancários
+                </Text>
 
-              <Image
-                source={require("../../../assets/icones/BonecoPerfil.png")}
-                style={styles.BonecoPerfil}
-              />
-            </Card>
+                <Image
+                  source={require("../../../assets/icones/BonecoPerfil.png")}
+                  style={styles.BonecoPerfil}
+                />
+              </Card>
+            </TouchableOpacity>
 
           </View>
 
-          {/* CONFIGURAÇÕES E SUPORTE */}
+          {/* CARD ÚNICO COM CONFIGURAÇÕES E SUPORTE
+              (não precisa de TouchableOpacity no Card inteiro,
+              porque cada item de dentro já é clicável individualmente) */}
           <Card
             gradiente={["#7c4dff", "#3b1b92"]}
             style={styles.cardConfiguracoes}
@@ -115,7 +143,11 @@ export default function Perfil() {
               Configurações
             </Text>
 
-            <TouchableOpacity style={styles.item}>
+            {/* Item "Configurar" — leva pra tela de configurações gerais */}
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => router.push("/")}
+            >
               <Image
                 source={require("../../../assets/icones/Configurar.png")}
                 style={styles.itemIcone}
@@ -123,7 +155,11 @@ export default function Perfil() {
               <Text style={styles.itemTexto}>Configurar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.item}>
+            {/* Item "Segurança" — leva pra tela de segurança (senha, etc) */}
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => router.push("/")}
+            >
               <Image
                 source={require("../../../assets/icones/Segurança.png")}
                 style={styles.itemIcone}
@@ -135,7 +171,11 @@ export default function Perfil() {
               Suporte
             </Text>
 
-            <TouchableOpacity style={styles.item}>
+            {/* Item "Contate-nos" — leva pra tela/formulário de contato */}
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => router.push("/")}
+            >
               <Image
                 source={require("../../../assets/icones/Telefone.png")}
                 style={styles.itemIcone}
@@ -143,7 +183,11 @@ export default function Perfil() {
               <Text style={styles.itemTexto}>Contate-nos</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.item}>
+            {/* Item "Ajuda" — leva pra tela de ajuda/FAQ */}
+            <TouchableOpacity
+              style={styles.item}
+              onPress={() => router.push("/")}
+            >
               <Image
                 source={require("../../../assets/icones/Ajuda.png")}
                 style={styles.itemIcone}
@@ -159,164 +203,3 @@ export default function Perfil() {
     </LinearGradient >
   );
 }
-
-//CSS
-
-const styles = StyleSheet.create({
-
-  container: {
-    flex: 1,
-  },
-
-  conteudo: {
-    paddingBottom: 30,
-  },
-
-  profile: {
-    alignItems: "center",
-    marginTop: -90,
-  },
-
-  nome: {
-    marginTop: 0,
-    color: Cores.roxo.principal,
-    fontSize: 25,
-    fontFamily: FONTS.raleway.bold,
-  },
-
-  usuario: {
-    marginTop: 2,
-    color: Cores.roxo.escuro,
-    fontSize: 12,
-    fontFamily: FONTS.raleway.regular
-  },
-
-  /* ESPAÇO DOS CARDS */
-
-  conteudoCards: {
-    paddingHorizontal: 12,
-  },
-
-  /* PREMIUM */
-
-  premiumTituloContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  cardPremium: {
-    marginTop: 20,
-    padding: 12,
-    borderRadius: 6,
-  },
-
-  premiumTitulo: {
-    color: Cores.roxo.claro,
-    fontSize: 19,
-    fontFamily: FONTS.raleway.bold,
-  },
-
-  coroa: {
-    width: 35,
-    height: 35,
-    marginRight: 10,
-    resizeMode: "contain",
-  },
-
-  premiumVerde: {
-    color: "#B8FF00",
-  },
-
-  premiumTexto: {
-    color: Cores.roxo.claro,
-    fontSize: 13,
-    marginTop: 3,
-    fontFamily: FONTS.raleway.regular,
-  },
-
-  botaoPremium: {
-    height: 32,
-    backgroundColor: Cores.roxo.claro,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-
-  botaoTexto: {
-    color: Cores.destaque.limao,
-    fontSize: 18,
-    fontFamily: FONTS.raleway.regular,
-  },
-
-  /* CARDS DE EDIÇÃO */
-
-  linhaCards: {
-    flexDirection: "row",
-    gap: 12,
-  },
-
-  cardEdicao: {
-    flex: 1,
-    height: 172,
-    padding: 8,
-    paddingRight: 0,
-    borderRadius: 6,
-  },
-
-  cardTitulo: {
-    color: Cores.roxo.claro,
-    fontSize: 18,
-    fontFamily: FONTS.raleway.bold,
-  },
-
-  EngrenagemPerfil: {
-    width: 130,
-    height: 130,
-    resizeMode: "contain",
-    alignSelf: "flex-end",
-    marginTop: 5,
-  },
-
-  BonecoPerfil: {
-    width: 70,
-    height: 105,
-    resizeMode: "contain",
-    alignSelf: "flex-end",
-  },
-
-  /* CONFIGURAÇÕES */
-
-  cardConfiguracoes: {
-    padding: 10,
-    borderRadius: 6,
-    marginTop: 0,
-  },
-
-  tituloSecao: {
-    color: Cores.roxo.claro,
-    fontSize: 20,
-    fontFamily: FONTS.raleway.bold,
-    marginBottom: 8,
-  },
-
-  item: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 38,
-  },
-
-  itemIcone: {
-    width: 22,
-    height: 22,
-    resizeMode: "contain",
-    marginRight: 10,
-  },
-
-  itemTexto: {
-    color: Cores.roxo.claro,
-    fontSize: 15,
-    fontFamily: FONTS.raleway.regular,
-  },
-
-});

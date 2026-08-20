@@ -1,23 +1,14 @@
 import { useRef, useState } from "react";
-import {
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
+import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, TouchableOpacity, View, useWindowDimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-
 import { HeaderInterno } from "../../shared/components/Header";
 import { GRADIENTS } from "../../shared/constants/Gradientes";
-import { Cores } from "../../shared/constants/Cores";
-import { FONTS } from "../../shared/constants/Tipografia";
 import { Button } from "../../shared/components/Button";
+import { styles } from "@/styles/premium";
 
+// Tipagem de cada plano de assinatura exibido no carrossel
 interface Plano {
   id: string;
   nome: string;
@@ -29,6 +20,8 @@ interface Plano {
   beneficios: string[];
 }
 
+// Lista fixa com os 3 planos disponíveis (Básico, Mega finn, Infinitos)
+// Cada um tem seus próprios benefícios e preço
 const PLANOS: Plano[] = [
   {
     id: "basico",
@@ -74,11 +67,19 @@ const PLANOS: Plano[] = [
 
 export default function Premium() {
   const router = useRouter();
+
+  // Largura da tela, usada pra calcular o scroll do carrossel (1 página = 1 plano)
   const { width } = useWindowDimensions();
 
+  // Referência do ScrollView horizontal, pra poder mover ele manualmente
+  // quando o usuário clica numa aba em vez de arrastar
   const scrollRef = useRef<ScrollView>(null);
+
+  // Índice do plano ativo no carrossel (0 = Básico, 1 = Mega finn, 2 = Infinitos)
+  // Começa em 1 porque o Mega finn é o plano "mais popular", já vem selecionado
   const [indiceAtivo, setIndiceAtivo] = useState(1);
 
+  // Quando clica numa aba (Básico/Mega finn/Infinitos), rola o carrossel até ela
   function irParaPlano(indice: number) {
     setIndiceAtivo(indice);
 
@@ -88,6 +89,8 @@ export default function Premium() {
     });
   }
 
+  // Quando o usuário arrasta o carrossel manualmente, atualiza qual aba fica ativa
+  // com base em qual "página" ele parou
   function aoTerminarSwipe(
     evento: NativeSyntheticEvent<NativeScrollEvent>
   ) {
@@ -98,6 +101,21 @@ export default function Premium() {
     setIndiceAtivo(indice);
   }
 
+  // Ao clicar em "Obter Agora": leva pra tela de checkout/pagamento,
+  // passando o id do plano escolhido como parâmetro de rota
+  // TODO: ajustar "/checkout" pro nome real da rota quando ela existir
+  function aoConfirmarPlano(planoId: string) {
+    router.push({
+      pathname: "/",
+      params: { plano: planoId },
+    });
+  }
+
+  // Ao clicar em "Não obrigado": só fecha a oferta e volta pra tela anterior
+  function aoRecusarPlano() {
+    router.back();
+  }
+
   return (
     <LinearGradient
       colors={GRADIENTS.background.colors}
@@ -105,18 +123,20 @@ export default function Premium() {
       end={GRADIENTS.background.end}
       style={styles.fundo}
     >
+      {/* Cabeçalho da tela, com título e subtítulo */}
       <HeaderInterno
         titulo="Seja Premium!"
         subtitulo="Detalhes"
       />
 
-      {/* Seletor de plano */}
+      {/* Seletor de plano (abas Básico / Mega finn / Infinitos) */}
       <View style={styles.abas}>
         {PLANOS.map((plano, indice) => (
           <TouchableOpacity
             key={plano.id}
             style={[
               styles.aba,
+              // Aplica o estilo de "ativa" só na aba correspondente ao plano atual
               indice === indiceAtivo && styles.abaAtiva,
             ]}
             onPress={() => irParaPlano(indice)}
@@ -133,7 +153,7 @@ export default function Premium() {
         ))}
       </View>
 
-      {/* Carrossel */}
+      {/* Carrossel horizontal, cada página é um plano */}
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -151,12 +171,14 @@ export default function Premium() {
             key={plano.id}
             style={{ width }}
           >
+            {/* Scroll vertical interno, caso o conteúdo do card não caiba na tela */}
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.paginaCard}
             >
               <View style={styles.card}>
 
+                {/* Badge "Mais popular" — só aparece se o plano tiver essa propriedade */}
                 {plano.badge && (
                   <Text style={styles.badge}>
                     {plano.badge}
@@ -174,6 +196,7 @@ export default function Premium() {
                 <Text style={styles.preco}>
                   {plano.preco}
 
+                  {/* "/mês" só aparece nos planos pagos */}
                   {plano.periodo && (
                     <Text style={styles.periodo}>
                       {plano.periodo}
@@ -181,12 +204,14 @@ export default function Premium() {
                   )}
                 </Text>
 
+                {/* Texto de teste grátis — só aparece no plano Mega finn */}
                 {plano.teste && (
                   <Text style={styles.teste}>
                     {plano.teste}
                   </Text>
                 )}
 
+                {/* Linha divisória com o texto "Benefícios" no meio */}
                 <View style={styles.divisor}>
                   <View style={styles.linha} />
 
@@ -197,6 +222,7 @@ export default function Premium() {
                   <View style={styles.linha} />
                 </View>
 
+                {/* Lista de benefícios do plano, com bolinha na frente de cada um */}
                 {plano.beneficios.map((beneficio) => (
                   <View
                     key={beneficio}
@@ -212,18 +238,18 @@ export default function Premium() {
                   </View>
                 ))}
 
-                {/* Botão principal */}
+                {/* Botão principal — confirma a escolha do plano e vai pro checkout */}
                 <Button
                   titulo="Obter Agora"
                   variante="terciario"
-                  onPress={() => {}}
+                  onPress={() => aoConfirmarPlano(plano.id)}
                 />
 
-                {/* Botão somente texto */}
+                {/* Botão somente texto — recusa a oferta e volta pra tela anterior */}
                 <Button
                   titulo="Não obrigado"
                   variante="botaotexto"
-                  onPress={() => {}}
+                  onPress={aoRecusarPlano}
                 />
 
               </View>
@@ -234,149 +260,3 @@ export default function Premium() {
     </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  fundo: {
-    flex: 1,
-  },
-
-  // Seletor de plano
-  abas: {
-    flexDirection: "row",
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderRadius: 24,
-    marginHorizontal: 20,
-
-    // Mantive o valor que você já estava usando
-    // porque ele está relacionado ao seu Header.
-    marginTop: -280,
-
-    padding: 4,
-  },
-
-  aba: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 20,
-    alignItems: "center",
-  },
-
-  abaAtiva: {
-    backgroundColor: Cores.destaque.limao,
-  },
-
-  abaTexto: {
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 13,
-    color: Cores.texto.principal,
-  },
-
-  abaTextoAtivo: {
-    color: Cores.roxo.escuro,
-  },
-
-  // Carrossel
-  carrossel: {
-    flex: 1,
-    marginTop: 1,
-  },
-
-  paginaCard: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-
-  // Card
-  card: {
-    backgroundColor: "#301a52b9",
-    borderColor: Cores.destaque.limao,
-    borderWidth: 1,
-    borderRadius: 9,
-    padding: 22,
-  },
-
-  badge: {
-    alignSelf: "center",
-    fontFamily: FONTS.quicksand.bold,
-    fontSize: 13,
-    color: Cores.destaque.limao,
-    marginBottom: 10,
-  },
-
-  nome: {
-    textAlign: "center",
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 26,
-    color: Cores.base.branco,
-  },
-
-  descricao: {
-    textAlign: "center",
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 14,
-    color: Cores.texto.principal,
-    marginTop: 8,
-  },
-
-  preco: {
-    textAlign: "center",
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 24,
-    color: Cores.base.branco,
-    marginTop: 16,
-  },
-
-  periodo: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 15,
-    color: Cores.texto.principal,
-  },
-
-  teste: {
-    textAlign: "center",
-    fontFamily: FONTS.quicksand.medium,
-    fontSize: 12,
-    color: Cores.texto.principal,
-    marginTop: 4,
-  },
-
-  divisor: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 14,
-  },
-
-  linha: {
-    flex: 1,
-    height: 1,
-    backgroundColor: Cores.destaque.limao,
-    opacity: 0.5,
-  },
-
-  divisorTexto: {
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 13,
-    color: Cores.destaque.limao,
-    marginHorizontal: 10,
-  },
-
-  beneficio: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 10,
-  },
-
-  bolinha: {
-    color: Cores.destaque.limao,
-    fontSize: 14,
-    marginRight: 8,
-  },
-
-  beneficioTexto: {
-    flex: 1,
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 14,
-    color: Cores.base.branco,
-  },
-});
