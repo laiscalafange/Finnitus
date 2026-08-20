@@ -1,4 +1,4 @@
-import { View, Text, useWindowDimensions } from "react-native";
+import { View, Text } from "react-native";
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { styles } from "../../styles/inicieStyles";
 import { useRouter } from "expo-router";
@@ -8,23 +8,11 @@ import { Underline } from "../../shared/components/underline";
 export default function Inicie() {
   const roteador = useRouter();
 
-  const { height } = useWindowDimensions();
-
-  const topContent = height * 0.125;
-  const topContent2 = height * 0.40;
-
   return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
 
-      <View
-        style={[
-          styles.content,
-          {
-            top: topContent,
-          },
-        ]}
-      >
+      <View style={styles.content}>
         <View style={styles.linha}>
           <Text style={styles.title}>
             Inicie
@@ -46,16 +34,8 @@ export default function Inicie() {
         <Text style={styles.title}>
           jornada
         </Text>
-      </View>
 
-      <View
-        style={[
-          styles.content2,
-          {
-            top: topContent2,
-          },
-        ]}
-      >
+
         <Text style={styles.subtitle}>
           Faça o login e comece a gerir o seu{" "}
           <Text style={styles.subtitle2}>
