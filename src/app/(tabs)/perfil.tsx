@@ -4,6 +4,7 @@ import { Avatar } from "../../shared/components/Avatar";
 import { Card } from "../../shared/components/Cards";
 import { LinearGradient } from "expo-linear-gradient";
 import { FONTS } from "../../shared/constants/Tipografia";
+import { Cores } from '@/shared/constants/Cores';
 
 export default function Perfil() {
   return (
@@ -44,7 +45,7 @@ export default function Perfil() {
 
           {/* CARD PREMIUM */}
           <Card
-            gradiente={["#712edc", "#281542"]}
+            gradiente={["#7c4dff", "#3b1b92"]}
             style={styles.cardPremium}
           >
 
@@ -75,7 +76,7 @@ export default function Perfil() {
           <View style={styles.linhaCards}>
 
             <Card
-              gradiente={["#712edc", "#281542"]}
+              gradiente={["#7c4dff", "#3b1b92"]}
               style={styles.cardEdicao}
             >
               <Text style={styles.cardTitulo}>
@@ -89,7 +90,7 @@ export default function Perfil() {
             </Card>
 
             <Card
-              gradiente={["#712edc", "#281542"]}
+              gradiente={["#7c4dff", "#3b1b92"]}
               style={styles.cardEdicao}
             >
               <Text style={styles.cardTitulo}>
@@ -107,7 +108,7 @@ export default function Perfil() {
 
           {/* CONFIGURAÇÕES E SUPORTE */}
           <Card
-            gradiente={["#712edc", "#281542"]}
+            gradiente={["#7c4dff", "#3b1b92"]}
             style={styles.cardConfiguracoes}
           >
             <Text style={styles.tituloSecao}>
@@ -178,14 +179,14 @@ const styles = StyleSheet.create({
 
   nome: {
     marginTop: 0,
-    color: "#A84FFF",
+    color: Cores.roxo.principal,
     fontSize: 25,
     fontFamily: FONTS.raleway.bold,
   },
 
   usuario: {
     marginTop: 2,
-    color: "#7136A8",
+    color: Cores.roxo.escuro,
     fontSize: 12,
     fontFamily: FONTS.raleway.regular
   },
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
   },
 
   premiumTitulo: {
-    color: "#A84FFF",
+    color: Cores.roxo.claro,
     fontSize: 19,
     fontFamily: FONTS.raleway.bold,
   },
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
   },
 
   premiumTexto: {
-    color: "#A84FFF",
+    color: Cores.roxo.claro,
     fontSize: 13,
     marginTop: 3,
     fontFamily: FONTS.raleway.regular,
@@ -235,7 +236,7 @@ const styles = StyleSheet.create({
 
   botaoPremium: {
     height: 32,
-    backgroundColor: "#8739E8",
+    backgroundColor: Cores.roxo.claro,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
   },
 
   botaoTexto: {
-    color: "#B8FF00",
+    color: Cores.destaque.limao,
     fontSize: 18,
     fontFamily: FONTS.raleway.regular,
   },
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
   },
 
   cardTitulo: {
-    color: "#A84FFF",
+    color: Cores.roxo.claro,
     fontSize: 18,
     fontFamily: FONTS.raleway.bold,
   },
@@ -293,7 +294,7 @@ const styles = StyleSheet.create({
   },
 
   tituloSecao: {
-    color: "#A84FFF",
+    color: Cores.roxo.claro,
     fontSize: 20,
     fontFamily: FONTS.raleway.bold,
     marginBottom: 8,
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
   },
 
   itemTexto: {
-    color: "#A84FFF",
+    color: Cores.roxo.claro,
     fontSize: 15,
     fontFamily: FONTS.raleway.regular,
   },

@@ -8,9 +8,9 @@ export const Cores = {
 
   //Cores principais (marca)
   roxo: {
-    principal: '#53269D',   // cor da marca
-    claro: '#A357FF',       // botões, interações
-    escuro: '#240E47',      // fundos mais profundos
+    principal: '#7c4dff',   // cor da marca
+    claro: '#9b77ff',       // botões, interações
+    escuro: '#5e24ff',      // fundos mais profundos
   },
 
   //Destaques (ações)

@@ -6,7 +6,7 @@ import { FONTS } from "../../../shared/constants/Tipografia";
 export function HeaderPerfil() {
   return (
     <LinearGradient
-      colors={["#8f4df9", "#A357FF"]}
+      colors={["#7c4dff", "#6c43dd"]}
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.5, y: 1 }}
       style={styles.header}

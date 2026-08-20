@@ -14,7 +14,7 @@ export function HeaderInterno({
 }: HeaderInternoProps) {
   return (
     <LinearGradient
-      colors={["#8f4df9", "#863fdc", "#160B24"]}
+      colors={['#7c4dff', '#49269b', '#090312']}
       locations={[0, 0.50, 1]}
       start={{ x: 1.0, y: 0 }}
       end={{ x: 1.0, y: 1 }}
