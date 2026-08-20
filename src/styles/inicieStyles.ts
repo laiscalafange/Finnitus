@@ -10,14 +10,9 @@ export const styles = StyleSheet.create({
     zIndex: 1,
     padding: 24,
     position: 'absolute',
+    top: 20,
   },
 
-  content2: {
-    flex: 1,
-    zIndex: 1,
-    padding: 24,
-    position: 'absolute',
-  },
 
   linha: {
     flexDirection: 'row',
@@ -50,7 +45,8 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.regular,
     fontSize: RFValue(25),
     color: Cores.base.branco,
-    marginBottom: -5,
+    marginTop: 15,
+    marginBottom: 5,
   },
 
   subtitle2: {
