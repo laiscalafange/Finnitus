@@ -1,23 +1,21 @@
 import { StyleSheet } from 'react-native';
 import { Cores } from '../shared/constants/Cores';
 import { FONTS } from '../shared/constants/Tipografia';
-import { RFValue } from "react-native-responsive-fontsize";
-
+import { RFValue } from 'react-native-responsive-fontsize';
 
 export const styles = StyleSheet.create({
-
-    
   content: {
-  flex: 1,
-  zIndex: 1,
-  padding: 24,
-  position: "absolute",
-  top: 60,
-  left: 10,
-},
+     flex: 1,
+    zIndex: 1,
+    position: 'absolute',
+    top: 60,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
 
-
-linha: {
+  linha: {
   flexDirection: "row",
   alignItems: "flex-end",
   gap: 8,
@@ -53,8 +51,9 @@ linha: {
 linhaTexto: {
   flexDirection: "row",
   alignItems: "center",
+  width: "100%",
+  justifyContent: "flex-start",
 },
-
 iconeInput: {
   width: 30,
   height: 30,
@@ -67,7 +66,7 @@ iconeInput: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: RFValue(25),
     color: Cores.base.branco,
-     marginTop: 15,
+    marginTop: 15,
     marginBottom: 15,
   },
 
