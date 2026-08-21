@@ -1,0 +1,4 @@
+import { StyleSheet } from 'react-native'
+import { Cores } from '@/shared/constants/Cores'
+import { FONTS } from '@/shared/constants/Tipografia'
+export const styles=StyleSheet.create({container:{marginHorizontal:14,marginBottom:18,padding:16,borderRadius:20,backgroundColor:'#32175E'},cabecalho:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},titulo:{fontFamily:FONTS.raleway.extrabold,fontSize:18,color:Cores.destaque.limao},periodo:{fontFamily:FONTS.quicksand.bold,fontSize:11,color:'#D0C0E9'},grafico:{marginTop:12,minHeight:120,borderRadius:14,backgroundColor:'#281448',padding:8,justifyContent:'center'},vazio:{paddingHorizontal:10,paddingVertical:18},vazioTitulo:{fontFamily:FONTS.quicksand.bold,fontSize:12,color:Cores.base.branco},vazioTexto:{fontFamily:FONTS.quicksand.regular,fontSize:10,lineHeight:15,color:'#BDA7E1',marginTop:5}})
