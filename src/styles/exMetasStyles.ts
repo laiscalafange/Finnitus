@@ -16,14 +16,6 @@ export const styles = StyleSheet.create({
   left: 10,
 },
 
- content2: {
-  flex: 1,
-  zIndex: 1,
-  position: "absolute",
-  padding: 24,
-  top: 210,
-  left: 10,
-},
 
 linha: {
   flexDirection: "row",
@@ -58,15 +50,6 @@ linha: {
     marginBottom: -15,
   },
 
-  content3: {
-  flex: 1,
-  zIndex: 1,
-  position: "absolute",
-  padding: 24,
-  top: 350,
-  left: 10,
-},
-
 linhaTexto: {
   flexDirection: "row",
   alignItems: "center",
@@ -84,16 +67,9 @@ iconeInput: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: RFValue(25),
     color: Cores.base.branco,
-    marginTop: 10,
-    marginBottom: -5,
+     marginTop: 15,
+    marginBottom: 15,
   },
 
-  subtitle2: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: RFValue(25),
-    color: Cores.base.branco,
-    marginTop: 10,
-    marginBottom: -14,
-  },
 
 });

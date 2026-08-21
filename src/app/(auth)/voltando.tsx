@@ -7,22 +7,11 @@ import { Button } from "../../shared/components/Button";
 export default function Voltando() {
 const roteador = useRouter();
 
-const { height } = useWindowDimensions();
-
-  const topContent = height * 0.100;
-  const topContent2 = height * 0.35;
-
 return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
 
-    <View style={[
-          styles.content,
-          {
-            top: topContent,
-          },
-        ]}
-      >
+    <View style={styles.content}>
         <Text style={styles.title}>
         Seja <Text style={styles.title2}>
         bem-
@@ -33,15 +22,7 @@ return (
         de volta!
       </Text>
       </Text>
-    </View>
 
-      <View style={[
-          styles.content2,
-          {
-            top: topContent2,
-          },
-        ]}
-      >
         <Text style={styles.subtitle}>
           Continue com o email ou outros serviços.
         </Text>

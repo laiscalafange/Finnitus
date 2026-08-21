@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
     left: 10,
     right: 10,
-    top: 30,
+    top: 50,
   },
 
 
@@ -31,14 +31,14 @@ export const styles = StyleSheet.create({
 
   title: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: RFValue(42),
+    fontSize: RFValue(45),
     color: Cores.base.branco,
     marginBottom: -15,
   },
 
   title2: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: RFValue(42),
+    fontSize: RFValue(45),
     color: Cores.destaque.limao,
     marginBottom: -15,
   },

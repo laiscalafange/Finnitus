@@ -12,22 +12,9 @@ export const styles = StyleSheet.create({
   zIndex: 1,
   padding: 24,
   position: "absolute",
+  top: 50,
 },
 
- content2: {
-  flex: 1,
-  zIndex: 1,
-  position: "absolute",
-  padding: 24,
-},
-
-content3: {
-  position: "absolute",
-  top: 200,
-  bottom: 20,
-  width: "90%",
-  alignSelf: "center",
-},
 
 texto: {
     fontFamily: "Raleway_600SemiBold",
@@ -61,13 +48,8 @@ texto: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: RFValue(25),
     color: Cores.base.branco,
-    marginBottom: -5,
-  },
-  subtitle2: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: RFValue(25),
-    color: Cores.roxo.principal,
-    marginBottom: -5,
+    marginTop: 15,
+    marginBottom: 15,
   },
 
 });

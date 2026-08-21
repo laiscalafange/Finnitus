@@ -26,11 +26,8 @@ return (
        </Text>
     
     <Text style={styles.subtitle}>
-         Organize seus compromissos
+         Organize seus compromissos.
         </Text>
-      </View>
-
-      <View style={styles.content2}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/calendar2.png")}
@@ -40,12 +37,9 @@ return (
          Controle de datas
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Veja datas de vencimento de contas e compromissos importantes.
         </Text>
-      </View>
-
-      <View style={styles.content3}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/scortado.png")}
@@ -55,7 +49,7 @@ return (
         Evite atrasos
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Receba lembretes e não perca prazos.
         </Text>
       </View>

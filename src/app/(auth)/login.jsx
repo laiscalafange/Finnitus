@@ -10,12 +10,6 @@ import { useState } from "react";
 export default function Login() {
 const roteador = useRouter();
 
-const { height } = useWindowDimensions();
-
-  const topContent = height * 0.100;
-  const topContent2 = height * 0.16;
-  const topContent3 = height * 0.28;
-
 const [email, setEmail] = useState("");
 const [senha, setSenha] = useState("");
 
@@ -23,38 +17,15 @@ return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
 
-    <View style={[
-              styles.content,
-              {
-                top: topContent,
-              },
-            ]}
-          >
+    <View style={styles.content}>
         <Text style={styles.title2}>
        Entre na <Text style={styles.title}>
         sua conta </Text>
         </Text>
-    </View>
-
-      <View style={[
-                styles.content2,
-                {
-                  top: topContent2,
-                },
-              ]}
-            >
         <Text style={styles.subtitle}>
           Preencha seus dados.
         </Text>
-      </View>
 
-      <View style={[
-                styles.content3,
-                {
-                  top: topContent3,
-                },
-              ]}
-            >
             <Input
               label="Email"
               placeholder="Digite seu Email"
