@@ -1,4 +1,4 @@
-import { View, Text, Image, useWindowDimensions } from "react-native";
+import { View, Text, Image } from "react-native";
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { styles } from "../../styles/cadastroStyles";
 import { useRouter } from "expo-router";
@@ -10,12 +10,6 @@ import { useState } from "react";
 export default function Cadastro() {
 const roteador = useRouter();
 
-const { height } = useWindowDimensions();
-
-  const topContent = height * 0.100;
-  const topContent2 = height * 0.18;
-  const topContent3 = height * 0.30;
-
 const [nome, setNome] = useState("");
 const [email, setEmail] = useState("");
 const [senha, setSenha] = useState("");
@@ -25,38 +19,14 @@ return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
 
-    <View style={[
-          styles.content,
-          {
-            top: topContent,
-          },
-        ]}
-      >
+    <View style={styles.content}>
         <Text style={styles.title2}>
         Crie <Text style={styles.title}>
         sua conta </Text>
         </Text>
-    </View>
-
-      <View style={[
-          styles.content2,
-          {
-            top: topContent2,
-          },
-        ]}
-      >
         <Text style={styles.subtitle}>
           Preencha seus dados.
         </Text>
-      </View>
-
-      <View  style={[
-          styles.content3,
-          {
-            top: topContent3,
-          },
-        ]}
-      >
            <Input
               label="Nome"
               placeholder="Digite seu nome completo"

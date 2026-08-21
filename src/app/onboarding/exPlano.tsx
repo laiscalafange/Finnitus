@@ -25,11 +25,8 @@ return (
        </Text>
     </View>
     <Text style={styles.subtitle}>
-         Planeje seu mês
+         Planeje seu mês.
         </Text>
-      </View>
-
-      <View style={styles.content2}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/salario2.png")}
@@ -39,12 +36,9 @@ return (
          Visão de gastos
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Registre o que pretende gastar e evite surpresas.
         </Text>
-      </View>
-
-      <View style={styles.content3}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/economia2.png")}
@@ -54,7 +48,7 @@ return (
          Defina um limite
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Saiba quanto pode usar sem comprometer seu orçamento.
         </Text>
       </View>

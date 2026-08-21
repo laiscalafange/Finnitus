@@ -27,11 +27,8 @@ return (
        
     
     <Text style={styles.subtitle}>
-         Imprevistos acontecem
+         Imprevistos acontecem.
         </Text>
-      </View>
-
-      <View style={styles.content2}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/sla.png")}
@@ -41,12 +38,9 @@ return (
          Reorganize o orçamento
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Ajuste gastos quando surgir uma despesa inesperada.
         </Text>
-      </View>
-
-      <View style={styles.content3}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/balança.png")}
@@ -56,7 +50,7 @@ return (
         Mantenha o equilíbrio
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Encontre alternativas para não comprometer suas metas.
         </Text>
       </View>

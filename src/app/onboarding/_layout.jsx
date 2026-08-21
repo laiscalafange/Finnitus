@@ -9,7 +9,6 @@ export default function OnboardingLayout() {
     >
       <Stack.Screen name="BemVindo" />
       <Stack.Screen name="Trilhe" />
-      <Stack.Screen name="Conheca" />
       <Stack.Screen name="Guiar" />
       <Stack.Screen name="exPlano" />
       <Stack.Screen name="exMetas" />

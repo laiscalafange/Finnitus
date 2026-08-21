@@ -25,11 +25,8 @@ return (
        </Text>
     </View>
     <Text style={styles.subtitle}>
-         Construa seus objetivos
+         Construa seus objetivos.
         </Text>
-      </View>
-
-      <View style={styles.content2}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/estrela.png")}
@@ -39,12 +36,9 @@ return (
          Defina Metas
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Crie objetivos como viagens e reservas de emergência.
         </Text>
-      </View>
-
-      <View style={styles.content3}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/grafico.png")}
@@ -54,7 +48,7 @@ return (
         Veja seu progresso
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          O quanto você já economizou e quanto ainda falta.
         </Text>
       </View>

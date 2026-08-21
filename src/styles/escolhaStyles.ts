@@ -12,13 +12,9 @@ export const styles = StyleSheet.create({
   zIndex: 1,
   padding: 24,
   position: "absolute",
-},
-
- content2: {
-  flex: 1,
-  zIndex: 1,
-  position: "absolute",
-  padding: 24,
+  left: 10,
+  right: 10,
+  top: 50,
 },
 
 botaoComIcone: {
@@ -49,13 +45,13 @@ linha: {
     
   title: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: RFValue(50),
+    fontSize: RFValue(45),
     color: Cores.base.branco,
     marginBottom: -15,
   },
   title2: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: RFValue(50),
+    fontSize: RFValue(45),
     color: Cores.destaque.limao,
     marginBottom: -15,
   },
@@ -65,6 +61,7 @@ linha: {
     fontSize: RFValue(25),
     color: Cores.base.branco,
     marginBottom: -5,
+    marginTop: 15,
   },
   subtitle2: {
     fontFamily: FONTS.quicksand.regular,

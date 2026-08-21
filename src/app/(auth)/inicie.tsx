@@ -23,7 +23,7 @@ export default function Inicie() {
               agora
             </Text>
 
-            <Underline width={80} marginLeft={50} />
+            <Underline width={80} marginLeft={55} />
           </View>
         </View>
 
