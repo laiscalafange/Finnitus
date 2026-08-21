@@ -2,7 +2,8 @@ import { ReactNode } from 'react';
 
 export interface SelectCardProps {
   label: string;
-  icon: ReactNode;
-  selected: boolean;
+  icon: React.ReactNode;
+  selected?: boolean;
+  showCheckbox?: boolean;
   onPress: () => void;
 }

@@ -1,10 +1,16 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { Check } from 'lucide-react-native'; // ou @expo/vector-icons se preferir
+import { Check } from 'lucide-react-native';
 import { styles } from './SelectCardStyles';
 import { SelectCardProps } from './SelectCardTypes';
 
-export function SelectCard({ label, icon, selected, onPress }: SelectCardProps) {
+export function SelectCard({
+  label,
+  icon,
+  selected,
+  showCheckbox = true,
+  onPress,
+}: SelectCardProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -17,9 +23,11 @@ export function SelectCard({ label, icon, selected, onPress }: SelectCardProps) 
         </Text>
       </View>
 
-      <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
-        {selected && <Check size={14} color="#0D0D0D" strokeWidth={3} />}
-      </View>
+      {showCheckbox && (
+        <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
+          {selected && <Check size={14} color="#0D0D0D" strokeWidth={3} />}
+        </View>
+      )}
     </Pressable>
   );
 }

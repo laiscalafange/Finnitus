@@ -5,9 +5,10 @@ import { RFValue } from "react-native-responsive-fontsize";
 
 export const styles = StyleSheet.create({
   container: {
-    flex: 1,
+     flex: 1,
+    zIndex: 1,
     paddingHorizontal: 24,
-    paddingTop: 80,
+    paddingTop: 70,
   },
 
   titulo: {
