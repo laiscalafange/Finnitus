@@ -7,6 +7,7 @@ import { Button } from "../../shared/components/Button";
 import { styles } from "../../styles/FutureGoalsStyles";
 import { useRouter } from "expo-router";
 import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+import { Cores } from "@/shared/constants/Cores";
 
 
 
@@ -17,7 +18,7 @@ const OPTIONS = [
   { id: "casa", label: "Casa nova", icon: Home },
   { id: "divida", label: "Pagar dívida", icon: CreditCard },
   { id: "reforma", label: "Reforma", icon: Wrench },
-  { id: "personalizado", label: "Objetivo personalizado", icon: Plus },
+  
 ];
 
 export default function MetasFuturas() {
@@ -55,29 +56,32 @@ export default function MetasFuturas() {
         Sonhos futuros
       </Text>
 
-      <ScrollView
-        style={styles.lista}
-        showsVerticalScrollIndicator={false}
-      >
-        {OPTIONS.map(({ id, label, icon: Icon }) => (
-          <SelectCard
-            key={id}
-            label={label}
-            icon={
-              <Icon
-                size={22}
-                color={
-                  selecionados.includes(id)
-                    ? "#B7FF00"
-                    : "#7C3AED"
-                }
-              />
-            }
-            selected={selecionados.includes(id)}
-            onPress={() => toggle(id)}
-          />
-        ))}
-      </ScrollView>
+      <ScrollView style={styles.lista} showsVerticalScrollIndicator={false}>
+  {OPTIONS.map(({ id, label, icon: Icon }) => (
+    <SelectCard
+      key={id}
+      label={label}
+      icon={
+        <Icon
+          size={22}
+          color={selecionados.includes(id) ? Cores.destaque.limao : Cores.roxo.claro}
+        />
+      }
+      selected={selecionados.includes(id)}
+      onPress={() => toggle(id)}
+    />
+  ))}
+
+  {/* Item de ação, não de seleção */}
+  <SelectCard
+  label="Objetivo personalizado"
+  icon={<Plus size={22} color={Cores.roxo.claro} />}
+  showCheckbox={false}
+  onPress={() => {
+    // abrir modal/tela para criar meta personalizada
+  }}
+/>
+</ScrollView>
 
       <View style={styles.botao}>
   {/*<Button

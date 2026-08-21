@@ -6,11 +6,11 @@ export const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 16,
+    gap: 10,
   },
 
   icon: {
-    fontSize: 30,
+    fontSize: 22,
     color: Cores.roxo.claro,
     marginTop: 2,
   },

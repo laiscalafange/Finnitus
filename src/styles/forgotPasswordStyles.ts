@@ -9,7 +9,8 @@ export const styles = StyleSheet.create({
   zIndex: 1,
   padding: 24,
   position: "absolute",
-  top: 70,
+  paddingTop: 70,
+  justifyContent: "space-between",
   },
   
   /*breadcrumb: {
@@ -39,7 +40,7 @@ export const styles = StyleSheet.create({
   
   tituloDestaque: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: RFValue(40),
+    fontSize: RFValue(42),
     color: Cores.destaque.limao,
     textDecorationColor: Cores.roxo.claro,
   },

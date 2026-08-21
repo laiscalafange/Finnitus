@@ -3,7 +3,7 @@ import { Text, View, StyleSheet, Image } from "react-native";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 // deixei o mesmo por que o estilo é o mesmo da página de esqueci minha senha
-import { styles } from "../../styles/forgotPasswordStyles";
+import { styles } from "../../styles/FinancialDataStyles";
 import { useState } from 'react';
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { JSX } from "react";
@@ -30,7 +30,7 @@ export default function DadosFinanceiros(): JSX.Element {
         </Text>
 
         <Text style={styles.subtitulo}>
-          Fundos de emergência são essenciais para lidar com imprevistos financeiros. Vamos calcular quanto você precisa economizar para ter uma reserva financeira adequada.
+          Vamos calcular quanto você precisa economizar para ter uma reserva financeira adequada.
         </Text>
 
         <Input

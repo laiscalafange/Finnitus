@@ -4,7 +4,7 @@ import { Text, View, Image } from "react-native";
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
-import { styles } from "../../styles/forgotPasswordStyles";
+import { styles } from "../../styles/FinancialDataStyles";
 import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
 
 
