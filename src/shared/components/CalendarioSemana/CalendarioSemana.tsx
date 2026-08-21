@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useState } from 'react'
+import { useRouter } from 'expo-router'
 import { styles } from './CalendarioSemanaStyles'
 import { CalendarioSemanaProps, DiaSemana } from './CalendarioSemanaTypes'
 
@@ -50,6 +51,9 @@ export function CalendarioSemana({
     aoPressAdicionar,
     aoPressEditar,
 }: CalendarioSemanaProps) {
+    // Hook de navegação do Expo Router
+    const router = useRouter()
+
     const [diaSelecionado, setDiaSelecionado] = useState(dataInicial)
     const [semanaOffset, setSemanaOffset] = useState(0)
 
@@ -82,14 +86,24 @@ export function CalendarioSemana({
                     </View>
 
                     <View style={styles.headerIcones}>
-                        <TouchableOpacity onPress={aoPressCoroa}>
+                        {/* Coroa — se a tela que usa esse componente passar "aoPressCoroa",
+                            usa a função dela; senão, por padrão leva pra tela Premium.
+                            TODO: ajustar "/premium" pro nome real da rota, se for diferente */}
+                        <TouchableOpacity
+                            onPress={aoPressCoroa ?? (() => router.push('/Premium'))}
+                        >
                             <Image
                                 source={require('../../../../assets/icones/coroa.png')}
                                 style={styles.icone}
                             />
                         </TouchableOpacity>
 
-                        <TouchableOpacity onPress={aoPressSino}>
+                        {/* Sino — mesma lógica: usa "aoPressSino" se vier por prop,
+                            senão leva pra tela de Notificações por padrão.
+                            TODO: ajustar "/notificacoes" pro nome real da rota, se for diferente */}
+                        <TouchableOpacity
+                            onPress={aoPressSino ?? (() => router.push('/Notificacao'))}
+                        >
                             <Image
                                 source={require('../../../../assets/icones/sino.png')}
                                 style={styles.icone}

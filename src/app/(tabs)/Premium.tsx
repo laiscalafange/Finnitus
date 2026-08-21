@@ -4,7 +4,6 @@ import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, TouchableOpa
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { HeaderInterno } from "../../shared/components/Header";
-import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Button } from "../../shared/components/Button";
 import { styles } from "@/styles/premium";
 
@@ -118,9 +117,9 @@ export default function Premium() {
 
   return (
     <LinearGradient
-      colors={GRADIENTS.background.colors}
-      start={GRADIENTS.background.start}
-      end={GRADIENTS.background.end}
+      colors={["#160B24", "#08070A", "#160B24"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={styles.fundo}
     >
       {/* Cabeçalho da tela, com título e subtítulo */}

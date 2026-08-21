@@ -1,12 +1,11 @@
-import { ScrollView, StyleSheet, Text, View, Image } from "react-native";
+import { ScrollView, Text, View, Image, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { HeaderInterno } from "../../shared/components/Header";
 import { Card } from "../../shared/components/Cards";
 import { Button } from "../../shared/components/Button";
 import { Progress } from "../../shared/components/Progress";
-import { Cores } from "../../shared/constants/Cores";
-import { FONTS } from "../../shared/constants/Tipografia";
-import { GRADIENTS } from "../../shared/constants/Gradientes";
+import { styles } from "../../styles/metasdetalhes";
 
 // Histórico da meta
 // Futuramente esses dados poderão vir do Back-end
@@ -46,26 +45,32 @@ const historico = [
 ];
 
 export default function MetasDetalhes() {
+  // Hook de navegação do Expo Router
+  const router = useRouter();
+
   return (
     <LinearGradient
-      colors={GRADIENTS.background.colors}
-      start={GRADIENTS.background.start}
-      end={GRADIENTS.background.end}
+      // Gradiente próprio dessa tela (mesmo estilo do Notificações/MetasFuturas),
+      // não usa mais o GRADIENTS.background compartilhado
+      colors={["#3f1e69", "#08070A", "#291444"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={styles.container}
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        {/* HEADER */}
+        {/* Cabeçalho fixo do topo */}
         <HeaderInterno
           titulo="Metas"
           subtitulo="Detalhes"
         />
 
+        {/* Conteúdo posicionado por cima do header (marginTop negativo) */}
         <View style={styles.conteudoSobreHeader}>
 
-          {/* Ícone da meta */}
+          {/* Ícone principal da meta */}
           <View style={styles.iconeMeta}>
             <Image
               source={require("../../../assets/icones/cifrao.png")}
@@ -73,20 +78,24 @@ export default function MetasDetalhes() {
             />
           </View>
 
-          {/* Informações da meta */}
+          {/* Nome da meta */}
+          {/* TODO: valores hardcoded — futuramente vêm da meta específica
+              (via params de rota, ex: /metas-detalhes?id=123) */}
           <Text style={styles.nomeMeta}>
             Bolsa nova
           </Text>
 
+          {/* Valor já guardado */}
           <Text style={styles.valor}>
             R$1.500,00
           </Text>
 
+          {/* Valor total da meta */}
           <Text style={styles.metaTotal}>
             De R$4.500,00
           </Text>
 
-          {/* Barra de progresso */}
+          {/* Barra de progresso (valor atual / valor total) */}
           <View style={styles.progresso}>
             <Progress
               value={1500}
@@ -97,18 +106,21 @@ export default function MetasDetalhes() {
             />
           </View>
 
+          {/* Quanto falta pra bater a meta */}
           <Text style={styles.faltam}>
             Faltam R$3.000,00
           </Text>
 
-          {/* Botão */}
+          {/* Botão "Depositar" — leva pra tela/modal de depósito na meta
+              TODO: ajustar "/depositar" pro nome real da rota, se for diferente,
+              e futuramente passar o id da meta como parâmetro */}
           <Button
             titulo="Depositar"
             variante="secundario"
-            onPress={() => { }}
+            onPress={() => router.push("/")}
           />
 
-          {/* HISTÓRICO */}
+          {/* HISTÓRICO de depósitos dessa meta */}
           <View style={styles.historico}>
             <Text style={styles.tituloHistorico}>
               Histórico
@@ -117,25 +129,25 @@ export default function MetasDetalhes() {
             {historico.map((item) => (
               <View key={item.id}>
 
-                {/* Data */}
+                {/* Data do grupo de depósitos */}
                 <Text style={styles.data}>
                   {item.data}
                 </Text>
 
-                {/* Card */}
+                {/* Card com os dados do depósito */}
                 <Card
                   gradiente={["#482287", "#281542"]}
                   style={styles.cardHistorico}
                 >
                   <View style={styles.linhaHistorico}>
 
-                    {/* Ícone */}
+                    {/* Ícone do tipo de movimentação */}
                     <Image
                       source={item.icone}
                       style={styles.iconeHistorico}
                     />
 
-                    {/* Informações */}
+                    {/* Tipo + horário */}
                     <View>
                       <Text style={styles.tipoDeposito}>
                         {item.tipo}
@@ -146,7 +158,7 @@ export default function MetasDetalhes() {
                       </Text>
                     </View>
 
-                    {/* Valor */}
+                    {/* Valor do depósito */}
                     <Text style={styles.valorDeposito}>
                       {item.valor}
                     </Text>
@@ -157,10 +169,14 @@ export default function MetasDetalhes() {
               </View>
             ))}
 
-            {/* Ver mais */}
-            <Text style={styles.verMais}>
-              Ver mais
-            </Text>
+            {/* "Ver mais" — carrega o restante do histórico dessa meta
+                TODO: ajustar "/historico-metas" pro nome real da rota, se for diferente,
+                e futuramente passar o id da meta como parâmetro */}
+            <TouchableOpacity onPress={() => router.push("/")}>
+              <Text style={styles.verMais}>
+                Ver mais
+              </Text>
+            </TouchableOpacity>
           </View>
 
         </View>
@@ -168,134 +184,3 @@ export default function MetasDetalhes() {
     </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-
-  conteudo: {
-    paddingBottom: 30,
-  },
-
-  conteudoSobreHeader: {
-    marginTop: -340,
-    paddingHorizontal: 16,
-  },
-
-  // Ícone principal da meta
-  iconeMeta: {
-    alignSelf: "center",
-    width: 120,
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  cifrao: {
-    width: 100,
-    height: 100,
-    resizeMode: "contain",
-  },
-
-  nomeMeta: {
-    textAlign: "center",
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 20,
-    color: Cores.texto.principal,
-    marginTop: 5,
-  },
-
-  valor: {
-    textAlign: "center",
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 32,
-    color: Cores.destaque.limao,
-  },
-
-  metaTotal: {
-    textAlign: "center",
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 14,
-    marginTop: 5,
-    color: Cores.texto.principal,
-  },
-
-  progresso: {
-    marginTop: 12,
-  },
-
-  faltam: {
-    textAlign: "center",
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 14,
-    color: Cores.texto.principal,
-    marginTop: 5,
-    marginBottom: 15,
-  },
-
-  // Histórico
-  historico: {
-    marginTop: 5,
-  },
-
-  tituloHistorico: {
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 20,
-    color: Cores.texto.principal,
-  },
-
-  data: {
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 13,
-    color: Cores.texto.principal,
-    marginTop: 8,
-    marginBottom: 5,
-  },
-
-  cardHistorico: {
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 5,
-  },
-
-  linhaHistorico: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  // Ícone dentro do card
-  iconeHistorico: {
-    width: 30,
-    height: 30,
-    resizeMode: "contain",
-    marginRight: 12,
-  },
-
-  tipoDeposito: {
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 12,
-    color: Cores.texto.principal,
-  },
-
-  horario: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 10,
-    color: Cores.texto.principal,
-  },
-
-  valorDeposito: {
-    marginLeft: "auto",
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 11,
-    color: Cores.texto.secundario,
-  },
-
-  verMais: {
-    fontFamily: FONTS.quicksand.bold,
-    fontSize: 13,
-    color: Cores.texto.secundario,
-    marginTop: 5,
-    marginBottom: 10,
-  },
-});

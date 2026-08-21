@@ -1,9 +1,13 @@
 import React from "react";
-import {View,Text,StyleSheet,TouchableOpacity,Image} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { FONTS } from "../../../shared/constants/Tipografia";
 
 export function HeaderPerfil() {
+  // Hook de navegação do Expo Router
+  const router = useRouter();
+
   return (
     <LinearGradient
       colors={["#7c4dff", "#6c43dd"]}
@@ -17,22 +21,24 @@ export function HeaderPerfil() {
         <Text style={styles.subtitulo}>Pessoal</Text>
       </View>
 
-      {/* Ícones */}
+      {/* Ícones do canto superior direito */}
       <View style={styles.icones}>
 
-        {/* Premium */}
-        <TouchableOpacity>
-         <Image
-          source={require("../../../../assets/icones/coroa.png")}
-          style={styles.coroa}
+        {/* Coroa — leva pra tela de assinatura Premium
+            TODO: ajustar "/premium" pro nome real da rota, se for diferente */}
+        <TouchableOpacity onPress={() => router.push("/Premium")}>
+          <Image
+            source={require("../../../../assets/icones/coroa.png")}
+            style={styles.coroa}
           />
         </TouchableOpacity>
 
-        {/* Sino */}
-        <TouchableOpacity>
-         <Image
-          source={require("../../../../assets/icones/sino.png")}
-          style={styles.coroa}
+        {/* Sino — leva pra tela de notificações
+            TODO: ajustar "/notificacoes" pro nome real da rota, se for diferente */}
+        <TouchableOpacity onPress={() => router.push("/Notificacao")}>
+          <Image
+            source={require("../../../../assets/icones/sino.png")}
+            style={styles.sino}
           />
         </TouchableOpacity>
 
@@ -42,6 +48,7 @@ export function HeaderPerfil() {
 }
 
 const styles = StyleSheet.create({
+  // Faixa roxa do topo, com cantos arredondados embaixo
   header: {
     height: 190,
 
@@ -71,6 +78,7 @@ const styles = StyleSheet.create({
     marginTop: -2,
   },
 
+  // Container dos 2 ícones (coroa + sino)
   icones: {
     flexDirection: "row",
     alignItems: "center",
@@ -79,14 +87,14 @@ const styles = StyleSheet.create({
   },
 
   sino: {
-     width: 24,
-     height: 24,
-     resizeMode: "contain",
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
   },
 
   coroa: {
-     width: 24,
-     height: 24,
-     resizeMode: "contain",
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
   },
 });

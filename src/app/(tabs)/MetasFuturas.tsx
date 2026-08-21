@@ -1,39 +1,37 @@
-import { Image, StyleSheet, Text, View, } from "react-native";
-
+import { Image, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-
 import { HeaderInterno } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
 import { Input } from "../../shared/components/Input";
-
-import { Cores } from "../../shared/constants/Cores";
-import { FONTS } from "../../shared/constants/Tipografia";
-import { GRADIENTS } from "../../shared/constants/Gradientes";
+import { styles } from "@/styles/metasfuturas";
 
 export default function MetasFuturas() {
   return (
     <LinearGradient
-      colors={GRADIENTS.background.colors}
-      start={GRADIENTS.background.start}
-      end={GRADIENTS.background.end}
+      // Gradiente próprio dessa tela (não usa mais o GRADIENTS.background
+      // compartilhado, pra não afetar outras telas como Premium)
+      colors={["#3f1e69", "#08070A", "#291444"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={styles.container}
     >
 
-      {/* HEADER */}
+      {/* Cabeçalho fixo do topo (título "Metas" + subtítulo "Criação") */}
       <HeaderInterno
         titulo="Metas"
         subtitulo="Criação"
       />
 
-      {/* CONTEÚDO POR CIMA DO HEADER */}
+      {/* Conteúdo principal, posicionado por cima do header
+          (marginTop negativo no style "conteudoSobreHeader") */}
       <View style={styles.conteudoSobreHeader}>
 
-        {/* TÍTULO */}
+        {/* Título da seção */}
         <Text style={styles.titulo}>
           Sonhos futuros
         </Text>
 
-        {/* SALÁRIO */}
+        {/* Campo de salário — usado pra calcular o quanto sobra pra metas */}
         <Input
           label="Salário"
           placeholder="Qual sua renda mensal?"
@@ -46,7 +44,7 @@ export default function MetasFuturas() {
           }
         />
 
-        {/* DESPESAS */}
+        {/* Campo de despesas — usado junto com o salário pra calcular a sobra mensal */}
         <Input
           label="Despesas"
           placeholder="Seus gastos mensais"
@@ -59,7 +57,9 @@ export default function MetasFuturas() {
           }
         />
 
-        {/* BOTÃO NO FINAL */}
+        {/* Botão de confirmação, fixado mais pro final da tela via marginTop */}
+        {/* TODO: implementar onPress — validar os campos e avançar pra próxima etapa
+            (provavelmente salvar salário/despesas e ir pra próxima tela de metas) */}
         <View style={styles.botaoContainer}>
           <Button
             titulo="Confirmar"
@@ -71,43 +71,3 @@ export default function MetasFuturas() {
     </LinearGradient>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-
-  conteudo: {
-    paddingBottom: 30,
-  },
-
-  conteudoSobreHeader: {
-    marginTop: -290,
-    paddingHorizontal: 16,
-    flex: 1,
-  },
-
-  titulo: {
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 24,
-    color: "#B7FF00",
-    marginBottom: 15,
-  },
-
-  iconeInput: {
-    width: 24,
-    height: 24,
-    resizeMode: "contain",
-  },
-
-  iconeInputs: {
-    width: 30,
-    height: 30,
-    resizeMode: "contain",
-  },
-
-  botaoContainer: {
-    marginTop: 250,
-    paddingBottom: 20,
-  },
-});

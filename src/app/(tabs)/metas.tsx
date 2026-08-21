@@ -1,436 +1,256 @@
-import {
-    View,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    Image,
-} from 'react-native'
+import { View, ScrollView, Text, TouchableOpacity, Image } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { CalendarioSemana } from '@/shared/components/CalendarioSemana'
-import { BackgroundGradient } from '@/shared/components/backgroundGradient'
-import { Cores } from '@/shared/constants/Cores'
-import { FONTS } from '@/shared/constants/Tipografia'
+import { useRouter } from 'expo-router'
+import { CalendarioSemana } from '../../shared/components/CalendarioSemana'
+import { BackgroundGradient } from '../../shared/components/backgroundGradient'
+import { styles } from '../../styles/metas'
 
 // TODO: mover para src/app/metas/Mocks.ts, seguindo o padrão do Dashboard
+// TODO: quando tiver back-end, essa lista vem de uma API em vez desse mock
 const METAS_DO_MES = [
-    {
-        id: '1',
-        icone: require('../../../assets/icones/IconMetas.png'),
-        nome: 'Presente',
-        prazo: 'Faltam 12 dias !',
-        data: '03/06',
-        valorAtual: 80,
-        valorTotal: 100,
-    },
-    {
-        id: '2',
-        icone: require('../../../assets/icones/IconMetas.png'),
-        nome: 'Bolsa nova',
-        prazo: 'Sem data definida',
-        valorAtual: 1000,
-        valorTotal: 4500,
-    },
-    {
-        id: '3',
-        icone: require('../../../assets/icones/IconMetas.png'),
-        nome: 'Batedeira',
-        prazo: 'Sem data definida',
-        data: '21/06',
-        valorAtual: 200,
-        valorTotal: 1200,
-    },
+  {
+    id: '1',
+    icone: require('../../../assets/icones/IconMetas.png'),
+    nome: 'Presente',
+    prazo: 'Faltam 12 dias !',
+    data: '03/06',
+    valorAtual: 80,
+    valorTotal: 100,
+  },
+  {
+    id: '2',
+    icone: require('../../../assets/icones/IconMetas.png'),
+    nome: 'Bolsa nova',
+    prazo: 'Sem data definida',
+    valorAtual: 1000,
+    valorTotal: 4500,
+  },
+  {
+    id: '3',
+    icone: require('../../../assets/icones/IconMetas.png'),
+    nome: 'Batedeira',
+    prazo: 'Sem data definida',
+    data: '21/06',
+    valorAtual: 200,
+    valorTotal: 1200,
+  },
 ]
 
 const METAS_LONGO_PRAZO = [
-    { id: '1', nome: 'Carro\nnovo' },
-    { id: '2', nome: 'Viagem\nnova' },
-    { id: '3', nome: 'Casa\nnova' },
+  { id: '1', nome: 'Carro\nnovo' },
+  { id: '2', nome: 'Viagem\nnova' },
+  { id: '3', nome: 'Casa\nnova' },
 ]
 
 export default function Metas() {
-    return (
-        <View style={styles.container}>
-            <BackgroundGradient />
+  // Hook de navegação do Expo Router
+  const router = useRouter()
 
-            <ScrollView style={styles.scroll}>
-                <CalendarioSemana
-                    titulo="Metas"
-                    subtitulo="Financeiras"
-                    aoSelecionarDia={(data) => console.log(data)}
-                    mostrarAcoes
-                    aoPressAdicionar={() => console.log('adicionar meta')}
-                    aoPressEditar={() => console.log('editar metas')}
+  return (
+    <View style={styles.container}>
+      {/* Fundo gradiente compartilhado (componente próprio, diferente
+          das outras telas que usam LinearGradient direto) */}
+      <BackgroundGradient />
+
+      <ScrollView style={styles.scroll}>
+
+        {/* Cabeçalho com calendário da semana + ações de adicionar/editar meta */}
+        <CalendarioSemana
+          titulo="Metas"
+          subtitulo="Financeiras"
+          aoSelecionarDia={(data) => console.log(data)}
+          mostrarAcoes
+          // TODO: ajustar "/metas-futuras" pro nome real da rota de criação de meta
+          aoPressAdicionar={() => router.push('/MetasFuturas')}
+          // TODO: ajustar "/editar-metas" pro nome real da rota de edição de metas
+          aoPressEditar={() => router.push('/')}
+        />
+
+        <View style={styles.conteudo}>
+
+          {/* ── ANÁLISES / HISTÓRICO ── */}
+          <View style={styles.navRow}>
+
+            {/* ANÁLISES — leva pra tela de análises financeiras das metas
+                TODO: ajustar "/analises" pro nome real da rota */}
+            <TouchableOpacity
+              style={styles.navItem}
+              activeOpacity={0.8}
+              onPress={() => router.push('/')}
+            >
+              <LinearGradient
+                colors={['#7c4dff', '#5a2dc7']}
+                style={styles.navCaixa}
+              >
+                <Image
+                  source={require('../../../assets/icones/analise.png')}
+                  style={styles.navIconeS}
                 />
+              </LinearGradient>
 
-                <View style={styles.conteudo}>
+              <Text style={styles.navTextoEsquerda}>
+                Análises
+              </Text>
+            </TouchableOpacity>
 
-                    {/* ── ANÁLISES / HISTÓRICO ── */}
-                    <View style={styles.navRow}>
+            {/* HISTÓRICO — leva pra tela com o histórico completo de movimentações
+                TODO: ajustar "/historico-metas" pro nome real da rota */}
+            <TouchableOpacity
+              style={styles.navItem}
+              activeOpacity={0.8}
+              onPress={() => router.push('/')}
+            >
+              <LinearGradient
+                colors={['#7c4dff', '#5a2dc7']}
+                style={styles.navCaixa}
+              >
+                <Image
+                  source={require('../../../assets/icones/historicoM.png')}
+                  style={styles.navIconeH}
+                />
+              </LinearGradient>
 
-                        {/* ANÁLISES */}
-                        <TouchableOpacity
-                            style={styles.navItem}
-                            activeOpacity={0.8}
-                        >
-                            <LinearGradient
-                                colors={['#7c4dff', '#5a2dc7']}
-                                style={styles.navCaixa}
-                            >
-                                <Image
-                                    source={require('../../../assets/icones/analise.png')}
-                                    style={styles.navIconeS}
-                                />
-                            </LinearGradient>
+              <Text style={styles.navTextoDireita}>
+                Histórico
+              </Text>
+            </TouchableOpacity>
 
-                            <Text style={styles.navTextoEsquerda}>
-                                Análises
-                            </Text>
-                        </TouchableOpacity>
+          </View>
 
-                        {/* HISTÓRICO */}
-                        <TouchableOpacity
-                            style={styles.navItem}
-                            activeOpacity={0.8}
-                        >
-                            <LinearGradient
-                                colors={['#7c4dff', '#5a2dc7']}
-                                style={styles.navCaixa}
-                            >
-                                <Image
-                                    source={require('../../../assets/icones/historicoM.png')}
-                                    style={styles.navIconeH}
-                                />
-                            </LinearGradient>
+          {/* ── METAS DO MÊS ── */}
+          <Text style={styles.secaoTitulo}>
+            Metas do mês
+          </Text>
 
-                            <Text style={styles.navTextoDireita}>
-                                Histórico
-                            </Text>
-                        </TouchableOpacity>
+          <View style={styles.metasLista}>
+            {METAS_DO_MES.map(meta => {
+              // Calcula a porcentagem preenchida da barra de progresso,
+              // limitada a 100% mesmo se valorAtual passar do valorTotal
+              const pct = Math.min(
+                100,
+                (meta.valorAtual / meta.valorTotal) * 100
+              )
 
-                    </View>
+              return (
+                <View key={meta.id} style={styles.metaLinha}>
+                  <View style={styles.metaPonto} />
 
-                    {/* ── METAS DO MÊS ── */}
-                    <Text style={styles.secaoTitulo}>
-                        Metas do mês
-                    </Text>
+                  {/* Card inteiro é clicável — leva pros detalhes daquela meta específica
+                      TODO: ajustar "/metas-detalhes" pro nome real da rota, se for diferente */}
+                  <TouchableOpacity
+                    style={styles.metaCardWrapper}
+                    activeOpacity={0.85}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/',
+                        params: { id: meta.id },
+                      })
+                    }
+                  >
+                    <LinearGradient
+                      colors={['#7c4dff', '#330e6d']}
+                      style={styles.metaCard}
+                    >
+                      <View style={styles.metaHeader}>
 
-                    <View style={styles.metasLista}>
-                        {METAS_DO_MES.map(meta => {
-                            const pct = Math.min(
-                                100,
-                                (meta.valorAtual / meta.valorTotal) * 100
-                            )
+                        <View style={styles.metaIconeContainer}>
+                          <Image
+                            source={meta.icone}
+                            style={styles.metaIcone}
+                          />
+                        </View>
 
-                            return (
-                                <View key={meta.id} style={styles.metaLinha}>
-                                    <View style={styles.metaPonto} />
+                        <Text style={styles.metaNome}>
+                          {meta.nome}
+                        </Text>
 
-                                    <LinearGradient
-                                        colors={['#482287', '#330e6d']}
-                                        style={styles.metaCard}
-                                    >
-                                        <View style={styles.metaHeader}>
+                        {meta.data && (
+                          <Text style={styles.metaData}>
+                            {meta.data}
+                          </Text>
+                        )}
 
-                                            <View style={styles.metaIconeContainer}>
-                                                <Image
-                                                    source={meta.icone}
-                                                    style={styles.metaIcone}
-                                                />
-                                            </View>
+                        {/* Menu de opções (⋮) — TODO: implementar ação separada
+                            (ex: abrir menu de editar/excluir meta) sem disparar
+                            a navegação do card inteiro */}
+                        <Text style={styles.metaMenu}>
+                          ⋮
+                        </Text>
 
-                                            <Text style={styles.metaNome}>
-                                                {meta.nome}
-                                            </Text>
+                      </View>
 
-                                            {meta.data && (
-                                                <Text style={styles.metaData}>
-                                                    {meta.data}
-                                                </Text>
-                                            )}
+                      <View style={styles.metaBarraFundo}>
+                        <View
+                          style={[
+                            styles.metaBarraPreenchida,
+                            { width: `${pct}%` },
+                          ]}
+                        />
+                      </View>
 
-                                            <Text style={styles.metaMenu}>
-                                                ⋮
-                                            </Text>
+                      <View style={styles.metaFooter}>
+                        <Text style={styles.metaPrazo}>
+                          {meta.prazo}
+                        </Text>
 
-                                        </View>
+                        <Text style={styles.metaValor}>
+                          ${meta.valorAtual} de ${meta.valorTotal}
+                        </Text>
+                      </View>
 
-                                        <View style={styles.metaBarraFundo}>
-                                            <View
-                                                style={[
-                                                    styles.metaBarraPreenchida,
-                                                    { width: `${pct}%` },
-                                                ]}
-                                            />
-                                        </View>
-
-                                        <View style={styles.metaFooter}>
-                                            <Text style={styles.metaPrazo}>
-                                                {meta.prazo}
-                                            </Text>
-
-                                            <Text style={styles.metaValor}>
-                                                ${meta.valorAtual} de ${meta.valorTotal}
-                                            </Text>
-                                        </View>
-
-                                    </LinearGradient>
-                                </View>
-                            )
-                        })}
-                    </View>
-
-                    {/* ── METAS LONGO PRAZO ── */}
-                    <Text style={styles.secaoTitulo}>
-                        Metas longo prazo
-                    </Text>
-
-                    <View style={styles.longoPrazoGrid}>
-                        {METAS_LONGO_PRAZO.map(meta => (
-                            <TouchableOpacity
-                                key={meta.id}
-                                style={styles.longoPrazoCard}
-                                activeOpacity={0.8}
-                            >
-                                <LinearGradient
-                                    colors={['#6b3fc9', '#4a1f8a']}
-                                    style={styles.longoPrazoGradiente}
-                                >
-                                    <Text style={styles.longoPrazoNome}>
-                                        {meta.nome}
-                                    </Text>
-                                </LinearGradient>
-                            </TouchableOpacity>
-                        ))}
-
-                        <TouchableOpacity
-                            style={styles.longoPrazoCard}
-                            activeOpacity={0.8}
-                        >
-                            <View style={styles.adicionarCard}>
-                                <Text style={styles.adicionarTexto}>+</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-
+                    </LinearGradient>
+                  </TouchableOpacity>
                 </View>
-            </ScrollView>
+              )
+            })}
+          </View>
+
+          {/* ── METAS LONGO PRAZO ── */}
+          <Text style={styles.secaoTitulo}>
+            Metas longo prazo
+          </Text>
+
+          <View style={styles.longoPrazoGrid}>
+            {METAS_LONGO_PRAZO.map(meta => (
+              // Cada card de meta de longo prazo leva pros detalhes dela também
+              // TODO: ajustar "/metas-detalhes" pro nome real da rota, se for diferente
+              <TouchableOpacity
+                key={meta.id}
+                style={styles.longoPrazoCard}
+                activeOpacity={0.8}
+                onPress={() =>
+                  router.push({
+                    pathname: '/MetasDetalhes',
+                    params: { id: meta.id },
+                  })
+                }
+              >
+                <LinearGradient
+                  colors={['#7c4dff', '#5a2dc7']}
+                  style={styles.longoPrazoGradiente}
+                >
+                  <Text style={styles.longoPrazoNome}>
+                    {meta.nome}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
+
+            {/* Card "+" — leva pra tela de criação de nova meta de longo prazo
+                TODO: ajustar "/metas-futuras" pro nome real da rota, se for diferente */}
+            <TouchableOpacity
+              style={styles.longoPrazoCard}
+              activeOpacity={0.8}
+              onPress={() => router.push('/MetasFuturas')}
+            >
+              <View style={styles.adicionarCard}>
+                <Text style={styles.adicionarTexto}>+</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
         </View>
-    )
+      </ScrollView>
+    </View>
+  )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#09090B',
-    },
-
-    scroll: {
-        flex: 1,
-        backgroundColor: 'transparent',
-    },
-
-    conteudo: {
-        paddingHorizontal: 24,
-        paddingBottom: 45,
-        paddingTop: 8,
-    },
-
-    // ── NAV ANÁLISES / HISTÓRICO ───────────────────────────
-
-    navRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 24,
-    },
-
-    navItem: {
-        width: '47%',
-    },
-
-    navCaixa: {
-        height: 65,
-        borderRadius: 18,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-
-    navIconeS: {
-        width: 53,
-        height: 50,
-        resizeMode: 'contain',
-        alignSelf: 'flex-start',
-        marginLeft: 9,
-    },
-
-    navIconeH: {
-        width: 53,
-        height: 50,
-        resizeMode: 'contain',
-        alignSelf: 'flex-end',
-        marginRight: 5,
-    },
-
-    navTextoEsquerda: {
-        fontFamily: FONTS.quicksand.bold,
-        fontSize: 14,
-        color: '#7c4dff',
-        textAlign: 'left',
-        marginTop: 6,
-    },
-
-    navTextoDireita: {
-        fontFamily: FONTS.quicksand.bold,
-        fontSize: 14,
-        color: '#7c4dff',
-        textAlign: 'right',
-        marginTop: 6,
-    },
-
-    // ── SEÇÃO ────────────────────────────────────────────────
-
-    secaoTitulo: {
-        fontFamily: FONTS.raleway.extrabold,
-        fontSize: 22,
-        color: Cores.destaque.limao,
-        marginBottom: 12,
-    },
-
-    // ── METAS DO MÊS ─────────────────────────────────────────
-
-    metasLista: {
-        marginBottom: 28,
-        gap: 14,
-    },
-
-    metaLinha: {
-        flexDirection: 'row',
-        alignItems: 'stretch',
-        gap: 8,
-    },
-
-    metaPonto: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: Cores.destaque.limao,
-        marginTop: 8,
-    },
-
-    metaCard: {
-        flex: 1,
-        borderRadius: 16,
-        padding: 14,
-    },
-
-    metaHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        marginBottom: 10,
-    },
-
-    metaIconeContainer: {
-        width: 32,
-        height: 32,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-
-    metaIcone: {
-        width: 25,
-        height: 25,
-        resizeMode: 'contain',
-    },
-
-    metaNome: {
-        flex: 1,
-        fontFamily: FONTS.raleway.extrabold,
-        fontSize: 17,
-        color: Cores.destaque.limao,
-    },
-
-    metaData: {
-        fontFamily: FONTS.quicksand.regular,
-        fontSize: 13,
-        color: '#C1A9E5',
-        marginRight: 6,
-    },
-
-    metaMenu: {
-        color: '#C1A9E5',
-        fontSize: 16,
-    },
-
-    metaBarraFundo: {
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: '#ffffff18',
-        overflow: 'hidden',
-        marginBottom: 8,
-    },
-
-    metaBarraPreenchida: {
-        height: '100%',
-        borderRadius: 4,
-        backgroundColor: Cores.roxo.claro,
-    },
-
-    metaFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-
-    metaPrazo: {
-        fontFamily: FONTS.quicksand.regular,
-        fontSize: 12,
-        color: '#BDA7E1',
-    },
-
-    metaValor: {
-        fontFamily: FONTS.quicksand.regular,
-        fontSize: 12,
-        color: '#BDA7E1',
-    },
-
-    // ── METAS LONGO PRAZO ────────────────────────────────────
-    longoPrazoGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 12,
-        marginBottom: 12,
-    },
-
-    longoPrazoCard: {
-        width: '31%',
-        aspectRatio: 1,
-        borderRadius: 20,
-        overflow: 'hidden',
-    },
-
-    longoPrazoGradiente: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        padding: 12,
-    },
-
-    longoPrazoNome: {
-        fontFamily: FONTS.quicksand.semibold,
-        fontSize: 14,
-        color: '#D8CDF7',
-    },
-
-    adicionarCard: {
-        flex: 1,
-        borderRadius: 20,
-        backgroundColor: '#3a2266',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-
-    adicionarTexto: {
-        fontSize: 32,
-        color: '#8a6fc0',
-        fontFamily: FONTS.quicksand.regular,
-    },
-})
