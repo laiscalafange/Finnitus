@@ -25,11 +25,8 @@ return (
        </Text>
     </View>
     <Text style={styles.subtitle}>
-         Veja seu dinheiro em tempo real
+         Veja seu dinheiro em tempo real.
         </Text>
-      </View>
-
-      <View style={styles.content2}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/olho.png")}
@@ -39,12 +36,10 @@ return (
          Visão geral completa
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Acompanhe seus gastos, receitas e saldo em um só lugar.
         </Text>
-      </View>
 
-      <View style={styles.content3}>
         <View style={styles.linhaTexto}>
        <Image
        source={require("../../../assets/icones/check.png")}
@@ -54,7 +49,7 @@ return (
         Entenda seus hábitos
         </Text>
         </View>
-        <Text style={styles.subtitle2}>
+        <Text style={styles.subtitle}>
          Identifique onde você está gastando mais.
         </Text>
       </View>

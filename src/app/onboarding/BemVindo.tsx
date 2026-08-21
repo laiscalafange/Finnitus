@@ -1,4 +1,4 @@
-import { View, Text, useWindowDimensions } from "react-native";
+import { View, Text } from "react-native";
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { styles } from "../../styles/bemVindoStyle";
 import { useRouter } from "expo-router";
@@ -8,22 +8,11 @@ import { Underline } from "../../shared/components/underline";
 export default function BemVindo() {
 const roteador = useRouter();
 
-const { height } = useWindowDimensions();
-
-  const topContent = height * 0.100;
-  const topContent2 = height * 0.35;
-
 return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
 
-      <View style={[
-          styles.content,
-          {
-            top: topContent,
-          },
-        ]}
-      >
+      <View style={styles.content}>
         <Text style={styles.title}>
           Seja
         </Text>
@@ -34,20 +23,9 @@ return (
           ao Finnitus
         </Text>
         <Underline width={170} marginLeft={80} />
-        </View>
-
-      <View style={[
-          styles.content2,
-          {
-            top: topContent2,
-          },
-        ]}
-      >
+        
         <Text style={styles.subtitle}>
-          Comece aqui a
-        </Text>
-        <Text style={styles.subtitle}>
-         sua jornada
+          Comece aqui a  {"\n"}sua jornada
         </Text>
         <Text style={styles.subtitle2}>
           financeira.

@@ -8,22 +8,11 @@ import { Underline } from "../../shared/components/underline";
 export default function Escolha() {
 const roteador = useRouter();
 
-const { height } = useWindowDimensions();
-
-  const topContent = height * 0.100;
-  const topContent2 = height * 0.42;
-
 return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
 
-    <View style={[
-          styles.content,
-          {
-            top: topContent,
-          },
-        ]}
-      >
+    <View style={styles.content}>
       <View style={styles.linha}>
        <View>
         <Text style={styles.title2}>
@@ -38,16 +27,8 @@ return (
        <Text style={styles.title}>
        para continuar
       </Text>
-    </View>
 
-      <View style={[
-          styles.content2,
-          {
-            top: topContent2,
-          },
-        ]}
-      >
-        <Text style={styles.subtitle}>
+      <Text style={styles.subtitle}>
           Continue com o email ou outros serviços.
         </Text>
       </View>
