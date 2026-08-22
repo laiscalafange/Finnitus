@@ -46,7 +46,7 @@ export default function FutureVision() {
 
         <Button
           titulo="Começar jornada"
-          onPress={() => roteador.push("/proximaTela")} // seria a home
+          onPress={() => roteador.push("../paginaInicial")} // seria a home
         />
       </View>
     </View>

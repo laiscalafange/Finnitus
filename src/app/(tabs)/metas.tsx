@@ -5,42 +5,7 @@ import { CalendarioSemana } from '../../shared/components/CalendarioSemana'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { styles } from '../../styles/metas'
 
-// TODO: mover para src/app/metas/Mocks.ts, seguindo o padrão do Dashboard
-// TODO: quando tiver back-end, essa lista vem de uma API em vez desse mock
-const METAS_DO_MES = [
-  {
-    id: '1',
-    icone: require('../../../assets/icones/IconMetas.png'),
-    nome: 'Presente',
-    prazo: 'Faltam 12 dias !',
-    data: '03/06',
-    valorAtual: 80,
-    valorTotal: 100,
-  },
-  {
-    id: '2',
-    icone: require('../../../assets/icones/IconMetas.png'),
-    nome: 'Bolsa nova',
-    prazo: 'Sem data definida',
-    valorAtual: 1000,
-    valorTotal: 4500,
-  },
-  {
-    id: '3',
-    icone: require('../../../assets/icones/IconMetas.png'),
-    nome: 'Batedeira',
-    prazo: 'Sem data definida',
-    data: '21/06',
-    valorAtual: 200,
-    valorTotal: 1200,
-  },
-]
-
-const METAS_LONGO_PRAZO = [
-  { id: '1', nome: 'Carro\nnovo' },
-  { id: '2', nome: 'Viagem\nnova' },
-  { id: '3', nome: 'Casa\nnova' },
-]
+import { METAS_DO_MES, METAS_LONGO_PRAZO } from '../../features/metasData'
 
 export default function Metas() {
   // Hook de navegação do Expo Router
@@ -155,7 +120,7 @@ export default function Metas() {
 
                         <View style={styles.metaIconeContainer}>
                           <Image
-                            source={meta.icone}
+                            source={require('../../../assets/icones/IconMetas.png')}
                             style={styles.metaIcone}
                           />
                         </View>

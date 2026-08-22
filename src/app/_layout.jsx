@@ -15,6 +15,7 @@ import {
 } from "@expo-google-fonts/quicksand";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { FinanceiroProvider } from "../features/financeiroContext";
 
 // Mantém a splash screen visível até as fontes carregarem
 SplashScreen.preventAutoHideAsync();
@@ -48,8 +49,8 @@ export default function RootLayout() {
   }
 
   return (
-    // Navegação em pilha (Stack)
-    <Stack>
+    <FinanceiroProvider>
+      <Stack>
 
       {/* Tela inicial do aplicativo */}
       <Stack.Screen
@@ -95,6 +96,7 @@ export default function RootLayout() {
         }}
       />
 
-    </Stack>
+      </Stack>
+    </FinanceiroProvider>
   );
 }

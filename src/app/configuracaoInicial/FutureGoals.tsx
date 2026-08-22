@@ -8,6 +8,7 @@ import { styles } from "../../styles/FutureGoalsStyles";
 import { useRouter } from "expo-router";
 import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
 import { Cores } from "@/shared/constants/Cores";
+import { useFinanceiro } from "../../features/financeiroContext";
 
 
 
@@ -22,8 +23,9 @@ const OPTIONS = [
 ];
 
 export default function MetasFuturas() {
-  const [selecionados, setSelecionados] = useState<string[]>([]);
   const roteador = useRouter();
+  const { metasSelecionadas, setMetasSelecionadas } = useFinanceiro();
+  const [selecionados, setSelecionados] = useState<string[]>(metasSelecionadas);
 
   function toggle(id: string) {
     setSelecionados((prev) =>
@@ -31,6 +33,11 @@ export default function MetasFuturas() {
         ? prev.filter((item) => item !== id)
         : [...prev, id]
     );
+  }
+
+  function confirmar() {
+    setMetasSelecionadas(selecionados);
+    roteador.push("/configuracaoInicial/FutureVision");
   }
 
   return (
@@ -92,7 +99,7 @@ export default function MetasFuturas() {
   <Button
     variante="primario"
     titulo="Confirmar"
-    onPress={() => roteador.push("/configuracaoInicial/FutureVision")}
+    onPress={confirmar}
     />
 </View>
 
