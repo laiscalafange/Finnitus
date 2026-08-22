@@ -1,69 +1,61 @@
 import { useRouter } from "expo-router";
-import { Text, View, StyleSheet, Image } from "react-native";
+import { Text, View, Image } from "react-native";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
-// deixei o mesmo por que o estilo é o mesmo da página de esqueci minha senha
 import { styles } from "../../styles/FinancialDataStyles";
-import { useState } from 'react';
+import { useState } from "react";
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
-import { JSX } from "react";
 import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+import { useFinanceiro } from "../../features/financeiroContext";
 
+function parseNumero(texto: string) {
+  const valor = Number(texto.replace(/[^0-9,.-]/g, "").replace(",", "."));
+  return Number.isFinite(valor) ? valor : undefined;
+}
 
-export default function DadosFinanceiros(): JSX.Element {
+export default function DadosFinanceiros() {
   const roteador = useRouter();
+  const { economiaFutura: economiaSalva, tempoEconomia: tempoSalvo, setEconomiaFutura, setTempoEconomia } = useFinanceiro();
+  const [economiaFutura, setEconomiaFuturaLocal] = useState(economiaSalva?.toString() ?? "");
+  const [tempo, setTempoLocal] = useState(tempoSalvo?.toString() ?? "");
 
-  const [economiaFutura, setEconomiaFutura] = useState(0);//ou "0"?
-  const [tempo, setTempo] = useState(0);
-
+  function confirmar() {
+    setEconomiaFutura(parseNumero(economiaFutura));
+    setTempoEconomia(parseNumero(tempo));
+    roteador.push("/configuracaoInicial/FutureGoals");
+  }
 
   return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
-
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <ProgressDots total={4} atual={2} />
-
-        <Text style={styles.titulo}>
-          <Text style={styles.tituloDestaque}>Economia</Text> futura
-        </Text>
-
-        <Text style={styles.subtitulo}>
-          Vamos calcular quanto você precisa economizar para ter uma reserva financeira adequada.
-        </Text>
-
-        <Input
-          label="Economia futura"
-          placeholder="Quanto quer economizar?"
-          icone={<Image
-      source={require("../../../assets/icones/economia.png")}
-      style={styles.iconeInput}
-    />}
-          value={economiaFutura.toString()}
-  onChangeText={(text) => setEconomiaFutura(Number(text))}
-  keyboardType="numeric"
-        />
-
-        <Input
-          label="Tempo estimado"
-          placeholder="Por quanto tempo deseja economizar?"
-          icone={<Image
-      source={require("../../../assets/icones/calendar.png")}
-      style={styles.iconeInput}
-    />}
-          value={tempo.toString()}
-          onChangeText={(text) => setTempo(Number(text))}
-          keyboardType="numeric" // "calendar" ou "numeric"?
-        />
+      <View style={styles.container}>
+        <View style={styles.content}>
+          <ProgressDots total={4} atual={2} />
+          <Text style={styles.titulo}>
+            <Text style={styles.tituloDestaque}>Economia</Text> futura
+          </Text>
+          <Text style={styles.subtitulo}>
+            Vamos calcular quanto você precisa economizar para ter uma reserva financeira adequada.
+          </Text>
+          <Input
+            label="Economia futura"
+            placeholder="Quanto quer economizar?"
+            icone={<Image source={require("../../../assets/icones/economia.png")} style={styles.iconeInput} />}
+            value={economiaFutura}
+            onChangeText={setEconomiaFuturaLocal}
+            keyboardType="numeric"
+          />
+          <Input
+            label="Tempo estimado"
+            placeholder="Por quanto tempo deseja economizar?"
+            icone={<Image source={require("../../../assets/icones/calendar.png")} style={styles.iconeInput} />}
+            value={tempo}
+            onChangeText={setTempoLocal}
+            keyboardType="numeric"
+          />
+        </View>
+        <Button variante="primario" titulo="Confirmar" onPress={confirmar} />
       </View>
-
-      <Button
-        variante="primario"
-        titulo="Confirmar"
-        onPress={() => roteador.push("/configuracaoInicial/FutureGoals")} // navegação para terceira página do onboarding financeiro
-      />
-    </View>
     </View>
   );
 }

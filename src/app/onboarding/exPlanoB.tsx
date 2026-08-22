@@ -59,7 +59,7 @@ return (
         <Button
                 variante="primario"
                 titulo="Entendi"
-                onPress={() => roteador.push("/paginaInicial")}
+                onPress={() => roteador.push("../configuracaoInicial/FinancialData")}
               />
               <Button
                 variante="outline"

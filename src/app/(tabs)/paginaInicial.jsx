@@ -11,11 +11,33 @@ import {
   CardPlanejamento,
   CardEconomia,
 } from '../../features/dashboard'
+import { useFinanceiro } from '../../features/financeiroContext'
+import { METAS_DO_MES } from '../../features/metasData'
 import { styles } from '../../styles/paginaInicial'
 
 export default function PaginaInicial() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
+  const { salario, despesas, economiaFutura, tempoEconomia } = useFinanceiro()
+
+  const temDadosFinanceiros = salario !== undefined && despesas !== undefined
+  const saldo = salario !== undefined && despesas !== undefined ? salario - despesas : undefined
+  const economia =
+    economiaFutura !== undefined && tempoEconomia !== undefined && tempoEconomia > 0
+      ? {
+          economiaFutura,
+          tempoEconomia,
+          economiaMensal: economiaFutura / tempoEconomia,
+        }
+      : undefined
+
+  const meta = METAS_DO_MES[0]
+  const planejamento = meta
+    ? {
+        titulo: meta.nome,
+        valor: `${meta.prazo} • ${meta.valorAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} de ${meta.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+      }
+    : undefined
 
   return (
     <View style={styles.container}>
@@ -30,15 +52,14 @@ export default function PaginaInicial() {
           onNotificacao={() => router.push('/Notificacao/Notificacao')}
         />
 
-        {/* Os componentes recebem dados por props. Como essas fontes ainda não
-            estão implementadas neste branch, a Home exibe estados vazios em vez
-            de inventar valores para o usuário. */}
-        <CardSaldo />
+        <CardSaldo saldoAtual={saldo} saldoMes={saldo} />
         <CardEvento onPress={() => router.push('/calendario')} />
-        <GraficoEstatisticas />
+        <GraficoEstatisticas
+          dados={temDadosFinanceiros ? [{ dia: 'Atual', receitas: salario, despesas }] : undefined}
+        />
         <CardPlanob />
-        <CardPlanejamento />
-        <CardEconomia />
+        <CardPlanejamento dados={planejamento} />
+        <CardEconomia dados={economia} />
       </ScrollView>
     </View>
   )
