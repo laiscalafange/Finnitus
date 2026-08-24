@@ -4,6 +4,8 @@ import { styles } from "../../styles/TrilheStyles";
 import { useRouter } from "expo-router";
 import { Button } from "../../shared/components/Button";
 import { Underline } from "../../shared/components/underline";
+import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+
 
 export default function Trilhe() {
 const roteador = useRouter();
@@ -13,6 +15,7 @@ return (
       <BackgroundGradient />
 
       <View style={styles.content}>
+        <ProgressDots total={3} atual={2} />
        <View style={styles.linha}>
          <View>
             <Text style={styles.title2}>
