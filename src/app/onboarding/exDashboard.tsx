@@ -4,6 +4,8 @@ import { styles } from "../../styles/exDashStyles";
 import { useRouter } from "expo-router";
 import { Button } from "../../shared/components/Button";
 import { Underline } from "../../shared/components/underline";
+import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+
 
 export default function exDashboard() {
 const roteador = useRouter();
@@ -13,6 +15,7 @@ return (
       <BackgroundGradient />
 
     <View style={styles.content}>
+      <ProgressDots total={5} atual={3} />
       <View style={styles.linha}>
         <View>
         <Text style={styles.title2}>

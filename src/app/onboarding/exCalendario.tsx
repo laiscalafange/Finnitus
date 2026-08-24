@@ -4,6 +4,8 @@ import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
 import { Underline } from "../../shared/components/underline";
 import { styles } from "../../styles/exCalenStyles";
+import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+
 
 export default function exCalendario() {
 const roteador = useRouter();
@@ -13,6 +15,7 @@ return (
       <BackgroundGradient />
 
     <View style={styles.content}>
+       <ProgressDots total={5} atual={4} />
       <View style={styles.linha}>
         <View>
         <Text style={styles.title2}>

@@ -8,11 +8,10 @@ export const styles = StyleSheet.create({
      flex: 1,
     zIndex: 1,
     position: 'absolute',
-    top: 60,
+    top: 85,
     left: 0,
     right: 0,
     paddingHorizontal: 24,
-    alignItems: 'center',
   },
 
   linha: {

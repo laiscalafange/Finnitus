@@ -4,6 +4,8 @@ import { styles } from "../../styles/GuiarStyles";
 import { useRouter } from "expo-router";
 import { Button } from "../../shared/components/Button";
 import { Underline } from "../../shared/components/underline";
+import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+
 
 export default function Guiar() {
 const roteador = useRouter();
@@ -12,6 +14,7 @@ return (
       <BackgroundGradient />
 
     <View style={styles.content}>
+      <ProgressDots total={3} atual={3} />
         <Text style={styles.title}> 
         Ele vai te
        </Text>

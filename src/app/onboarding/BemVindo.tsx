@@ -4,6 +4,7 @@ import { styles } from "../../styles/bemVindoStyle";
 import { useRouter } from "expo-router";
 import { Button } from "../../shared/components/Button";
 import { Underline } from "../../shared/components/underline";
+import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
 
 export default function BemVindo() {
 const roteador = useRouter();
@@ -13,6 +14,7 @@ return (
       <BackgroundGradient />
 
       <View style={styles.content}>
+        <ProgressDots total={3} atual={1} />
         <Text style={styles.title}>
           Seja
         </Text>
