@@ -771,7 +771,8 @@ export const ROTAS_PLANOB_MOCK = {
       '• Outros controlados',
     ],
 
-    sobra:['Gastos podem ser reduzidos para maximizar lucro passivo'],
+    sobra: undefined,
+sobraTexto: 'Gastos podem ser reduzidos para maximizar lucro passivo',
   },
 
   recomendado: {
@@ -817,6 +818,7 @@ export const ROTAS_PLANOB_MOCK = {
       '• Outros reduzidos',
     ],
 
-    sobra:[302.11 ,'                          Valor pode ser utilizado em compras futuras'] 
+   sobra: 302.11,
+sobraTexto: 'Valor pode ser utilizado em compras futuras',
   },
 }

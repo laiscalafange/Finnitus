@@ -1,8 +1,8 @@
 import { Image, Text, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { styles, extraStyles } from './styles'
-
 import { Cores } from '@/shared/constants/Cores'
+
 type Props = {
   saldoAtual?: number
   saldoMes?: number
@@ -42,7 +42,7 @@ export function CardSaldo({
   return (
     <TouchableOpacity activeOpacity={0.92} onPress={onPress} disabled={!onPress}>
       <LinearGradient
-        colors={[Cores.destaque.limao, Cores.destaque.limao, Cores.destaque.limao]}
+        colors={[Cores.destaque.limao, Cores.destaque.limao]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.container}
@@ -50,7 +50,10 @@ export function CardSaldo({
         <View style={styles.topo}>
           <View>
             <Text style={styles.titulo}>Saldo atual</Text>
-            <View style={extraStyles.valorComIcone}><Text style={styles.saldo}>{moeda(saldoAtual)}</Text><Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olho} /></View>
+            <View style={extraStyles.valorComIcone}>
+              <Text style={styles.saldo}>{moeda(saldoAtual)}</Text>
+              <Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olho} />
+            </View>
           </View>
           <Text style={styles.mes}>{data ?? 'mês atual'}</Text>
         </View>
@@ -63,7 +66,10 @@ export function CardSaldo({
         <View style={styles.divisor} />
 
         <Text style={styles.label}>Saldo do mês</Text>
-        <View style={extraStyles.valorComIcone}><Text style={styles.valorMes}>{moeda(saldoMes)}</Text><Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olhoMes} /></View>
+        <View style={extraStyles.valorComIcone}>
+          <Text style={styles.valorMes}>{moeda(saldoMes)}</Text>
+          <Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olhoMes} />
+        </View>
 
         <View style={styles.linhaVariacao}>
           <Text style={styles.label}>máximo disponível</Text>

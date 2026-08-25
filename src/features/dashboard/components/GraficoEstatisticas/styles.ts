@@ -6,8 +6,10 @@ export const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
     marginBottom: 20,
-    padding: 16,
-    borderRadius: 22,
+    paddingHorizontal: 15,
+    paddingTop: 15,
+    paddingBottom: 14,
+    borderRadius: 18,
     backgroundColor: Cores.fundo.card,
   },
   cabecalho: {
@@ -21,32 +23,11 @@ export const styles = StyleSheet.create({
     lineHeight: 26,
     color: Cores.destaque.limao,
   },
-  periodo: {
-    fontFamily: FONTS.quicksand.bold,
-    fontSize: 12,
-    color: Cores.texto.principal,
-  },
-  grafico: {
-    marginTop: 12,
-    borderRadius: 16,
-    backgroundColor: Cores.estado.desabilitado,
-    padding: 10,
-  },
-  dias: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 6,
-    marginTop: 5,
-  },
-  dia: {
-    fontFamily: FONTS.quicksand.bold,
-    fontSize: 11,
-    color: Cores.texto.principal,
-  },
   legenda: {
     alignItems: 'flex-end',
-    gap: 5,
+    gap: 4,
     paddingTop: 1,
+    flexShrink: 1,
   },
   legendaItem: {
     flexDirection: 'row',
@@ -62,15 +43,55 @@ export const styles = StyleSheet.create({
   pontoDespesa: { backgroundColor: Cores.estado.perigo },
   legendaTexto: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 10,
+    fontSize: 11,
+    lineHeight: 13,
     color: Cores.texto.principal,
   },
-  verMais: {
+  abas: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginTop: 11,
+    marginBottom: 9,
+    padding: 3,
+    borderRadius: 16,
+    backgroundColor: Cores.estado.desabilitado,
+  },
+  aba: {
+    minWidth: 65,
+    paddingHorizontal: 13,
+    paddingVertical: 5,
+    borderRadius: 13,
+    alignItems: 'center',
+  },
+  abaAtiva: {
+    backgroundColor: Cores.destaque.limao,
+  },
+  abaTexto: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 12,
-    color: Cores.destaque.limao,
-    textAlign: 'right',
-    marginTop: 10,
+    fontSize: 11,
+    color: Cores.texto.principal,
+  },
+  abaTextoAtiva: {
+    color: Cores.roxo.escuro,
+  },
+  grafico: {
+    marginTop: 2,
+    borderRadius: 16,
+    backgroundColor: Cores.estado.desabilitado,
+    paddingHorizontal: 2,
+    paddingTop: 2,
+    paddingBottom: 0,
+  },
+  dias: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 5,
+    marginTop: 4,
+  },
+  dia: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 11,
+    color: Cores.texto.principal,
   },
   vazio: {
     padding: 18,

@@ -33,12 +33,20 @@ export function obterEstatisticasHome(): EstatisticaResumo[] {
 }
 
 export function obterPlanoBResumo(salario?: number, despesas?: number): PlanoBResumo {
-  const valorMeta = salario ?? PLANOB_MOCK.limite
-  const valorAtual = despesas ?? PLANOB_MOCK.gastoAtual
+  if (salario !== undefined && despesas !== undefined) {
+    return {
+      nome: PLANOB_MOCK.status,
+      valorAtual: despesas,
+      valorMeta: salario,
+    }
+  }
+
+  const valorMeta = PLANOB_MOCK.limite
+  const restanteExistente = DASHBOARD_MOCK.planoB.restante
 
   return {
-    nome: PLANOB_MOCK.status,
-    valorAtual,
+    nome: DASHBOARD_MOCK.planoB.status,
+    valorAtual: Math.max(0, valorMeta - restanteExistente),
     valorMeta,
   }
 }

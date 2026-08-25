@@ -366,7 +366,7 @@ export default function PlanoBScreen() {
               SUMÁRIO + ATIVIDADE
           ================================================== */}
 
-          <View style={styles.duploRow}>
+          <View style={styles.rotasRow}>
             <SumarioCard
               disponivel={SUMARIO_PLANOB_MOCK.disponivel}
               itens={SUMARIO_PLANOB_MOCK.itens}
@@ -389,26 +389,24 @@ export default function PlanoBScreen() {
 
           <View style={styles.duploRow}>
             <RotasCard
-              titulo={ROTAS_PLANOB_MOCK.gastosAtuais.titulo}
-              total={ROTAS_PLANOB_MOCK.gastosAtuais.total}
-              categorias={
-                ROTAS_PLANOB_MOCK.gastosAtuais.categorias
-              }
-              resumo={ROTAS_PLANOB_MOCK.gastosAtuais.resumo}
-              sobra={ROTAS_PLANOB_MOCK.gastosAtuais.sobra}
-              styles={styles}
-            />
+  titulo={ROTAS_PLANOB_MOCK.gastosAtuais.titulo}
+  total={ROTAS_PLANOB_MOCK.gastosAtuais.total}
+  categorias={ROTAS_PLANOB_MOCK.gastosAtuais.categorias}
+  resumo={ROTAS_PLANOB_MOCK.gastosAtuais.resumo}
+  sobra={ROTAS_PLANOB_MOCK.gastosAtuais.sobra}
+  sobraTexto={ROTAS_PLANOB_MOCK.gastosAtuais.sobraTexto}
+  styles={styles}
+/>
 
             <RotasCard
-              titulo={ROTAS_PLANOB_MOCK.recomendado.titulo}
-              total={ROTAS_PLANOB_MOCK.recomendado.total}
-              categorias={
-                ROTAS_PLANOB_MOCK.recomendado.categorias
-              }
-              resumo={ROTAS_PLANOB_MOCK.recomendado.resumo}
-              sobra={ROTAS_PLANOB_MOCK.recomendado.sobra}
-              styles={styles}
-            />
+  titulo={ROTAS_PLANOB_MOCK.recomendado.titulo}
+  total={ROTAS_PLANOB_MOCK.recomendado.total}
+  categorias={ROTAS_PLANOB_MOCK.recomendado.categorias}
+  resumo={ROTAS_PLANOB_MOCK.recomendado.resumo}
+  sobra={ROTAS_PLANOB_MOCK.recomendado.sobra}
+  sobraTexto={ROTAS_PLANOB_MOCK.recomendado.sobraTexto}
+  styles={styles}
+/>
           </View>
 
         </View>

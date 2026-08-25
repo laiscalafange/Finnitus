@@ -16,9 +16,10 @@ const moeda = (valor: number) =>
 
 export function CardPlanob({ dados, onPress }: Props) {
   const restante = dados ? Math.max(0, dados.valorMeta - dados.valorAtual) : undefined
+  // Os quatro ícones são os mesmos usados na tela funcional do Plano-B.
+  // Não substituí-los por ícones genéricos mantém a Home consistente com a funcionalidade.
   const categorias = PLANOB_MOCK.categorias.slice(0, 4).map((categoria, index) => ({
     ...categoria,
-    // Os ícones podem ser trocados pelos arquivos equivalentes em assets/icones/.
     iconeFonte: [
       require('../../../../../assets/icones/economia2.png'),
       require('../../../../../assets/icones/saco.png'),
@@ -46,7 +47,7 @@ export function CardPlanob({ dados, onPress }: Props) {
 
         <View style={styles.linha}>
           <View style={styles.gauge}>
-            <Svg width={110} height={110} viewBox="0 0 110 110" style={{ transform: [{ rotate: '-90deg' }] }}>
+            <Svg width={108} height={108} viewBox="0 0 110 110" style={styles.gaugeSvg}>
               <Circle cx="55" cy="55" r={raio} fill="none" stroke={Cores.fundo.card} strokeWidth="9" />
               {categorias.reduce<{ acumulado: number; elementos: ReactElement[] }>(
                 (resultado, categoria) => {
@@ -54,8 +55,8 @@ export function CardPlanob({ dados, onPress }: Props) {
                   resultado.elementos.push(
                     <Circle
                       key={categoria.nome}
-                      cx="43"
-                      cy="43"
+                      cx="55"
+                      cy="55"
                       r={raio}
                       fill="none"
                       stroke={categoria.cor}
@@ -80,7 +81,7 @@ export function CardPlanob({ dados, onPress }: Props) {
           <View style={styles.categorias}>
             {categorias.map(categoria => (
               <View key={categoria.nome} style={styles.categoria}>
-                <View style={[styles.categoriaIcone, { backgroundColor: categoria.cor }]}><Image source={categoria.iconeFonte} style={styles.categoriaImagem} /></View>
+                <Image source={categoria.iconeFonte} style={styles.categoriaIcone} />
                 <View style={styles.categoriaTextos}>
                   <Text style={styles.categoriaNome}>{categoria.nome}</Text>
                   <Text style={styles.categoriaValor}>{moeda(categoria.valor)}</Text>

@@ -1,4 +1,5 @@
-import { ScrollView, View } from 'react-native'
+import { ScrollView, View, Text } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
@@ -17,6 +18,7 @@ import {
 } from '../../features/dashboard'
 import { useFinanceiro } from '../../features/financeiroContext'
 import { styles } from '../../styles/paginaInicial'
+import { Cores } from '../../shared/constants/Cores'
 
 export default function PaginaInicial() {
   const router = useRouter()
@@ -44,49 +46,66 @@ export default function PaginaInicial() {
   return (
     <View style={styles.container}>
       <BackgroundGradient />
+
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={{ paddingTop: insets.top + 6, paddingBottom: 115 + insets.bottom }}
+        contentContainerStyle={{ paddingBottom: 118 + insets.bottom }}
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="automatic"
       >
-        <DashboardHeader
-          onPremium={() => router.push('/Premium/Premium')}
-          onNotificacao={() => router.push('/Notificacao/Notificacao')}
-          onPerfil={() => router.push('/perfil')}
-        />
+        <LinearGradient
+          colors={[Cores.fundo.destaque, Cores.fundo.card, Cores.roxo.escuro]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.hero, { paddingTop: insets.top + 2 }]}
+        >
+          <DashboardHeader
+            onPremium={() => router.push('/Premium/Premium')}
+            onNotificacao={() => router.push('/Notificacao/Notificacao')}
+            onPerfil={() => router.push('/perfil')}
+          />
 
-        <CardSaldo
-          saldoAtual={saldoAtual}
-          saldoMes={saldoAtual}
-          maximoDisponivel={salario}
-          data={temDadosFinanceiros ? mesAtual : undefined}
-          onPress={() => router.push('/dashboard')}
-        />
+          <CardSaldo
+            saldoAtual={saldoAtual}
+            saldoMes={temDadosFinanceiros ? saldoAtual : undefined}
+            maximoDisponivel={salario}
+            data={temDadosFinanceiros ? mesAtual : undefined}
+            onPress={() => router.push('/dashboard')}
+          />
 
-        <CardEvento
-          evento={evento}
-          onPress={() => router.push('/calendario')}
-        />
+          <View style={styles.heroCurva} pointerEvents="none">
+            <View style={styles.heroCurvaForma}>
+              <Text style={styles.heroCurvaSeta}>⌄</Text>
+            </View>
+          </View>
+        </LinearGradient>
 
-        <GraficoEstatisticas
-          dados={estatisticas}
-          onPress={() => router.push('/dashboard')}
-        />
+        <View style={styles.conteudo}>
+          <CardEvento
+            evento={evento}
+            onPress={() => router.push('/calendario')}
+          />
 
-        <CardPlanob
-          dados={planoB}
-          onPress={() => router.push('/PlanoB')}
-        />
+          <GraficoEstatisticas
+            dados={estatisticas}
+            onPress={() => router.push('/dashboard')}
+          />
 
-        <CardPlanejamento
-          dados={planejamento}
-          onPress={() => router.push('/calendario')}
-        />
+          <CardPlanob
+            dados={planoB}
+            onPress={() => router.push('/PlanoB')}
+          />
 
-        <CardEconomia
-          dados={economia}
-          onPress={() => router.push('/configuracaoInicial/FutureSavings')}
-        />
+          <CardPlanejamento
+            dados={planejamento}
+            onPress={() => router.push('/calendario')}
+          />
+
+          <CardEconomia
+            dados={economia}
+            onPress={() => router.push('/configuracaoInicial/FutureSavings')}
+          />
+        </View>
       </ScrollView>
     </View>
   )

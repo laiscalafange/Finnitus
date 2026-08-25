@@ -22,6 +22,23 @@ const CORES_NIVEL = {
   nenhuma: '#ffffff20',
 }
 
+function obterCorNivel(nivel: string) {
+  switch (nivel) {
+    case 'alta':
+      return '#B7FF00'
+
+    case 'baixa':
+      return '#FF8800'
+
+    case 'media':
+      return '#9A6CFF'
+
+    case 'nenhuma':
+    default:
+      return '#FFFFFF20'
+  }
+}
+
 export function HeatmapCard({
   mes,
   ano,
@@ -64,19 +81,36 @@ export function HeatmapCard({
       </Text>
 
       <View style={styles.heatmapGrid}>
-        {dias.map(dia => (
-          <View
-            key={dia.data}
-            style={[
-              styles.heatmapBolinha,
-              {
-                backgroundColor:
-                  CORES_NIVEL[dia.nivel],
-              },
-            ]}
-          />
-        ))}
-      </View>
+
+  <View style={styles.heatmapLinha}>
+    {dias.slice(0, 15).map((dia) => (
+      <View
+        key={dia.data}
+        style={[
+          styles.heatmapBolinha,
+          {
+            backgroundColor: obterCorNivel(dia.nivel),
+          },
+        ]}
+      />
+    ))}
+  </View>
+
+  <View style={styles.heatmapLinha}>
+    {dias.slice(15, 30).map((dia) => (
+      <View
+        key={dia.data}
+        style={[
+          styles.heatmapBolinha,
+          {
+            backgroundColor: obterCorNivel(dia.nivel),
+          },
+        ]}
+      />
+    ))}
+  </View>
+
+</View>
 
       <View style={styles.heatmapLegenda}>
         <Legenda
