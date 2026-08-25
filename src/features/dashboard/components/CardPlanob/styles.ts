@@ -1,4 +1,89 @@
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
-export const styles=StyleSheet.create({container:{marginHorizontal:14,marginBottom:18,borderRadius:20,backgroundColor:'#32175E',padding:16},cabecalho:{flexDirection:'row',alignItems:'baseline',justifyContent:'space-between'},titulo:{fontFamily:FONTS.raleway.extrabold,fontSize:18,color:Cores.destaque.limao},subtitulo:{fontFamily:FONTS.quicksand.regular,fontSize:10,color:'#C4AFE4'},corpo:{flexDirection:'row',alignItems:'center',marginTop:12,borderRadius:16,backgroundColor:'#281448',padding:12},circulo:{width:86,height:86,borderRadius:43,borderWidth:8,borderColor:'#5E3C91',alignItems:'center',justifyContent:'center',marginRight:14,overflow:'hidden'},progresso:{position:'absolute',width:42,height:42,borderRadius:21,borderWidth:7,borderColor:Cores.destaque.limao,borderLeftColor:'transparent',borderBottomColor:'transparent'},percentual:{fontFamily:FONTS.raleway.extrabold,fontSize:17,color:Cores.base.branco},textos:{flex:1},valor:{fontFamily:FONTS.quicksand.bold,fontSize:14,color:Cores.base.branco},descricao:{fontFamily:FONTS.quicksand.regular,fontSize:10,lineHeight:15,color:'#BDA7E1',marginTop:5}})
+
+export const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: 14,
+    marginBottom: 18,
+  },
+  tituloLinha: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  titulo: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 16,
+    color: Cores.destaque.limao,
+  },
+  subtitulo: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 9,
+    color: '#C4AFE4',
+  },
+  corpo: {
+    minHeight: 124,
+    borderRadius: 18,
+    backgroundColor: '#32175E',
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  gauge: {
+    width: 88,
+    height: 88,
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  gaugeTexto: {
+    position: 'absolute',
+    alignItems: 'center',
+    width: 78,
+  },
+  gaugeValor: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 11,
+    color: '#C0A3E8',
+    textAlign: 'center',
+  },
+  gaugeLabel: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 8,
+    color: '#A88ACF',
+    marginTop: 1,
+  },
+  categorias: {
+    flex: 1,
+    gap: 6,
+  },
+  categoria: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoriaLinha: {
+    width: 3,
+    height: 25,
+    borderRadius: 2,
+    marginRight: 7,
+  },
+  categoriaTextos: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  categoriaNome: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 9,
+    color: '#D6C4ED',
+  },
+  categoriaValor: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 9,
+    color: '#FFFFFF',
+  },
+})
