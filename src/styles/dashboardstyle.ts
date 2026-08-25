@@ -78,9 +78,11 @@ weekArrowTexto: {
     paddingTop: 1,
   },
 
-  headerIcone: {
-    fontSize: 23,
-  },
+ headerIcone: {
+  width: 25,
+  height: 25,
+  resizeMode: 'contain',
+},
 
   // ── TOGGLE ───────────────────────────────────────────────
   toggle: {
@@ -388,7 +390,7 @@ weekArrowTexto: {
   // ── GASTOS DA SEMANA ─────────────────────────────────────
   gastosCorpo: {
   flexDirection: 'row',
-  alignItems: 'flex-end',
+  alignItems: 'center',
 },
 
 gaugeContainer: {
@@ -411,30 +413,32 @@ gaugeSubLabel: {
 },
 
 gastosList: {
-  flex: 2,
+  flex: 1,
   gap: 8,
-  alignItems: 'flex-start',
+  marginLeft: 10,
 },
 
 gastosItem: {
   flexDirection: 'row',
-  justifyContent: 'space-between',
   alignItems: 'center',
-  gap: 5,
+  justifyContent: 'space-between',
+  width: '100%',
   marginTop: 7,
-  paddingLeft: 55,
+  paddingLeft: 0,
 },
 
 gastosItemLabel: {
+  flex: 1,
   fontFamily: FONTS.quicksand.regular,
-  fontSize: 15,
+  fontSize: 14,
   color: Cores.roxo.claro,
-
 },
 
 gastosItemValor: {
   fontFamily: FONTS.raleway.extrabold,
-  fontSize: 15,
+  fontSize: 14,
+  minWidth: 65,
+  textAlign: 'right',
 },
 
 gastosLegendaRow: {

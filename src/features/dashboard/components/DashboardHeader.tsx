@@ -20,10 +20,10 @@ export function DashboardHeader({ onPremium, onNotificacao, onPerfil }: Props) {
       </TouchableOpacity>
 
       <View style={styles.icones}>
-        <TouchableOpacity onPress={onPremium} activeOpacity={0.75} accessibilityLabel="Abrir Premium">
+        <TouchableOpacity style={styles.botaoIcone} onPress={onPremium} activeOpacity={0.75} accessibilityLabel="Abrir Premium">
           <Image source={require('../../../../assets/icones/coroa.png')} style={styles.icone} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={onNotificacao} activeOpacity={0.75} accessibilityLabel="Abrir notificações">
+        <TouchableOpacity style={styles.botaoIcone} onPress={onNotificacao} activeOpacity={0.75} accessibilityLabel="Abrir notificações">
           <Image source={require('../../../../assets/icones/sino.png')} style={styles.icone} />
         </TouchableOpacity>
       </View>

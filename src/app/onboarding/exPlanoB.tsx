@@ -46,7 +46,7 @@ return (
         </Text>
         <View style={styles.linhaTexto}>
        <Image
-       source={require("../../../assets/icones/balança.png")}
+       source={require("../../../assets/icones/balanca.png")}
        style={styles.iconeInput}
        />
         <Text style={styles.stitulo}>

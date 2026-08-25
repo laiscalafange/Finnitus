@@ -193,54 +193,53 @@ export const styles = StyleSheet.create({
 
   // ── GAUGE ───────────────────────────────────────────────
   gastosMesCorpo: {
-    marginTop:15,
-    flexDirection: 'row',
-    alignItems:'flex-end',
-    gap: 2,
-  },
+  marginTop: 10,
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 10,
+},
 
   gaugeLabel: {
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 18,
-    color: Cores.roxo.claro,
-    textAlign: 'left',
-  },
+  fontFamily: FONTS.raleway.extrabold,
+  fontSize: 18,
+  color: Cores.roxo.claro,
+  textAlign: 'center',
+},
 
-  gaugeSublabel: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 18,
-    color: Cores.texto.principal,
-    textAlign: 'right',
-  },
+gaugeSublabel: {
+  fontFamily: FONTS.quicksand.regular,
+  fontSize: 15,
+  color: Cores.texto.principal,
+  textAlign: 'center',
+},
 
   estatsList: {
-    flex: 2,
-    gap: 8,
-     alignItems:'flex-start',
-     fontSize: 18,
-  
-  },
+  flex: 1,
+  gap: 8,
+  justifyContent: 'center',
+},
 
   estatsItem: {
   flexDirection: 'row',
-  justifyContent: 'space-between',
   alignItems: 'center',
-  gap:2,
-  marginTop: 10,
-  paddingLeft:45,
-
+  justifyContent: 'space-between',
+  width: '100%',
+  marginTop: 8,
 },
-  estatsLabel: {
-    fontFamily: FONTS.quicksand.regular,
-    
-    color: Cores.roxo.claro,
-    lineHeight: 14,
-  },
 
-  estatsValor: {
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 18,
-  },
+  estatsLabel: {
+  flex: 1,
+  fontFamily: FONTS.quicksand.regular,
+  fontSize: 13,
+  color: Cores.roxo.claro,
+  lineHeight: 16,
+},
+ estatsValor: {
+  fontFamily: FONTS.raleway.extrabold,
+  fontSize: 16,
+  minWidth: 55,
+  textAlign: 'right',
+},
 
   legenda: {
     flexDirection: 'row',

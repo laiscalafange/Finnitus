@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
@@ -19,6 +19,9 @@ import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
 import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
 import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
 import { styles } from '../../styles/dashboardstyle'
+
+import coroaIcon from '../../../assets/icones/coroa.png'
+import sinoIcon from '../../../assets/icones/sino.png'
 
 const DIAS_SEMANA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom']
 const LETRAS_DIAS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
@@ -184,9 +187,9 @@ export default function Dashboard() {
             </View>
 
             <View style={styles.headerIcones}>
-              <Text style={styles.headerIcone}>👑</Text>
-              <Text style={styles.headerIcone}>🔔</Text>
-            </View>
+  <Image source={coroaIcon} style={styles.headerIcone} />
+  <Image source={sinoIcon} style={styles.headerIcone} />
+</View>
           </View>
 
           <View style={styles.toggle}>
@@ -525,3 +528,4 @@ export default function Dashboard() {
   </View>
   )
 }
+
