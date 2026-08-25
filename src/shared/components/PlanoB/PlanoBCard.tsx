@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, Image } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import Svg, { Circle } from 'react-native-svg'
 
@@ -8,7 +8,7 @@ type Categoria = {
   nome: string
   valor: number
   porcentagem: number
-  icone: string
+  icone: any
   cor: string
 }
 
@@ -157,9 +157,10 @@ export function PlanoBCard({
               key={cat.nome}
               style={styles.categoriaItem}
             >
-              <Text style={styles.categoriaIcone}>
-                {cat.icone}
-              </Text>
+              <Image
+  source={cat.icone}
+  style={styles.categoriaIcone}
+/>
 
               <View>
                 <Text style={styles.categoriaNome}>

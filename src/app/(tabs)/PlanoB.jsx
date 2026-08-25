@@ -1,14 +1,11 @@
-import {
-  ScrollView,
-  View,
-  Text,
-} from 'react-native'
+import {ScrollView, View, Text, Image} from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { VictoryArea } from 'victory-native'
 
 import { Cores } from '../../shared/constants/Cores'
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
-
+import coroaIcon from '../../../assets/icones/coroa.png'
+import sinoIcon from '../../../assets/icones/sino.png'
 import {
   CATEGORIAS_PLANOB_MOCK,
   DADOS_AREA_MOCK,
@@ -58,15 +55,19 @@ export default function PlanoBScreen() {
               </Text>
             </View>
 
-            <View style={styles.headerPlanoBIcones}>
-              <Text style={styles.headerPlanoBIcone}>
-                👑
-              </Text>
+           <View style={styles.headerPlanoBIcones}>
+  <Image
+    source={coroaIcon}
+    style={styles.headerPlanoBIconeImagem}
+    resizeMode="contain"
+  />
 
-              <Text style={styles.headerPlanoBIcone}>
-                🔔
-              </Text>
-            </View>
+  <Image
+    source={sinoIcon}
+    style={styles.headerPlanoBIconeImagem}
+    resizeMode="contain"
+  />
+</View>
           </View>
 
           <View style={styles.headerSaldoCard}>

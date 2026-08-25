@@ -43,16 +43,17 @@ export const styles = StyleSheet.create({
     marginTop: -1,
   },
 
-  headerPlanoBIcones: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20,
-    paddingTop: 1,
-  },
+  headerPlanoBIconeImagem: {
+  width: 30,
+  height: 30,
+  resizeMode: 'contain',
+},
 
-  headerPlanoBIcone: {
-    fontSize: 20,
-  },
+  headerPlanoBIcones: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 12,
+},
 
   headerMesPassado: {
     fontFamily: FONTS.quicksand.regular,
@@ -225,8 +226,11 @@ export const styles = StyleSheet.create({
   },
 
   categoriaIcone: {
-    fontSize: 24,
-  },
+  width: 24,
+  height: 24,
+  resizeMode: 'contain',
+  marginRight: 10,
+},
 
   categoriaNome: {
     fontFamily: FONTS.quicksand.regular,
