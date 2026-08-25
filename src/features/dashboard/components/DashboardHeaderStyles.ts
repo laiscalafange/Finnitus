@@ -19,14 +19,14 @@ export const styles = StyleSheet.create({
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 22,
+    fontSize: 24,
     color: Cores.destaque.limao,
     lineHeight: 25,
   },
   subtitulo: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 10,
-    color: '#B99CDD',
+    fontSize: 12,
+    color: Cores.texto.principal,
     marginTop: 1,
   },
   icones: {

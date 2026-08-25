@@ -46,7 +46,7 @@ export default function PaginaInicial() {
       <BackgroundGradient />
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={{ paddingBottom: 115 + insets.bottom }}
+        contentContainerStyle={{ paddingTop: insets.top + 6, paddingBottom: 115 + insets.bottom }}
         showsVerticalScrollIndicator={false}
       >
         <DashboardHeader
@@ -91,4 +91,3 @@ export default function PaginaInicial() {
     </View>
   )
 }
-

@@ -16,7 +16,7 @@ export function CardEconomia({ dados, onPress }: Props) {
   const percentualBruto = dados?.percentualMeta ?? 0
   const emAlerta = dados !== undefined && percentualBruto < 0
   const percentual = Math.min(100, Math.max(0, Math.abs(percentualBruto)))
-  const corDestaque = emAlerta ? '#FF6B4A' : Cores.destaque.limao
+  const corDestaque = emAlerta ? Cores.estado.perigo : Cores.destaque.limao
   const raio = 34
   const circ = 2 * Math.PI * raio
 
@@ -26,7 +26,7 @@ export function CardEconomia({ dados, onPress }: Props) {
       <TouchableOpacity style={styles.card} onPress={onPress} disabled={!onPress} activeOpacity={0.88}>
         <View style={styles.medidor}>
           <Svg width={92} height={92} viewBox="0 0 92 92" style={{ transform: [{ rotate: '-90deg' }] }}>
-            <Circle cx="46" cy="46" r={raio} fill="none" stroke="#5E3C91" strokeWidth="9" />
+            <Circle cx="46" cy="46" r={raio} fill="none" stroke={Cores.roxo.principal} strokeWidth="9" />
             <Circle
               cx="46"
               cy="46"

@@ -2,6 +2,7 @@ import { Text, View } from 'react-native'
 import Svg, { Polyline, Line, Rect, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg'
 import { EstatisticaResumo } from '../../types'
 import { styles } from './styles'
+import { Cores } from '@/shared/constants/Cores'
 
 type Props = {
   dados?: EstatisticaResumo[]
@@ -50,8 +51,8 @@ export function GraficoEstatisticas({ dados, onPress }: Props) {
             <Svg width="100%" height={altura} viewBox={`0 0 ${largura} ${altura}`}>
               <Defs>
                 <SvgGradient id="barraGradiente" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0" stopColor="#FFE066" />
-                  <Stop offset="1" stopColor="#FF8800" />
+                  <Stop offset="0" stopColor={Cores.estado.alerta} />
+                  <Stop offset="1" stopColor={Cores.estado.perigo} />
                 </SvgGradient>
               </Defs>
               {[0.25, 0.5, 0.75].map(nivel => (
@@ -61,7 +62,8 @@ export function GraficoEstatisticas({ dados, onPress }: Props) {
                   x2={largura}
                   y1={altura - nivel * altura}
                   y2={altura - nivel * altura}
-                  stroke="#FFFFFF16"
+                  stroke={Cores.base.branco}
+                  strokeOpacity={0.09}
                   strokeWidth={1}
                 />
               ))}
@@ -84,7 +86,7 @@ export function GraficoEstatisticas({ dados, onPress }: Props) {
               <Polyline
                 points={gerarPontosLinha('despesas')}
                 fill="none"
-                stroke="#E4D3FF"
+                stroke={Cores.texto.principal}
                 strokeOpacity={0.6}
                 strokeWidth={1.5}
                 strokeLinecap="round"
