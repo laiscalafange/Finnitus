@@ -2,6 +2,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { styles, extraStyles } from './styles'
 
+import { Cores } from '@/shared/constants/Cores'
 type Props = {
   saldoAtual?: number
   saldoMes?: number
@@ -41,7 +42,7 @@ export function CardSaldo({
   return (
     <TouchableOpacity activeOpacity={0.92} onPress={onPress} disabled={!onPress}>
       <LinearGradient
-        colors={['#B7FF00', '#9EFF00', '#C8FF19']}
+        colors={[Cores.destaque.limao, Cores.destaque.limao, Cores.destaque.limao]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.container}

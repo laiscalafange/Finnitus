@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native'
 import { FONTS } from '@/shared/constants/Tipografia'
 
+import { Cores } from '@/shared/constants/Cores'
 export const styles = StyleSheet.create({
   container: {
     borderRadius: 28,
@@ -10,7 +11,7 @@ export const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginTop: 5,
     marginBottom: 17,
-    shadowColor: '#000000',
+    shadowColor: Cores.base.preto,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
@@ -23,42 +24,42 @@ export const styles = StyleSheet.create({
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 14,
-    color: '#21102F',
+    fontSize: 18,
+    color: Cores.base.preto,
   },
   mes: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 11,
-    color: '#4C3D19',
+    fontSize: 13,
+    color: Cores.base.preto,
   },
   saldo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 24,
-    color: '#171B12',
+    fontSize: 30,
+    color: Cores.base.preto,
     marginTop: 1,
   },
   divisor: {
     height: 1,
-    backgroundColor: '#5C6D16',
+    backgroundColor: Cores.interface.divisor,
     opacity: 0.35,
     marginVertical: 10,
   },
   label: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 8,
-    color: '#314113',
+    fontSize: 11,
+    color: Cores.base.preto,
   },
   valorMes: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 17,
-    color: '#171B12',
+    fontSize: 21,
+    color: Cores.base.preto,
     marginTop: 1,
     marginBottom: 4,
   },
   maximo: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 11,
-    color: '#171B12',
+    fontSize: 13,
+    color: Cores.base.preto,
     marginLeft: 6,
   },
   linhaVariacao: {
@@ -73,26 +74,26 @@ export const styles = StyleSheet.create({
     borderRadius: 9,
   },
   badgePositivo: {
-    backgroundColor: 'rgba(255,255,255,0.35)',
+    backgroundColor: Cores.base.branco,
   },
   badgeNegativo: {
-    backgroundColor: '#7A1F1F',
+    backgroundColor: Cores.estado.erro,
   },
   badgeTexto: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 8,
+    fontSize: 11,
   },
   badgeTextoPositivo: {
-    color: '#1E5E00',
+    color: Cores.base.preto,
   },
   badgeTextoNegativo: {
-    color: '#FFD3D3',
+    color: Cores.base.branco,
   },
 })
 
 
 export const extraStyles = StyleSheet.create({
   valorComIcone: { flexDirection: 'row', alignItems: 'center' },
-  olho: { width: 13, height: 13, resizeMode: 'contain', marginLeft: 5, tintColor: '#354611' },
-  olhoMes: { width: 12, height: 12, resizeMode: 'contain', marginLeft: 5, tintColor: '#354611' },
+  olho: { width: 16, height: 16, resizeMode: 'contain', marginLeft: 5, tintColor: Cores.base.preto },
+  olhoMes: { width: 15, height: 15, resizeMode: 'contain', marginLeft: 5, tintColor: Cores.base.preto },
 })

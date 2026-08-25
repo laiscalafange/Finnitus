@@ -5,6 +5,7 @@ import Svg, { Circle } from 'react-native-svg'
 import { PlanoBResumo } from '../../types'
 import { styles } from './styles'
 
+import { Cores } from '@/shared/constants/Cores'
 type Props = {
   dados?: PlanoBResumo
   onPress?: () => void
@@ -25,7 +26,7 @@ export function CardPlanob({ dados, onPress }: Props) {
       require('../../../../../assets/icones/historicoM.png'),
     ][index],
   }))
-  const raio = 34
+  const raio = 42
   const circ = 2 * Math.PI * raio
   const totalCategorias = categorias.reduce((soma, categoria) => soma + categoria.valor, 0) || 1
 
@@ -45,8 +46,8 @@ export function CardPlanob({ dados, onPress }: Props) {
 
         <View style={styles.linha}>
           <View style={styles.gauge}>
-            <Svg width={86} height={86} viewBox="0 0 86 86" style={{ transform: [{ rotate: '-90deg' }] }}>
-              <Circle cx="43" cy="43" r={raio} fill="none" stroke="#4B2E74" strokeWidth="9" />
+            <Svg width={110} height={110} viewBox="0 0 110 110" style={{ transform: [{ rotate: '-90deg' }] }}>
+              <Circle cx="55" cy="55" r={raio} fill="none" stroke={Cores.fundo.card} strokeWidth="9" />
               {categorias.reduce<{ acumulado: number; elementos: ReactElement[] }>(
                 (resultado, categoria) => {
                   const fatia = (categoria.valor / totalCategorias) * circ
