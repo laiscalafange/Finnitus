@@ -6,14 +6,14 @@ export const styles = StyleSheet.create({
   container: {
     marginHorizontal: 14,
     marginBottom: 18,
-    padding: 12,
-    borderRadius: 18,
-    backgroundColor: '#32175E',
+    padding: 14,
+    borderRadius: 20,
+    backgroundColor: '#3B1E63',
   },
   cabecalho: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
     color: '#D0C0E9',
   },
   grafico: {
-    marginTop: 8,
+    marginTop: 10,
     borderRadius: 12,
     backgroundColor: '#281448',
     padding: 7,
@@ -42,27 +42,24 @@ export const styles = StyleSheet.create({
     color: '#BDA7E1',
   },
   legenda: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-    gap: 8,
+    alignItems: 'flex-end',
+    gap: 3,
   },
   legendaItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
   ponto: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     marginRight: 5,
   },
   pontoReceita: { backgroundColor: '#B7FF00' },
   pontoDespesa: { backgroundColor: '#FF8800' },
   legendaTexto: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 8,
+    fontSize: 7,
     color: '#D9C9EE',
   },
   verMais: {

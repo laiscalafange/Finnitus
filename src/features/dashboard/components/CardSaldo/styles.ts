@@ -3,10 +3,16 @@ import { FONTS } from '@/shared/constants/Tipografia'
 
 export const styles = StyleSheet.create({
   container: {
-    borderRadius: 24,
-    padding: 16,
+    borderRadius: 28,
+    padding: 18,
     marginHorizontal: 14,
-    marginBottom: 18,
+    marginTop: 8,
+    marginBottom: 26,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 6,
   },
   topo: {
     flexDirection: 'row',
@@ -60,14 +66,24 @@ export const styles = StyleSheet.create({
     marginTop: 5,
   },
   badge: {
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 8,
-    backgroundColor: '#88BD00',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 9,
+  },
+  badgePositivo: {
+    backgroundColor: 'rgba(255,255,255,0.35)',
+  },
+  badgeNegativo: {
+    backgroundColor: '#7A1F1F',
   },
   badgeTexto: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 8,
-    color: '#243000',
+  },
+  badgeTextoPositivo: {
+    color: '#1E5E00',
+  },
+  badgeTextoNegativo: {
+    color: '#FFD3D3',
   },
 })
