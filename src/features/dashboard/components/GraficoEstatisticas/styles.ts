@@ -4,10 +4,10 @@ import { FONTS } from '@/shared/constants/Tipografia'
 
 export const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 14,
-    marginBottom: 18,
-    padding: 14,
-    borderRadius: 20,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 12,
+    borderRadius: 18,
     backgroundColor: '#3B1E63',
   },
   cabecalho: {
@@ -38,7 +38,7 @@ export const styles = StyleSheet.create({
   },
   dia: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 8,
+    fontSize: 7.5,
     color: '#BDA7E1',
   },
   legenda: {
@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
   pontoDespesa: { backgroundColor: '#FF8800' },
   legendaTexto: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 7,
+    fontSize: 6.5,
     color: '#D9C9EE',
   },
   verMais: {

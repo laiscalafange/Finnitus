@@ -1,4 +1,15 @@
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
-export const styles=StyleSheet.create({container:{marginHorizontal:14,marginBottom:18},titulo:{fontFamily:FONTS.raleway.extrabold,fontSize:18,color:Cores.destaque.limao,marginBottom:9},card:{minHeight:64,borderRadius:20,backgroundColor:'#3B1E63',paddingHorizontal:13,flexDirection:'row',alignItems:'center'},icone:{width:35,height:35,borderRadius:18,backgroundColor:'#4A2480',alignItems:'center',justifyContent:'center',marginRight:10},iconeTexto:{fontFamily:FONTS.raleway.bold,fontSize:17,color:Cores.destaque.limao},textos:{flex:1},nome:{fontFamily:FONTS.quicksand.bold,fontSize:13,color:Cores.base.branco},valor:{fontFamily:FONTS.quicksand.regular,fontSize:10,color:'#BDA7E1',marginTop:3},seta:{fontFamily:FONTS.raleway.bold,fontSize:24,color:'#A57CD6'}})
+
+export const styles = StyleSheet.create({
+  container: { marginHorizontal: 20, marginBottom: 16 },
+  titulo: { fontFamily: FONTS.raleway.extrabold, fontSize: 16, color: Cores.destaque.limao, marginBottom: 7 },
+  card: { minHeight: 58, borderRadius: 18, backgroundColor: '#3B1E63', paddingHorizontal: 10, paddingVertical: 9, flexDirection: 'row', alignItems: 'center' },
+  icone: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#4A2480', alignItems: 'center', justifyContent: 'center', marginRight: 9 },
+  iconeImagem: { width: 24, height: 24, resizeMode: 'contain' },
+  textos: { flex: 1, minWidth: 0 },
+  nome: { fontFamily: FONTS.quicksand.bold, fontSize: 13, color: Cores.base.branco },
+  valor: { fontFamily: FONTS.quicksand.regular, fontSize: 9.5, color: '#BDA7E1', marginTop: 3 },
+  seta: { fontFamily: FONTS.raleway.bold, fontSize: 25, color: '#A57CD6', marginLeft: 5 },
+})
