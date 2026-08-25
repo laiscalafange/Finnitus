@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Image, Text, TouchableOpacity, View } from 'react-native'
 import { PlanejamentoResumo } from '../../types'
 import { styles } from './styles'
 
@@ -18,7 +18,7 @@ export function CardPlanejamento({ dados, onPress }: Props) {
         activeOpacity={0.85}
       >
         <View style={styles.icone}>
-          <Text style={styles.iconeTexto}>🎁</Text>
+          <Image source={require("../../../../../assets/icones/presente.png")} style={styles.iconeImagem} />
         </View>
         <View style={styles.textos}>
           <Text style={styles.nome}>{dados?.titulo ?? 'Sem planejamento'}</Text>

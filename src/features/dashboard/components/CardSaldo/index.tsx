@@ -1,6 +1,6 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Image, Text, TouchableOpacity, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
-import { styles } from './styles'
+import { styles, extraStyles } from './styles'
 
 type Props = {
   saldoAtual?: number
@@ -49,7 +49,7 @@ export function CardSaldo({
         <View style={styles.topo}>
           <View>
             <Text style={styles.titulo}>Saldo atual</Text>
-            <Text style={styles.saldo}>{moeda(saldoAtual)}</Text>
+            <View style={extraStyles.valorComIcone}><Text style={styles.saldo}>{moeda(saldoAtual)}</Text><Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olho} /></View>
           </View>
           <Text style={styles.mes}>{data ?? 'mês atual'}</Text>
         </View>
@@ -62,7 +62,7 @@ export function CardSaldo({
         <View style={styles.divisor} />
 
         <Text style={styles.label}>Saldo do mês</Text>
-        <Text style={styles.valorMes}>{moeda(saldoMes)}</Text>
+        <View style={extraStyles.valorComIcone}><Text style={styles.valorMes}>{moeda(saldoMes)}</Text><Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olhoMes} /></View>
 
         <View style={styles.linhaVariacao}>
           <Text style={styles.label}>máximo disponível</Text>

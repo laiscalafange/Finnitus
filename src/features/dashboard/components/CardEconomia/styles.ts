@@ -4,8 +4,8 @@ import { FONTS } from '@/shared/constants/Tipografia'
 
 export const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 14,
-    marginBottom: 30,
+    marginHorizontal: 20,
+    marginBottom: 25,
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
@@ -14,32 +14,32 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
   card: {
-    minHeight: 125,
-    borderRadius: 20,
+    minHeight: 112,
+    borderRadius: 18,
     backgroundColor: '#3B1E63',
-    padding: 14,
+    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   medidor: {
-    width: 98,
-    height: 98,
+    width: 88,
+    height: 88,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     marginRight: 14,
   },
   medidorInterno: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#281448',
   },
   percentual: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 21,
+    fontSize: 20,
     color: Cores.destaque.limao,
   },
   textos: {
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
   },
   destaque: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 15,
+    fontSize: 14,
     color: Cores.destaque.limao,
   },
   destaqueAlerta: {
@@ -55,8 +55,8 @@ export const styles = StyleSheet.create({
   },
   descricao: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 9,
-    lineHeight: 14,
+    fontSize: 8.5,
+    lineHeight: 13,
     color: '#BDA7E1',
     marginTop: 5,
   },

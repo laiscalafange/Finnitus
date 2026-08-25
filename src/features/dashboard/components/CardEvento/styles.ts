@@ -1,4 +1,27 @@
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
-export const styles=StyleSheet.create({container:{marginHorizontal:14,marginBottom:18,padding:16,borderRadius:22,backgroundColor:'#3B1E63'},tituloLinha:{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginBottom:10},titulo:{fontFamily:FONTS.raleway.extrabold,fontSize:18,color:Cores.destaque.limao},icone:{fontSize:24,color:Cores.texto.principal},evento:{minHeight:60,borderRadius:14,backgroundColor:'#4A2480',padding:12,flexDirection:'row',alignItems:'center'},ponto:{width:7,height:7,borderRadius:4,backgroundColor:Cores.destaque.limao,marginRight:10},textos:{flex:1},label:{fontFamily:FONTS.quicksand.regular,fontSize:10,color:'#C9B4E9'},nome:{fontFamily:FONTS.quicksand.bold,fontSize:14,color:Cores.base.branco,marginTop:2},data:{fontFamily:FONTS.quicksand.bold,fontSize:11,color:Cores.destaque.limao},vazio:{borderRadius:14,borderWidth:1,borderColor:'#5B3988',padding:13},vazioTitulo:{fontFamily:FONTS.quicksand.bold,fontSize:13,color:Cores.base.branco},vazioTexto:{fontFamily:FONTS.quicksand.regular,fontSize:10,lineHeight:15,color:'#BDA7E1',marginTop:4}})
+
+export const styles = StyleSheet.create({
+  container: { marginHorizontal: 20, marginBottom: 15 },
+  tituloLinha: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  titulo: { fontFamily: FONTS.raleway.extrabold, fontSize: 16, color: Cores.destaque.limao },
+  icone: { fontFamily: FONTS.raleway.bold, fontSize: 23, color: '#C6A8E8' },
+  evento: {
+    minHeight: 52,
+    borderRadius: 14,
+    backgroundColor: '#4A2480',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ponto: { width: 7, height: 7, borderRadius: 4, backgroundColor: Cores.destaque.limao, marginRight: 8 },
+  textos: { flex: 1 },
+  label: { fontFamily: FONTS.quicksand.regular, fontSize: 9, color: '#C9B4E9' },
+  nome: { fontFamily: FONTS.quicksand.bold, fontSize: 13, color: Cores.base.branco, marginTop: 1 },
+  data: { fontFamily: FONTS.quicksand.bold, fontSize: 10, color: Cores.destaque.limao },
+  vazio: { borderRadius: 14, backgroundColor: '#3B1E63', padding: 11 },
+  vazioTitulo: { fontFamily: FONTS.quicksand.bold, fontSize: 12, color: Cores.base.branco },
+  vazioTexto: { fontFamily: FONTS.quicksand.regular, fontSize: 9, lineHeight: 13, color: '#BDA7E1', marginTop: 3 },
+})

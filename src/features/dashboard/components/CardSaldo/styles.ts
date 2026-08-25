@@ -4,10 +4,12 @@ import { FONTS } from '@/shared/constants/Tipografia'
 export const styles = StyleSheet.create({
   container: {
     borderRadius: 28,
-    padding: 18,
-    marginHorizontal: 14,
-    marginTop: 8,
-    marginBottom: 26,
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 13,
+    marginHorizontal: 20,
+    marginTop: 5,
+    marginBottom: 17,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
@@ -21,7 +23,7 @@ export const styles = StyleSheet.create({
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 15,
+    fontSize: 14,
     color: '#21102F',
   },
   mes: {
@@ -31,9 +33,9 @@ export const styles = StyleSheet.create({
   },
   saldo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 25,
+    fontSize: 24,
     color: '#171B12',
-    marginTop: 2,
+    marginTop: 1,
   },
   divisor: {
     height: 1,
@@ -43,7 +45,7 @@ export const styles = StyleSheet.create({
   },
   label: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 9,
+    fontSize: 8,
     color: '#314113',
   },
   valorMes: {
@@ -86,4 +88,11 @@ export const styles = StyleSheet.create({
   badgeTextoNegativo: {
     color: '#FFD3D3',
   },
+})
+
+
+export const extraStyles = StyleSheet.create({
+  valorComIcone: { flexDirection: 'row', alignItems: 'center' },
+  olho: { width: 13, height: 13, resizeMode: 'contain', marginLeft: 5, tintColor: '#354611' },
+  olhoMes: { width: 12, height: 12, resizeMode: 'contain', marginLeft: 5, tintColor: '#354611' },
 })
