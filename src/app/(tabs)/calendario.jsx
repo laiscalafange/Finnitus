@@ -1,4 +1,10 @@
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
+import {
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+} from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import Svg, { Circle } from 'react-native-svg'
 import { Calendar, LocaleConfig } from 'react-native-calendars'
@@ -11,6 +17,8 @@ import {
   EVENTOS_MES_MOCK,
 } from '../../shared/components/Mocks';
 import { styles } from '../../styles/calendariostyle'
+import coroaIcon from '../../../assets/icones/coroa.png'
+import sinoIcon from '../../../assets/icones/sino.png'
 
 // ── LOCALE ─────────────────────────────────────
 
@@ -160,8 +168,8 @@ export default function Calendario() {
             </View>
 
             <View style={styles.headerIcones}>
-              <Text style={styles.headerIcone}>👑</Text>
-              <Text style={styles.headerIcone}>🔔</Text>
+              <Image source={coroaIcon} style={styles.headerIcone} />
+              <Image source={sinoIcon} style={styles.headerIcone} />
             </View>
           </View>
 
@@ -329,20 +337,22 @@ export default function Calendario() {
             >
 
               <View
-                style={[
-                  styles.gastoIconeContainer,
-                  {
-                    backgroundColor: '#5f33a77a',
-                    borderWidth: 1,
-                    borderColor: '#7F3BED',
-                    borderRadius: 100,
-                  },
-                ]}
-              >
-                <Text style={styles.gastoIconeTexto}>
-                  {t.icone}
-                </Text>
-              </View>
+  style={[
+    styles.gastoIconeContainer,
+    {
+      backgroundColor: '#5f33a77a',
+      borderWidth: 1,
+      borderColor: '#7F3BED',
+      borderRadius: 100,
+    },
+  ]}
+>
+  <Image
+    source={t.icone}
+    style={styles.gastoIcone}
+    resizeMode="contain"
+  />
+</View>
 
               <View style={styles.gastoInfo}>
                 <Text style={styles.gastoNome}>
