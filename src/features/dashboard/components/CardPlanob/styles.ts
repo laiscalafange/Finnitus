@@ -24,10 +24,35 @@ export const styles = StyleSheet.create({
     color: '#C4AFE4',
   },
   corpo: {
-    minHeight: 124,
-    borderRadius: 18,
-    backgroundColor: '#32175E',
-    padding: 12,
+    minHeight: 150,
+    borderRadius: 20,
+    backgroundColor: '#3B1E63',
+    padding: 14,
+  },
+  navegacao: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  navegacaoSeta: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: '#C4AFE4',
+    marginHorizontal: 4,
+  },
+  navegacaoTexto: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 12,
+    color: Cores.base.branco,
+  },
+  statusLabel: {
+    flex: 1,
+    textAlign: 'right',
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 12,
+    color: Cores.base.branco,
+  },
+  linha: {
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -46,8 +71,8 @@ export const styles = StyleSheet.create({
   },
   gaugeValor: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 11,
-    color: '#C0A3E8',
+    fontSize: 13,
+    color: Cores.destaque.limao,
     textAlign: 'center',
   },
   gaugeLabel: {
@@ -64,9 +89,9 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  categoriaLinha: {
-    width: 3,
-    height: 25,
+  categoriaIcone: {
+    width: 8,
+    height: 8,
     borderRadius: 2,
     marginRight: 7,
   },

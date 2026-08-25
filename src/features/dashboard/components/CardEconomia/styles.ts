@@ -15,8 +15,8 @@ export const styles = StyleSheet.create({
   },
   card: {
     minHeight: 125,
-    borderRadius: 18,
-    backgroundColor: '#32175E',
+    borderRadius: 20,
+    backgroundColor: '#3B1E63',
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
@@ -49,6 +49,9 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 15,
     color: Cores.destaque.limao,
+  },
+  destaqueAlerta: {
+    color: '#FF6B4A',
   },
   descricao: {
     fontFamily: FONTS.quicksand.regular,

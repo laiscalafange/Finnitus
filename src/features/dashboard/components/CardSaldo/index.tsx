@@ -19,9 +19,12 @@ const moeda = (valor?: number) =>
 
 function Variacao({ valor }: { valor?: number }) {
   if (valor === undefined) return null
+  const positivo = valor >= 0
   return (
-    <View style={styles.badge}>
-      <Text style={styles.badgeTexto}>{valor >= 0 ? '↑' : '↓'} {Math.abs(valor)}%</Text>
+    <View style={[styles.badge, positivo ? styles.badgePositivo : styles.badgeNegativo]}>
+      <Text style={[styles.badgeTexto, positivo ? styles.badgeTextoPositivo : styles.badgeTextoNegativo]}>
+        {positivo ? '↑' : '↓'} {Math.abs(valor)}%
+      </Text>
     </View>
   )
 }

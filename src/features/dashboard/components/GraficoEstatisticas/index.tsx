@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import Svg, { Polyline, Line } from 'react-native-svg'
+import Svg, { Polyline, Line, Rect, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg'
 import { EstatisticaResumo } from '../../types'
 import { styles } from './styles'
 
@@ -7,9 +7,6 @@ type Props = {
   dados?: EstatisticaResumo[]
   onPress?: () => void
 }
-
-const moeda = (valor: number) =>
-  valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export function GraficoEstatisticas({ dados, onPress }: Props) {
   const pontos = dados ?? []
@@ -20,7 +17,7 @@ export function GraficoEstatisticas({ dados, onPress }: Props) {
   const margemY = 8
   const passo = pontos.length > 1 ? (largura - margemX * 2) / (pontos.length - 1) : 0
 
-  const gerarPontos = (chave: 'receitas' | 'despesas') =>
+  const gerarPontosLinha = (chave: 'receitas' | 'despesas') =>
     pontos
       .map((item, index) => {
         const x = margemX + index * passo
@@ -29,20 +26,34 @@ export function GraficoEstatisticas({ dados, onPress }: Props) {
       })
       .join(' ')
 
-  const maiorReceita = pontos.reduce((maior, item) => Math.max(maior, item.receitas), 0)
-  const maiorDespesa = pontos.reduce((maior, item) => Math.max(maior, item.despesas), 0)
+  const larguraBarra = pontos.length > 0 ? Math.min(18, passo * 0.42) : 0
 
   return (
     <View style={styles.container}>
       <View style={styles.cabecalho}>
         <Text style={styles.titulo}>Estatísticas</Text>
-        <Text style={styles.periodo}>Gastos da semana</Text>
+        <View style={styles.legenda}>
+          <View style={styles.legendaItem}>
+            <View style={[styles.ponto, styles.pontoReceita]} />
+            <Text style={styles.legendaTexto}>Gastos dessa semana</Text>
+          </View>
+          <View style={styles.legendaItem}>
+            <View style={[styles.ponto, styles.pontoDespesa]} />
+            <Text style={styles.legendaTexto}>Gastos da semana passada</Text>
+          </View>
+        </View>
       </View>
 
       {pontos.length > 0 ? (
         <>
           <View style={styles.grafico}>
             <Svg width="100%" height={altura} viewBox={`0 0 ${largura} ${altura}`}>
+              <Defs>
+                <SvgGradient id="barraGradiente" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0" stopColor="#FFE066" />
+                  <Stop offset="1" stopColor="#FF8800" />
+                </SvgGradient>
+              </Defs>
               {[0.25, 0.5, 0.75].map(nivel => (
                 <Line
                   key={nivel}
@@ -54,36 +65,34 @@ export function GraficoEstatisticas({ dados, onPress }: Props) {
                   strokeWidth={1}
                 />
               ))}
+              {pontos.map((item, index) => {
+                const x = margemX + index * passo - larguraBarra / 2
+                const alturaBarra = (item.receitas / maximo) * (altura - margemY * 2)
+                const y = altura - margemY - alturaBarra
+                return (
+                  <Rect
+                    key={item.dia}
+                    x={x}
+                    y={y}
+                    width={larguraBarra}
+                    height={alturaBarra}
+                    rx={larguraBarra / 2.4}
+                    fill="url(#barraGradiente)"
+                  />
+                )
+              })}
               <Polyline
-                points={gerarPontos('receitas')}
+                points={gerarPontosLinha('despesas')}
                 fill="none"
-                stroke="#B7FF00"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <Polyline
-                points={gerarPontos('despesas')}
-                fill="none"
-                stroke="#FF8800"
-                strokeWidth={2}
+                stroke="#E4D3FF"
+                strokeOpacity={0.6}
+                strokeWidth={1.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
             </Svg>
             <View style={styles.dias}>
               {pontos.map(item => <Text key={item.dia} style={styles.dia}>{item.dia}</Text>)}
-            </View>
-          </View>
-
-          <View style={styles.legenda}>
-            <View style={styles.legendaItem}>
-              <View style={[styles.ponto, styles.pontoReceita]} />
-              <Text style={styles.legendaTexto}>Gastos desta semana {moeda(maiorReceita)}</Text>
-            </View>
-            <View style={styles.legendaItem}>
-              <View style={[styles.ponto, styles.pontoDespesa]} />
-              <Text style={styles.legendaTexto}>Gastos da semana passada {moeda(maiorDespesa)}</Text>
             </View>
           </View>
 

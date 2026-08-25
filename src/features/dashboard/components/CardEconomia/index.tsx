@@ -13,7 +13,10 @@ const moeda = (valor: number) =>
   valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 export function CardEconomia({ dados, onPress }: Props) {
-  const percentual = Math.min(100, Math.max(0, dados?.percentualMeta ?? 0))
+  const percentualBruto = dados?.percentualMeta ?? 0
+  const emAlerta = dados !== undefined && percentualBruto < 0
+  const percentual = Math.min(100, Math.max(0, Math.abs(percentualBruto)))
+  const corDestaque = emAlerta ? '#FF6B4A' : Cores.destaque.limao
   const raio = 34
   const circ = 2 * Math.PI * raio
 
@@ -29,21 +32,27 @@ export function CardEconomia({ dados, onPress }: Props) {
               cy="46"
               r={raio}
               fill="none"
-              stroke={Cores.destaque.limao}
+              stroke={corDestaque}
               strokeWidth="9"
               strokeLinecap="round"
               strokeDasharray={`${(percentual / 100) * circ} ${circ}`}
             />
           </Svg>
           <View style={styles.medidorInterno}>
-            <Text style={styles.percentual}>{dados ? `${Math.round(percentual)}%` : '—'}</Text>
+            <Text style={[styles.percentual, { color: corDestaque }]}>
+              {dados ? `${Math.round(percentual)}%` : '—'}
+            </Text>
           </View>
         </View>
         <View style={styles.textos}>
-          <Text style={styles.destaque}>{dados ? 'Meta de economia' : 'Dados não disponíveis'}</Text>
+          <Text style={[styles.destaque, emAlerta && styles.destaqueAlerta]}>
+            {!dados ? 'Dados não disponíveis' : emAlerta ? 'Ops!' : 'Meta de economia'}
+          </Text>
           <Text style={styles.descricao}>
             {dados
-              ? `Economize ${moeda(dados.economiaMensal)} por mês para chegar a ${moeda(dados.economiaFutura)} em ${dados.tempoEconomia} ${dados.tempoEconomia === 1 ? 'mês' : 'meses'}.`
+              ? emAlerta
+                ? `Este mês você gastou ${moeda(Math.abs(dados.economiaMensal))} a mais do que ganhou. Pense bem nas próximas despesas e reveja metas e planejamento.`
+                : `Economize ${moeda(dados.economiaMensal)} por mês para chegar a ${moeda(dados.economiaFutura)} em ${dados.tempoEconomia} ${dados.tempoEconomia === 1 ? 'mês' : 'meses'}.`
               : 'Preencha a economia futura e o tempo estimado para calcular sua meta mensal.'}
           </Text>
         </View>
