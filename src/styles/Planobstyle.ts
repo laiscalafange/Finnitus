@@ -43,16 +43,17 @@ export const styles = StyleSheet.create({
     marginTop: -1,
   },
 
-  headerPlanoBIcones: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20,
-    paddingTop: 1,
-  },
+  headerPlanoBIconeImagem: {
+  width: 30,
+  height: 30,
+  resizeMode: 'contain',
+},
 
-  headerPlanoBIcone: {
-    fontSize: 20,
-  },
+  headerPlanoBIcones: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 12,
+},
 
   headerMesPassado: {
     fontFamily: FONTS.quicksand.regular,
@@ -225,8 +226,11 @@ export const styles = StyleSheet.create({
   },
 
   categoriaIcone: {
-    fontSize: 24,
-  },
+  width: 24,
+  height: 24,
+  resizeMode: 'contain',
+  marginRight: 10,
+},
 
   categoriaNome: {
     fontFamily: FONTS.quicksand.regular,
@@ -357,16 +361,22 @@ export const styles = StyleSheet.create({
   // ==================================================
 
   duploRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 12,
-  },
+  flexDirection: 'row',
+  gap: 10,
+  marginBottom: 12,
+},
 
-  duploCard: {
-    flex: 1,
-    borderRadius: 18,
-    padding: 14,
-  },
+rotasRow: {
+  flexDirection: 'column',
+  gap: 12,
+  marginBottom: 20,
+},
+
+duploCard: {
+  flex: 1,
+  borderRadius: 14,
+  padding: 10,
+},
 
   duploTitulo: {
     fontFamily: FONTS.raleway.extrabold,
@@ -417,21 +427,55 @@ export const styles = StyleSheet.create({
   },
 
   // ==================================================
+// ATIVIDADE
+// ==================================================
+
+atividadeHeader: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
+
+atividadeSeta: {
+  color: Cores.roxo.claro,
+  fontSize: 26,
+  lineHeight: 26,
+},
+
+atividadeMes: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginTop: 2,
+},
+
+
+  // ==================================================
   // HEATMAP
   // ==================================================
 
   heatmapGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginBottom: 9,
-  },
+  width: '100%',
+  marginTop: 8,
+  marginBottom: 10,
+},
 
-  heatmapBolinha: {
-    width: 13,
-    height: 13,
-    borderRadius: 90,
-  },
+heatmapLinha: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 10,
+},
+
+heatmapBolinha: {
+  width: 20,
+  height: 20,
+  borderRadius: 10,
+  flexShrink: 0,
+},
 
   heatmapLegenda: {
     flexDirection: 'row',
@@ -492,6 +536,105 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 12,
     color: Cores.roxo.claro,
+  },
+    // ==================================================
+  // ROTAS
+  // ==================================================
+
+  rotasGaugeContainer: {
+    height: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  rotasGaugeValor: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  rotasCategorias: {
+    gap: 5,
+    marginTop: 2,
+  },
+
+  rotasCategoriaLinha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 27,
+  },
+
+  rotasIndicador: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 5,
+  },
+
+  rotasCategoriaNome: {
+    flex: 1,
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 12,
+    color: Cores.destaque.limao,
+  },
+
+  rotasCategoriaValor: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 12,
+    color: Cores.roxo.claro,
+    marginLeft: 3,
+  },
+
+  rotasCategoriaPercentual: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 12,
+    color: Cores.roxo.claro,
+    width: 38,
+    textAlign: 'right',
+  },
+
+  rotasTendencia: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 18,
+    color: Cores.destaque.limao,
+    width: 18,
+    textAlign: 'right',
+    marginLeft: 2,
+  },
+
+  rotasResumoTitulo: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 18,
+    color: Cores.destaque.limao,
+    marginTop: 8,
+    marginBottom: 3,
+  },
+
+  rotasResumo: {
+    gap: 0,
+  },
+
+  rotasResumoTexto: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 15,
+    lineHeight: 18,
+    color: Cores.roxo.claro,
+  },
+
+  rotasSobra: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    lineHeight: 18,
+    color: Cores.roxo.claro,
+    marginTop: 18,
+  },
+
+  rotasSobraTexto: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    lineHeight: 18,
+    color: Cores.roxo.claro,
+    marginTop: 2,
   },
 
 })

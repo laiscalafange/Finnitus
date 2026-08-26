@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
@@ -19,6 +19,9 @@ import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
 import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
 import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
 import { styles } from '../../styles/dashboardstyle'
+
+import coroaIcon from '../../../assets/icones/coroa.png'
+import sinoIcon from '../../../assets/icones/sino.png'
 
 const DIAS_SEMANA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom']
 const LETRAS_DIAS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
@@ -184,9 +187,9 @@ export default function Dashboard() {
             </View>
 
             <View style={styles.headerIcones}>
-              <Text style={styles.headerIcone}>👑</Text>
-              <Text style={styles.headerIcone}>🔔</Text>
-            </View>
+  <Image source={coroaIcon} style={styles.headerIcone} />
+  <Image source={sinoIcon} style={styles.headerIcone} />
+</View>
           </View>
 
           <View style={styles.toggle}>
@@ -268,10 +271,17 @@ export default function Dashboard() {
         </LinearGradient>
 
         <View style={styles.setaContainer}>
-          <View style={styles.setaCirculo}>
-            <Text style={styles.setaTexto}>⌄</Text>
-          </View>
-        </View>
+  <LinearGradient
+    colors={['#3c1e75', '#30096e']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 0, y: 1 }}
+    style={styles.setaCirculo}
+  >
+    <Text style={styles.setaTexto}>
+      ⌄
+    </Text>
+  </LinearGradient>
+</View>
 
         <View style={styles.conteudo}>
           <Text style={styles.secaoTitulo}>Visão semanal</Text>
@@ -413,10 +423,12 @@ export default function Dashboard() {
           >
             <View style={styles.planejamentoItem}>
               <View style={styles.planejamentoIcone}>
-                <Text style={{ fontSize: 20 }}>
-                  {DASHBOARD_MOCK.planejamentos[0].icone}
-                </Text>
-              </View>
+  <Image
+    source={DASHBOARD_MOCK.planejamentos[0].icone}
+    style={styles.planejamentoIconeImagem}
+    resizeMode="contain"
+  />
+</View>
 
               <View style={{ flex: 1 }}>
                 <Text style={styles.planejamentoNome}>
@@ -525,3 +537,4 @@ export default function Dashboard() {
   </View>
   )
 }
+

@@ -1,4 +1,111 @@
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
-export const styles=StyleSheet.create({container:{marginHorizontal:14,marginBottom:18,padding:16,borderRadius:20,backgroundColor:'#32175E'},cabecalho:{flexDirection:'row',justifyContent:'space-between',alignItems:'center'},titulo:{fontFamily:FONTS.raleway.extrabold,fontSize:18,color:Cores.destaque.limao},periodo:{fontFamily:FONTS.quicksand.bold,fontSize:11,color:'#D0C0E9'},grafico:{marginTop:12,minHeight:120,borderRadius:14,backgroundColor:'#281448',padding:14,justifyContent:'center'},resumo:{gap:8},resumoLinha:{flexDirection:'row',alignItems:'center'},indicador:{width:8,height:8,borderRadius:4,marginRight:7},receitas:{backgroundColor:'#B7FF00'},despesas:{backgroundColor:'#C48CFF'},resumoLabel:{fontFamily:FONTS.quicksand.bold,fontSize:11,color:Cores.base.branco,flex:1},resumoValor:{fontFamily:FONTS.quicksand.bold,fontSize:11,color:Cores.base.branco},barraFundo:{height:7,borderRadius:4,backgroundColor:'#49306A',overflow:'hidden',marginBottom:4},barra:{height:7,borderRadius:4},barraReceitas:{backgroundColor:'#B7FF00'},barraDespesas:{backgroundColor:'#C48CFF'},vazio:{paddingHorizontal:10,paddingVertical:18},vazioTitulo:{fontFamily:FONTS.quicksand.bold,fontSize:12,color:Cores.base.branco},vazioTexto:{fontFamily:FONTS.quicksand.regular,fontSize:10,lineHeight:15,color:'#BDA7E1',marginTop:5}})
+
+export const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: 20,
+    marginBottom: 20,
+    paddingHorizontal: 15,
+    paddingTop: 15,
+    paddingBottom: 14,
+    borderRadius: 18,
+    backgroundColor: Cores.fundo.card,
+  },
+  cabecalho: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  titulo: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 22,
+    lineHeight: 26,
+    color: Cores.destaque.limao,
+  },
+  legenda: {
+    alignItems: 'flex-end',
+    gap: 4,
+    paddingTop: 1,
+    flexShrink: 1,
+  },
+  legendaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ponto: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  pontoReceita: { backgroundColor: Cores.destaque.limao },
+  pontoDespesa: { backgroundColor: Cores.estado.perigo },
+  legendaTexto: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 11,
+    lineHeight: 13,
+    color: Cores.texto.principal,
+  },
+  abas: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginTop: 11,
+    marginBottom: 9,
+    padding: 3,
+    borderRadius: 16,
+    backgroundColor: Cores.estado.desabilitado,
+  },
+  aba: {
+    minWidth: 65,
+    paddingHorizontal: 13,
+    paddingVertical: 5,
+    borderRadius: 13,
+    alignItems: 'center',
+  },
+  abaAtiva: {
+    backgroundColor: Cores.destaque.limao,
+  },
+  abaTexto: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 11,
+    color: Cores.texto.principal,
+  },
+  abaTextoAtiva: {
+    color: Cores.roxo.escuro,
+  },
+  grafico: {
+    marginTop: 2,
+    borderRadius: 16,
+    backgroundColor: Cores.estado.desabilitado,
+    paddingHorizontal: 2,
+    paddingTop: 2,
+    paddingBottom: 0,
+  },
+  dias: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 5,
+    marginTop: 4,
+  },
+  dia: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 11,
+    color: Cores.texto.principal,
+  },
+  vazio: {
+    padding: 18,
+  },
+  vazioTitulo: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 15,
+    color: Cores.base.branco,
+  },
+  vazioTexto: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 12,
+    lineHeight: 18,
+    color: Cores.texto.principal,
+    marginTop: 6,
+  },
+})

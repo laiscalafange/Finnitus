@@ -161,7 +161,7 @@ export default function Perfil() {
               onPress={() => router.push("/")}
             >
               <Image
-                source={require("../../../assets/icones/Segurança.png")}
+                source={require("../../../assets/icones/Seguranca.png")}
                 style={styles.itemIcone}
               />
               <Text style={styles.itemTexto}>Segurança</Text>

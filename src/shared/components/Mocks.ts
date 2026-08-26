@@ -1,3 +1,13 @@
+import comidaIcon from '../../../assets/icones/comidas.png'
+import roupasIcon from '../../../assets/icones/roupas.png'
+import lazerIcon from '../../../assets/icones/lazer.png'
+import contasIcon from '../../../assets/icones/contas.png'
+import presenteIcon from '../../../assets/icones/presente.png'
+
+import shellIcon from '../../../assets/icones/shell.png'
+import rennerIcon from '../../../assets/icones/renner.png'
+import transporteIcon from '../../../assets/icones/resgatado.png'
+import pixIcon from '../../../assets/icones/gabriel.png'
 // ============================================================
 // MOCKS
 // Dados temporários que futuramente serão substituídos
@@ -31,7 +41,6 @@ export const ESTATISTICAS_MOCK = {
 // ────────────────────────────────────────────────────────────
 // PLANO B
 // ────────────────────────────────────────────────────────────
-
 export const PLANOB_MOCK = {
   mes: 9,
   ano: 2026,
@@ -46,7 +55,7 @@ export const PLANOB_MOCK = {
       nome: 'Comida',
       valor: 194.67,
       porcentagem: 30,
-      icone: '🍴',
+      icone: comidaIcon,
       tipo: 'gasto',
       cor: '#B7FF00',
     },
@@ -54,7 +63,7 @@ export const PLANOB_MOCK = {
       nome: 'Roupas',
       valor: 89.90,
       porcentagem: 25,
-      icone: '👕',
+      icone: roupasIcon,
       tipo: 'gasto',
       cor: '#FF8800',
     },
@@ -62,7 +71,7 @@ export const PLANOB_MOCK = {
       nome: 'Lazer',
       valor: 131.10,
       porcentagem: 25,
-      icone: '✈️',
+      icone: lazerIcon,
       tipo: 'gasto',
       cor: '#FF6B6B',
     },
@@ -70,12 +79,12 @@ export const PLANOB_MOCK = {
       nome: 'Contas',
       valor: 234.90,
       porcentagem: 20,
-      icone: '📄',
+      icone: contasIcon,
       tipo: 'gasto',
       cor: '#A357FF',
     },
   ],
-}
+};
 
 export const CATEGORIAS_PLANOB_MOCK =
   PLANOB_MOCK.categorias
@@ -289,7 +298,7 @@ export const DASHBOARD_MOCK = {
       faltam: 20,
       valorAtual: 80,
       valorTotal: 100,
-      icone: '🎁',
+      icone: presenteIcon,
     },
   ],
 
@@ -531,7 +540,7 @@ export const TRANSACOES_MOCK = [
     tipoTransacao: 'Pix',
     valor: 34.97,
     tipo: 'gasto',
-    icone: '🐚',
+    icone: shellIcon,
     data: '2026-09-01',
   },
   {
@@ -541,7 +550,7 @@ export const TRANSACOES_MOCK = [
     tipoTransacao: 'Pix',
     valor: 89.99,
     tipo: 'gasto',
-    icone: '🔴',
+    icone: rennerIcon,
     data: '2026-09-03',
   },
   {
@@ -551,7 +560,7 @@ export const TRANSACOES_MOCK = [
     tipoTransacao: 'Resgate',
     valor: 50.00,
     tipo: 'entrada',
-    icone: '⬆️',
+    icone: transporteIcon,
     data: '2026-09-05',
   },
   {
@@ -561,7 +570,7 @@ export const TRANSACOES_MOCK = [
     tipoTransacao: 'Pix',
     valor: 34.97,
     tipo: 'gasto',
-    icone: '💸',
+    icone: pixIcon,
     data: '2026-09-08',
   },
 ]
@@ -762,7 +771,8 @@ export const ROTAS_PLANOB_MOCK = {
       '• Outros controlados',
     ],
 
-    sobra:['Gastos podem ser reduzidos para maximizar lucro passivo'],
+    sobra: undefined,
+sobraTexto: 'Gastos podem ser reduzidos para maximizar lucro passivo',
   },
 
   recomendado: {
@@ -808,6 +818,7 @@ export const ROTAS_PLANOB_MOCK = {
       '• Outros reduzidos',
     ],
 
-    sobra:[302.11 ,'                          Valor pode ser utilizado em compras futuras'] 
+   sobra: 302.11,
+sobraTexto: 'Valor pode ser utilizado em compras futuras',
   },
 }

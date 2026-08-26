@@ -1,8 +1,97 @@
-import { Text, View } from 'react-native'
+// @ts-nocheck
+import { PLANOB_MOCK } from '@/shared/components/Mocks'
+import type { ReactElement } from 'react'
+import { Image, Text, TouchableOpacity, View } from 'react-native'
+import Svg, { Circle } from 'react-native-svg'
 import { PlanoBResumo } from '../../types'
-import { Cores } from '@/shared/constants/Cores'
-import { FONTS } from '@/shared/constants/Tipografia'
 import { styles } from './styles'
 
-type Props={dados?:PlanoBResumo}
-export function CardPlanob({dados}:Props){const p=dados?Math.min(100,Math.max(0,dados.valorAtual/Math.max(dados.valorMeta,1)*100)):0;return <View style={styles.container}><View style={styles.cabecalho}><Text style={styles.titulo}>Plano-B</Text><Text style={styles.subtitulo}>{dados?.nome??'Módulo em preparação'}</Text></View><View style={styles.corpo}><View style={styles.circulo}><View style={[styles.progresso,{transform:[{rotate:`${p*3.6}deg`}]}]}/><Text style={styles.percentual}>{dados?`${Math.round(p)}%`:'—'}</Text></View><View style={styles.textos}><Text style={styles.valor}>{dados?`R$ ${dados.valorAtual.toLocaleString('pt-BR',{minimumFractionDigits:2})}`:'Dados ainda não disponíveis'}</Text><Text style={styles.descricao}>{dados?`Meta de R$ ${dados.valorMeta.toLocaleString('pt-BR',{minimumFractionDigits:2})}`:'A estrutura está pronta para receber o resumo do Plano-B.'}</Text></View></View></View>}
+import { Cores } from '@/shared/constants/Cores'
+type Props = {
+  dados?: PlanoBResumo
+  onPress?: () => void
+}
+
+const moeda = (valor: number) =>
+  valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+export function CardPlanob({ dados, onPress }: Props) {
+  const restante = dados ? Math.max(0, dados.valorMeta - dados.valorAtual) : undefined
+  // Os quatro ícones são os mesmos usados na tela funcional do Plano-B.
+  // Não substituí-los por ícones genéricos mantém a Home consistente com a funcionalidade.
+  const categorias = PLANOB_MOCK.categorias.slice(0, 4).map((categoria, index) => ({
+    ...categoria,
+    iconeFonte: [
+      require('../../../../../assets/icones/comidas.png'),
+      require('../../../../../assets/icones/roupas.png'),
+      require('../../../../../assets/icones/lazer.png'),
+      require('../../../../../assets/icones/contas.png'),
+    ][index],
+  }))
+  const raio = 42
+  const circ = 2 * Math.PI * raio
+  const totalCategorias = categorias.reduce((soma, categoria) => soma + categoria.valor, 0) || 1
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.tituloLinha}>
+        <Text style={styles.titulo}>Plano-B</Text>
+      </View>
+
+      <TouchableOpacity onPress={onPress} disabled={!onPress} activeOpacity={0.9} style={styles.corpo}>
+        <View style={styles.navegacao}>
+          <Text style={styles.navegacaoSeta}>‹</Text>
+          <Text style={styles.navegacaoTexto}>Mês</Text>
+          <Text style={styles.navegacaoSeta}>›</Text>
+          <Text style={styles.statusLabel}>Status</Text>
+        </View>
+
+        <View style={styles.linha}>
+          <View style={styles.gauge}>
+            <Svg width={108} height={108} viewBox="0 0 110 110" style={styles.gaugeSvg}>
+              <Circle cx="55" cy="55" r={raio} fill="none" stroke={Cores.fundo.card} strokeWidth="9" />
+              {categorias.reduce<{ acumulado: number; elementos: ReactElement[] }>(
+                (resultado, categoria) => {
+                  const fatia = (categoria.valor / totalCategorias) * circ
+                  resultado.elementos.push(
+                    <Circle
+                      key={categoria.nome}
+                      cx="55"
+                      cy="55"
+                      r={raio}
+                      fill="none"
+                      stroke={categoria.cor}
+                      strokeWidth="9"
+                      strokeLinecap="round"
+                      strokeDasharray={`${fatia} ${circ}`}
+                      strokeDashoffset={-resultado.acumulado}
+                    />,
+                  )
+                  resultado.acumulado += fatia + 2
+                  return resultado
+                },
+                { acumulado: 0, elementos: [] },
+              ).elementos}
+            </Svg>
+            <View style={styles.gaugeTexto}>
+              <Text style={styles.gaugeValor}>{dados ? moeda(restante ?? 0) : 'R$ —'}</Text>
+              <Text style={styles.gaugeLabel}>Restantes</Text>
+            </View>
+          </View>
+
+          <View style={styles.categorias}>
+            {categorias.map(categoria => (
+              <View key={categoria.nome} style={styles.categoria}>
+                <Image source={categoria.iconeFonte} style={styles.categoriaIcone} />
+                <View style={styles.categoriaTextos}>
+                  <Text style={styles.categoriaNome}>{categoria.nome}</Text>
+                  <Text style={styles.categoriaValor}>{moeda(categoria.valor)}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      </TouchableOpacity>
+    </View>
+  )
+}

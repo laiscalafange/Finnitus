@@ -12,9 +12,10 @@
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "src/app/configuracaoInicial/FutureGoals.tsx"  ]
+  "**/*.ts",
+  "**/*.tsx",
+  "**/*.d.ts",
+  ".expo/types/**/*.ts",
+  "expo-env.d.ts"
+]
 }

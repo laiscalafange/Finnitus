@@ -78,9 +78,11 @@ weekArrowTexto: {
     paddingTop: 1,
   },
 
-  headerIcone: {
-    fontSize: 23,
-  },
+ headerIcone: {
+  width: 25,
+  height: 25,
+  resizeMode: 'contain',
+},
 
   // ── TOGGLE ───────────────────────────────────────────────
   toggle: {
@@ -172,14 +174,14 @@ weekArrowTexto: {
   },
 
   setaCirculo: {
-    width: 105,
-    height: 55,
-     borderBottomLeftRadius: 70,
-      borderBottomRightRadius: 70,
-     backgroundColor: '#7E3BED',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  width: 105,
+  height: 55,
+  borderBottomLeftRadius: 70,
+  borderBottomRightRadius: 70,
+  justifyContent: 'center',
+  alignItems: 'center',
+  overflow: 'hidden',
+},
 
   setaTexto: {
     color: '#553292',
@@ -304,26 +306,33 @@ weekArrowTexto: {
     borderRadius: 3,
   },
 
-  // ── HEATMAP ──────────────────────────────────────────────
-  heatmapGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 11,
-    marginBottom: 7,
-  },
+  
 
-  heatmapBolinha: {
-    width: 15,
-    height: 15,
-    borderRadius: 90,
-  },
+  
+// ==================================================
+// HEATMAP
+// ==================================================
 
-  heatmapLegenda: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 5,
-  },
+heatmapGrid: {
+  width: '100%',
+  marginTop: 8,
+  marginBottom: 10,
+},
 
+heatmapLinha: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 10,
+},
+
+heatmapBolinha: {
+  width: 20,
+  height: 20,
+  borderRadius: 10,
+  flexShrink: 0,
+},
   // ── PLANEJAMENTOS ────────────────────────────────────────
   planejamentoItem: {
     flexDirection: 'row',
@@ -332,16 +341,23 @@ weekArrowTexto: {
     marginBottom: 9,
   },
 
+  planejamentoIconeImagem: {
+  width: 30,
+  height: 30,
+  resizeMode: 'contain',
+},
+
   planejamentoIcone: {
-    width: 48,
-    height: 48,
-    borderRadius: 90,
-    backgroundColor: '#ffffff16',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth:1,
-    borderColor:Cores.roxo.claro
-  },
+  width: 48,
+  height: 48,
+  borderRadius: 90,
+  backgroundColor: '#ffffff16',
+  justifyContent: 'center',
+  alignItems: 'center',
+  borderWidth: 1,
+  borderColor: Cores.roxo.claro
+},
+
   planejamentoIcone2: {
     width: 40,
     height: 40,
@@ -388,7 +404,7 @@ weekArrowTexto: {
   // ── GASTOS DA SEMANA ─────────────────────────────────────
   gastosCorpo: {
   flexDirection: 'row',
-  alignItems: 'flex-end',
+  alignItems: 'center',
 },
 
 gaugeContainer: {
@@ -411,30 +427,32 @@ gaugeSubLabel: {
 },
 
 gastosList: {
-  flex: 2,
+  flex: 1,
   gap: 8,
-  alignItems: 'flex-start',
+  marginLeft: 10,
 },
 
 gastosItem: {
   flexDirection: 'row',
-  justifyContent: 'space-between',
   alignItems: 'center',
-  gap: 5,
+  justifyContent: 'space-between',
+  width: '100%',
   marginTop: 7,
-  paddingLeft: 55,
+  paddingLeft: 0,
 },
 
 gastosItemLabel: {
+  flex: 1,
   fontFamily: FONTS.quicksand.regular,
-  fontSize: 15,
+  fontSize: 14,
   color: Cores.roxo.claro,
-
 },
 
 gastosItemValor: {
   fontFamily: FONTS.raleway.extrabold,
-  fontSize: 15,
+  fontSize: 14,
+  minWidth: 65,
+  textAlign: 'right',
 },
 
 gastosLegendaRow: {
