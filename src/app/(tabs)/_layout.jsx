@@ -5,15 +5,19 @@ function BarraInferior() {
   const router = useRouter()
   const pathname = usePathname()
   const abaAtiva = pathname.includes('paginaInicial') ? 'home'
-    : pathname.includes('calendario') ? 'planejamento'
+    : pathname.includes('calendario') ? 'calendario'
     : pathname.includes('metas') ? 'metas'
+    : pathname.includes('PlanoB') ? 'planoB'
+    : pathname.includes('dashboard') ? 'dashboard'
     : pathname.includes('perfil') ? 'perfil'
     : 'home'
 
   function navegar(aba) {
     if (aba === 'home') router.push('/paginaInicial')
-    if (aba === 'planejamento') router.push('/calendario')
+    if (aba === 'calendario') router.push('/calendario')
     if (aba === 'metas') router.push('/metas')
+    if (aba === 'dashboard') router.push('/dashboard')
+    if (aba === 'planoB') router.push('/PlanoB')
     if (aba === 'perfil') router.push('/perfil')
     // FAB permanece visualmente disponível até existir uma ação de lançamento
     // financeiro implementada no projeto.

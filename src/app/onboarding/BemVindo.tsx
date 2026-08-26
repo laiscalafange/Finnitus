@@ -44,7 +44,7 @@ return (
         <Button
                 variante="outline"
                 titulo="Pular"
-                onPress={() => roteador.push("/login")}
+                onPress={() => roteador.push("/onboarding/exPlano")}
               />
         </View>
     </View>
