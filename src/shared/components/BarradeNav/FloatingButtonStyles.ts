@@ -14,19 +14,14 @@ export const styles = StyleSheet.create({
 
   container: {
     position: 'absolute',
-
     left: 0,
     right: 0,
     bottom: 0,
-
     height: BAR_H + 30,
-
     alignItems: 'center',
-
     zIndex: 100,
     elevation: 20,
   },
-
 
   // ==================================================
   // MÁSCARA
@@ -34,16 +29,12 @@ export const styles = StyleSheet.create({
 
   maskContainer: {
     position: 'absolute',
-
     left: 0,
     right: 0,
     bottom: 0,
-
     height: BAR_H,
-
     overflow: 'visible',
   },
-
 
   // ==================================================
   // BARRA
@@ -51,43 +42,39 @@ export const styles = StyleSheet.create({
 
   barra: {
     flex: 1,
-
-    backgroundColor: '#25074fdd',
-
+    backgroundColor: '#25074f',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },
-
 
   // ==================================================
   // CONTEÚDO
   // ==================================================
 
   conteudo: {
-  position: 'absolute',
-  left: 0,
-  right: 0,
-  bottom: 0,
-  height: BAR_H,
-  flexDirection: 'row',
-  alignItems: 'flex-end',
-  paddingHorizontal: 24,
-  paddingBottom: 24,
-},
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: BAR_H,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
 
   // ==================================================
   // GRUPOS
   // ==================================================
 
   grupo: {
-   flex: 1,
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 5,
-  paddingBottom: 10,
-},
-
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingBottom: 10,
+  },
 
   // ==================================================
   // ABA
@@ -96,26 +83,23 @@ export const styles = StyleSheet.create({
   aba: {
     alignItems: 'center',
     justifyContent: 'center',
-
     minWidth: 38,
   },
-
 
   // ==================================================
   // ÍCONE
   // ==================================================
 
   icone: {
-  width: 26,
-  height: 26,
-  opacity: 0.5,
-},
+    width: 26,
+    height: 26,
+    opacity: 0.5,
+  },
 
-iconeAtivo: {
-  opacity: 1,
-  tintColor: Cores.destaque.limao,
-},
-
+  iconeAtivo: {
+    opacity: 1,
+    tintColor: Cores.destaque.limao,
+  },
 
   // ==================================================
   // FAB
@@ -123,43 +107,29 @@ iconeAtivo: {
 
   fab: {
     position: 'absolute',
-
     left: '49%',
-
     width: FAB_R * 2.3,
     height: FAB_R * 2.1,
-
     borderRadius: 100,
-
     transform: [
       {
         translateX: -FAB_R,
       },
     ],
-
     bottom: BAR_H - FAB_R,
-
     alignItems: 'center',
     justifyContent: 'center',
-
-    backgroundColor: '#260654d3',
-
+    backgroundColor: '#260654',
     shadowColor: Cores.roxo.claro,
-
     shadowOpacity: 1,
-
     shadowRadius: 25,
-
     shadowOffset: {
       width: 0,
       height: 20,
     },
-
     elevation: 20,
-
     zIndex: 200,
   },
-
 
   // ==================================================
   // +
@@ -171,5 +141,4 @@ iconeAtivo: {
     fontFamily: FONTS.quicksand.regular,
     color: Cores.destaque.limao,
   },
-
 })
