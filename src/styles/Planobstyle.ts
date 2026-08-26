@@ -427,25 +427,54 @@ duploCard: {
   },
 
   // ==================================================
-  // HEATMAP
-  // ==================================================
+// ATIVIDADE
+// ==================================================
 
-  heatmapGrid: {
-  gap: 12,
-  marginTop: 8,
-  marginBottom: 12,
-},
-
-heatmapLinha: {
+atividadeHeader: {
+  width: '100%',
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
 },
 
+atividadeSeta: {
+  color: Cores.roxo.claro,
+  fontSize: 26,
+  lineHeight: 26,
+},
+
+atividadeMes: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginTop: 2,
+},
+
+
+  // ==================================================
+  // HEATMAP
+  // ==================================================
+
+  heatmapGrid: {
+  width: '100%',
+  marginTop: 8,
+  marginBottom: 10,
+},
+
+heatmapLinha: {
+  width: '100%',
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 10,
+},
+
 heatmapBolinha: {
-  width: 15,
-  height: 15,
-  borderRadius: 8,
+  width: 20,
+  height: 20,
+  borderRadius: 10,
+  flexShrink: 0,
 },
 
   heatmapLegenda: {

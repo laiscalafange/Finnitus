@@ -271,10 +271,17 @@ export default function Dashboard() {
         </LinearGradient>
 
         <View style={styles.setaContainer}>
-          <View style={styles.setaCirculo}>
-            <Text style={styles.setaTexto}>⌄</Text>
-          </View>
-        </View>
+  <LinearGradient
+    colors={['#3c1e75', '#30096e']}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 0, y: 1 }}
+    style={styles.setaCirculo}
+  >
+    <Text style={styles.setaTexto}>
+      ⌄
+    </Text>
+  </LinearGradient>
+</View>
 
         <View style={styles.conteudo}>
           <Text style={styles.secaoTitulo}>Visão semanal</Text>
@@ -416,10 +423,12 @@ export default function Dashboard() {
           >
             <View style={styles.planejamentoItem}>
               <View style={styles.planejamentoIcone}>
-                <Text style={{ fontSize: 20 }}>
-                  {DASHBOARD_MOCK.planejamentos[0].icone}
-                </Text>
-              </View>
+  <Image
+    source={DASHBOARD_MOCK.planejamentos[0].icone}
+    style={styles.planejamentoIconeImagem}
+    resizeMode="contain"
+  />
+</View>
 
               <View style={{ flex: 1 }}>
                 <Text style={styles.planejamentoNome}>

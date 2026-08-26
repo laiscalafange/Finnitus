@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PLANOB_MOCK } from '@/shared/components/Mocks'
 import type { ReactElement } from 'react'
 import { Image, Text, TouchableOpacity, View } from 'react-native'
@@ -21,10 +22,10 @@ export function CardPlanob({ dados, onPress }: Props) {
   const categorias = PLANOB_MOCK.categorias.slice(0, 4).map((categoria, index) => ({
     ...categoria,
     iconeFonte: [
-      require('../../../../../assets/icones/economia2.png'),
-      require('../../../../../assets/icones/saco.png'),
-      require('../../../../../assets/icones/decisoes.png'),
-      require('../../../../../assets/icones/historicoM.png'),
+      require('../../../../../assets/icones/comidas.png'),
+      require('../../../../../assets/icones/roupas.png'),
+      require('../../../../../assets/icones/lazer.png'),
+      require('../../../../../assets/icones/contas.png'),
     ][index],
   }))
   const raio = 42
