@@ -20,11 +20,27 @@ model Usuario {
   id_Usuario      Int      @id @default(autoincrement())
   Unome           String   @db.VarChar(100)
   Usenha          String   @db.VarChar(255)
-  Uemail          String   @db.VarChar(100)
+  Uemail          String   @db.VarChar(100) @unique
   Utelefone       String   @db.VarChar(15)
   Udata_nasc      DateTime @db.Date
   Udata_cadastro  DateTime
   UTipo           String
+
+  redefinicoes    RedefinicaoSenha[]
+}
+
+// ========================================
+// REDEFINIÇÃO DE SENHA
+// ========================================
+
+model RedefinicaoSenha {
+  id_Redefinicao  Int      @id @default(autoincrement())
+  id_Usuario      Int
+  Usuario         Usuario  @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+  codigo_hash     String   @db.VarChar(255)
+  expira_em       DateTime
+  usado           Boolean  @default(false)
+  criado_em       DateTime @default(now())
 }
 
 

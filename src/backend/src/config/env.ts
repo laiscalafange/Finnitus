@@ -30,15 +30,9 @@ export const env = {
   PORT: Number(getEnvVarOptional("PORT", "3333")),
   NODE_ENV: getEnvVarOptional("NODE_ENV", "development"),
 
-  // usada pelo prisma.config.ts (CLI: migrate, db pull, studio...)
+  // usada pelo prisma.config.ts E pelo adapter em runtime (lib/prisma.ts)
   DATABASE_URL: getEnvVar("DATABASE_URL"),
-
-  // usadas pelo adapter em runtime (lib/prisma.ts)
-  DATABASE_HOST: getEnvVarOptional("DATABASE_HOST", "localhost"),
-  DATABASE_PORT: Number(getEnvVarOptional("DATABASE_PORT", "3306")),
-  DATABASE_USER: getEnvVarOptional("DATABASE_USER", "root"),
-  DATABASE_PASSWORD: getEnvVarOptional("DATABASE_PASSWORD", ""),
-  DATABASE_NAME: getEnvVar("DATABASE_NAME"),
+  DIRECT_URL: getEnvVar("DIRECT_URL"),
 
   JWT_SECRET: getEnvVar("JWT_SECRET"),
   JWT_EXPIRES_IN: getEnvVarOptional("JWT_EXPIRES_IN", "7d"),
