@@ -41,6 +41,18 @@ Legenda: ✅ concluído · 🔵 em andamento · ⬜ a fazer
 - Explicação de por que armazenar hash do código e não o código puro
 - npx prisma migrate dev --name create_password_reset
 
+## Mudança para o psotgreeSQL
+- no terminal:
+Trocar o driver adapter
+npm uninstall @prisma/adapter-mariadb
+npm install @prisma/adapter-pg pg
+npm install -D @types/pg
+
+Regenerar e aplicar
+npx prisma validate
+npx prisma generate
+npx prisma migrate dev --name postgres_migration
+
 ## Fase 6 — Envio de e-mail (Nodemailer) ⬜
 - npm install nodemailer
 - npm install -D @types/nodemailer
