@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma.js";
-import jwt from "jsonwebtoken";
-import { env } from "../config/env.js";
+
 
 
 interface CreateUserInput {
@@ -22,6 +21,7 @@ interface SafeUser {
   tipo: string;
 }
 
+/* 
 export function generateToken(userId: number): string {
   return jwt.sign({ sub: String(userId) }, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN,
@@ -51,6 +51,7 @@ export function verifyResetToken(token: string): { userId: number; redefinicaoId
 
   return { userId: Number(payload.sub), redefinicaoId: payload.redefinicaoId };
 }
+  */
 
 // Função para criar um novo usuário no banco de dados
 export async function createUser(
