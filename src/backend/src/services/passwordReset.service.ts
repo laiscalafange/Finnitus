@@ -1,8 +1,7 @@
 import bcrypt from "bcrypt";
 import crypto from "node:crypto";
 import { prisma } from "../lib/prisma.js";
-import { generateToken } from "./token.service.js";
-import { generateResetToken } from "./user.service.js";
+import { generateResetToken } from "./token.service.js";
 
 const CODE_LENGTH = 6;
 const CODE_EXPIRATION_MINUTES = 15;
