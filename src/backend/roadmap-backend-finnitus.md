@@ -53,13 +53,14 @@ npx prisma validate
 npx prisma generate
 npx prisma migrate dev --name postgres_migration
 
-## Fase 6 — Envio de e-mail (Nodemailer) ⬜
+## Fase 6 — Envio de e-mail (Nodemailer) ✅
 - npm install nodemailer
 - npm install -D @types/nodemailer
 - Configuração SMTP no `.env` (`EMAIL_USER`, `EMAIL_PASSWORD`, host/porta do provedor)
 - `services/email.service.ts` com função reutilizável de envio
 
 ## Fase 7 — `POST /forgot-password` ⬜
+npm install argon2
 *(tela "Troca de senha" → botão Enviar)*
 - Recebe e-mail → localiza usuário → gera código → hash → salva com expiração → envia e-mail
 - Resposta genérica (não revela se o e-mail existe ou não)
