@@ -8,34 +8,32 @@ import {
 } from "../services/passwordReset.service.js";
 import { verifyResetToken } from "../services/token.service.js";
 
-export async function forgotPassword(req: Request, res: Response): Promise<void> {
+export async function forgotPassword(
+  req: Request,
+  res: Response
+): Promise<void> {
   const { email } = req.body as { email?: string };
+
   if (!email) {
-    res.status(400).json({ error: "email é obrigatório" });
-    return;
-  }
-
-  await requestPasswordReset(email);
-  res.status(200).json({ message: "Se o e-mail existir, um código de redefinição foi enviado." });
-}
-
-export async function verifyCode(req: Request, res: Response): Promise<void> {
-  const { email, code } = req.body as { email?: string; code?: string };
-  if (!email || !code) {
-    res.status(400).json({ error: "email e code são obrigatórios" });
+    res.status(400).json({
+      error: "email é obrigatório",
+    });
     return;
   }
 
   try {
-    const resetToken = await verifyResetCode(email, code);
-    res.status(200).json({ resetToken });
+    await requestPasswordReset(email);
+
+    res.status(200).json({
+      message:
+        "Se o e-mail existir, um código de redefinição foi enviado.",
+    });
   } catch (err) {
-    if (err instanceof Error && err.message === "Código inválido ou expirado") {
-      res.status(400).json({ error: err.message });
-      return;
-    }
-    console.error(err);
-    res.status(500).json({ error: "Erro ao verificar código" });
+    console.error("Erro ao solicitar recuperação de senha:", err);
+
+    res.status(500).json({
+      error: "Erro ao enviar código de recuperação",
+    });
   }
 }
 
