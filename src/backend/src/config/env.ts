@@ -32,7 +32,6 @@ export const env = {
 
   // usada pelo prisma.config.ts E pelo adapter em runtime (lib/prisma.ts)
   DATABASE_URL: getEnvVar("DATABASE_URL"),
-  DIRECT_URL: getEnvVar("DIRECT_URL"),
 
   JWT_SECRET: getEnvVar("JWT_SECRET"),
   JWT_EXPIRES_IN: getEnvVarOptional("JWT_EXPIRES_IN", "7d"),
