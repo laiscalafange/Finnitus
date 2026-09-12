@@ -21,6 +21,68 @@ interface SafeUser {
   tipo: string;
 }
 
+interface UpdateUserInput {
+  name?: string;
+  telefone?: string;
+  data_nasc?: Date;
+}
+
+export async function updateUser(
+  userId: number,
+  input: UpdateUserInput,
+) {
+  const existingUser =
+    await prisma.usuario.findUnique({
+      where: {
+        id_Usuario: userId,
+      },
+    });
+
+  if (!existingUser) {
+    throw new Error("Usuário não encontrado");
+  }
+
+  const user = await prisma.usuario.update({
+    where: {
+      id_Usuario: userId,
+    },
+
+    data: {
+      ...(input.name !== undefined && {
+        Unome: input.name,
+      }),
+
+      ...(input.telefone !== undefined && {
+        Utelefone: input.telefone,
+      }),
+
+      ...(input.data_nasc !== undefined && {
+        Udata_nasc: input.data_nasc,
+      }),
+    },
+
+    select: {
+      id_Usuario: true,
+      Unome: true,
+      Uemail: true,
+      Utelefone: true,
+      Udata_nasc: true,
+      Udata_cadastro: true,
+      UTipo: true,
+    },
+  });
+
+  return {
+    id: user.id_Usuario,
+    name: user.Unome,
+    email: user.Uemail,
+    telefone: user.Utelefone,
+    data_nasc: user.Udata_nasc,
+    data_cadastro: user.Udata_cadastro,
+    tipo: user.UTipo,
+  };
+}
+
 /* 
 export function generateToken(userId: number): string {
   return jwt.sign({ sub: String(userId) }, env.JWT_SECRET, {
@@ -54,6 +116,39 @@ export function verifyResetToken(token: string): { userId: number; redefinicaoId
   */
 
 // Função para criar um novo usuário no banco de dados
+export async function getUserById(userId: number) {
+  const user = await prisma.usuario.findUnique({
+    where: {
+      id_Usuario: userId,
+    },
+
+    select: {
+      id_Usuario: true,
+      Unome: true,
+      Uemail: true,
+      Utelefone: true,
+      Udata_nasc: true,
+      Udata_cadastro: true,
+      UTipo: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("Usuário não encontrado");
+  }
+
+  return {
+    id: user.id_Usuario,
+    name: user.Unome,
+    email: user.Uemail,
+    telefone: user.Utelefone,
+    data_nasc: user.Udata_nasc,
+    data_cadastro: user.Udata_cadastro,
+    tipo: user.UTipo,
+  };
+}
+
+
 export async function createUser(
   input: CreateUserInput
 ): Promise<SafeUser> {
@@ -124,4 +219,54 @@ export async function validateCredentials(
     data_nasc: user.Udata_nasc,
     tipo: user.UTipo,
   };
+}
+export async function changeUserPassword(
+  userId: number,
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const user = await prisma.usuario.findUnique({
+    where: {
+      id_Usuario: userId,
+    },
+  });
+
+  if (!user) {
+    throw new Error("Usuário não encontrado");
+  }
+
+  const passwordMatches = await bcrypt.compare(
+    currentPassword,
+    user.Usenha,
+  );
+
+  if (!passwordMatches) {
+    throw new Error("Senha atual incorreta");
+  }
+
+  const samePassword = await bcrypt.compare(
+    newPassword,
+    user.Usenha,
+  );
+
+  if (samePassword) {
+    throw new Error(
+      "A nova senha deve ser diferente da senha atual",
+    );
+  }
+
+  const passwordHash = await bcrypt.hash(
+    newPassword,
+    10,
+  );
+
+  await prisma.usuario.update({
+    where: {
+      id_Usuario: userId,
+    },
+
+    data: {
+      Usenha: passwordHash,
+    },
+  });
 }
