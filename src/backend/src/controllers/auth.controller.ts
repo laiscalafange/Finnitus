@@ -8,6 +8,44 @@ import {
 } from "../services/passwordReset.service.js";
 import { verifyResetToken } from "../services/token.service.js";
 
+export async function verifyCode(
+  req: Request,
+  res: Response
+): Promise<void> {
+  const { email, code } = req.body as {
+    email?: string;
+    code?: string;
+  };
+
+  if (!email || !code) {
+    res.status(400).json({
+      error: "email e code são obrigatórios",
+    });
+    return;
+  }
+
+  try {
+    const resetToken = await verifyResetCode(email, code);
+
+    res.status(200).json({
+      resetToken,
+    });
+  } catch (err) {
+    if (
+      err instanceof Error &&
+      err.message === "Código inválido ou expirado"
+    ) {
+      res.status(400).json({
+        error: err.message,
+      });
+      return;
+    }
+
+    res.status(500).json({
+      error: "Erro ao verificar código",
+    });
+  }
+}
 export async function forgotPassword(
   req: Request,
   res: Response
@@ -47,6 +85,7 @@ export async function resetPassword(req: Request, res: Response): Promise<void> 
     res.status(400).json({ error: "A senha precisa ter no mínimo 8 caracteres" });
     return;
   }
+  
 
   try {
     const { userId } = verifyResetToken(resetToken);

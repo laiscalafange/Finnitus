@@ -2,9 +2,13 @@ import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 
 export function generateToken(userId: number): string {
-  return jwt.sign({ sub: String(userId) }, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRES_IN,
-  } as jwt.SignOptions);
+  return jwt.sign(
+    { sub: userId.toString() },
+    env.JWT_SECRET,
+    {
+      expiresIn: env.JWT_EXPIRES_IN,
+    } as jwt.SignOptions
+  );
 }
 
 interface ResetTokenPayload {
