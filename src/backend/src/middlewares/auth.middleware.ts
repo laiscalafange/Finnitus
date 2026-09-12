@@ -1,5 +1,11 @@
-import type { Request, Response, NextFunction } from "express";
+import type {
+  Request,
+  Response,
+  NextFunction,
+} from "express";
+
 import jwt from "jsonwebtoken";
+
 import { env } from "../config/env.js";
 
 interface AuthPayload {
@@ -9,7 +15,7 @@ interface AuthPayload {
 declare global {
   namespace Express {
     interface Request {
-      userId?: string;
+      userId?: number;
     }
   }
 }
@@ -19,20 +25,45 @@ export function authMiddleware(
   res: Response,
   next: NextFunction,
 ): void {
-  const authHeader = req.headers.authorization;
+  const authorization = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    res.status(401).json({ error: "Token não fornecido." });
+  if (!authorization) {
+    res.status(401).json({
+      error: "Não autorizado.",
+    });
     return;
   }
 
-  const token = authHeader.slice(7); // remove o prefixo "Bearer "
+  const [type, token] = authorization.split(" ");
+
+  if (type !== "Bearer" || !token) {
+    res.status(401).json({
+      error: "Token inválido.",
+    });
+    return;
+  }
 
   try {
-    const payload = jwt.verify(token, env.JWT_SECRET) as AuthPayload;
-    req.userId = payload.sub;
+    const payload = jwt.verify(
+      token,
+      env.JWT_SECRET,
+    ) as AuthPayload;
+
+    const userId = Number(payload.sub);
+
+    if (!payload.sub || Number.isNaN(userId)) {
+      res.status(401).json({
+        error: "Token inválido.",
+      });
+      return;
+    }
+
+    req.userId = userId;
+
     next();
   } catch {
-    res.status(401).json({ error: "Token inválido ou expirado." });
+    res.status(401).json({
+      error: "Token inválido ou expirado.",
+    });
   }
 }

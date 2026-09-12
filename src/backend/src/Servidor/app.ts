@@ -2,6 +2,8 @@
 
 import express from "express";
 import routes from "../routes/index.js";
+import authRoutes from "../routes/auth.routes.js";
+import meRoutes from "../routes/me.routes.js";
 
 const app = express();
 
@@ -10,5 +12,7 @@ app.use(express.json());
 
 // Todas as rotas da API entram por aqui
 app.use(routes);
+app.use("/auth", authRoutes);
+app.use("/me", meRoutes);
 
 export default app;
