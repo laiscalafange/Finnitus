@@ -93,19 +93,26 @@ export async function createUser(
 // Função para validar as credenciais do usuário durante o login
 export async function validateCredentials(
   email: string,
-  password: string,
-): Promise<SafeUser> {
+  password: string
+) {
   const user = await prisma.usuario.findUnique({
-    where: { Uemail: email },
+    where: {
+      Uemail: email,
+    },
   });
 
   if (!user) {
     throw new Error("Credenciais inválidas");
   }
 
-  const passwordMatches = await bcrypt.compare(password, user.Usenha);
+  const bcrypt = await import("bcrypt");
 
-  if (!passwordMatches) {
+  const senhaCorreta = await bcrypt.compare(
+    password,
+    user.Usenha
+  );
+
+  if (!senhaCorreta) {
     throw new Error("Credenciais inválidas");
   }
 
@@ -115,8 +122,6 @@ export async function validateCredentials(
     email: user.Uemail,
     telefone: user.Utelefone,
     data_nasc: user.Udata_nasc,
-    data_cadastro: user.Udata_cadastro,
     tipo: user.UTipo,
   };
-  
 }
