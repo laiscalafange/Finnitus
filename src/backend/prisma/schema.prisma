@@ -17,6 +17,7 @@ model Usuario {
   Udata_cadastro DateTime
   UTipo          String
   redefinicoes   RedefinicaoSenha[]
+  gastos         Gastos[]
 }
 
 model RedefinicaoSenha {
@@ -39,13 +40,17 @@ model EntradaDinheiro {
 }
 
 model Gastos {
-  id_Gasto   Int      @id @default(autoincrement())
+  id_Gasto Int @id @default(autoincrement())
+
   id_Usuario Int
-  Gnome      String   @db.VarChar(100)
-  Gvalor     Decimal  @db.Decimal(10, 2)
-  Gcategoria String   @db.VarChar(50)
-  Gdata      DateTime @db.Date
-  Gdescricao String   @db.VarChar(50)
+
+  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+
+  Gnome      String
+  Gvalor     Decimal
+  Gcategoria String
+  Gdata      DateTime
+  Gdescricao String
 }
 
 model Metas {

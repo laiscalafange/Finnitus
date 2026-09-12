@@ -1,3 +1,4 @@
+import { normalizeEmail } from "../utils/normalize.js";
 import type { Request, Response } from "express";
 import { createUser, validateCredentials } from "../services/user.service.js";
 import { generateToken } from "../services/token.service.js";
@@ -88,8 +89,13 @@ export async function resetPassword(req: Request, res: Response): Promise<void> 
   
 
   try {
-    const { userId } = verifyResetToken(resetToken);
-    await resetPasswordService(userId, newPassword);
+    const { userId, redefinicaoId } = verifyResetToken(resetToken);
+
+await resetPasswordService(
+  userId,
+  redefinicaoId,
+  newPassword
+);
     res.status(200).json({ message: "Senha redefinida com sucesso." });
   } catch (err) {
     console.error(err);
