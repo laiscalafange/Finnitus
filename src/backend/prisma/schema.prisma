@@ -9,6 +9,7 @@ datasource db {
 
 model Usuario {
   id_Usuario     Int                @id @default(autoincrement())
+  tokenVersion   Int                @default(0)
   Unome          String             @db.VarChar(100)
   Usenha         String             @db.VarChar(255)
   Uemail         String             @unique @db.VarChar(100)
@@ -16,18 +17,22 @@ model Usuario {
   Udata_nasc     DateTime           @db.Date
   Udata_cadastro DateTime
   UTipo          String
+
   redefinicoes   RedefinicaoSenha[]
   gastos         Gastos[]
 }
 
 model RedefinicaoSenha {
   id_Redefinicao Int      @id @default(autoincrement())
-  id_Usuario     Int
-  codigo_hash    String   @db.VarChar(255)
-  expira_em      DateTime
-  usado          Boolean  @default(false)
-  criado_em      DateTime @default(now())
-  Usuario        Usuario  @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+  id_Usuario    Int
+  codigo_hash   String   @db.VarChar(255)
+  expira_em     DateTime
+  verificado    Boolean  @default(false)
+  tentativas    Int      @default(0)
+  usado         Boolean  @default(false)
+  criado_em     DateTime @default(now())
+
+  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
 }
 
 model EntradaDinheiro {

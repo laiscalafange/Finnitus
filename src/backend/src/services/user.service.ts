@@ -1,194 +1,93 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma.js";
+import { HttpError } from "../utils/errors.js";
 
+export const safeSelect = {
+  id_Usuario: true,
+  Unome: true,
+  Uemail: true,
+  Utelefone: true,
+  Udata_nasc: true,
+  Udata_cadastro: true,
+  UTipo: true,
+} as const;
 
+type PublicRow = {
+  id_Usuario: number;
+  Unome: string;
+  Uemail: string;
+  Utelefone: string;
+  Udata_nasc: Date;
+  Udata_cadastro: Date;
+  UTipo: string;
+};
 
-interface CreateUserInput {
+export function safeUser(user: PublicRow) {
+  return {
+    id: user.id_Usuario,
+    name: user.Unome,
+    email: user.Uemail,
+    telefone: user.Utelefone,
+    data_nasc: user.Udata_nasc,
+    data_cadastro: user.Udata_cadastro,
+    tipo: user.UTipo,
+  };
+}
+
+export async function getUserById(id: number) {
+  const user = await prisma.usuario.findUnique({
+    where: {
+      id_Usuario: id,
+    },
+    select: safeSelect,
+  });
+
+  if (!user) {
+    throw new HttpError(401, "Usuário não encontrado.");
+  }
+
+  return safeUser(user);
+}
+
+export async function createUser(input: {
   name: string;
   email: string;
   password: string;
   telefone: string;
   data_nasc: Date;
-}
+}) {
+  const hash = await bcrypt.hash(input.password, 12);
 
-interface SafeUser {
-  id: number;
-  name: string;
-  email: string;
-  telefone: string;
-  data_nasc: Date;
-  data_cadastro: Date;
-  tipo: string;
-}
-
-interface UpdateUserInput {
-  name?: string;
-  telefone?: string;
-  data_nasc?: Date;
-}
-
-export async function updateUser(
-  userId: number,
-  input: UpdateUserInput,
-) {
-  const existingUser =
-    await prisma.usuario.findUnique({
-      where: {
-        id_Usuario: userId,
+  try {
+    const user = await prisma.usuario.create({
+      data: {
+        Unome: input.name,
+        Uemail: input.email,
+        Usenha: hash,
+        Utelefone: input.telefone,
+        Udata_nasc: input.data_nasc,
+        Udata_cadastro: new Date(),
+        UTipo: "usuario",
       },
+      select: safeSelect,
     });
 
-  if (!existingUser) {
-    throw new Error("Usuário não encontrado");
+    return safeUser(user);
+  } catch (error) {
+    if ((error as { code?: string }).code === "P2002") {
+      throw new HttpError(409, "E-mail já cadastrado.");
+    }
+
+    throw error;
   }
-
-  const user = await prisma.usuario.update({
-    where: {
-      id_Usuario: userId,
-    },
-
-    data: {
-      ...(input.name !== undefined && {
-        Unome: input.name,
-      }),
-
-      ...(input.telefone !== undefined && {
-        Utelefone: input.telefone,
-      }),
-
-      ...(input.data_nasc !== undefined && {
-        Udata_nasc: input.data_nasc,
-      }),
-    },
-
-    select: {
-      id_Usuario: true,
-      Unome: true,
-      Uemail: true,
-      Utelefone: true,
-      Udata_nasc: true,
-      Udata_cadastro: true,
-      UTipo: true,
-    },
-  });
-
-  return {
-    id: user.id_Usuario,
-    name: user.Unome,
-    email: user.Uemail,
-    telefone: user.Utelefone,
-    data_nasc: user.Udata_nasc,
-    data_cadastro: user.Udata_cadastro,
-    tipo: user.UTipo,
-  };
 }
 
-/* 
-export function generateToken(userId: number): string {
-  return jwt.sign({ sub: String(userId) }, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRES_IN,
-  } as jwt.SignOptions);
-}
+// Evita pular completamente o bcrypt quando a conta não existe.
+const dummyHash = bcrypt.hash("finnitus-dummy-password", 12);
 
-interface ResetTokenPayload {
-  sub: string;
-  purpose: "reset-password";
-  redefinicaoId: number;
-}
-
-export function generateResetToken(userId: number, redefinicaoId: number): string {
-  return jwt.sign(
-    { sub: String(userId), purpose: "reset-password", redefinicaoId },
-    env.JWT_SECRET,
-    { expiresIn: "10m" },
-  );
-}
-
-export function verifyResetToken(token: string): { userId: number; redefinicaoId: number } {
-  const payload = jwt.verify(token, env.JWT_SECRET) as ResetTokenPayload;
-
-  if (payload.purpose !== "reset-password") {
-    throw new Error("Token inválido");
-  }
-
-  return { userId: Number(payload.sub), redefinicaoId: payload.redefinicaoId };
-}
-  */
-
-// Função para criar um novo usuário no banco de dados
-export async function getUserById(userId: number) {
-  const user = await prisma.usuario.findUnique({
-    where: {
-      id_Usuario: userId,
-    },
-
-    select: {
-      id_Usuario: true,
-      Unome: true,
-      Uemail: true,
-      Utelefone: true,
-      Udata_nasc: true,
-      Udata_cadastro: true,
-      UTipo: true,
-    },
-  });
-
-  if (!user) {
-    throw new Error("Usuário não encontrado");
-  }
-
-  return {
-    id: user.id_Usuario,
-    name: user.Unome,
-    email: user.Uemail,
-    telefone: user.Utelefone,
-    data_nasc: user.Udata_nasc,
-    data_cadastro: user.Udata_cadastro,
-    tipo: user.UTipo,
-  };
-}
-
-
-export async function createUser(
-  input: CreateUserInput
-): Promise<SafeUser> {
-  const existingUser = await prisma.usuario.findUnique({
-    where: { Uemail: input.email },
-  });
-
-  if (existingUser) {
-    throw new Error("E-mail já cadastrado");
-  }
-
-  const passwordHash = await bcrypt.hash(input.password, 10);
-
-  const user = await prisma.usuario.create({
-    data: {
-      Unome: input.name,
-      Usenha: passwordHash,
-      Uemail: input.email,
-      Utelefone: input.telefone,
-      Udata_nasc: input.data_nasc,
-      Udata_cadastro: new Date(),
-      UTipo: "usuario",
-    },
-  });
-
-  return {
-    id: user.id_Usuario,
-    name: user.Unome,
-    email: user.Uemail,
-    telefone: user.Utelefone,
-    data_nasc: user.Udata_nasc,
-    data_cadastro: user.Udata_cadastro,
-    tipo: user.UTipo,
-  };
-}
-
-// Função para validar as credenciais do usuário durante o login
 export async function validateCredentials(
   email: string,
-  password: string
+  password: string,
 ) {
   const user = await prisma.usuario.findUnique({
     where: {
@@ -196,77 +95,158 @@ export async function validateCredentials(
     },
   });
 
-  if (!user) {
-    throw new Error("Credenciais inválidas");
-  }
-
-  const bcrypt = await import("bcrypt");
-
-  const senhaCorreta = await bcrypt.compare(
+  const valid = await bcrypt.compare(
     password,
-    user.Usenha
+    user?.Usenha ?? (await dummyHash),
   );
 
-  if (!senhaCorreta) {
-    throw new Error("Credenciais inválidas");
+  if (!user || !valid) {
+    throw new HttpError(401, "Credenciais inválidas.");
   }
 
   return {
-    id: user.id_Usuario,
-    name: user.Unome,
-    email: user.Uemail,
-    telefone: user.Utelefone,
-    data_nasc: user.Udata_nasc,
-    tipo: user.UTipo,
+    user: safeUser(user),
+    tokenVersion: user.tokenVersion,
   };
 }
+
+export async function updateUser(
+  id: number,
+  data: {
+    Unome?: string;
+    Utelefone?: string;
+    Udata_nasc?: Date;
+  },
+) {
+  const user = await prisma.usuario.update({
+    where: {
+      id_Usuario: id,
+    },
+    data,
+    select: safeSelect,
+  });
+
+  return safeUser(user);
+}
+
 export async function changeUserPassword(
-  userId: number,
-  currentPassword: string,
-  newPassword: string,
-): Promise<void> {
+  id: number,
+  current: string,
+  next: string,
+) {
   const user = await prisma.usuario.findUnique({
     where: {
-      id_Usuario: userId,
+      id_Usuario: id,
     },
   });
 
-  if (!user) {
-    throw new Error("Usuário não encontrado");
+  if (!user || !(await bcrypt.compare(current, user.Usenha))) {
+    throw new HttpError(400, "Senha atual incorreta.");
   }
 
-  const passwordMatches = await bcrypt.compare(
-    currentPassword,
-    user.Usenha,
-  );
-
-  if (!passwordMatches) {
-    throw new Error("Senha atual incorreta");
-  }
-
-  const samePassword = await bcrypt.compare(
-    newPassword,
-    user.Usenha,
-  );
-
-  if (samePassword) {
-    throw new Error(
-      "A nova senha deve ser diferente da senha atual",
+  if (await bcrypt.compare(next, user.Usenha)) {
+    throw new HttpError(
+      400,
+      "A nova senha deve ser diferente da atual.",
     );
   }
 
-  const passwordHash = await bcrypt.hash(
-    newPassword,
-    10,
-  );
+  const hash = await bcrypt.hash(next, 12);
 
+  await prisma.$transaction(async (tx) => {
+    const changed = await tx.usuario.updateMany({
+      where: {
+        id_Usuario: id,
+        Usenha: user.Usenha,
+      },
+      data: {
+        Usenha: hash,
+        tokenVersion: {
+          increment: 1,
+        },
+      },
+    });
+
+    if (changed.count !== 1) {
+      throw new HttpError(
+        409,
+        "Senha alterada em outra sessão. Faça login novamente.",
+      );
+    }
+
+    await tx.redefinicaoSenha.updateMany({
+      where: {
+        id_Usuario: id,
+        usado: false,
+      },
+      data: {
+        usado: true,
+      },
+    });
+  });
+}
+
+export async function deleteUser(
+  id: number,
+  password: string,
+) {
+  const user = await prisma.usuario.findUnique({
+    where: {
+      id_Usuario: id,
+    },
+  });
+
+  if (!user || !(await bcrypt.compare(password, user.Usenha))) {
+    throw new HttpError(400, "Senha atual incorreta.");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    // Confere a senha novamente na condição da atualização
+    // e bloqueia a linha durante a transação.
+    const lock = await tx.usuario.updateMany({
+      where: {
+        id_Usuario: id,
+        Usenha: user.Usenha,
+      },
+      data: {
+        tokenVersion: {
+          increment: 1,
+        },
+      },
+    });
+
+    if (lock.count !== 1) {
+      throw new HttpError(
+        409,
+        "Conta alterada. Faça login novamente.",
+      );
+    }
+
+    const where = {
+      id_Usuario: id,
+    };
+
+    await tx.redefinicaoSenha.deleteMany({ where });
+    await tx.gastos.deleteMany({ where });
+    await tx.entradaDinheiro.deleteMany({ where });
+    await tx.metas.deleteMany({ where });
+    await tx.imprevistos.deleteMany({ where });
+    await tx.eventos.deleteMany({ where });
+    await tx.analiseSentimental.deleteMany({ where });
+
+    await tx.usuario.delete({ where });
+  });
+}
+
+export async function logoutUser(id: number) {
   await prisma.usuario.update({
     where: {
-      id_Usuario: userId,
+      id_Usuario: id,
     },
-
     data: {
-      Usenha: passwordHash,
+      tokenVersion: {
+        increment: 1,
+      },
     },
   });
 }

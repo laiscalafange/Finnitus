@@ -1,220 +1,115 @@
-import type {
-  Request,
-  Response,
-} from "express";
+import type { Request, Response } from "express";
 
 import {
   getUserById,
-  changeUserPassword,
   updateUser,
+  changeUserPassword,
+  deleteUser,
+  logoutUser,
 } from "../services/user.service.js";
 
-export async function getMe(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  try {
-    const userId = req.userId;
+import {
+  objectBody,
+  text,
+  phone,
+  birthDate,
+  password,
+} from "../utils/validation.js";
 
-    if (!userId) {
-      res.status(401).json({
-        error: "Não autorizado.",
-      });
-      return;
-    }
+import { HttpError } from "../utils/errors.js";
 
-    const user = await getUserById(Number(userId));
-
-    res.status(200).json({
-      user,
-    });
-  } catch (err) {
-    if (
-      err instanceof Error &&
-      err.message === "Usuário não encontrado"
-    ) {
-      res.status(404).json({
-        error: err.message,
-      });
-      return;
-    }
-
-    console.error(err);
-
-    res.status(500).json({
-      error: "Erro ao buscar usuário.",
-    });
+function userId(req: Request) {
+  if (!req.userId) {
+    throw new HttpError(401, "Não autorizado.");
   }
+
+  return req.userId;
 }
 
-export async function updateMe(
-  req: Request,
-  res: Response,
-): Promise<void> {
-  const userId = req.userId;
+export async function getMe(req: Request, res: Response) {
+  res.json({
+    user: await getUserById(userId(req)),
+  });
+}
 
-  if (!userId) {
-    res.status(401).json({
-      error: "Não autorizado.",
-    });
-    return;
-  }
-
-  const {
-    name,
-    telefone,
-    data_nasc,
-  } = req.body as {
-    name?: string;
-    telefone?: string;
-    data_nasc?: string;
-  };
+export async function updateMe(req: Request, res: Response) {
+  const body = objectBody(req.body);
+  const keys = Object.keys(body);
 
   if (
-    name === undefined &&
-    telefone === undefined &&
-    data_nasc === undefined
+    !keys.length ||
+    keys.some(
+      (key) => !["name", "telefone", "data_nasc"].includes(key),
+    )
   ) {
-    res.status(400).json({
-      error: "Nenhum dado foi informado.",
-    });
-    return;
-  }
-
-  if (
-    name !== undefined &&
-    name.trim().length < 2
-  ) {
-    res.status(400).json({
-      error: "Nome inválido.",
-    });
-    return;
-  }
-
-  let birthDate: Date | undefined;
-
-  if (data_nasc !== undefined) {
-    birthDate = new Date(data_nasc);
-
-    if (Number.isNaN(birthDate.getTime())) {
-      res.status(400).json({
-        error: "Data de nascimento inválida.",
-      });
-      return;
-    }
-  }
-
-  try {
-    const user = await updateUser(
-      userId,
-      {
-        name: name?.trim(),
-        telefone,
-        data_nasc: birthDate,
-      },
+    throw new HttpError(
+      400,
+      "Informe somente name, telefone e/ou data_nasc.",
     );
-
-    res.status(200).json({
-      message: "Dados atualizados com sucesso.",
-      user,
-    });
-  } catch (err) {
-    if (
-      err instanceof Error &&
-      err.message === "Usuário não encontrado"
-    ) {
-      res.status(404).json({
-        error: err.message,
-      });
-      return;
-    }
-
-    console.error(err);
-
-    res.status(500).json({
-      error: "Erro ao atualizar usuário.",
-    });
   }
+
+  const data: {
+    Unome?: string;
+    Utelefone?: string;
+    Udata_nasc?: Date;
+  } = {};
+
+  if (body.name !== undefined) {
+    data.Unome = text(body.name, "name", 2, 100);
+  }
+
+  if (body.telefone !== undefined) {
+    data.Utelefone = phone(body.telefone);
+  }
+
+  if (body.data_nasc !== undefined) {
+    data.Udata_nasc = birthDate(body.data_nasc);
+  }
+
+  res.json({
+    message: "Dados atualizados com sucesso.",
+    user: await updateUser(userId(req), data),
+  });
 }
 
 export async function changePassword(
   req: Request,
   res: Response,
-): Promise<void> {
-  const userId = req.userId;
+) {
+  const body = objectBody(req.body);
 
-  if (!userId) {
-    res.status(401).json({
-      error: "Não autorizado.",
-    });
-    return;
-  }
+  await changeUserPassword(
+    userId(req),
+    password(body.currentPassword, false),
+    password(body.newPassword),
+  );
 
-  const {
-    currentPassword,
-    newPassword,
-  } = req.body as {
-    currentPassword?: string;
-    newPassword?: string;
-  };
+  res.json({
+    message: "Senha alterada. Faça login novamente.",
+    requiresLogin: true,
+  });
+}
 
-  if (!currentPassword || !newPassword) {
-    res.status(400).json({
-      error:
-        "currentPassword e newPassword são obrigatórios.",
-    });
-    return;
-  }
+export async function deleteMe(req: Request, res: Response) {
+  const body = objectBody(req.body);
 
-  if (newPassword.length < 8) {
-    res.status(400).json({
-      error:
-        "A nova senha precisa ter no mínimo 8 caracteres.",
-    });
-    return;
-  }
-
-  try {
-    await changeUserPassword(
-      Number(userId),
-      currentPassword,
-      newPassword,
+  if (body.confirm !== true) {
+    throw new HttpError(
+      400,
+      "Confirme a exclusão com confirm: true.",
     );
-
-    res.status(200).json({
-      message: "Senha alterada com sucesso.",
-    });
-  } catch (err) {
-    if (err instanceof Error) {
-      if (err.message === "Senha atual incorreta") {
-        res.status(400).json({
-          error: err.message,
-        });
-        return;
-      }
-
-      if (
-        err.message ===
-        "A nova senha deve ser diferente da senha atual"
-      ) {
-        res.status(400).json({
-          error: err.message,
-        });
-        return;
-      }
-
-      if (err.message === "Usuário não encontrado") {
-        res.status(404).json({
-          error: err.message,
-        });
-        return;
-      }
-    }
-
-    console.error(err);
-
-    res.status(500).json({
-      error: "Erro ao alterar senha.",
-    });
   }
+
+  await deleteUser(
+    userId(req),
+    password(body.currentPassword, false),
+  );
+
+  res.status(204).end();
+}
+
+export async function logout(req: Request, res: Response) {
+  await logoutUser(userId(req));
+
+  res.status(204).end();
 }
