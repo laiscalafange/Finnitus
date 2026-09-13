@@ -44,3 +44,9 @@ export const env = {
   EMAIL_PASSWORD: getEnvVar("EMAIL_PASSWORD"),
   EMAIL_FROM: getEnvVar("EMAIL_FROM"),
 };
+
+if (env.JWT_SECRET.length < 32) {
+  throw new Error(
+    "JWT_SECRET deve ter ao menos 32 caracteres aleatórios.",
+  );
+}
