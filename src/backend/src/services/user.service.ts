@@ -16,8 +16,8 @@ type PublicRow = {
   id_Usuario: number;
   Unome: string;
   Uemail: string;
-  Utelefone: string;
-  Udata_nasc: Date;
+  Utelefone: string | null;
+  Udata_nasc: Date | null;
   Udata_cadastro: Date;
   UTipo: string;
 };
@@ -31,6 +31,10 @@ export function safeUser(user: PublicRow) {
     data_nasc: user.Udata_nasc,
     data_cadastro: user.Udata_cadastro,
     tipo: user.UTipo,
+
+    profileComplete: Boolean(
+      user.Utelefone && user.Udata_nasc,
+    ),
   };
 }
 
@@ -100,7 +104,7 @@ export async function validateCredentials(
     user?.Usenha ?? (await dummyHash),
   );
 
-  if (!user || !valid) {
+  if (!user || !user.Usenha || !valid) {
     throw new HttpError(401, "Credenciais inválidas.");
   }
 
@@ -109,7 +113,6 @@ export async function validateCredentials(
     tokenVersion: user.tokenVersion,
   };
 }
-
 export async function updateUser(
   id: number,
   data: {
@@ -140,16 +143,20 @@ export async function changeUserPassword(
     },
   });
 
-  if (!user || !(await bcrypt.compare(current, user.Usenha))) {
-    throw new HttpError(400, "Senha atual incorreta.");
-  }
+  if (user && !user.Usenha) {
+  throw new HttpError(
+    400,
+    "Sua conta ainda não possui senha do Finnitus. Use a recuperação de senha para definir uma.",
+  );
+}
 
-  if (await bcrypt.compare(next, user.Usenha)) {
-    throw new HttpError(
-      400,
-      "A nova senha deve ser diferente da atual.",
-    );
-  }
+  if (
+  !user ||
+  !user.Usenha ||
+  !(await bcrypt.compare(current, user.Usenha))
+) {
+  throw new HttpError(400, "Senha atual incorreta.");
+}
 
   const hash = await bcrypt.hash(next, 12);
 
@@ -196,9 +203,23 @@ export async function deleteUser(
     },
   });
 
-  if (!user || !(await bcrypt.compare(password, user.Usenha))) {
+  // Conta Google que ainda não definiu uma senha local.
+  if (user && !user.Usenha) {
+    throw new HttpError(
+      400,
+      "Para excluir por este fluxo, primeiro defina uma senha do Finnitus usando a recuperação de senha.",
+    );
+  }
+
+  // Verifica se o usuário existe e se a senha está correta.
+  if (
+    !user ||
+    !user.Usenha ||
+    !(await bcrypt.compare(password, user.Usenha))
+  ) {
     throw new HttpError(400, "Senha atual incorreta.");
   }
+
 
   await prisma.$transaction(async (tx) => {
     // Confere a senha novamente na condição da atualização

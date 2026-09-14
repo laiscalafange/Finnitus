@@ -36,6 +36,8 @@ export const env = {
   JWT_SECRET: getEnvVar("JWT_SECRET"),
   JWT_EXPIRES_IN: getEnvVarOptional("JWT_EXPIRES_IN", "7d"),
 
+  GOOGLE_CLIENT_ID: getEnvVar("GOOGLE_CLIENT_ID"),
+
   // usadas pelo services/email.service.ts (Nodemailer)
   EMAIL_HOST: getEnvVarOptional("EMAIL_HOST", "smtp.gmail.com"),
   EMAIL_PORT: Number(getEnvVarOptional("EMAIL_PORT", "465")),
