@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Teste Google — Finnitus</title>
+
+    <script>
+      function receberGoogle(response) {
+        document.getElementById("token").value =
+          response.credential;
+
+        document.getElementById("status").textContent =
+          "Token recebido. Copie e use no teste do backend.";
+      }
+    </script>
+
+    <script
+      src="https://accounts.google.com/gsi/client"
+      async
+      defer
+    ></script>
+  </head>
+
+  <body>
+    <h1>Teste do login Google</h1>
+
+    <div
+      id="g_id_onload"
+      data-client_id="162022351876-e3ngcdmsc25r41lni0k887j5fffalo49.apps.googleusercontent.com"
+      data-callback="receberGoogle"
+      data-auto_prompt="false"
+    ></div>
+
+    <div
+      class="g_id_signin"
+      data-type="standard"
+    ></div>
+
+    <p id="status">Entre com uma conta Google.</p>
+
+    <textarea
+      id="token"
+      rows="10"
+      cols="90"
+      readonly
+      autocomplete="off"
+    ></textarea>
+  </body>
+</html>

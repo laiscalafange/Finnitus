@@ -468,13 +468,13 @@ Verificado:
 
 ---
 
-# Fase 11 — Finalização da autenticação no backend ⬜
+# Fase 11 — Finalização da autenticação no backend ✅
 
 Antes de conectar completamente o React Native, finalizar os recursos necessários para identificar e proteger o usuário autenticado.
 
 ---
 
-## Fase 11.1 — Middleware JWT ⬜
+## Fase 11.1 — Middleware JWT ✅
 
 Criar:
 
@@ -517,7 +517,7 @@ Esse middleware será usado posteriormente em:
 
 ---
 
-## Fase 11.2 — `GET /me` ⬜
+## Fase 11.2 — `GET /me` ✅
 
 Criar endpoint:
 
@@ -566,7 +566,7 @@ dados do perfil
 
 ---
 
-## Fase 11.3 — Testes das rotas protegidas ⬜
+## Fase 11.3 — Testes das rotas protegidas ✅
 
 Testar pelo PowerShell:
 
@@ -600,7 +600,7 @@ Resultado esperado:
 
 ---
 
-## Fase 11.4 — Alteração de senha pelo usuário logado ⬜
+## Fase 11.4 — Alteração de senha pelo usuário logado ✅
 
 Diferente do fluxo **Esqueci minha senha**.
 
@@ -645,7 +645,7 @@ Testar:
 
 ---
 
-## Fase 11.5 — Editar dados da conta ⬜
+## Fase 11.5 — Editar dados da conta ✅
 
 Criar:
 
@@ -665,7 +665,7 @@ A alteração de e-mail deve ser tratada separadamente ou com validações adici
 
 ---
 
-## Fase 11.6 — Excluir conta ⬜
+## Fase 11.6 — Excluir conta ✅
 
 Criar:
 
@@ -709,7 +709,7 @@ Preferir transações quando necessário.
 
 ---
 
-## Fase 11.7 — Logout ⬜
+## Fase 11.7 — Logout ✅
 
 No modelo atual com JWT simples, não é necessário criar obrigatoriamente:
 
@@ -740,13 +740,13 @@ Um endpoint de logout no backend só seria necessário posteriormente caso fosse
 
 ---
 
-# Fase 12 — Integração da autenticação com React Native ⬜
+# Fase 12 — Integração da autenticação com React Native 
 
 Depois que a autenticação do backend estiver finalizada, conectar as telas existentes do Finnitus.
 
 ---
 
-## Fase 12.1 — Serviço de API/autenticação ⬜
+## Fase 12.1 — Serviço de API/autenticação 
 
 Criar um serviço centralizado no frontend, por exemplo:
 
@@ -772,7 +772,7 @@ Evitar chamadas `fetch()` espalhadas pelas telas.
 
 ---
 
-## Fase 12.2 — Login real ⬜
+## Fase 12.2 — Login real 
 
 Conectar a tela de Login ao:
 
@@ -803,7 +803,7 @@ Tratar:
 
 ---
 
-## Fase 12.3 — Armazenamento da sessão ⬜
+## Fase 12.3 — Armazenamento da sessão 
 
 Armazenar o JWT de forma apropriada no aplicativo.
 
@@ -827,7 +827,7 @@ Login      GET /me
 
 ---
 
-## Fase 12.4 — Logout no React Native ⬜
+## Fase 12.4 — Logout no React Native 
 
 Na opção:
 
@@ -847,7 +847,7 @@ router.replace("/login")
 
 ---
 
-## Fase 12.5 — Recuperação de senha ⬜
+## Fase 12.5 — Recuperação de senha 
 
 Integrar as telas existentes:
 
