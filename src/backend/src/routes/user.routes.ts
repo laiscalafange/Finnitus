@@ -14,6 +14,10 @@ import {
   sensitiveLimiter,
 } from "../middlewares/rateLimit.middleware.js";
 
+import {
+  linkGoogle,
+} from "../controllers/googleAuth.controller.js";
+
 const router = Router();
 
 router.get(
@@ -54,6 +58,13 @@ router.put(
   sensitiveLimiter,
   authMiddleware,
   changePassword,
+);
+
+router.post(
+  "/me/google",
+  sensitiveLimiter,
+  authMiddleware,
+  linkGoogle,
 );
 
 export default router;

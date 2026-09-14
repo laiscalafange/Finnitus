@@ -1,0 +1,18 @@
+BEGIN;
+
+ALTER TABLE "Usuario"
+ADD COLUMN IF NOT EXISTS "googleId" VARCHAR(255);
+
+CREATE UNIQUE INDEX IF NOT EXISTS "Usuario_googleId_key"
+ON "Usuario" ("googleId");
+
+ALTER TABLE "Usuario"
+ALTER COLUMN "Usenha" DROP NOT NULL;
+
+ALTER TABLE "Usuario"
+ALTER COLUMN "Utelefone" DROP NOT NULL;
+
+ALTER TABLE "Usuario"
+ALTER COLUMN "Udata_nasc" DROP NOT NULL;
+
+COMMIT;

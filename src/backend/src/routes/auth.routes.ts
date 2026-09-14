@@ -14,6 +14,10 @@ import {
   sensitiveLimiter,
 } from "../middlewares/rateLimit.middleware.js";
 
+import {
+  googleLogin,
+} from "../controllers/googleAuth.controller.js";
+
 const router = Router();
 
 router.post("/register", recoveryLimiter, register);
@@ -31,6 +35,12 @@ router.post(
   "/reset-password",
   sensitiveLimiter,
   resetPassword,
+);
+
+router.post(
+  "/google",
+  loginLimiter,
+  googleLogin,
 );
 
 export default router;
