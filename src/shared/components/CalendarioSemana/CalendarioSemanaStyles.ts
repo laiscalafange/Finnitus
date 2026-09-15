@@ -4,7 +4,7 @@ import { FONTS } from '@/shared/constants/Tipografia'
 
 export const styles = StyleSheet.create({
     header: {
-        paddingTop: 20,
+        paddingTop: 62,
         paddingHorizontal: 20,
         paddingBottom: 20,
         borderBottomLeftRadius: 38,
@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
 
     headerSubtitulo: {
         fontFamily: FONTS.quicksand.regular,
-        fontSize: 14,
+        fontSize: 20,
         color: Cores.destaque.limao,
         marginTop: -1,
     },

@@ -73,6 +73,19 @@ export const getStyles = (insetBottom: number) => StyleSheet.create({
     tintColor: Cores.destaque.limao,
   },
 
+  maisOpcoes: {
+    fontSize: 25,
+    lineHeight: 30,
+    color: Cores.roxo.claro,
+    opacity: 0.5,
+    fontFamily: FONTS.quicksand.regular,
+  },
+
+  maisOpcoesAtivo: {
+    opacity: 1,
+    color: Cores.destaque.limao,
+  },
+
   fab: {
     position: 'absolute',
     left: '49%',
@@ -98,4 +111,5 @@ export const getStyles = (insetBottom: number) => StyleSheet.create({
     fontFamily: FONTS.quicksand.regular,
     color: Cores.destaque.limao,
   },
+
 })

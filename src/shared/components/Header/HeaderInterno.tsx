@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   header: {
     height: 400,
 
-    paddingTop: 20,
+    paddingTop: 62,
     paddingHorizontal: 20,
 
     flexDirection: "row",
@@ -78,15 +78,17 @@ const styles = StyleSheet.create({
 
   titulo: {
     color: "#B7FF00",
-    fontSize: 27,
+    fontSize: 28,
+    lineHeight: 30,
     fontFamily: FONTS.raleway.bold,
   },
 
   subtitulo: {
     color: "#B7FF00",
-    fontSize: 12,
+    fontSize: 20,
+    lineHeight: 22,
     fontFamily: FONTS.raleway.regular,
-    marginTop: -2,
+    marginTop: 2,
   },
 
   // Container dos 2 ícones (coroa + sino)

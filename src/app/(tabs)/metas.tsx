@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router'
 import { CalendarioSemana } from '../../shared/components/CalendarioSemana'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { styles } from '../../styles/metas'
+import { GRADIENTS } from '../../shared/constants/Gradientes'
+import { Cores } from '../../shared/constants/Cores'
 
 import { METAS_DO_MES, METAS_LONGO_PRAZO } from '../../features/metasData'
 
@@ -44,7 +46,7 @@ export default function Metas() {
               onPress={() => router.push('/')}
             >
               <LinearGradient
-                colors={['#7c4dff', '#5a2dc7']}
+                colors={[Cores.fundo.destaque, '#5a2dc7']}
                 style={styles.navCaixa}
               >
                 <Image
@@ -66,7 +68,7 @@ export default function Metas() {
               onPress={() => router.push('/')}
             >
               <LinearGradient
-                colors={['#7c4dff', '#5a2dc7']}
+                colors={[Cores.fundo.destaque, '#5a2dc7']}
                 style={styles.navCaixa}
               >
                 <Image
@@ -113,7 +115,7 @@ export default function Metas() {
                     }
                   >
                     <LinearGradient
-                      colors={['#7c4dff', '#330e6d']}
+                      colors={[Cores.fundo.destaque, '#330e6d']}
                       style={styles.metaCard}
                     >
                       <View style={styles.metaHeader}>
@@ -191,7 +193,7 @@ export default function Metas() {
                 }
               >
                 <LinearGradient
-                  colors={['#7c4dff', '#5a2dc7']}
+                  colors={[Cores.fundo.destaque, '#5a2dc7']}
                   style={styles.longoPrazoGradiente}
                 >
                   <Text style={styles.longoPrazoNome}>

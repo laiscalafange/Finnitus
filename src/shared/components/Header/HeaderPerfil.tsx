@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { FONTS } from "../../../shared/constants/Tipografia";
+import { Cores } from "../../../shared/constants/Cores";
+import { GRADIENTS } from "../../../shared/constants/Gradientes";
 
 export function HeaderPerfil() {
   // Hook de navegação do Expo Router
@@ -10,9 +12,9 @@ export function HeaderPerfil() {
 
   return (
     <LinearGradient
-      colors={["#7c4dff", "#6c43dd"]}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
+      colors={GRADIENTS.header.colors}
+      start={GRADIENTS.header.start}
+      end={GRADIENTS.header.end}
       style={styles.header}
     >
       {/* Título */}
@@ -52,7 +54,7 @@ const styles = StyleSheet.create({
   header: {
     height: 190,
 
-    paddingTop: 20,
+    paddingTop: 62,
     paddingHorizontal: 20,
 
     flexDirection: "row",
@@ -66,16 +68,17 @@ const styles = StyleSheet.create({
   },
 
   titulo: {
-    color: "#B7FF00",
-    fontSize: 27,
+    color: Cores.destaque.limao,
+    fontSize: 28,
+    lineHeight: 30,
     fontFamily: FONTS.raleway.bold,
   },
 
   subtitulo: {
-    color: "#B7FF00",
-    fontSize: 12,
+    color: Cores.destaque.limao,
+    fontSize: 20,
     fontFamily: FONTS.raleway.regular,
-    marginTop: -2,
+    marginTop: -1,
   },
 
   // Container dos 2 ícones (coroa + sino)

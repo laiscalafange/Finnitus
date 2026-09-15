@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
   },
 
   conteudoSobreHeader: {
-    marginTop: -340,
+    marginTop: -285,
     paddingHorizontal: 16,
   },
 

@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
 
   // Bloco de conteúdo que "sobe" por cima do header (marginTop negativo)
   conteudoSobreHeader: {
-    marginTop: -290,
+    marginTop: -235,
     paddingHorizontal: 16,
     flex: 1,
   },

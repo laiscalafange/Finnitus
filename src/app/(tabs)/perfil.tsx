@@ -4,6 +4,8 @@ import { HeaderPerfil } from "../../shared/components/Header";
 import { Avatar } from "../../shared/components/Avatar";
 import { Card } from "../../shared/components/Cards";
 import { LinearGradient } from "expo-linear-gradient";
+import { GRADIENTS } from "../../shared/constants/Gradientes";
+import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/perfil";
 
 export default function Perfil() {
@@ -53,7 +55,7 @@ export default function Perfil() {
 
           {/* CARD PREMIUM */}
           <Card
-            gradiente={["#7c4dff", "#3b1b92"]}
+            gradiente={[Cores.fundo.destaque, '#3b1b92']}
             style={styles.cardPremium}
           >
 
@@ -94,7 +96,7 @@ export default function Perfil() {
               onPress={() => router.push("/")}
             >
               <Card
-                gradiente={["#7c4dff", "#3b1b92"]}
+                gradiente={[Cores.fundo.destaque, '#3b1b92']}
                 style={styles.cardEdicao}
               >
                 <Text style={styles.cardTitulo}>
@@ -115,7 +117,7 @@ export default function Perfil() {
               onPress={() => router.push("/")}
             >
               <Card
-                gradiente={["#7c4dff", "#3b1b92"]}
+                gradiente={[Cores.fundo.destaque, '#3b1b92']}
                 style={styles.cardEdicao}
               >
                 <Text style={styles.cardTitulo}>
@@ -136,7 +138,7 @@ export default function Perfil() {
               (não precisa de TouchableOpacity no Card inteiro,
               porque cada item de dentro já é clicável individualmente) */}
           <Card
-            gradiente={["#7c4dff", "#3b1b92"]}
+            gradiente={[Cores.fundo.destaque, '#3b1b92']}
             style={styles.cardConfiguracoes}
           >
             <Text style={styles.tituloSecao}>

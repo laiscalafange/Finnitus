@@ -12,13 +12,34 @@ const FAB_R = 26
 const BAR_H = 80
 
 const ABAS = [
-  { chave: 'home', icone: require("../../../../assets/icones/estrela.png")},
-  { chave: 'dashboard', icone: require("../../../../assets/icones/economia2.png") },
-  { chave: 'metas', icone: require("../../../../assets/icones/check.png") },
-  { chave: 'fab', icone: '+' },
-  { chave: 'perfil', icone: require("../../../../assets/icones/boneco.png")},
-  { chave: 'calendario', icone: require("../../../../assets/icones/calendar2.png") },
-  { chave: 'planoB', icone: require("../../../../assets/icones/B.png") },
+  {
+    chave: 'home',
+    icone: require("../../../../assets/icones/estrela.png"),
+  },
+  {
+    chave: 'dashboard',
+    icone: require("../../../../assets/icones/economia2.png"),
+  },
+  {
+    chave: 'metas',
+    icone: require("../../../../assets/icones/check.png"),
+  },
+  {
+    chave: 'fab',
+    icone: '+',
+  },
+  {
+    chave: 'calendario',
+    icone: require("../../../../assets/icones/calendar2.png"),
+  },
+  {
+    chave: 'planoB',
+    icone: require("../../../../assets/icones/B.png"),
+  },
+  {
+    chave: 'maisOpcoes',
+    icone: '⋮',
+  },
 ]
 
 export function FloatingButton({
@@ -26,30 +47,24 @@ export function FloatingButton({
   aoPress,
 }: FloatingButtonProps) {
 
-  // Respeita a área segura do aparelho (notch / home indicator / gesture bar)
-  // para a barra não ficar cortada nem "flutuando" errado entre dispositivos.
   const insets = useSafeAreaInsets()
 
-  // Nav de gesto no Android manda um inset pequeno (~24px) que já é suficiente
-  // sem folga extra; só compensamos quando o inset é grande de verdade (nav por botão).
   const insetExtra = insets.bottom > 24 ? insets.bottom : 0
 
-  const styles = useMemo(() => getStyles(insetExtra), [insetExtra])
+  const styles = useMemo(
+    () => getStyles(insetExtra),
+    [insetExtra]
+  )
 
   const leftTabs = ABAS.slice(0, 3)
   const rightTabs = ABAS.slice(4, 7)
 
-  // Altura real da barra já com o recuo somado — a máscara do SVG precisa
-  // acompanhar essa altura, senão a parte do recuo fica fora da máscara
-  // e aparece transparente (vazando o que tem atrás).
   const barAltura = BAR_H + insetExtra
 
   return (
     <View style={styles.container}>
 
-      {/* ==================================================
-          BARRA COM RECORTE CENTRAL
-      ================================================== */}
+      {/* BARRA COM RECORTE CENTRAL */}
 
       <MaskedView
         style={styles.maskContainer}
@@ -66,7 +81,7 @@ export function FloatingButton({
                 width="100%"
                 height={barAltura}
               >
-                {/* Barra inteira */}
+
                 <Rect
                   x="0"
                   y="0"
@@ -76,13 +91,13 @@ export function FloatingButton({
                   rx="20"
                 />
 
-                {/* Recorte circular */}
                 <Circle
                   cx="50%"
                   cy="0"
                   r={NOTCH_R}
                   fill="black"
                 />
+
               </Mask>
             </Defs>
 
@@ -94,6 +109,7 @@ export function FloatingButton({
               fill="white"
               mask="url(#navMask)"
             />
+
           </Svg>
         }
       >
@@ -101,9 +117,7 @@ export function FloatingButton({
       </MaskedView>
 
 
-      {/* ==================================================
-          ÍCONES
-      ================================================== */}
+      {/* ÍCONES */}
 
       <View style={styles.conteudo}>
 
@@ -112,12 +126,14 @@ export function FloatingButton({
         <View style={styles.grupo}>
 
           {leftTabs.map((aba) => (
+
             <TouchableOpacity
               key={aba.chave}
               style={styles.aba}
               onPress={() => aoPress(aba.chave)}
               activeOpacity={0.7}
             >
+
               <Image
                 source={aba.icone}
                 style={[
@@ -125,7 +141,9 @@ export function FloatingButton({
                   abaAtiva === aba.chave && styles.iconeAtivo,
                 ]}
               />
+
             </TouchableOpacity>
+
           ))}
 
         </View>
@@ -145,20 +163,41 @@ export function FloatingButton({
         <View style={styles.grupo}>
 
           {rightTabs.map((aba) => (
+
             <TouchableOpacity
               key={aba.chave}
               style={styles.aba}
               onPress={() => aoPress(aba.chave)}
               activeOpacity={0.7}
             >
-              <Image
-                source={aba.icone}
-                style={[
-                  styles.icone,
-                  abaAtiva === aba.chave && styles.iconeAtivo,
-                ]}
-              />
+
+              {aba.chave === 'maisOpcoes' ? (
+
+                <Text
+                  style={[
+                    styles.maisOpcoes,
+                    abaAtiva === aba.chave &&
+                      styles.maisOpcoesAtivo,
+                  ]}
+                >
+                  ⋮
+                </Text>
+
+              ) : (
+
+                <Image
+                  source={aba.icone}
+                  style={[
+                    styles.icone,
+                    abaAtiva === aba.chave &&
+                      styles.iconeAtivo,
+                  ]}
+                />
+
+              )}
+
             </TouchableOpacity>
+
           ))}
 
         </View>
@@ -166,18 +205,18 @@ export function FloatingButton({
       </View>
 
 
-      {/* ==================================================
-          FAB
-      ================================================== */}
+      {/* BOTÃO + */}
 
       <TouchableOpacity
         style={styles.fab}
         onPress={() => aoPress('fab')}
         activeOpacity={0.8}
       >
+
         <Text style={styles.fabIcone}>
           +
         </Text>
+
       </TouchableOpacity>
 
     </View>
