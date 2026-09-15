@@ -3,7 +3,11 @@ export const Cores = {
   fundo: {
     principal: '#0D1112',   // fundo das telas
     card: '#482287',        // fundo de cards
+    cardAlt: '#3A1D6C',     // NOVO - variante mais escura de card (dashboard, metas)
     destaque: '#7E3BED',    // destaque em fundos escuros
+    navBarra: '#25074f',    // NOVO - fundo da Nav Bar
+    navFab: '#260654',      // NOVO - fundo do botão central (FAB) da Nav Bar
+    seta: '#863ff9',        // NOVO - fundo do botão de seta dos cabeçalhos
   },
 
   //Cores principais (marca)
@@ -33,21 +37,33 @@ export const Cores = {
   texto: {
     principal: '#CA9FFF',   // texto principal
     secundario: '#9A5DFF',  // labels
+    claro: '#C7A9F5',       // NOVO - texto lilás claro sobre fundo escuro (substitui ~8 tons quase idênticos)
+    contraste: '#3B176B',   // NOVO - texto roxo escuro sobre fundo claro/limão
     desabilitado: '#3B2A5F' // texto inativo
+  },
+
+  // Sobreposições (overlays translúcidos usados em cards/divisores)
+  overlay: {
+    suave: 'rgba(255,255,255,0.10)',
+    medio: 'rgba(255,255,255,0.16)',
+    forte: 'rgba(255,255,255,0.20)',
+    intenso: 'rgba(255,255,255,0.35)',
+    cardSuave: 'rgba(72,34,135,0.15)',
+    cardForte: 'rgba(72,34,135,0.45)',
   },
 
   //Extras de interface
   interface: {
     borda: '#2A2A2A',               // bordas
     divisor: '#1F1F1F',             // linhas separadoras
-    overlay: '#rgb(18, 2, 47,0.5)',     // fundo de modal
+    overlay: 'rgba(18, 2, 47, 0.5)',     // fundo de modal (estava com bug: '#rgb(...)' não é uma cor válida)
   },
 
   // Base
   base: {
     branco: '#FFFFFF',
     preto: '#000000',
-     Cinza: '#231a27',
+    cinza: '#231a27',
   }
 } as const;
 

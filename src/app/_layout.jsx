@@ -15,6 +15,7 @@ import {
 } from "@expo-google-fonts/quicksand";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { FinanceiroProvider } from "../features/financeiroContext";
 
 // Mantém a splash screen visível até as fontes carregarem
@@ -49,6 +50,7 @@ export default function RootLayout() {
   }
 
   return (
+    <SafeAreaProvider>
     <FinanceiroProvider>
       <Stack>
 
@@ -98,5 +100,6 @@ export default function RootLayout() {
 
       </Stack>
     </FinanceiroProvider>
+    </SafeAreaProvider>
   );
 }

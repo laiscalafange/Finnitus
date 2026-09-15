@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { VictoryArea } from 'victory-native'
 
 import { Cores } from '../../shared/constants/Cores'
+import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import coroaIcon from '../../../assets/icones/coroa.png'
 import sinoIcon from '../../../assets/icones/sino.png'
@@ -39,9 +40,9 @@ export default function PlanoBScreen() {
         ================================================== */}
 
         <LinearGradient
-          colors={['#7C4DFF', '#6B35E8', '#8B3FEF']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          colors={GRADIENTS.header.colors}
+          start={GRADIENTS.header.start}
+          end={GRADIENTS.header.end}
           style={styles.headerPlanoB}
         >
           <View style={styles.headerPlanoBTopo}>

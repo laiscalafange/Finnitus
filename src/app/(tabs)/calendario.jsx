@@ -10,6 +10,7 @@ import Svg, { Circle } from 'react-native-svg'
 import { Calendar, LocaleConfig } from 'react-native-calendars'
 import { useState } from 'react'
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
+import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { Cores } from '../../shared/constants/Cores'
 import { FONTS } from '../../shared/constants/Tipografia'
 import {
@@ -138,7 +139,9 @@ export default function Calendario() {
         {/* ── HEADER ───────────────────────────── */}
 
         <LinearGradient
-          colors={['#A357FF', '#7E3BED', '#8541F6']}
+          colors={GRADIENTS.header.colors}
+          start={GRADIENTS.header.start}
+          end={GRADIENTS.header.end}
           style={styles.header}
         >
 

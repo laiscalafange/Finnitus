@@ -129,13 +129,13 @@ export const styles = StyleSheet.create({
         height: 38,
         borderBottomLeftRadius: 35,
         borderBottomRightRadius: 35,
-        backgroundColor: '#330e6d',
+        backgroundColor: Cores.fundo.seta,
         justifyContent: 'center',
         alignItems: 'center',
     },
 
     setaTexto: {
-        color: '#00000000',
+        color: Cores.base.branco,
         fontSize: 20,
     },
 

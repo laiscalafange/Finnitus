@@ -87,7 +87,7 @@ weekArrowTexto: {
   // ── TOGGLE ───────────────────────────────────────────────
   toggle: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff20',
+    backgroundColor: Cores.overlay.forte,
     borderRadius: 25,
     padding: 4,
     marginBottom: 15,
@@ -108,12 +108,12 @@ weekArrowTexto: {
   pillTexto: {
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 17,
-    color: '#B79AE7',
+    color: Cores.texto.claro,
   },
 
   pillTextoAtivo: {
     fontFamily: FONTS.quicksand.bold,
-    color: '#3B176B',
+    color: Cores.texto.contraste,
   },
 
   // ── WEEK STRIP ───────────────────────────────────────────
@@ -130,26 +130,26 @@ weekArrowTexto: {
     paddingVertical: 13,
     borderRadius: 40,
     
-    backgroundColor: '#53269D',
+    backgroundColor: Cores.fundo.cardAlt,
     minHeight: 100,
   },
 
   diaContainerAtivo: {
-    backgroundColor: '#3A1D6C',
+    backgroundColor: Cores.fundo.cardAlt,
 
   },
 
   diaLetra: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 15,
-    color: '#D8CDF7',
+    color: Cores.texto.claro,
     marginBottom: 5,
   },
 
   diaNumero: {
     fontFamily: FONTS.raleway.bold,
     fontSize: 18,
-    color: '#B18AEF',
+    color: Cores.texto.claro,
     marginBottom: 7,
   },
 
@@ -157,7 +157,7 @@ weekArrowTexto: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#ffffff35',
+    backgroundColor: Cores.overlay.intenso,
   },
 
   diaPontoAtivo: {
@@ -174,19 +174,20 @@ weekArrowTexto: {
   },
 
   setaCirculo: {
-  width: 105,
-  height: 55,
-  borderBottomLeftRadius: 70,
-  borderBottomRightRadius: 70,
+  width: 79,
+  height: 38,
+  borderBottomLeftRadius: 35,
+  borderBottomRightRadius: 35,
+  backgroundColor: Cores.fundo.seta,
   justifyContent: 'center',
   alignItems: 'center',
   overflow: 'hidden',
 },
 
   setaTexto: {
-    color: '#553292',
-    fontSize: 35,
-    paddingLeft:2,
+    color: Cores.base.branco,
+    fontSize: 20,
+    paddingLeft:1,
   },
   // ── CONTEÚDO ─────────────────────────────────────────────
   conteudo: {
@@ -239,7 +240,7 @@ weekArrowTexto: {
   legendaTexto: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 10,
-    color: '#BFA6E8',
+    color: Cores.texto.claro,
   },
 
   // ── SUMÁRIO + ATIVIDADE ─────────────────────────────────
@@ -267,7 +268,7 @@ weekArrowTexto: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 12,
     lineHeight: 15,
-    color: '#BDA7E1',
+    color: Cores.texto.claro,
     marginBottom: 11,
   },
 
@@ -285,7 +286,7 @@ weekArrowTexto: {
   sumarioLabel: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 13,
-    color: '#FFFFFF',
+    color: Cores.base.branco,
   },
 
   sumarioValor: {
@@ -297,7 +298,7 @@ weekArrowTexto: {
   sumarioBarra: {
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#ffffff18',
+    backgroundColor: Cores.overlay.medio,
     overflow: 'hidden',
   },
 
@@ -351,7 +352,7 @@ heatmapBolinha: {
   width: 48,
   height: 48,
   borderRadius: 90,
-  backgroundColor: '#ffffff16',
+  backgroundColor: Cores.overlay.medio,
   justifyContent: 'center',
   alignItems: 'center',
   borderWidth: 1,
@@ -362,7 +363,7 @@ heatmapBolinha: {
     width: 40,
     height: 40,
     borderRadius: 7,
-    backgroundColor: '#ffffff16',
+    backgroundColor: Cores.overlay.medio,
     justifyContent: 'center',
     alignItems: 'center', 
   },
@@ -376,21 +377,21 @@ heatmapBolinha: {
   planejamentoFaltam: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 14,
-    color: '#C1A9E5',
+    color: Cores.texto.claro,
     marginTop: 1,
   },
 
   planejamentoValor: {
     fontFamily: FONTS.raleway.bold,
     fontSize: 14,
-    color:'#a063fb',
+    color:Cores.roxo.principal,
     marginTop: -30,
   },
 
   barraFundo: {
     height: 10,
     borderRadius: 8,
-    backgroundColor: '#ffffff20',
+    backgroundColor: Cores.overlay.forte,
     overflow: 'hidden',
     marginTop: 5,
   },

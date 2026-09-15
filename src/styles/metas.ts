@@ -5,7 +5,7 @@ import { FONTS } from '@/shared/constants/Tipografia'
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#09090B',
+    backgroundColor: Cores.fundo.principal,
   },
 
   scroll: {
@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
   navTextoEsquerda: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 14,
-    color: '#7c4dff',
+    color: Cores.roxo.principal,
     textAlign: 'left',
     marginTop: 6,
   },
@@ -65,7 +65,7 @@ export const styles = StyleSheet.create({
   navTextoDireita: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 14,
-    color: '#7c4dff',
+    color: Cores.roxo.principal,
     textAlign: 'right',
     marginTop: 6,
   },
@@ -142,19 +142,19 @@ export const styles = StyleSheet.create({
   metaData: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 13,
-    color: '#C1A9E5',
+    color: Cores.texto.claro,
     marginRight: 6,
   },
 
   metaMenu: {
-    color: '#C1A9E5',
+    color: Cores.texto.claro,
     fontSize: 16,
   },
 
   metaBarraFundo: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#ffffff18',
+    backgroundColor: Cores.overlay.medio,
     overflow: 'hidden',
     marginBottom: 8,
   },
@@ -173,13 +173,13 @@ export const styles = StyleSheet.create({
   metaPrazo: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 12,
-    color: '#BDA7E1',
+    color: Cores.texto.claro,
   },
 
   metaValor: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 12,
-    color: '#BDA7E1',
+    color: Cores.texto.claro,
   },
 
   // ── METAS LONGO PRAZO ────────────────────────────────────
@@ -206,20 +206,20 @@ export const styles = StyleSheet.create({
   longoPrazoNome: {
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 14,
-    color: '#D8CDF7',
+    color: Cores.texto.claro,
   },
 
   adicionarCard: {
     flex: 1,
     borderRadius: 20,
-    backgroundColor: '#3e1d89',
+    backgroundColor: Cores.fundo.cardAlt,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   adicionarTexto: {
     fontSize: 32,
-    color: '#8a6fc0',
+    color: Cores.texto.secundario,
     fontFamily: FONTS.quicksand.regular,
   },
 })

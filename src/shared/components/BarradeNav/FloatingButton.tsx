@@ -1,8 +1,10 @@
+import { useMemo } from 'react'
 import { Text, TouchableOpacity, View, Image } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import MaskedView from '@react-native-masked-view/masked-view'
 import Svg, { Defs, Mask, Rect, Circle } from 'react-native-svg'
 
-import { styles } from './FloatingButtonStyles'
+import { getStyles } from './FloatingButtonStyles'
 import { FloatingButtonProps } from './FloatingButtonTypes'
 
 const NOTCH_R = 42
@@ -24,8 +26,23 @@ export function FloatingButton({
   aoPress,
 }: FloatingButtonProps) {
 
+  // Respeita a área segura do aparelho (notch / home indicator / gesture bar)
+  // para a barra não ficar cortada nem "flutuando" errado entre dispositivos.
+  const insets = useSafeAreaInsets()
+
+  // Nav de gesto no Android manda um inset pequeno (~24px) que já é suficiente
+  // sem folga extra; só compensamos quando o inset é grande de verdade (nav por botão).
+  const insetExtra = insets.bottom > 24 ? insets.bottom : 0
+
+  const styles = useMemo(() => getStyles(insetExtra), [insetExtra])
+
   const leftTabs = ABAS.slice(0, 3)
   const rightTabs = ABAS.slice(4, 7)
+
+  // Altura real da barra já com o recuo somado — a máscara do SVG precisa
+  // acompanhar essa altura, senão a parte do recuo fica fora da máscara
+  // e aparece transparente (vazando o que tem atrás).
+  const barAltura = BAR_H + insetExtra
 
   return (
     <View style={styles.container}>
@@ -39,7 +56,7 @@ export function FloatingButton({
         maskElement={
           <Svg
             width="100%"
-            height={BAR_H}
+            height={barAltura}
           >
             <Defs>
               <Mask
@@ -47,14 +64,14 @@ export function FloatingButton({
                 x="0"
                 y="0"
                 width="100%"
-                height={BAR_H}
+                height={barAltura}
               >
                 {/* Barra inteira */}
                 <Rect
                   x="0"
                   y="0"
                   width="100%"
-                  height={BAR_H}
+                  height={barAltura}
                   fill="white"
                   rx="20"
                 />
@@ -73,7 +90,7 @@ export function FloatingButton({
               x="0"
               y="0"
               width="100%"
-              height={BAR_H}
+              height={barAltura}
               fill="white"
               mask="url(#navMask)"
             />
@@ -101,13 +118,13 @@ export function FloatingButton({
               onPress={() => aoPress(aba.chave)}
               activeOpacity={0.7}
             >
-            <Image
-            source={aba.icone}
-            style={[
-            styles.icone,
-            abaAtiva === aba.chave && styles.iconeAtivo,
-  ]}
-/>
+              <Image
+                source={aba.icone}
+                style={[
+                  styles.icone,
+                  abaAtiva === aba.chave && styles.iconeAtivo,
+                ]}
+              />
             </TouchableOpacity>
           ))}
 
@@ -135,12 +152,12 @@ export function FloatingButton({
               activeOpacity={0.7}
             >
               <Image
-  source={aba.icone}
-  style={[
-    styles.icone,
-    abaAtiva === aba.chave && styles.iconeAtivo,
-  ]}
-/>
+                source={aba.icone}
+                style={[
+                  styles.icone,
+                  abaAtiva === aba.chave && styles.iconeAtivo,
+                ]}
+              />
             </TouchableOpacity>
           ))}
 

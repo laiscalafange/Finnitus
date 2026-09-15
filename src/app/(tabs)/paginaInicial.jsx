@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { DashboardHeader } from '../../features/dashboard/components/DashboardHeader'
+import { GRADIENTS } from '../../shared/constants/Gradientes'
 import {
   CardSaldo,
   CardEvento,
@@ -54,7 +55,7 @@ export default function PaginaInicial() {
         contentInsetAdjustmentBehavior="automatic"
       >
         <LinearGradient
-          colors={[Cores.fundo.destaque, Cores.fundo.card, Cores.roxo.escuro]}
+          colors={GRADIENTS.header.colors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={[styles.hero, { paddingTop: insets.top + 2 }]}

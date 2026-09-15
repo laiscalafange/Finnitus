@@ -58,7 +58,7 @@ export const styles = StyleSheet.create({
   headerMesPassado: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 15,
-    color: '#D8C5F5',
+    color: Cores.texto.claro,
     textAlign: 'right',
     marginBottom: 2,
   },
@@ -84,20 +84,20 @@ export const styles = StyleSheet.create({
   headerSaldoLabel: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 16,
-    color: '#30105F',
+    color: Cores.texto.contraste,
   },
 
   headerSaldoData: {
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 16,
-    color: '#30105F',
+    color: Cores.texto.contraste,
   },
 
   headerSaldoValor: {
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 20,
     lineHeight: 26,
-    color: '#30105F',
+    color: Cores.texto.contraste,
   },
 
   headerVariacaoLinha: {
@@ -111,11 +111,11 @@ export const styles = StyleSheet.create({
   headerVariacaoLabel: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 12,
-    color: '#4922876f',
+    color: Cores.overlay.cardForte,
   },
 
   headerVariacaoBadge: {
-    backgroundColor: '#48228725',
+    backgroundColor: Cores.overlay.cardSuave,
     borderRadius: 20,
     paddingHorizontal: 4,
     paddingVertical: 1,
@@ -124,7 +124,7 @@ export const styles = StyleSheet.create({
   headerVariacaoTexto: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 12,
-    color: '#482287',
+    color: Cores.fundo.card,
   },
 
   // ==================================================
@@ -138,19 +138,19 @@ export const styles = StyleSheet.create({
   },
 
   headerSeta: {
-    width: 80,
-    height: 40,
-    borderBottomLeftRadius: 70,
-    borderBottomRightRadius: 70,
-    backgroundColor: '#7E3BED',
+    width: 79,
+    height: 38,
+    borderBottomLeftRadius: 35,
+    borderBottomRightRadius: 35,
+    backgroundColor: Cores.fundo.seta,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   headerSetaTexto: {
-    color: Cores.roxo.claro,
-    fontSize: 24,
-    lineHeight: 26,
+    color: Cores.base.branco,
+    fontSize: 20,
+    lineHeight: 22,
   },
 
   // ==================================================
@@ -248,7 +248,7 @@ export const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 7,
-    backgroundColor: '#ffffff16',
+    backgroundColor: Cores.overlay.medio,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -405,7 +405,7 @@ duploCard: {
   sumarioBarraLabel: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 14,
-    color: '#ffffff',
+    color: Cores.base.branco,
   },
 
   sumarioBarraValor: {
@@ -417,7 +417,7 @@ duploCard: {
   sumarioBarra: {
     height: 5,
     borderRadius: 4,
-    backgroundColor: '#ffffff15',
+    backgroundColor: Cores.overlay.medio,
     overflow: 'hidden',
   },
 

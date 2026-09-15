@@ -1,6 +1,7 @@
 import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
+import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
 import Svg, { Circle } from 'react-native-svg'
 import { useState } from 'react'
@@ -175,9 +176,9 @@ export default function Dashboard() {
 
       <ScrollView style={styles.scroll}>
         <LinearGradient
-          colors={['#A357FF', '#7E3BED', '#8541F6']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
+          colors={GRADIENTS.header.colors}
+          start={GRADIENTS.header.start}
+          end={GRADIENTS.header.end}
           style={styles.header}
         >
           <View style={styles.headerRow}>
@@ -271,16 +272,11 @@ export default function Dashboard() {
         </LinearGradient>
 
         <View style={styles.setaContainer}>
-  <LinearGradient
-    colors={['#3c1e75', '#30096e']}
-    start={{ x: 0, y: 0 }}
-    end={{ x: 0, y: 1 }}
-    style={styles.setaCirculo}
-  >
+  <View style={styles.setaCirculo}>
     <Text style={styles.setaTexto}>
       ⌄
     </Text>
-  </LinearGradient>
+  </View>
 </View>
 
         <View style={styles.conteudo}>
@@ -537,4 +533,3 @@ export default function Dashboard() {
   </View>
   )
 }
-

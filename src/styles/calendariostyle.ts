@@ -59,19 +59,19 @@ export const styles = StyleSheet.create({
   },
 
   setaCirculo: {
-    width: 105,
-    height: 55,
-     borderBottomLeftRadius: 70,
-      borderBottomRightRadius: 70,
-    backgroundColor: '#7E3BED',
+    width: 79,
+    height: 38,
+     borderBottomLeftRadius: 35,
+      borderBottomRightRadius: 35,
+    backgroundColor: Cores.fundo.seta,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   setaTexto: {
-    color: '#36166C',
-    fontSize: 35,
-    paddingLeft:2,
+    color: Cores.base.branco,
+    fontSize: 20,
+    paddingLeft:1,
   },
 
   // ── CONTEÚDO ────────────────────────────────────────────
@@ -110,14 +110,14 @@ export const styles = StyleSheet.create({
   eventoData: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 20,
-    color:'#b776f8ee',
+    color:Cores.texto.claro,
     fontStyle: 'italic',
   },
 
   eventoItem: {
     marginBottom: 2,
     borderBottomWidth: 1,
-    borderBottomColor: '#ffffff10',
+    borderBottomColor: Cores.overlay.suave,
     paddingBottom: 2,
   },
 
@@ -137,7 +137,7 @@ export const styles = StyleSheet.create({
   eventoHora: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 15,
-    color: '#ffffffe9',
+    color: Cores.base.branco,
     textAlign: 'right',
   
   },

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'expo-router'
 import { styles } from './CalendarioSemanaStyles'
 import { CalendarioSemanaProps, DiaSemana } from './CalendarioSemanaTypes'
+import { GRADIENTS } from '../../constants/Gradientes'
 
 const LETRAS_DIAS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
 
@@ -72,9 +73,9 @@ export function CalendarioSemana({
     return (
         <>
             <LinearGradient
-                colors={['#7c4dff', '#5a2dc7', '#330e6d']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0, y: 1 }}
+                colors={GRADIENTS.header.colors}
+                start={GRADIENTS.header.start}
+                end={GRADIENTS.header.end}
                 style={styles.header}
             >
                 <View style={styles.headerRow}>
