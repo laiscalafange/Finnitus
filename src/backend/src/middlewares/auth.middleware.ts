@@ -4,13 +4,9 @@ import type {
   NextFunction,
 } from "express";
 
-import jwt from "jsonwebtoken";
-
-import { env } from "../config/env.js";
-
-interface AuthPayload {
-  sub: string;
-}
+import { verifyAccessToken } from "../services/token.service.js";
+import { prisma } from "../lib/prisma.js";
+import { HttpError } from "../utils/errors.js";
 
 declare global {
   namespace Express {
@@ -20,50 +16,41 @@ declare global {
   }
 }
 
-export function authMiddleware(
+export async function authMiddleware(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
-): void {
-  const authorization = req.headers.authorization;
+): Promise<void> {
+  const match = /^Bearer ([^\s]+)$/i.exec(
+    req.headers.authorization ?? "",
+  );
 
-  if (!authorization) {
-    res.status(401).json({
-      error: "Não autorizado.",
-    });
-    return;
+  if (!match?.[1]) {
+    throw new HttpError(
+      401,
+      "Informe Authorization: Bearer TOKEN.",
+    );
   }
 
-  const [type, token] = authorization.split(" ");
+  const payload = verifyAccessToken(match[1]);
 
-  if (type !== "Bearer" || !token) {
-    res.status(401).json({
-      error: "Token inválido.",
-    });
-    return;
+  const user = await prisma.usuario.findUnique({
+    where: {
+      id_Usuario: payload.userId,
+    },
+    select: {
+      tokenVersion: true,
+    },
+  });
+
+  if (!user || user.tokenVersion !== payload.tokenVersion) {
+    throw new HttpError(
+      401,
+      "Sessão encerrada. Faça login novamente.",
+    );
   }
 
-  try {
-    const payload = jwt.verify(
-      token,
-      env.JWT_SECRET,
-    ) as AuthPayload;
+  req.userId = payload.userId;
 
-    const userId = Number(payload.sub);
-
-    if (!payload.sub || Number.isNaN(userId)) {
-      res.status(401).json({
-        error: "Token inválido.",
-      });
-      return;
-    }
-
-    req.userId = userId;
-
-    next();
-  } catch {
-    res.status(401).json({
-      error: "Token inválido ou expirado.",
-    });
-  }
+  next();
 }

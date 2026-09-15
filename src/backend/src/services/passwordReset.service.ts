@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma.js";
 import { generateResetToken } from "./token.service.js";
 
@@ -7,203 +8,235 @@ import {
   compararCodigo,
 } from "../utils/passwordReset.js";
 
-import { normalizeEmail } from "../utils/normalize.js";
 import { sendPasswordResetCodeEmail } from "./emailService.js";
+import { HttpError } from "../utils/errors.js";
 
-import bcrypt from "bcrypt";
+const invalid = () =>
+  new HttpError(
+    400,
+    "Código ou redefinição inválida ou expirada.",
+  );
 
-// ======================================================
-// SOLICITAR RECUPERAÇÃO DE SENHA
-// ======================================================
-
-export async function requestPasswordReset(
-  email: string
-): Promise<void> {
-  const normalizedEmail = normalizeEmail(email);
-
+export async function requestPasswordReset(email: string) {
   const user = await prisma.usuario.findUnique({
     where: {
-      Uemail: normalizedEmail,
+      Uemail: email,
     },
   });
 
-  // Não revela se o e-mail existe ou não.
-  if (!user) {
-    return;
-  }
+  if (!user) return;
 
-  const codigo = gerarCodigo();
+  const code = gerarCodigo();
+  const hash = await gerarHashCodigo(code);
 
-  const codigoHash = await gerarHashCodigo(
-    codigo
-  );
-
-  // Código válido por 15 minutos.
-  const expiraEm = new Date(
-    Date.now() + 15 * 60 * 1000
-  );
-
-  // Invalida códigos anteriores ainda não utilizados.
-  await prisma.redefinicaoSenha.updateMany({
-    where: {
-      id_Usuario: user.id_Usuario,
-      usado: false,
-    },
-
-    data: {
-      usado: true,
-    },
-  });
-
-  // Cria uma nova solicitação de redefinição.
-  await prisma.redefinicaoSenha.create({
-    data: {
-      id_Usuario: user.id_Usuario,
-      codigo_hash: codigoHash,
-      expira_em: expiraEm,
-    },
-  });
-
-  // Envia o código para o e-mail cadastrado no banco.
-  await sendPasswordResetCodeEmail(
-    user.Uemail,
-    codigo
-  );
-}
-
-// ======================================================
-// VERIFICAR CÓDIGO RECEBIDO POR E-MAIL
-// ======================================================
-
-export async function verifyResetCode(
-  email: string,
-  code: string
-): Promise<string> {
-  const invalidError = new Error(
-    "Código inválido ou expirado"
-  );
-
-  const normalizedEmail = normalizeEmail(email);
-
-  const user = await prisma.usuario.findUnique({
-    where: {
-      Uemail: normalizedEmail,
-    },
-  });
-
-  if (!user) {
-    throw invalidError;
-  }
-
-  // Busca apenas uma redefinição:
-  // - do usuário correto;
-  // - ainda não utilizada;
-  // - ainda não expirada;
-  // - mais recente.
-  const redefinicao =
-    await prisma.redefinicaoSenha.findFirst({
+  const id = await prisma.$transaction(async (tx) => {
+    // Bloqueia a linha para organizar pedidos simultâneos.
+    // Incrementar zero mantém a versão atual da sessão.
+    await tx.usuario.update({
       where: {
         id_Usuario: user.id_Usuario,
-        usado: false,
-
-        expira_em: {
-          gt: new Date(),
-        },
       },
-
-      orderBy: {
-        criado_em: "desc",
+      data: {
+        tokenVersion: {
+          increment: 0,
+        },
       },
     });
 
-  if (!redefinicao) {
-    throw invalidError;
+    const recent = await tx.redefinicaoSenha.findFirst({
+      where: {
+        id_Usuario: user.id_Usuario,
+        criado_em: {
+          gt: new Date(Date.now() - 60000),
+        },
+      },
+    });
+
+    // Um novo pedido por minuto por conta.
+    if (recent) return null;
+
+    await tx.redefinicaoSenha.updateMany({
+      where: {
+        id_Usuario: user.id_Usuario,
+        usado: false,
+      },
+      data: {
+        usado: true,
+      },
+    });
+
+    const row = await tx.redefinicaoSenha.create({
+      data: {
+        id_Usuario: user.id_Usuario,
+        codigo_hash: hash,
+        expira_em: new Date(Date.now() + 15 * 60000),
+      },
+    });
+
+    return row.id_Redefinicao;
+  });
+
+  if (id === null) return;
+
+  try {
+    await sendPasswordResetCodeEmail(user.Uemail, code);
+  } catch (error) {
+    await prisma.redefinicaoSenha.update({
+      where: {
+        id_Redefinicao: id,
+      },
+      data: {
+        usado: true,
+      },
+    });
+
+    throw error;
   }
-
-  // Compara o código digitado com o hash salvo.
-  const codeMatches = await compararCodigo(
-    code,
-    redefinicao.codigo_hash
-  );
-
-  if (!codeMatches) {
-    throw invalidError;
-  }
-
-  // IMPORTANTE:
-  // não marcamos "usado = true" aqui.
-  //
-  // O código foi validado, mas a senha ainda não foi
-  // realmente redefinida.
-  //
-  // A redefinição será marcada como usada somente
-  // dentro de resetPassword().
-  return generateResetToken(
-    user.id_Usuario,
-    redefinicao.id_Redefinicao
-  );
 }
 
-// ======================================================
-// REDEFINIR SENHA
-// ======================================================
+export async function verifyResetCode(
+  email: string,
+  code: string,
+) {
+  const user = await prisma.usuario.findUnique({
+    where: {
+      Uemail: email,
+    },
+  });
+
+  if (!user) throw invalid();
+
+  const row = await prisma.redefinicaoSenha.findFirst({
+    where: {
+      id_Usuario: user.id_Usuario,
+      usado: false,
+      verificado: false,
+      tentativas: {
+        lt: 5,
+      },
+      expira_em: {
+        gt: new Date(),
+      },
+    },
+    orderBy: [
+      { criado_em: "desc" },
+      { id_Redefinicao: "desc" },
+    ],
+  });
+
+  if (!row) throw invalid();
+
+  // Conta a tentativa antes da comparação do hash.
+  const attempt = await prisma.redefinicaoSenha.updateMany({
+    where: {
+      id_Redefinicao: row.id_Redefinicao,
+      usado: false,
+      verificado: false,
+      tentativas: {
+        lt: 5,
+      },
+      expira_em: {
+        gt: new Date(),
+      },
+    },
+    data: {
+      tentativas: {
+        increment: 1,
+      },
+    },
+  });
+
+  if (
+    attempt.count !== 1 ||
+    !(await compararCodigo(code, row.codigo_hash))
+  ) {
+    throw invalid();
+  }
+
+  const token = generateResetToken(
+    user.id_Usuario,
+    row.id_Redefinicao,
+  );
+
+  const claimed = await prisma.redefinicaoSenha.updateMany({
+    where: {
+      id_Redefinicao: row.id_Redefinicao,
+      usado: false,
+      verificado: false,
+      expira_em: {
+        gt: new Date(),
+      },
+    },
+    data: {
+      verificado: true,
+    },
+  });
+
+  if (claimed.count !== 1) throw invalid();
+
+  return token;
+}
 
 export async function resetPassword(
   userId: number,
   redefinicaoId: number,
-  novaSenha: string
-): Promise<void> {
-  // Confirma novamente se a solicitação usada para
-  // gerar o resetToken ainda é válida.
-  const redefinicao =
-    await prisma.redefinicaoSenha.findFirst({
-      where: {
-        id_Redefinicao: redefinicaoId,
-        id_Usuario: userId,
-        usado: false,
+  novaSenha: string,
+) {
+  const hash = await bcrypt.hash(novaSenha, 12);
 
-        expira_em: {
-          gt: new Date(),
+  await prisma.$transaction(async (tx) => {
+    // Mantém a ordem de bloqueio usada pelos outros fluxos:
+    // primeiro usuário, depois redefinição.
+    const user = await tx.usuario.updateMany({
+      where: {
+        id_Usuario: userId,
+      },
+      data: {
+        tokenVersion: {
+          increment: 1,
         },
       },
     });
 
-  if (!redefinicao) {
-    throw new Error(
-      "Redefinição inválida ou expirada"
-    );
-  }
+    if (user.count !== 1) throw invalid();
 
-  // Gera o hash da nova senha.
-  const senhaHash = await bcrypt.hash(
-    novaSenha,
-    10
-  );
+    const claimed = await tx.redefinicaoSenha.updateMany({
+      where: {
+        id_Redefinicao: redefinicaoId,
+        id_Usuario: userId,
+        usado: false,
+        verificado: true,
+        expira_em: {
+          gt: new Date(),
+        },
+      },
+      data: {
+        usado: true,
+      },
+    });
 
-  // Atualiza a senha e invalida todas as solicitações
-  // de redefinição ainda abertas do usuário.
-  //
-  // A transaction garante que as operações ocorram juntas.
-  await prisma.$transaction([
-    prisma.usuario.update({
+    if (claimed.count !== 1) {
+      // O erro também desfaz o incremento da versão.
+      throw invalid();
+    }
+
+    await tx.usuario.update({
       where: {
         id_Usuario: userId,
       },
-
       data: {
-        Usenha: senhaHash,
+        Usenha: hash,
       },
-    }),
+    });
 
-    prisma.redefinicaoSenha.updateMany({
+    await tx.redefinicaoSenha.updateMany({
       where: {
         id_Usuario: userId,
         usado: false,
       },
-
       data: {
         usado: true,
       },
-    }),
-  ]);
+    });
+  });
 }

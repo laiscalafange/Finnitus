@@ -36,6 +36,8 @@ export const env = {
   JWT_SECRET: getEnvVar("JWT_SECRET"),
   JWT_EXPIRES_IN: getEnvVarOptional("JWT_EXPIRES_IN", "7d"),
 
+  GOOGLE_CLIENT_ID: getEnvVar("GOOGLE_CLIENT_ID"),
+
   // usadas pelo services/email.service.ts (Nodemailer)
   EMAIL_HOST: getEnvVarOptional("EMAIL_HOST", "smtp.gmail.com"),
   EMAIL_PORT: Number(getEnvVarOptional("EMAIL_PORT", "465")),
@@ -44,3 +46,9 @@ export const env = {
   EMAIL_PASSWORD: getEnvVar("EMAIL_PASSWORD"),
   EMAIL_FROM: getEnvVar("EMAIL_FROM"),
 };
+
+if (env.JWT_SECRET.length < 32) {
+  throw new Error(
+    "JWT_SECRET deve ter ao menos 32 caracteres aleatórios.",
+  );
+}
