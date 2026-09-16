@@ -112,4 +112,49 @@ export const getStyles = (insetBottom: number) => StyleSheet.create({
     color: Cores.destaque.limao,
   },
 
+  // ==================================================
+  // MENU DE AÇÕES RÁPIDAS (abre ao tocar no +)
+  // ==================================================
+
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+
+  menuBotaoArco: {
+    position: 'absolute',
+    width: 100,
+    alignItems: 'center',
+  },
+
+  menuCirculo: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: Cores.roxo.claro,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 3,
+  },
+
+  menuIcone: {
+    width: 26,
+    height: 26,
+    resizeMode: 'contain',
+  },
+
+  menuIconeTexto: {
+    fontSize: 26,
+    lineHeight: 28,
+    fontFamily: FONTS.raleway.bold,
+    color: Cores.roxo.escuro,
+  },
+
+  menuTexto: {
+    fontSize: 12,
+    fontFamily: FONTS.quicksand.bold,
+    color: Cores.destaque.limao,
+    textAlign: 'center',
+  },
+
 })

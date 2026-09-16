@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
-import { Text, TouchableOpacity, View, Image } from 'react-native'
+import { useMemo, useState } from 'react'
+import { Text, TouchableOpacity, View, Image, Modal, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import MaskedView from '@react-native-masked-view/masked-view'
 import Svg, { Defs, Mask, Rect, Circle } from 'react-native-svg'
@@ -42,6 +42,16 @@ const ABAS = [
   },
 ]
 
+// Ações do menu que abre ao tocar no +.
+// "chave" é o que chega em aoPress — a navegação de cada uma
+// fica a cargo de quem usa o FloatingButton (ex: o _layout.jsx).
+const ACOES = [
+  { chave: 'novoImprevisto', icone: require("../../../../assets/icones/B.png"), rotulo: 'Novo imprevisto' },
+  { chave: 'novoGasto', textoIcone: '↓', rotulo: 'Novo gasto' },
+  { chave: 'novoEvento', icone: require("../../../../assets/icones/calendar2.png"), rotulo: 'Novo evento' },
+  { chave: 'novaMeta', icone: require("../../../../assets/icones/medalha.png"), rotulo: 'Nova meta' },
+]
+
 export function FloatingButton({
   abaAtiva,
   aoPress,
@@ -56,13 +66,73 @@ export function FloatingButton({
     [insetExtra]
   )
 
+  // Controla o menu de ações rápidas que abre ao tocar no +
+  const [menuAberto, setMenuAberto] = useState(false)
+
   const leftTabs = ABAS.slice(0, 3)
   const rightTabs = ABAS.slice(4, 7)
 
   const barAltura = BAR_H + insetExtra
 
+  function acionarMenu(chave: string) {
+    setMenuAberto(false)
+    aoPress(chave)
+  }
+
+  // ── Posições em arco (meia-lua) ao redor do + ──────────────
+  // Ângulos em graus (0° = direita, 90° = topo, 180° = esquerda),
+  // distribuídos da esquerda pra direita.
+  const RAIO_ARCO = 115
+  const ANGULOS_ARCO = [165, 117, 63, 15]
+  // Altura aproximada do centro do botão + (soma do recuo do
+  // dispositivo, já que o próprio + também sobe nesse caso).
+  const CENTRO_FAB_BOTTOM = 77 + insetExtra
+
   return (
     <View style={styles.container}>
+
+      {/* MENU DE AÇÕES RÁPIDAS */}
+
+      <Modal
+        transparent
+        visible={menuAberto}
+        animationType="fade"
+        onRequestClose={() => setMenuAberto(false)}
+      >
+        <Pressable style={styles.backdrop} onPress={() => setMenuAberto(false)} />
+
+        {ACOES.map((acao, indice) => {
+          const anguloRad = (ANGULOS_ARCO[indice] * Math.PI) / 180
+          const dx = RAIO_ARCO * Math.cos(anguloRad)
+          const dy = RAIO_ARCO * Math.sin(anguloRad)
+
+          return (
+            <TouchableOpacity
+              key={acao.chave}
+              style={[
+                styles.menuBotaoArco,
+                {
+                  left: '50%',
+                  bottom: CENTRO_FAB_BOTTOM + dy - 29,
+                  transform: [{ translateX: dx - 38 }],
+                },
+              ]}
+              onPress={() => acionarMenu(acao.chave)}
+              activeOpacity={0.8}
+            >
+              <View style={styles.menuCirculo}>
+                {acao.textoIcone ? (
+                  <Text style={styles.menuIconeTexto}>{acao.textoIcone}</Text>
+                ) : (
+                  <Image source={acao.icone} style={styles.menuIcone} />
+                )}
+              </View>
+              <Text style={styles.menuTexto}>{acao.rotulo}</Text>
+            </TouchableOpacity>
+          )
+        })}
+      </Modal>
+
 
       {/* BARRA COM RECORTE CENTRAL */}
 
@@ -209,7 +279,7 @@ export function FloatingButton({
 
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => aoPress('fab')}
+        onPress={() => setMenuAberto(true)}
         activeOpacity={0.8}
       >
 
