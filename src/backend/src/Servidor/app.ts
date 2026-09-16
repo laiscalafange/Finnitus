@@ -53,7 +53,7 @@ const errorHandler: ErrorRequestHandler = (
   // Não registrar corpo, senhas ou tokens.
   console.error(
     "Falha interna na API:",
-    err?.name ?? "UnknownError",
+    err
   );
 
   res.status(500).json({
