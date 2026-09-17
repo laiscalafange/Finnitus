@@ -49,7 +49,7 @@ export function CardSaldo({
       >
         <View style={styles.topo}>
           <View>
-            <Text style={styles.titulo}>Saldo atual</Text>
+            <Text style={styles.titulo}>Saldo</Text>
             <View style={extraStyles.valorComIcone}>
               <Text style={styles.saldo}>{moeda(saldoAtual)}</Text>
               <Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olho} />
@@ -65,21 +65,17 @@ export function CardSaldo({
 
         <View style={styles.divisor} />
 
-        <Text style={styles.label}>Saldo do mês</Text>
+        <Text style={styles.titulo}>Saldo do mês</Text>
         <View style={extraStyles.valorComIcone}>
           <Text style={styles.valorMes}>{moeda(saldoMes)}</Text>
           <Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olhoMes} />
         </View>
 
-        <View style={styles.linhaVariacao}>
-          <Text style={styles.label}>máximo disponível</Text>
-          <Text style={styles.maximo}>{moeda(maximoDisponivel)}</Text>
-        </View>
-
-        <View style={styles.linhaVariacao}>
+ <View style={styles.linhaVariacao}>
           <Text style={styles.label}>último mês</Text>
-          <Variacao valor={variacaoMes} />
+          <Variacao valor={variacaoSemana} />
         </View>
+       
       </LinearGradient>
     </TouchableOpacity>
   )

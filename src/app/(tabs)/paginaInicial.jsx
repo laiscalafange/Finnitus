@@ -19,22 +19,37 @@ import {
 } from '../../features/dashboard'
 import { useFinanceiro } from '../../features/financeiroContext'
 import { styles } from '../../styles/paginaInicial'
-import { Cores } from '../../shared/constants/Cores'
 
 export default function PaginaInicial() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
-  const { salario, despesas, economiaFutura, tempoEconomia } = useFinanceiro()
 
-  const temDadosFinanceiros = salario !== undefined && despesas !== undefined
-  const saldoAtual = temDadosFinanceiros ? salario - despesas : undefined
+  const {
+    salario,
+    despesas,
+    economiaFutura,
+    tempoEconomia,
+  } = useFinanceiro()
+
+  const temDadosFinanceiros =
+    salario !== undefined && despesas !== undefined
+
+  const saldoAtual = temDadosFinanceiros
+    ? salario - despesas
+    : undefined
+
   const economia =
-    economiaFutura !== undefined && tempoEconomia !== undefined && tempoEconomia > 0
+    economiaFutura !== undefined &&
+    tempoEconomia !== undefined &&
+    tempoEconomia > 0
       ? {
           economiaFutura,
           tempoEconomia,
           economiaMensal: economiaFutura / tempoEconomia,
-          percentualMeta: salario && salario > 0 ? (economiaFutura / tempoEconomia / salario) * 100 : 0,
+          percentualMeta:
+            salario && salario > 0
+              ? (economiaFutura / tempoEconomia / salario) * 100
+              : 0,
         }
       : undefined
 
@@ -42,7 +57,11 @@ export default function PaginaInicial() {
   const estatisticas = obterEstatisticasHome()
   const planoB = obterPlanoBResumo(salario, despesas)
   const planejamento = obterPlanejamentoHome()
-  const mesAtual = new Date().toLocaleDateString('pt-BR', { month: '2-digit', year: '2-digit' })
+
+  const mesAtual = new Date().toLocaleDateString('pt-BR', {
+    month: '2-digit',
+    year: '2-digit',
+  })
 
   return (
     <View style={styles.container}>
@@ -50,61 +69,90 @@ export default function PaginaInicial() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={{ paddingBottom: 118 + insets.bottom }}
+        contentContainerStyle={{
+          paddingBottom: 118 + insets.bottom,
+        }}
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
       >
+        {/* HEADER */}
         <LinearGradient
           colors={GRADIENTS.header.colors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[styles.hero, { paddingTop: insets.top + 2 }]}
+          style={[
+            styles.hero,
+            {
+              paddingTop: insets.top + 2,
+            },
+          ]}
         >
           <DashboardHeader
             onPremium={() => router.push('/Premium/Premium')}
-            onNotificacao={() => router.push('/Notificacao/Notificacao')}
+            onNotificacao={() =>
+              router.push('/Notificacao/Notificacao')
+            }
             onPerfil={() => router.push('/perfil')}
           />
 
           <CardSaldo
             saldoAtual={saldoAtual}
-            saldoMes={temDadosFinanceiros ? saldoAtual : undefined}
+            saldoMes={
+              temDadosFinanceiros
+                ? saldoAtual
+                : undefined
+            }
             maximoDisponivel={salario}
-            data={temDadosFinanceiros ? mesAtual : undefined}
+            data={
+              temDadosFinanceiros
+                ? mesAtual
+                : undefined
+            }
             onPress={() => router.push('/dashboard')}
           />
 
-          <View style={styles.heroCurva} pointerEvents="none">
+          <View
+            style={styles.heroCurva}
+            pointerEvents="none"
+          >
             <View style={styles.heroCurvaForma}>
               <Text style={styles.heroCurvaSeta}>⌄</Text>
             </View>
           </View>
         </LinearGradient>
 
+        {/* CONTEÚDO */}
         <View style={styles.conteudo}>
+          {/* EVENTO */}
           <CardEvento
             evento={evento}
             onPress={() => router.push('/calendario')}
           />
 
+          {/* ESTATÍSTICAS DO DASHBOARD */}
           <GraficoEstatisticas
             dados={estatisticas}
             onPress={() => router.push('/dashboard')}
           />
 
+          {/* PLANO B DO DASHBOARD */}
           <CardPlanob
             dados={planoB}
             onPress={() => router.push('/PlanoB')}
           />
 
+          {/* PLANEJAMENTO DO DASHBOARD */}
           <CardPlanejamento
             dados={planejamento}
             onPress={() => router.push('/calendario')}
           />
 
+          {/* ECONOMIA */}
           <CardEconomia
             dados={economia}
-            onPress={() => router.push('/configuracaoInicial/FutureSavings')}
+            onPress={() =>
+              router.push('/configuracaoInicial/FutureSavings')
+            }
           />
         </View>
       </ScrollView>

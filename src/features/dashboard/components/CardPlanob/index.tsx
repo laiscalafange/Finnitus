@@ -28,7 +28,7 @@ export function CardPlanob({ dados, onPress }: Props) {
       require('../../../../../assets/icones/contas.png'),
     ][index],
   }))
-  const raio = 42
+  const raio = 50
   const circ = 2 * Math.PI * raio
   const totalCategorias = categorias.reduce((soma, categoria) => soma + categoria.valor, 0) || 1
 
@@ -48,8 +48,8 @@ export function CardPlanob({ dados, onPress }: Props) {
 
         <View style={styles.linha}>
           <View style={styles.gauge}>
-            <Svg width={108} height={108} viewBox="0 0 110 110" style={styles.gaugeSvg}>
-              <Circle cx="55" cy="55" r={raio} fill="none" stroke={Cores.fundo.card} strokeWidth="9" />
+            <Svg width={118} height={108} viewBox="0 0 110 110" style={styles.gaugeSvg}>
+              <Circle cx="55" cy="55" r={raio} fill="none" stroke={Cores.fundo.card} strokeWidth="12" />
               {categorias.reduce<{ acumulado: number; elementos: ReactElement[] }>(
                 (resultado, categoria) => {
                   const fatia = (categoria.valor / totalCategorias) * circ
@@ -61,7 +61,7 @@ export function CardPlanob({ dados, onPress }: Props) {
                       r={raio}
                       fill="none"
                       stroke={categoria.cor}
-                      strokeWidth="9"
+                      strokeWidth="12"
                       strokeLinecap="round"
                       strokeDasharray={`${fatia} ${circ}`}
                       strokeDashoffset={-resultado.acumulado}

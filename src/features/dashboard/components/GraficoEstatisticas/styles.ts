@@ -34,17 +34,17 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   ponto: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 40,
     marginRight: 6,
   },
   pontoReceita: { backgroundColor: Cores.destaque.limao },
   pontoDespesa: { backgroundColor: Cores.estado.perigo },
   legendaTexto: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 11,
-    lineHeight: 13,
+    fontSize: 14,
+    lineHeight: 16,
     color: Cores.texto.principal,
   },
   abas: {
@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     marginTop: 11,
     marginBottom: 9,
     padding: 3,
-    borderRadius: 16,
+    borderRadius: 26,
     backgroundColor: Cores.estado.desabilitado,
   },
   aba: {
@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
   },
   abaTexto: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 11,
+    fontSize: 14,
     color: Cores.texto.principal,
   },
   abaTextoAtiva: {
@@ -77,10 +77,10 @@ export const styles = StyleSheet.create({
   grafico: {
     marginTop: 2,
     borderRadius: 16,
-    backgroundColor: Cores.estado.desabilitado,
+    backgroundColor: Cores.fundo.card,
     paddingHorizontal: 2,
     paddingTop: 2,
-    paddingBottom: 0,
+ 
   },
   dias: {
     flexDirection: 'row',
@@ -90,7 +90,7 @@ export const styles = StyleSheet.create({
   },
   dia: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 11,
+    fontSize: 14,
     color: Cores.texto.principal,
   },
   vazio: {
@@ -98,12 +98,12 @@ export const styles = StyleSheet.create({
   },
   vazioTitulo: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 15,
+    fontSize: 20,
     color: Cores.base.branco,
   },
   vazioTexto: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 12,
+    fontSize: 15,
     lineHeight: 18,
     color: Cores.texto.principal,
     marginTop: 6,

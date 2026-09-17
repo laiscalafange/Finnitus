@@ -6,11 +6,11 @@ export const styles = StyleSheet.create({
   container: {
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 14,
+    paddingTop: 20,
+    paddingBottom: 24,
     marginHorizontal: 20,
     marginTop: 5,
-    marginBottom: 0,
+    marginBottom: 25,
     shadowColor: Cores.base.preto,
     shadowOffset: { width: 0, height: 7 },
     shadowOpacity: 0.24,
@@ -24,13 +24,13 @@ export const styles = StyleSheet.create({
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 19,
+    fontSize: 20,
     lineHeight: 22,
     color: Cores.base.preto,
   },
   mes: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 13,
+    fontSize: 15,
     lineHeight: 17,
     color: Cores.base.preto,
   },
@@ -42,14 +42,11 @@ export const styles = StyleSheet.create({
     marginTop: 1,
   },
   divisor: {
-    height: 1,
-    backgroundColor: Cores.interface.divisor,
-    opacity: 0.3,
-    marginVertical: 8,
+    marginVertical: 10,
   },
   label: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 11,
+    fontSize: 13,
     lineHeight: 14,
     color: Cores.base.preto,
   },
@@ -58,13 +55,13 @@ export const styles = StyleSheet.create({
     fontSize: 21,
     lineHeight: 25,
     color: Cores.base.preto,
-    marginTop: 1,
+    marginTop: 5,
   },
   maximo: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 12,
+    fontSize: 15,
     color: Cores.base.preto,
-    marginLeft: 6,
+    marginRight: 220,
   },
   linhaVariacao: {
     flexDirection: 'row',
@@ -98,6 +95,6 @@ export const styles = StyleSheet.create({
 
 export const extraStyles = StyleSheet.create({
   valorComIcone: { flexDirection: 'row', alignItems: 'center' },
-  olho: { width: 15, height: 15, resizeMode: 'contain', marginLeft: 5, tintColor: Cores.base.preto },
-  olhoMes: { width: 14, height: 14, resizeMode: 'contain', marginLeft: 5, tintColor: Cores.base.preto },
+  olho: { width: 25, height: 20, resizeMode: 'contain', marginLeft: 5, tintColor: Cores.base.preto,marginBottom:-10 },
+  olhoMes: { width: 24, height: 18, resizeMode: 'contain', marginLeft: 5, tintColor: Cores.base.preto,marginBottom:-10  },
 })

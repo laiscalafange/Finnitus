@@ -335,9 +335,9 @@ export default function Dashboard() {
                   grid: { stroke: '#ffffff12' },
                   ticks: { stroke: 'transparent' },
                   tickLabels: {
-                    fill: Cores.texto.desabilitado,
-                    fontSize: 10,
-                    fontFamily: FONTS.quicksand.regular,
+                    fill: Cores.texto.claro,
+                    fontSize: 17,
+                    fontFamily: FONTS.quicksand.bold,
                   },
                 }}
               />
@@ -347,10 +347,10 @@ export default function Dashboard() {
                 style={{
                   data: {
                     fill: Cores.destaque.limao,
-                    width: 12,
+                    width: 14,
                   },
                 }}
-                cornerRadius={{ top: 5 }}
+                cornerRadius={{ top: 7 }}
               />
 
               <VictoryBar
@@ -358,10 +358,10 @@ export default function Dashboard() {
                 style={{
                   data: {
                     fill: '#FF8800',
-                    width: 11,
+                    width: 12,
                   },
                 }}
-                cornerRadius={{ top: 5 }}
+                cornerRadius={{ top: 6 }}
               />
 
               <VictoryLine

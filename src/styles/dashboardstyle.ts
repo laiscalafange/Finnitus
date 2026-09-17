@@ -190,10 +190,11 @@ weekArrowTexto: {
     paddingLeft:1,
   },
   // ── CONTEÚDO ─────────────────────────────────────────────
-  conteudo: {
-    paddingHorizontal: 24,
-    paddingBottom: 45,
+   conteudo: {
+    padding: 20,
+    paddingBottom: 120,
   },
+
 
   secaoTitulo: {
     fontFamily: FONTS.raleway.extrabold,
@@ -223,23 +224,26 @@ weekArrowTexto: {
     alignItems: 'flex-end',
     marginTop: -1,
     padding:10,
+    
   },
 
   legendaItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    color: Cores.texto.claro,
+    
   },
 
   legendaPonto: {
-    width: 8,
-    height: 8,
+    width: 10,
+    height: 10,
     borderRadius: 4,
   },
 
   legendaTexto: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 10,
+    fontSize: 16,
     color: Cores.texto.claro,
   },
 
@@ -285,7 +289,7 @@ weekArrowTexto: {
 
   sumarioLabel: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 13,
+    fontSize: 15,
     color: Cores.base.branco,
   },
 
@@ -484,7 +488,7 @@ planoBCorpo: {
   alignItems: 'flex-end',
   gap: 2,
   marginTop: -10,
-  
+  marginBottom:30,
 },
 
 planoBValor: {

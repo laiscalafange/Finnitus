@@ -95,7 +95,7 @@ export function GraficoEstatisticas({ dados, onPress }: Props) {
                 ticks: { stroke: 'transparent' },
                 tickLabels: {
                   fill: Cores.texto.principal,
-                  fontSize: 10,
+                  fontSize: 14,
                   fontFamily: FONTS.quicksand.bold,
                 },
               }}

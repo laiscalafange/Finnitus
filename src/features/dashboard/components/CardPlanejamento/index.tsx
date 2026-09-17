@@ -21,6 +21,7 @@ export function CardPlanejamento({ dados, onPress }: Props) {
           <Image source={require("../../../../../assets/icones/presente.png")} style={styles.iconeImagem} />
         </View>
         <View style={styles.textos}>
+          
           <Text style={styles.nome}>{dados?.titulo ?? 'Sem planejamento'}</Text>
           <Text style={styles.valor}>{dados?.valor ?? 'Crie uma meta para acompanhar seu progresso.'}</Text>
         </View>
