@@ -25,7 +25,7 @@ export function CardEconomia({ dados, onPress }: Props) {
       <Text style={styles.titulo}>Economia mensal</Text>
       <TouchableOpacity style={styles.card} onPress={onPress} disabled={!onPress} activeOpacity={0.88}>
         <View style={styles.medidor}>
-          <Svg width={92} height={92} viewBox="0 0 92 92" style={{ transform: [{ rotate: '-90deg' }] }}>
+          <Svg width={142} height={142} viewBox="0 0 92 92" style={{ transform: [{ rotate: '-90deg' }] }}>
             <Circle cx="46" cy="46" r={raio} fill="none" stroke={Cores.roxo.principal} strokeWidth="9" />
             <Circle
               cx="46"

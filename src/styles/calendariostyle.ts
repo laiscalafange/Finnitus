@@ -75,9 +75,11 @@ export const styles = StyleSheet.create({
   },
 
   // ── CONTEÚDO ────────────────────────────────────────────
-  conteudo: {
-    padding: 24,
+    conteudo: {
+    padding: 20,
+    paddingBottom: 120,
   },
+
 
   secaoTitulo: {
     fontFamily: FONTS.raleway.extrabold,
@@ -196,19 +198,19 @@ export const styles = StyleSheet.create({
   marginTop: 10,
   flexDirection: 'row',
   alignItems: 'center',
-  gap: 10,
+  gap:12,
 },
 
   gaugeLabel: {
   fontFamily: FONTS.raleway.extrabold,
-  fontSize: 18,
+  fontSize: 20,
   color: Cores.roxo.claro,
   textAlign: 'center',
 },
 
 gaugeSublabel: {
   fontFamily: FONTS.quicksand.regular,
-  fontSize: 15,
+  fontSize: 17,
   color: Cores.texto.principal,
   textAlign: 'center',
 },
@@ -230,13 +232,13 @@ gaugeSublabel: {
   estatsLabel: {
   flex: 1,
   fontFamily: FONTS.quicksand.regular,
-  fontSize: 13,
+  fontSize: 17,
   color: Cores.roxo.claro,
   lineHeight: 16,
 },
  estatsValor: {
   fontFamily: FONTS.raleway.extrabold,
-  fontSize: 16,
+  fontSize: 19,
   minWidth: 55,
   textAlign: 'right',
 },
@@ -264,7 +266,7 @@ gaugeSublabel: {
 
   legendaTexto: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 12,
+    fontSize: 14,
     color: Cores.texto.principal,
     textAlign: 'left',
     marginTop:10,

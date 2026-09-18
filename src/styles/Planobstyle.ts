@@ -16,10 +16,10 @@ export const styles = StyleSheet.create({
 
   headerPlanoB: {
     paddingTop: 68,
-    paddingBottom: 74,
+    paddingBottom: 64,
     paddingHorizontal: 30,
-    borderBottomLeftRadius: 48,
-    borderBottomRightRadius: 48,
+    borderBottomLeftRadius: 38,
+    borderBottomRightRadius: 38,
   },
 
   headerPlanoBTopo: {
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
 
   headerPlanoBSubtitulo: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 18,
+    fontSize: 20,
     paddingBottom: 24,
     color:Cores.destaque.limao,
     marginTop: -1,
@@ -57,7 +57,7 @@ export const styles = StyleSheet.create({
 
   headerMesPassado: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 15,
+    fontSize: 19,
     color: Cores.texto.claro,
     textAlign: 'right',
     marginBottom: 2,
@@ -83,19 +83,20 @@ export const styles = StyleSheet.create({
 
   headerSaldoLabel: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 16,
+    fontSize: 19,
+     marginBottom: 3,
     color: Cores.texto.contraste,
   },
 
   headerSaldoData: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 16,
+    fontSize: 19,
     color: Cores.texto.contraste,
   },
 
   headerSaldoValor: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 20,
+    fontSize: 22,
     lineHeight: 26,
     color: Cores.texto.contraste,
   },
@@ -110,20 +111,20 @@ export const styles = StyleSheet.create({
 
   headerVariacaoLabel: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 12,
+    fontSize: 15,
     color: Cores.overlay.cardForte,
   },
 
   headerVariacaoBadge: {
     backgroundColor: Cores.overlay.cardSuave,
     borderRadius: 20,
-    paddingHorizontal: 4,
+    paddingHorizontal: 6,
     paddingVertical: 1,
   },
 
   headerVariacaoTexto: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 12,
+    fontSize: 15,
     color: Cores.fundo.card,
   },
 
@@ -159,7 +160,7 @@ export const styles = StyleSheet.create({
 
   conteudo: {
     padding: 20,
-    paddingBottom: 30,
+    paddingBottom: 120,
   },
 
   secaoTitulo: {
@@ -301,14 +302,14 @@ export const styles = StyleSheet.create({
 
   performanceSub: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 18,
+    fontSize: 20,
     color: Cores.texto.principal,
     textAlign: 'center',
   },
 
   performanceData: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 15,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 18,
     color: Cores.destaque.limao,
     textAlign: 'center',
     marginTop: 2,
@@ -322,8 +323,8 @@ export const styles = StyleSheet.create({
 
   performanceGaugeContainer: {
     alignItems: 'center',
-    marginTop: 5,
-    marginBottom: -6,
+    marginTop: 3,
+    marginBottom: -8,
   },
 
   performanceGaugeValor: {
@@ -334,8 +335,8 @@ export const styles = StyleSheet.create({
 
   performanceGaugeLabel: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 15,
-    color: Cores.texto.desabilitado,
+    fontSize: 16,
+    color: Cores.texto.secundario,
   },
 
   performanceInfo: {
@@ -352,7 +353,7 @@ export const styles = StyleSheet.create({
 
   performanceValor: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 15,
+    fontSize: 16,
     marginTop: 2,
   },
 
@@ -367,8 +368,8 @@ export const styles = StyleSheet.create({
 },
 
 rotasRow: {
-  flexDirection: 'column',
-  gap: 12,
+  flexDirection: 'row',
+  gap: 10,
   marginBottom: 20,
 },
 
@@ -545,6 +546,7 @@ heatmapBolinha: {
     height: 180,
     alignItems: 'center',
     justifyContent: 'center',
+    
   },
 
   rotasGaugeValor: {
@@ -567,28 +569,27 @@ heatmapBolinha: {
   rotasIndicador: {
     width: 8,
     height: 8,
-    borderRadius: 4,
     marginRight: 5,
   },
 
   rotasCategoriaNome: {
     flex: 1,
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 12,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 14,
     color: Cores.destaque.limao,
   },
 
   rotasCategoriaValor: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 12,
+    fontSize: 14,
     color: Cores.roxo.claro,
     marginLeft: 3,
   },
 
   rotasCategoriaPercentual: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 12,
-    color: Cores.roxo.claro,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 14,
+    color: Cores.destaque.limao,
     width: 38,
     textAlign: 'right',
   },
@@ -604,14 +605,14 @@ heatmapBolinha: {
 
   rotasResumoTitulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 18,
+    fontSize: 20,
     color: Cores.destaque.limao,
     marginTop: 8,
-    marginBottom: 3,
+    marginBottom: 12,
   },
 
   rotasResumo: {
-    gap: 0,
+    gap: 2,
   },
 
   rotasResumoTexto: {
@@ -622,19 +623,23 @@ heatmapBolinha: {
   },
 
   rotasSobra: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 14,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 16,
     lineHeight: 18,
-    color: Cores.roxo.claro,
-    marginTop: 18,
+    color: Cores.destaque.limao,
+    marginTop: 9,
+    marginBottom:5,
   },
 
   rotasSobraTexto: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 14,
+    fontSize: 15,
     lineHeight: 18,
     color: Cores.roxo.claro,
     marginTop: 2,
+    marginBottom:12,
+    paddingBottom:15,
+  
   },
 
 })

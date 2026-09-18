@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
 
   conteudo: {
     paddingHorizontal: 24,
-    paddingBottom: 45,
+    paddingBottom: 120,
     paddingTop: 8,
   },
 
