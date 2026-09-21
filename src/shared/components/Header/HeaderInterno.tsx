@@ -2,15 +2,26 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { FONTS } from "../../constants/Tipografia";
+import { Rotas } from "../../constants/Rotas";
+import { BotaoVoltar } from "../BotaoVoltar";
 
 export interface HeaderInternoProps {
   titulo: string;
   subtitulo: string;
+  // Mostra a seta de voltar à esquerda do título (padrão: true)
+  mostrarVoltar?: boolean;
+  // Mostra o ícone da coroa (Premium) — esconder na própria tela Premium
+  mostrarPremium?: boolean;
+  // Mostra o ícone do sino (Notificação) — esconder na própria tela de Notificação
+  mostrarNotificacao?: boolean;
 }
 
 export function HeaderInterno({
   titulo,
   subtitulo,
+  mostrarVoltar = true,
+  mostrarPremium = true,
+  mostrarNotificacao = true,
 }: HeaderInternoProps) {
   // Hook de navegação do Expo Router
   const router = useRouter();
@@ -23,33 +34,42 @@ export function HeaderInterno({
       end={{ x: 1.0, y: 1 }}
       style={styles.header}
     >
-      {/* Título e subtítulo — recebidos por props, mudam de acordo
+      {/* Lado esquerdo: seta de voltar (roxo escuro) + título e subtítulo.
+          Título e subtítulo são recebidos por props e mudam de acordo
           com a tela que usa esse header (ex: "Metas" / "Detalhes") */}
-      <View>
-        <Text style={styles.titulo}>{titulo}</Text>
-        <Text style={styles.subtitulo}>{subtitulo}</Text>
+      <View style={styles.esquerda}>
+        {mostrarVoltar && <BotaoVoltar />}
+
+        <View>
+          <Text style={styles.titulo}>{titulo}</Text>
+          <Text style={styles.subtitulo}>{subtitulo}</Text>
+        </View>
       </View>
 
       {/* Ícones do canto superior direito */}
       <View style={styles.icones}>
 
         {/* Coroa — leva pra tela de assinatura Premium
-            TODO: ajustar "/premium" pro nome real da rota, se for diferente */}
-        <TouchableOpacity onPress={() => router.push("/Premium")}>
-          <Image
-            source={require("../../../../assets/icones/coroa.png")}
-            style={styles.icone}
-          />
-        </TouchableOpacity>
+            (não aparece na própria tela Premium) */}
+        {mostrarPremium && (
+          <TouchableOpacity onPress={() => router.push(Rotas.premium)}>
+            <Image
+              source={require("../../../../assets/icones/coroa.png")}
+              style={styles.icone}
+            />
+          </TouchableOpacity>
+        )}
 
         {/* Sino — leva pra tela de notificações
-            TODO: ajustar "/notificacoes" pro nome real da rota, se for diferente */}
-        <TouchableOpacity onPress={() => router.push("/Notificacao")}>
-          <Image
-            source={require("../../../../assets/icones/sino.png")}
-            style={styles.icone}
-          />
-        </TouchableOpacity>
+            (não aparece na própria tela de Notificação) */}
+        {mostrarNotificacao && (
+          <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
+            <Image
+              source={require("../../../../assets/icones/sino.png")}
+              style={styles.icone}
+            />
+          </TouchableOpacity>
+        )}
 
       </View>
     </LinearGradient>
@@ -74,6 +94,12 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 140,
 
     overflow: "hidden",
+  },
+
+  // Seta de voltar + bloco de título/subtítulo, lado a lado
+  esquerda: {
+    flexDirection: "row",
+    alignItems: "flex-start",
   },
 
   titulo: {

@@ -6,6 +6,7 @@ import { Card } from "../../shared/components/Cards";
 import { LinearGradient } from "expo-linear-gradient";
 import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Cores } from "../../shared/constants/Cores";
+import { Rotas } from "../../shared/constants/Rotas";
 import { styles } from "../../styles/perfil";
 
 export default function Perfil() {
@@ -78,7 +79,7 @@ export default function Perfil() {
             {/* Único elemento clicável do card, leva pra tela de assinatura Premium */}
             <TouchableOpacity
               style={styles.botaoPremium}
-              onPress={() => router.push("/")}
+              onPress={() => router.push(Rotas.premium)}
             >
               <Text style={styles.botaoTexto}>
                 Assine já

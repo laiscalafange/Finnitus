@@ -1,9 +1,11 @@
-import {ScrollView, View, Text, Image} from 'react-native'
+import {ScrollView, View, Text, Image, TouchableOpacity} from 'react-native'
+import { useRouter } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import { VictoryArea } from 'victory-native'
 
 import { Cores } from '../../shared/constants/Cores'
 import { GRADIENTS } from '../../shared/constants/Gradientes'
+import { Rotas } from '../../shared/constants/Rotas'
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import coroaIcon from '../../../assets/icones/coroa.png'
 import sinoIcon from '../../../assets/icones/sino.png'
@@ -27,6 +29,9 @@ import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
 import { styles } from '../../styles/Planobstyle'
 
 export default function PlanoBScreen() {
+  // Hook de navegação do Expo Router
+  const router = useRouter()
+
   const restante =
     SALDO_MOCK.maximoDisponivel - SALDO_MOCK.atual
 
@@ -56,19 +61,25 @@ export default function PlanoBScreen() {
               </Text>
             </View>
 
-           <View style={styles.headerPlanoBIcones}>
-  <Image
-    source={coroaIcon}
-    style={styles.headerPlanoBIconeImagem}
-    resizeMode="contain"
-  />
+            <View style={styles.headerPlanoBIcones}>
+              {/* Coroa — leva pra tela Premium */}
+              <TouchableOpacity onPress={() => router.push(Rotas.premium)}>
+                <Image
+                  source={coroaIcon}
+                  style={styles.headerPlanoBIconeImagem}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
 
-  <Image
-    source={sinoIcon}
-    style={styles.headerPlanoBIconeImagem}
-    resizeMode="contain"
-  />
-</View>
+              {/* Sino — leva pra tela de Notificações */}
+              <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
+                <Image
+                  source={sinoIcon}
+                  style={styles.headerPlanoBIconeImagem}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.headerSaldoCard}>

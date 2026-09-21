@@ -10,9 +10,7 @@ export const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
 
-  // ==================================================
   // HEADER
-  // ==================================================
 
   headerPlanoB: {
     paddingTop: 68,
@@ -44,16 +42,16 @@ export const styles = StyleSheet.create({
   },
 
   headerPlanoBIconeImagem: {
-  width: 30,
-  height: 30,
-  resizeMode: 'contain',
-},
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
 
   headerPlanoBIcones: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 12,
-},
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
 
   headerMesPassado: {
     fontFamily: FONTS.quicksand.regular,
@@ -63,9 +61,7 @@ export const styles = StyleSheet.create({
     marginBottom: 2,
   },
 
-  // ==================================================
   // SALDO
-  // ==================================================
 
   headerSaldoCard: {
     backgroundColor: Cores.destaque.limao,
@@ -128,9 +124,7 @@ export const styles = StyleSheet.create({
     color: Cores.fundo.card,
   },
 
-  // ==================================================
   // SETA
-  // ==================================================
 
   headerSetaContainer: {
     alignItems: 'center',
@@ -154,9 +148,7 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  // ==================================================
   // CONTEÚDO
-  // ==================================================
 
   conteudo: {
     padding: 20,
@@ -177,9 +169,7 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  // ==================================================
   // PLANO-B
-  // ==================================================
 
   planoBHeader: {
     flexDirection: 'row',
@@ -254,9 +244,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // ==================================================
   // MINI GRÁFICOS
-  // ==================================================
 
   areaRow: {
     flexDirection: 'row',
@@ -278,9 +266,7 @@ export const styles = StyleSheet.create({
     paddingLeft: 8,
   },
 
-  // ==================================================
   // PERFORMANCE
-  // ==================================================
 
   performanceHeader: {
     flexDirection: 'row',
@@ -357,9 +343,8 @@ export const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // ==================================================
+
   // SUMÁRIO
-  // ==================================================
 
   duploRow: {
   flexDirection: 'row',
@@ -427,9 +412,7 @@ duploCard: {
     borderRadius: 4,
   },
 
-  // ==================================================
 // ATIVIDADE
-// ==================================================
 
 atividadeHeader: {
   width: '100%',
@@ -452,10 +435,7 @@ atividadeMes: {
   marginTop: 2,
 },
 
-
-  // ==================================================
   // HEATMAP
-  // ==================================================
 
   heatmapGrid: {
   width: '100%',
@@ -502,9 +482,8 @@ heatmapBolinha: {
     borderRadius: 4,
   },
 
-  // ==================================================
+
   // GRÁFICO FINAL
-  // ==================================================
 
   graficoFinalCard: {
     borderRadius: 7,
@@ -538,9 +517,8 @@ heatmapBolinha: {
     fontSize: 12,
     color: Cores.roxo.claro,
   },
-    // ==================================================
+
   // ROTAS
-  // ==================================================
 
   rotasGaugeContainer: {
     height: 180,

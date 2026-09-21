@@ -126,6 +126,7 @@ export default function Premium() {
       <HeaderInterno
         titulo="Seja Premium!"
         subtitulo="Detalhes"
+        mostrarPremium={false}
       />
 
       {/* Seletor de plano (abas Básico / Mega finn / Infinitos) */}

@@ -80,6 +80,7 @@ export default function Notificacoes() {
         <HeaderInterno
           titulo="Notificações"
           subtitulo="Detalhes"
+          mostrarNotificacao={false}
         />
 
         {/* Lista de notificações */}

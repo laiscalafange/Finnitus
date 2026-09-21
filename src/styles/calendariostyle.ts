@@ -41,14 +41,15 @@ export const styles = StyleSheet.create({
   },
 
   headerIcones: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 12,
-},
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
 
   headerIcone: {
-    width: 30,
-    height: 30,
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
   },
 
   // ── SETA ────────────────────────────────────────────────

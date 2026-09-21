@@ -98,6 +98,22 @@ export default function RootLayout() {
         }}
       />
 
+      {/* Telas Premium e Notificação: têm o próprio cabeçalho (HeaderInterno),
+          então o cabeçalho padrão do Stack fica escondido */}
+      <Stack.Screen
+        name="Premium/Premium"
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="Notificacao/Notificacao"
+        options={{
+          headerShown: false,
+        }}
+      />
+
       </Stack>
     </FinanceiroProvider>
     </SafeAreaProvider>

@@ -5,6 +5,8 @@ import { useRouter } from "expo-router";
 import { FONTS } from "../../../shared/constants/Tipografia";
 import { Cores } from "../../../shared/constants/Cores";
 import { GRADIENTS } from "../../../shared/constants/Gradientes";
+import { Rotas } from "../../../shared/constants/Rotas";
+import { BotaoVoltar } from "../BotaoVoltar";
 
 export function HeaderPerfil() {
   // Hook de navegação do Expo Router
@@ -17,27 +19,22 @@ export function HeaderPerfil() {
       end={GRADIENTS.header.end}
       style={styles.header}
     >
-      {/* Título */}
-      <View>
-        <Text style={styles.titulo}>Perfil</Text>
-        <Text style={styles.subtitulo}>Pessoal</Text>
+      {/* Lado esquerdo: seta de voltar (roxo escuro) + título */}
+      <View style={styles.esquerda}>
+        <BotaoVoltar />
+
+        <View>
+          <Text style={styles.titulo}>Perfil</Text>
+          <Text style={styles.subtitulo}>Pessoal</Text>
+        </View>
       </View>
 
-      {/* Ícones do canto superior direito */}
+      {/* Ícone do canto superior direito (só o sino — a coroa foi removida
+          porque o card "Assine já" já leva pra tela Premium) */}
       <View style={styles.icones}>
 
-        {/* Coroa — leva pra tela de assinatura Premium
-            TODO: ajustar "/premium" pro nome real da rota, se for diferente */}
-        <TouchableOpacity onPress={() => router.push("/Premium")}>
-          <Image
-            source={require("../../../../assets/icones/coroa.png")}
-            style={styles.coroa}
-          />
-        </TouchableOpacity>
-
-        {/* Sino — leva pra tela de notificações
-            TODO: ajustar "/notificacoes" pro nome real da rota, se for diferente */}
-        <TouchableOpacity onPress={() => router.push("/Notificacao")}>
+        {/* Sino — leva pra tela de notificações */}
+        <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
           <Image
             source={require("../../../../assets/icones/sino.png")}
             style={styles.sino}
@@ -67,6 +64,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
 
+  // Seta de voltar + bloco de título/subtítulo, lado a lado
+  esquerda: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+
   titulo: {
     color: Cores.destaque.limao,
     fontSize: 28,
@@ -81,7 +84,7 @@ const styles = StyleSheet.create({
     marginTop: -1,
   },
 
-  // Container dos 2 ícones (coroa + sino)
+  // Container dos ícones do canto direito (só o sino)
   icones: {
     flexDirection: "row",
     alignItems: "center",
@@ -90,12 +93,6 @@ const styles = StyleSheet.create({
   },
 
   sino: {
-    width: 24,
-    height: 24,
-    resizeMode: "contain",
-  },
-
-  coroa: {
     width: 24,
     height: 24,
     resizeMode: "contain",

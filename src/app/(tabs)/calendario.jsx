@@ -9,10 +9,12 @@ import { LinearGradient } from 'expo-linear-gradient'
 import Svg, { Circle } from 'react-native-svg'
 import { Calendar, LocaleConfig } from 'react-native-calendars'
 import { useState } from 'react'
+import { useRouter } from 'expo-router'
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { Cores } from '../../shared/constants/Cores'
 import { FONTS } from '../../shared/constants/Tipografia'
+import { Rotas } from '../../shared/constants/Rotas'
 import {
   TRANSACOES_MOCK,
   EVENTOS_MES_MOCK,
@@ -111,6 +113,9 @@ function GaugeCircular({ tamanho = 100, label, sublabel, segmentos }) {
 // ── COMPONENTE PRINCIPAL ──────────────────────
 
 export default function Calendario() {
+  // Hook de navegação do Expo Router
+  const router = useRouter()
+
   
   const [dataSelecionada, setDataSelecionada] = useState(null)
   const [mesAtual, setMesAtual] = useState('2026-02-09')
@@ -171,8 +176,15 @@ export default function Calendario() {
             </View>
 
             <View style={styles.headerIcones}>
-              <Image source={coroaIcon} style={styles.headerIcone} />
-              <Image source={sinoIcon} style={styles.headerIcone} />
+              {/* Coroa — leva pra tela Premium */}
+              <TouchableOpacity onPress={() => router.push(Rotas.premium)}>
+                <Image source={coroaIcon} style={styles.headerIcone} />
+              </TouchableOpacity>
+
+              {/* Sino — leva pra tela de Notificações */}
+              <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
+                <Image source={sinoIcon} style={styles.headerIcone} />
+              </TouchableOpacity>
             </View>
           </View>
 

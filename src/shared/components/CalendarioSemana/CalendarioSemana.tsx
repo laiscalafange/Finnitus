@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router'
 import { styles } from './CalendarioSemanaStyles'
 import { CalendarioSemanaProps, DiaSemana } from './CalendarioSemanaTypes'
 import { GRADIENTS } from '../../constants/Gradientes'
+import { Rotas } from '../../constants/Rotas'
 
 const LETRAS_DIAS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
 
@@ -88,10 +89,9 @@ export function CalendarioSemana({
 
                     <View style={styles.headerIcones}>
                         {/* Coroa — se a tela que usa esse componente passar "aoPressCoroa",
-                            usa a função dela; senão, por padrão leva pra tela Premium.
-                            TODO: ajustar "/premium" pro nome real da rota, se for diferente */}
+                            usa a função dela; senão, por padrão leva pra tela Premium. */}
                         <TouchableOpacity
-                            onPress={aoPressCoroa ?? (() => router.push('/Premium'))}
+                            onPress={aoPressCoroa ?? (() => router.push(Rotas.premium))}
                         >
                             <Image
                                 source={require('../../../../assets/icones/coroa.png')}
@@ -100,10 +100,9 @@ export function CalendarioSemana({
                         </TouchableOpacity>
 
                         {/* Sino — mesma lógica: usa "aoPressSino" se vier por prop,
-                            senão leva pra tela de Notificações por padrão.
-                            TODO: ajustar "/notificacoes" pro nome real da rota, se for diferente */}
+                            senão leva pra tela de Notificações por padrão. */}
                         <TouchableOpacity
-                            onPress={aoPressSino ?? (() => router.push('/Notificacao'))}
+                            onPress={aoPressSino ?? (() => router.push(Rotas.notificacao))}
                         >
                             <Image
                                 source={require('../../../../assets/icones/sino.png')}

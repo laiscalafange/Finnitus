@@ -27,7 +27,13 @@ function BarraInferior() {
 }
 
 export default function TabsLayout() {
-  return <Tabs screenOptions={{ headerShown: false }} tabBar={() => <BarraInferior />}>
+  // backBehavior="history": a seta de voltar (router.back) retorna pra tela
+  // de onde o usuário veio, em vez de sempre cair na primeira aba
+  return <Tabs
+    backBehavior="history"
+    screenOptions={{ headerShown: false }}
+    tabBar={() => <BarraInferior />}
+  >
     <Tabs.Screen name="paginaInicial" />
     <Tabs.Screen name="calendario" />
     <Tabs.Screen name="metas" />

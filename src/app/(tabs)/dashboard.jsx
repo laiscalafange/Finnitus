@@ -5,8 +5,10 @@ import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
 import Svg, { Circle } from 'react-native-svg'
 import { useState } from 'react'
+import { useRouter } from 'expo-router'
 import { Cores } from '../../shared/constants/Cores'
 import { FONTS } from '../../shared/constants/Tipografia'
+import { Rotas } from '../../shared/constants/Rotas'
 
 import {
   DASHBOARD_MOCK,
@@ -125,6 +127,9 @@ function GaugeCircular({
 }
 
 export default function Dashboard() {
+  // Hook de navegação do Expo Router
+  const router = useRouter()
+
   const [periodo, setPeriodo] = useState('semanal')
   const [diaSelecionado, setDiaSelecionado] = useState(
     new Date(DASHBOARD_MOCK.periodoInicial)
@@ -188,9 +193,16 @@ export default function Dashboard() {
             </View>
 
             <View style={styles.headerIcones}>
-  <Image source={coroaIcon} style={styles.headerIcone} />
-  <Image source={sinoIcon} style={styles.headerIcone} />
-</View>
+              {/* Coroa — leva pra tela Premium */}
+              <TouchableOpacity onPress={() => router.push(Rotas.premium)}>
+                <Image source={coroaIcon} style={styles.headerIcone} />
+              </TouchableOpacity>
+
+              {/* Sino — leva pra tela de Notificações */}
+              <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
+                <Image source={sinoIcon} style={styles.headerIcone} />
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.toggle}>
@@ -515,10 +527,7 @@ export default function Dashboard() {
             </View>
           </LinearGradient>
 
-          {/* =====================================================
-              PLANO-B
-              COMPONENTE ORIGINAL DO PLANO-B
-          ===================================================== */}
+          {/* COMPONENTE ORIGINAL DO PLANO-B */}
 
           <Text style={styles.secaoTitulo}>Plano-B</Text>
 
