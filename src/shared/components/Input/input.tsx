@@ -1,7 +1,12 @@
-import { View, Text, TextInput } from 'react-native'
-import { Cores } from '../../constants/Cores'
-import { styles } from './InputStyles'
-import { InputProps } from "./InputTypes";
+import {
+  View,
+  Text,
+  TextInput,
+} from "react-native";
+
+import { Cores } from "../../constants/Cores";
+import { styles } from "./InputStyles";
+import type { InputProps } from "./InputTypes";
 
 export function Input({
   label,
@@ -12,27 +17,54 @@ export function Input({
   keyboardType,
   value,
   onChangeText,
+  autoCapitalize = "none",
+  autoCorrect = false,
+  autoComplete,
+  editable = true,
+  maxLength,
 }: InputProps) {
   return (
     <View style={styles.wrapper}>
+      {label ? (
+        <Text style={styles.label}>
+          {label}
+        </Text>
+      ) : null}
 
-      {label && <Text style={styles.label}>{label}</Text>}
+      <View
+        style={[
+          styles.campo,
+          erro ? styles.campoErro : null,
+        ]}
+      >
+        {icone ? (
+          <View style={styles.icone}>
+            {icone}
+          </View>
+        ) : null}
 
-      <View style={[styles.campo, erro ? styles.campoErro : null]}>
-        {icone && <View style={styles.icone}>{icone}</View>}
         <TextInput
           style={styles.input}
+          accessibilityLabel={label}
           placeholder={placeholder}
           placeholderTextColor={Cores.texto.desabilitado}
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
           value={value}
           onChangeText={onChangeText}
+          autoCapitalize={autoCapitalize}
+          autoCorrect={autoCorrect}
+          autoComplete={autoComplete}
+          editable={editable}
+          maxLength={maxLength}
         />
       </View>
 
-      {erro && <Text style={styles.erro}>{erro}</Text>}
-
+      {erro ? (
+        <Text style={styles.erro}>
+          {erro}
+        </Text>
+      ) : null}
     </View>
-  )
+  );
 }

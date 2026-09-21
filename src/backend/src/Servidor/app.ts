@@ -4,14 +4,64 @@ import type { ErrorRequestHandler } from "express";
 import routes from "../routes/index.js";
 import authRoutes from "../routes/auth.routes.js";
 import { HttpError } from "../utils/errors.js";
+import { env } from "../config/env.js";
 
 const app = express();
 
 app.disable("x-powered-by");
 
-app.use(express.json({
-  limit: "16kb",
-}));
+const allowedOrigins = new Set(
+  env.CORS_ORIGINS
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (origin) {
+    res.vary("Origin");
+
+    if (!allowedOrigins.has(origin)) {
+      res.status(403).json({
+        error: "Origem não permitida.",
+      });
+
+      return;
+    }
+
+    res.set("Access-Control-Allow-Origin", origin);
+
+    res.set(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PATCH,PUT,DELETE,OPTIONS"
+    );
+
+    res.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type,Authorization"
+    );
+
+    res.set(
+      "Access-Control-Expose-Headers",
+      "Retry-After"
+    );
+  }
+
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return;
+  }
+
+  next();
+});
+
+app.use(
+  express.json({
+    limit: "16kb",
+  })
+);
 
 app.use((_req, res, next) => {
   res.set("Cache-Control", "no-store");
@@ -20,19 +70,26 @@ app.use((_req, res, next) => {
 
 app.use(routes);
 
-// Preserva caminhos existentes, como /auth/login.
+// Mantém caminhos como /auth/login.
 app.use("/auth", authRoutes);
+
+app.use((_req, res) => {
+  res.status(404).json({
+    error: "Rota não encontrada.",
+  });
+});
 
 const errorHandler: ErrorRequestHandler = (
   err,
   _req,
   res,
-  _next,
+  _next
 ) => {
   if (err instanceof HttpError) {
     res.status(err.status).json({
       error: err.message,
     });
+
     return;
   }
 
@@ -40,6 +97,7 @@ const errorHandler: ErrorRequestHandler = (
     res.status(400).json({
       error: "JSON inválido.",
     });
+
     return;
   }
 
@@ -47,14 +105,12 @@ const errorHandler: ErrorRequestHandler = (
     res.status(413).json({
       error: "Corpo da requisição muito grande.",
     });
+
     return;
   }
 
-  // Não registrar corpo, senhas ou tokens.
-  console.error(
-    "Falha interna na API:",
-    err
-  );
+  // Evita registrar senhas, tokens ou dados sensíveis.
+  console.error("Falha interna na API.");
 
   res.status(500).json({
     error: "Erro interno. Tente novamente.",

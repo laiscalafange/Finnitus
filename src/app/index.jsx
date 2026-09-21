@@ -1,15 +1,17 @@
+import { Redirect } from "expo-router";
 
- import { useRouter } from "expo-router";
-import { useEffect } from "react";
-
+import { useAuth } from "../features/authContext";
 
 export default function Index() {
-  const router = useRouter();
+  const { user } = useAuth();
 
-  useEffect(() => {
-    //joga o usuário para a tela de login assim que ele abrir o app
-    router.replace("/inicie");
-  }, []);
+  if (!user) {
+    return <Redirect href="/inicie" />;
+  }
 
-  return null;
+  if (!user.profileComplete) {
+    return <Redirect href="/conta/editar" />;
+  }
+
+  return <Redirect href="/paginaInicial" />;
 }

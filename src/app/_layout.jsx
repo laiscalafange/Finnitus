@@ -1,5 +1,15 @@
+import { useEffect } from "react";
+
+import {
+  ActivityIndicator,
+  View,
+  Text,
+} from "react-native";
+
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+
 import {
   Raleway_400Regular,
   Raleway_500Medium,
@@ -7,25 +17,29 @@ import {
   Raleway_700Bold,
   Raleway_800ExtraBold,
 } from "@expo-google-fonts/raleway";
+
 import {
   Quicksand_400Regular,
   Quicksand_500Medium,
   Quicksand_600SemiBold,
   Quicksand_700Bold,
 } from "@expo-google-fonts/quicksand";
-import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+
 import { SafeAreaProvider } from "react-native-safe-area-context";
+
 import { FinanceiroProvider } from "../features/financeiroContext";
 
-// Mantém a splash screen visível até as fontes carregarem
+import {
+  AuthProvider,
+  useAuth,
+} from "../features/authContext";
+
+import { Button } from "../shared/components/Button";
+
 SplashScreen.preventAutoHideAsync();
 
-// Função principal do layout que define a navegação do aplicativo
 export default function RootLayout() {
-
-  // Carrega as fontes antes do aplicativo iniciar
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Raleway_400Regular,
     Raleway_500Medium,
     Raleway_600SemiBold,
@@ -38,84 +52,102 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, fontError]);
 
-  // Enquanto as fontes carregam, não renderiza nada
-  // (a splash screen fica visível nesse meio tempo)
-  if (!fontsLoaded) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 
   return (
     <SafeAreaProvider>
-    <FinanceiroProvider>
-      <Stack>
+      <AuthProvider>
+        <SessionNavigator />
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
+}
 
-      {/* Tela inicial do aplicativo */}
-      <Stack.Screen
-        name="index"
-        options={{
-          headerShown: false,
+function SessionNavigator() {
+  const {
+    user,
+    loading,
+    startupError,
+    retry,
+    clearSession,
+  } = useAuth();
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#160B24",
+          justifyContent: "center",
         }}
-      />
+      >
+        <ActivityIndicator
+          size="large"
+          color="#d3b4ff"
+        />
+      </View>
+    );
+  }
 
-      {/* 
-  Registra o grupo de rotas de onboarding.
-  As telas internas (BemVindo e Trilhe) são gerenciadas pelo
-  arquivo app/onboarding/_layout.jsx, portanto não é necessário
-  registrá-las individualmente neste Stack principal.
-*/}
-      <Stack.Screen
-        name="onboarding"
-        options={{
-          headerShown: false,
+  if (startupError) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#160B24",
+          justifyContent: "center",
+          padding: 24,
+          gap: 20,
         }}
-      />
+      >
+        <Text style={{ color: "white" }}>
+          {startupError}
+        </Text>
 
-      {/* Grupo de autenticação */}
-      <Stack.Screen
-        name="(auth)"
-        options={{
-          headerShown: false,
-        }}
-      />
+        <Button
+          titulo="Tentar novamente"
+          onPress={() => void retry()}
+        />
 
-      {/* Grupo das abas */}
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerShown: false,
-        }}
-      />
+        <Button
+          titulo="Sair deste aparelho"
+          variante="outline"
+          onPress={() => void clearSession()}
+        />
+      </View>
+    );
+  }
 
-      <Stack.Screen
-        name="configuracaoInicial"
-        options={{
-          headerShown: false,
-        }}
-      />
+  return (
+    <FinanceiroProvider key={user?.id ?? "guest"}>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
 
-      {/* Telas Premium e Notificação: têm o próprio cabeçalho (HeaderInterno),
-          então o cabeçalho padrão do Stack fica escondido */}
-      <Stack.Screen
-        name="Premium/Premium"
-        options={{
-          headerShown: false,
-        }}
-      />
+        <Stack.Protected guard={!user}>
+          <Stack.Screen name="(auth)" />
+        </Stack.Protected>
 
-      <Stack.Screen
-        name="Notificacao/Notificacao"
-        options={{
-          headerShown: false,
-        }}
-      />
+        <Stack.Protected guard={Boolean(user)}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="configuracaoInicial" />
+          <Stack.Screen name="conta" />
 
+          <Stack.Screen name="Premium/Premium" />
+          <Stack.Screen name="Notificacao/Notificacao" />
+
+          <Stack.Screen
+            name="Notifica#U00e7#U00e3o/Notificacao"
+          />
+        </Stack.Protected>
       </Stack>
     </FinanceiroProvider>
-    </SafeAreaProvider>
   );
 }

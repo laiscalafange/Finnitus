@@ -1,72 +1,142 @@
-import { View, Text, Image, Pressable, useWindowDimensions } from "react-native";
-import { BackgroundGradient } from "../../shared/components/backgroundGradient";
-import { styles } from "../../styles/loginStyles";
-import { useRouter } from "expo-router";
-import { Button } from "../../shared/components/Button";
-import { Underline } from "../../shared/components/underline";
-import { Input } from "../../shared/components/Input";
 import { useState } from "react";
+import { Text } from "react-native";
+
+import {
+  useRouter,
+  useLocalSearchParams,
+} from "expo-router";
+
+import {
+  AuthForm,
+  formStyles,
+} from "../../shared/components/AuthForm";
+
+import { Input } from "../../shared/components/Input";
+import { Button } from "../../shared/components/Button";
+
+import { useAction } from "../../shared/hooks/useAction";
+import { useAuth } from "../../features/authContext";
+import { googleIdToken } from "../../services/google";
+
+import {
+  normalizeEmail,
+  validEmail,
+} from "../../shared/utils/formValidation";
 
 export default function Login() {
-const roteador = useRouter();
+  const router = useRouter();
+  const params = useLocalSearchParams();
 
-const [email, setEmail] = useState("");
-const [senha, setSenha] = useState("");
-
-return (
-    <View style={{ flex: 1 }}>
-      <BackgroundGradient />
-
-    <View style={styles.content}>
-        <Text style={styles.title2}>
-       Entre na <Text style={styles.title}>
-        sua conta </Text>
-        </Text>
-        <Text style={styles.subtitle}>
-          Preencha seus dados.
-        </Text>
-
-            <Input
-              label="Email"
-              placeholder="Digite seu Email"
-              icone={
-                <Image
-                  source={require("../../../assets/icones/email3.png")}
-                  style={styles.iconeInput}
-                />
-              }
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-            />
-            <Input
-          label="Senha"
-          placeholder="Digite sua senha"
-          icone={
-            <Image
-              source={require("../../../assets/icones/senha.png")}
-              style={styles.iconeInput}
-            />
-          }
-          secureTextEntry
-          value={senha}
-          onChangeText={setSenha}
-          />
-      </View>
-
-       <View style={styles.conteiner}>
-       <Button
-          variante="primario"
-          titulo="Confirmar"
-          onPress={() => roteador.push("/paginaInicial")}
-        />
-
-      <Pressable onPress={() => roteador.push("/forgotPassword")}>
-      <Text style={styles.texto}>
-        Esqueceu sua senha?
-      </Text>
-    </Pressable>
-        </View>
-    </View>
+  const [email, setEmail] = useState(
+    typeof params.email === "string"
+      ? params.email
+      : ""
   );
-} 
+
+  const [senha, setSenha] = useState("");
+
+  const {
+    login,
+    googleLogin,
+  } = useAuth();
+
+  const {
+    busy,
+    error,
+    run,
+  } = useAction();
+
+  function entrar() {
+    void run(async () => {
+      const normalized = normalizeEmail(email);
+
+      if (!validEmail(normalized) || !senha) {
+        throw new Error(
+          "Preencha e-mail e senha."
+        );
+      }
+
+      await login(normalized, senha);
+    });
+  }
+
+  function google() {
+    void run(async () => {
+      const token = await googleIdToken();
+
+      if (token) {
+        await googleLogin(token);
+      }
+    });
+  }
+
+  return (
+    <AuthForm
+      title="Entre na sua conta"
+      subtitle="Preencha seus dados."
+      error={error}
+    >
+      {params.cadastrado === "1" ? (
+        <Text style={formStyles.success}>
+          Cadastro concluído. Entre com sua senha.
+        </Text>
+      ) : null}
+
+      {params.redefinida === "1" ? (
+        <Text style={formStyles.success}>
+          Senha atualizada. Entre novamente.
+        </Text>
+      ) : null}
+
+      <Input
+        label="E-mail"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoComplete="email"
+        editable={!busy}
+      />
+
+      <Input
+        label="Senha"
+        value={senha}
+        onChangeText={setSenha}
+        secureTextEntry
+        autoComplete="current-password"
+        editable={!busy}
+      />
+
+      <Button
+        titulo={busy ? "Aguarde..." : "Entrar"}
+        onPress={entrar}
+        disabled={busy}
+      />
+
+      <Button
+        titulo="Entrar com Google"
+        variante="outline"
+        onPress={google}
+        disabled={busy}
+      />
+
+      <Button
+        titulo="Esqueci minha senha"
+        variante="outline"
+        onPress={() => {
+          router.push({
+            pathname: "/forgotPassword",
+            params: { email },
+          });
+        }}
+        disabled={busy}
+      />
+
+      <Button
+        titulo="Criar uma conta"
+        variante="outline"
+        onPress={() => router.push("/cadastro")}
+        disabled={busy}
+      />
+    </AuthForm>
+  );
+}

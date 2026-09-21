@@ -1,94 +1,155 @@
-import { View, Text, Image } from "react-native";
-import { BackgroundGradient } from "../../shared/components/backgroundGradient";
-import { styles } from "../../styles/cadastroStyles";
-import { useRouter } from "expo-router";
-import { Button } from "../../shared/components/Button";
-import { Input } from "../../shared/components/Input";
 import { useState } from "react";
+import { useRouter } from "expo-router";
 
+import { AuthForm } from "../../shared/components/AuthForm";
+import { Input } from "../../shared/components/Input";
+import { Button } from "../../shared/components/Button";
+
+import { useAction } from "../../shared/hooks/useAction";
+import { authService } from "../../services/auth";
+
+import {
+  normalizeEmail,
+  normalizePhone,
+  validEmail,
+  validatePassword,
+  validateProfile,
+} from "../../shared/utils/formValidation";
 
 export default function Cadastro() {
-const roteador = useRouter();
+  const router = useRouter();
 
-const [nome, setNome] = useState("");
-const [email, setEmail] = useState("");
-const [senha, setSenha] = useState("");
-const [confirmarSenha, setConfirmarSenha] = useState("");
+  const {
+    busy,
+    error,
+    run,
+  } = useAction();
 
-return (
-    <View style={{ flex: 1 }}>
-      <BackgroundGradient />
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
 
-    <View style={styles.content}>
-        <Text style={styles.title2}>
-        Crie <Text style={styles.title}>
-        sua conta </Text>
-        </Text>
-        <Text style={styles.subtitle}>
-          Preencha seus dados.
-        </Text>
-           <Input
-              label="Nome"
-              placeholder="Digite seu nome completo"
-              icone={
-                <Image
-                  source={require("../../../assets/icones/boneco.png")}
-                  style={styles.iconeInput}
-                />
-              }
-              value={nome}
-              onChangeText={setNome}
-              keyboardType="text"
-            />
-            <Input
-              label="Email"
-              placeholder="Digite seu Email"
-              icone={
-                <Image
-                  source={require("../../../assets/icones/email3.png")}
-                  style={styles.iconeInput}
-                />
-              }
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-            />
-            <Input
-          label="Senha"
-          placeholder="Digite sua senha"
-          icone={
-            <Image
-              source={require("../../../assets/icones/senha.png")}
-              style={styles.iconeInput}
-            />
-          }
-          secureTextEntry
-          value={senha}
-          onChangeText={setSenha}
-          />
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
-            <Input
-              label="Confirme sua senha"
-              placeholder="Digite sua senha novamente"
-              icone={
-                <Image
-                  source={require("../../../assets/icones/senha.png")}
-                  style={styles.iconeInput}
-                />
-              }
-              secureTextEntry
-              value={confirmarSenha}
-              onChangeText={setConfirmarSenha}
-            />
-      </View>
+  const [telefone, setTelefone] = useState("");
+  const [nascimento, setNascimento] = useState("");
 
-       <View style={styles.conteiner}>
-       <Button
-          variante="primario"
-          titulo="Confirmar"
-          onPress={() => roteador.push("/onboarding/BemVindo")}
-        />
-        </View>
-    </View>
+  function cadastrar() {
+    void run(async () => {
+      const normalized = normalizeEmail(email);
+      const phone = normalizePhone(telefone);
+
+      if (!validEmail(normalized)) {
+        throw new Error(
+          "Informe um e-mail válido."
+        );
+      }
+
+      validateProfile(
+        nome,
+        phone,
+        nascimento
+      );
+
+      validatePassword(
+        senha,
+        confirmarSenha
+      );
+
+      await authService.register({
+        name: nome.trim(),
+        email: normalized,
+        password: senha,
+        telefone: phone,
+        data_nasc: nascimento,
+      });
+
+      router.replace({
+        pathname: "/login",
+
+        params: {
+          cadastrado: "1",
+          email: normalized,
+        },
+      });
+    });
+  }
+
+  return (
+    <AuthForm
+      title="Crie sua conta"
+      subtitle="Preencha seus dados para começar."
+      error={error}
+    >
+      <Input
+        label="Nome"
+        value={nome}
+        onChangeText={setNome}
+        autoCapitalize="words"
+        maxLength={100}
+        editable={!busy}
+      />
+
+      <Input
+        label="E-mail"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoComplete="email"
+        editable={!busy}
+      />
+
+      <Input
+        label="Telefone"
+        placeholder="11999999999"
+        value={telefone}
+        onChangeText={setTelefone}
+        keyboardType="phone-pad"
+        editable={!busy}
+      />
+
+      <Input
+        label="Nascimento (AAAA-MM-DD)"
+        placeholder="2000-01-31"
+        value={nascimento}
+        onChangeText={setNascimento}
+        maxLength={10}
+        editable={!busy}
+      />
+
+      <Input
+        label="Senha"
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+        autoComplete="new-password"
+        editable={!busy}
+      />
+
+      <Input
+        label="Confirme a senha"
+        secureTextEntry
+        value={confirmarSenha}
+        onChangeText={setConfirmarSenha}
+        editable={!busy}
+      />
+
+      <Button
+        titulo={
+          busy
+            ? "Cadastrando..."
+            : "Cadastrar"
+        }
+        onPress={cadastrar}
+        disabled={busy}
+      />
+
+      <Button
+        titulo="Já tenho conta"
+        variante="outline"
+        onPress={() => router.replace("/login")}
+        disabled={busy}
+      />
+    </AuthForm>
   );
-} 
+}
