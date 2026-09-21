@@ -1,78 +1,117 @@
-import { JSX, useState } from "react";
-import { useRouter } from "expo-router";
-import { Text, View, Image } from "react-native";
+import { useState } from "react";
+
+import {
+  Redirect,
+  useRouter,
+} from "expo-router";
+
+import { AuthForm } from "../../shared/components/AuthForm";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
-// deixei o mesmo por que o estilo é o mesmo da página de esqueci minha senha
-import { styles } from "../../styles/forgotPasswordStyles";
-import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 
-export default function RecuperarSenha(): JSX.Element {
-  const roteador = useRouter();
+import { useAuth } from "../../features/authContext";
+import { authService } from "../../services/auth";
+import { useAction } from "../../shared/hooks/useAction";
 
-  const [senha, setSenha] = useState<string>("");
-  const [confirmarSenha, setConfirmarSenha] = useState<string>("");
+import { validatePassword } from "../../shared/utils/formValidation";
 
-  function trocarSenha(): void {
-    if (senha === "" || senha !== confirmarSenha) {
-      alert("As senhas não coincidem.");
-      return;
-    }
+export default function ResetPassword() {
+  const router = useRouter();
 
-    roteador.push("/configuracaoInicial/FinancialData"); // trocar dps para
+  const {
+    resetToken,
+    clearRecovery,
+  } = useAuth();
+
+  const [complete, setComplete] = useState(false);
+
+  const [senha, setSenha] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+
+  const {
+    busy,
+    error,
+    run,
+  } = useAction();
+
+  if (complete) {
+    return (
+      <Redirect
+        href={{
+          pathname: "/login",
+          params: {
+            redefinida: "1",
+          },
+        }}
+      />
+    );
+  }
+
+  if (!resetToken) {
+    return <Redirect href="/forgotPassword" />;
+  }
+
+  function reset() {
+    void run(async () => {
+      validatePassword(senha, confirmation);
+
+      if (!resetToken) {
+        throw new Error(
+          "Solicite um novo código de recuperação."
+        );
+      }
+
+      await authService.reset(
+        resetToken,
+        senha
+      );
+
+      setComplete(true);
+      clearRecovery();
+    });
   }
 
   return (
-    <View style={{ flex: 1 }}>
-          <BackgroundGradient />
-    
-      <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.titulo}>
-          <Text style={styles.tituloDestaque}>Troca</Text> de senha
-        </Text>
-
-        <Text style={styles.subtitulo}>
-          Informe sua nova senha e confirme para redefinir sua senha
-        </Text>
-
-        <Input
-          label="Senha nova"
-          placeholder="Digite sua nova senha"
-          icone={
-            <Image
-              source={require("../../../assets/icones/password.png")}
-              style={styles.iconeInput}
-            />
-          }
-          secureTextEntry
-          value={senha}
-          onChangeText={setSenha}
-        />
-
-        <Input
-          label="Confirmar senha"
-          placeholder="Confirme sua nova senha"
-          icone={
-            <Image
-              source={require("../../../assets/icones/password.png")}
-              style={styles.iconeInput}
-            />
-          }
-          secureTextEntry
-          value={confirmarSenha}
-          onChangeText={setConfirmarSenha}
-        />
-        </View>
-      
-</View>
-       <View style={styles.conteiner}>
-      <Button
-        variante="primario"
-        titulo="Enviar"
-        onPress={trocarSenha}
+    <AuthForm
+      title="Nova senha"
+      subtitle="Use pelo menos 8 caracteres."
+      error={error}
+    >
+      <Input
+        label="Nova senha"
+        secureTextEntry
+        value={senha}
+        onChangeText={setSenha}
+        editable={!busy}
       />
-      </View>
-    </View>
+
+      <Input
+        label="Confirme a senha"
+        secureTextEntry
+        value={confirmation}
+        onChangeText={setConfirmation}
+        editable={!busy}
+      />
+
+      <Button
+        titulo={
+          busy
+            ? "Salvando..."
+            : "Salvar senha"
+        }
+        disabled={busy}
+        onPress={reset}
+      />
+
+      <Button
+        titulo="Solicitar outro código"
+        variante="outline"
+        disabled={busy}
+        onPress={() => {
+          clearRecovery();
+          router.replace("/forgotPassword");
+        }}
+      />
+    </AuthForm>
   );
 }

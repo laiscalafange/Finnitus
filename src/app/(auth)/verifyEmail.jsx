@@ -1,84 +1,146 @@
-import { useState } from "react";
-import { View, Text, Pressable } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
+import {
+  useEffect,
+  useState,
+} from "react";
 
-import { Button } from "../../shared/components/Button/Button";
+import { Text } from "react-native";
+
+import {
+  Redirect,
+  useRouter,
+} from "expo-router";
+
+import {
+  AuthForm,
+  formStyles,
+} from "../../shared/components/AuthForm";
+
+import { Button } from "../../shared/components/Button";
 import { FourInput } from "../../shared/components/Four";
-import { styles } from "../../styles/VerifyEmailStyles";
-import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 
-// Código fixo só para teste/demonstração da tela
-const CODIGO_TESTE = "1234";
+import { useAuth } from "../../features/authContext";
+import { authService } from "../../services/auth";
+import { useAction } from "../../shared/hooks/useAction";
 
-export default function VerificacaoEmail() {
+export default function VerifyEmail() {
+  const router = useRouter();
 
-  const { email } = useLocalSearchParams();
+  const {
+    recoveryEmail,
+    setResetToken,
+  } = useAuth();
 
   const [codigo, setCodigo] = useState("");
-  const [erro, setErro] = useState(false);
-  const [carregando, setCarregando] = useState(false);
+  const [remaining, setRemaining] = useState(60);
+  const [attempt, setAttempt] = useState(0);
 
-  async function handleValidar() {
-    if (codigo.length < 4) {
-      setErro(true);
-      return;
-    }
+  const {
+    busy,
+    error,
+    run,
+    setError,
+  } = useAction();
 
-    setCarregando(true);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRemaining((value) =>
+        Math.max(0, value - 1)
+      );
+    }, 1000);
 
-    // Simula um delay de rede pra parecer real na demonstração
-    setTimeout(() => {
-      if (codigo === CODIGO_TESTE) {
-        setErro(false);
-        router.push("/resetPassword");
-      } else {
-        setErro(true);
-      }
-      setCarregando(false);
-    }, 600);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  if (!recoveryEmail) {
+    return <Redirect href="/forgotPassword" />;
   }
 
-  function handleReenviar() {
-    // await reenviarCodigo(email);
+  function validar() {
+    void run(async () => {
+      if (!/^\d{4}$/.test(codigo)) {
+        throw new Error(
+          "Informe os quatro dígitos."
+        );
+      }
+
+      const result = await authService.verify(
+        recoveryEmail,
+        codigo
+      );
+
+      setResetToken(result.resetToken);
+
+      router.replace("/resetPassword");
+    });
+  }
+
+  function reenviar() {
+    void run(async () => {
+      await authService.forgot(recoveryEmail);
+
+      setRemaining(60);
+      setCodigo("");
+
+      setAttempt((value) => value + 1);
+    });
   }
 
   return (
-    <View style={{ flex: 1 }}>
-              <BackgroundGradient />
-
-    <View style={styles.container}>
-      <Text style={styles.titulo}>
-        <Text style={styles.tituloDestaque}>Verificação</Text> de E-mail
-      </Text>
-
-      <Text style={styles.subtitulo}>
-        Enviamos um código de 4 dígitos para{" "}
-        <Text style={styles.emailDestaque}>{email}</Text>.
-      </Text>
-
-      <Text style={styles.label}>Digite o código</Text>
-
+    <AuthForm
+      title="Código de recuperação"
+      subtitle={
+        `Confira o e-mail ${recoveryEmail}. ` +
+        "O código expira em 15 minutos."
+      }
+      error={error}
+    >
       <FourInput
-        onCodigoCompleto={(valor) => {
-          setCodigo(valor);
-          setErro(false);
+        key={attempt}
+        erro={Boolean(error)}
+        onCodigoCompleto={(value) => {
+          setCodigo(value);
+          setError("");
         }}
-        erro={erro}
       />
 
-      <View style={styles.rodape}>
-        <Button
-          titulo={carregando ? "Validando..." : "Validar código"}
-          variante="primario"
-          onPress={handleValidar}
-        />
-      
+      <Button
+        titulo={
+          busy
+            ? "Aguarde..."
+            : "Validar código"
+        }
+        disabled={
+          busy || codigo.length !== 4
+        }
+        onPress={validar}
+      />
 
-        <Pressable onPress={handleReenviar}>
-          <Text style={styles.reenviar}>Reenviar código</Text>
-        </Pressable>
-      </View>
-    </View>
-      </View>
+      <Button
+        titulo={
+          remaining > 0
+            ? `Reenviar em ${remaining}s`
+            : "Reenviar código"
+        }
+        variante="outline"
+        disabled={busy || remaining > 0}
+        onPress={reenviar}
+      />
+
+      <Text style={formStyles.text}>
+        A API permite até cinco tentativas por código.
+        Um novo pedido invalida o código anterior.
+      </Text>
+
+      <Button
+        titulo="Usar outro e-mail"
+        variante="outline"
+        disabled={busy}
+        onPress={() => {
+          router.replace("/forgotPassword");
+        }}
+      />
+    </AuthForm>
   );
 }

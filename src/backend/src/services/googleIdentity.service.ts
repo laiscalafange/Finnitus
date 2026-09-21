@@ -1,73 +1,81 @@
-import {
-  OAuth2Client,
-  type TokenPayload,
-} from "google-auth-library";
+import nodemailer from "nodemailer";
+import type { Transporter } from "nodemailer";
 
 import { env } from "../config/env.js";
-import { HttpError } from "../utils/errors.js";
 
-const googleClient = new OAuth2Client();
+let transporter: Transporter | null = null;
 
-export interface GoogleIdentity {
-  googleId: string;
-  email: string;
-  name: string;
-  emailAuthoritative: boolean;
+function getTransporter(): Transporter {
+  if (
+    !env.EMAIL_USER ||
+    !env.EMAIL_PASSWORD ||
+    !env.EMAIL_FROM
+  ) {
+    throw new Error("SMTP não configurado.");
+  }
+
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: env.EMAIL_HOST,
+      port: Number(env.EMAIL_PORT),
+      secure: env.EMAIL_SECURE,
+
+      auth: {
+        user: env.EMAIL_USER,
+        pass: env.EMAIL_PASSWORD,
+      },
+    });
+  }
+
+  return transporter;
 }
 
-export async function verifyGoogleIdentity(
-  idToken: string,
-): Promise<GoogleIdentity> {
-  let payload: TokenPayload | undefined;
+interface SendEmailParams {
+  to: string;
+  subject: string;
+  html: string;
+}
 
-  try {
-    const ticket = await googleClient.verifyIdToken({
-      idToken,
-      audience: env.GOOGLE_CLIENT_ID,
-    });
+export async function sendEmail({
+  to,
+  subject,
+  html,
+}: SendEmailParams): Promise<void> {
+  const activeTransporter = getTransporter();
 
-    payload = ticket.getPayload();
-  } catch {
-    throw new HttpError(
-      401,
-      "Não foi possível validar o login Google. Tente novamente.",
-    );
-  }
+  await activeTransporter.sendMail({
+    from: env.EMAIL_FROM,
+    to,
+    subject,
+    html,
+  });
+}
 
-  if (
-    !payload ||
-    !payload.sub ||
-    payload.sub.length > 255 ||
-    !payload.email ||
-    payload.email_verified !== true
-  ) {
-    throw new HttpError(
-      401,
-      "A conta Google não forneceu uma identidade válida com e-mail verificado.",
-    );
-  }
+export async function sendPasswordResetCodeEmail(
+  to: string,
+  codigo: string
+): Promise<void> {
+  await sendEmail({
+    to,
+    subject: "Finnitus — Código de recuperação de senha",
 
-  const email = payload.email.trim().toLowerCase();
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2>Recuperação de senha</h2>
 
-  if (email.length > 100) {
-    throw new HttpError(
-      400,
-      "O e-mail excede o tamanho permitido pelo Finnitus.",
-    );
-  }
+        <p>
+          Use o código abaixo para redefinir sua senha no Finnitus:
+        </p>
 
-  const name =
-    payload.name?.trim().slice(0, 100) ||
-    "Usuário Google";
+        <p style="font-size: 24px; font-weight: bold; letter-spacing: 4px;">
+          ${codigo}
+        </p>
 
-  const emailAuthoritative =
-    email.endsWith("@gmail.com") ||
-    Boolean(payload.hd);
-
-  return {
-    googleId: payload.sub,
-    email,
-    name,
-    emailAuthoritative,
-  };
+        <p>
+          Esse código expira em 15 minutos.
+          Se você não solicitou essa recuperação, ignore este e-mail.
+        </p>
+      </div>
+    `,
+  });
 }

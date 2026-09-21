@@ -1,42 +1,48 @@
 import { useEffect } from "react";
-import { Text, View, Image } from "react-native";
-import { useRouter } from "expo-router";
-import { styles } from "../../styles/emailSentStyles";
-import { BackgroundGradient } from "@/shared/components/backgroundGradient";
+
+import {
+  Redirect,
+  useRouter,
+} from "expo-router";
+
+import { AuthForm } from "../../shared/components/AuthForm";
+import { Button } from "../../shared/components/Button";
+import { useAuth } from "../../features/authContext";
 
 export default function EmailSent() {
   const router = useRouter();
 
-  useEffect(() => {
-  const timer = setTimeout(() => {
-    router.replace("/verifyEmail");
-  }, 3000);
+  const { recoveryEmail } = useAuth();
 
-  return () => clearTimeout(timer);
-}, []);
+  useEffect(() => {
+    if (!recoveryEmail) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      router.replace("/verifyEmail");
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [recoveryEmail, router]);
+
+  if (!recoveryEmail) {
+    return <Redirect href="/forgotPassword" />;
+  }
 
   return (
-    <View style={{ flex: 1 }}>
-          <BackgroundGradient />
-          
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Image
-          source={require("../../../assets/icones/sent.png")}
-          style={styles.icone}
-        />
-
-        <Text style={styles.titulo}>
-          <Text style={styles.tituloDestaque}>Email</Text> enviado
-        </Text>
-
-        <Text style={styles.subtitulo}>
-          Verifique seu email para redefinir sua senha.
-        </Text>
-      </View>
-      </View>
-
-     
-    </View>
+    <AuthForm
+      title="Confira seu e-mail"
+      subtitle="Se a conta existir e o envio for concluído, o código chegará em instantes. Confira também o spam."
+    >
+      <Button
+        titulo="Já tenho o código"
+        onPress={() => {
+          router.replace("/verifyEmail");
+        }}
+      />
+    </AuthForm>
   );
 }

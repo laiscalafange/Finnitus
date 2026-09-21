@@ -1,18 +1,40 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+} from "react-native";
+
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+
 import { HeaderPerfil } from "../../shared/components/Header";
 import { Avatar } from "../../shared/components/Avatar";
 import { Card } from "../../shared/components/Cards";
-import { LinearGradient } from "expo-linear-gradient";
-import { GRADIENTS } from "../../shared/constants/Gradientes";
+import { Button } from "../../shared/components/Button";
+
 import { Cores } from "../../shared/constants/Cores";
-import { Rotas } from "../../shared/constants/Rotas";
 import { styles } from "../../styles/perfil";
 
+import { useAuth } from "../../features/authContext";
+import { useAction } from "../../shared/hooks/useAction";
+
 export default function Perfil() {
-  // Hook do Expo Router usado pra navegar entre as telas
-  // (router.push troca de tela mantendo a pilha de navegação, então dá pra voltar)
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+
+  const {
+    user,
+    logout,
+  } = useAuth();
+
+  const {
+    busy,
+    error,
+    run,
+  } = useAction();
 
   return (
     <LinearGradient
@@ -23,51 +45,51 @@ export default function Perfil() {
     >
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.conteudo}
+        contentContainerStyle={[
+          styles.conteudo,
+          {
+            paddingBottom: 150 + insets.bottom,
+          },
+        ]}
       >
-
-        {/* Cabeçalho fixo do topo (voltar, título, etc) */}
         <HeaderPerfil />
 
-        {/* Informações do perfil (avatar + nome + username) */}
         <View style={styles.profile}>
-
-          {/* TODO: quando o back estiver pronto, o "name" do Avatar
-              deve vir dos dados do usuário logado (ex: `${usuario.nome} ${usuario.sobrenome}`) */}
           <Avatar
-            name="Usuário"
+            name={user?.name ?? "Usuário"}
             size={200}
           />
 
-          {/* TODO: puxar nome + sobrenome do usuário logado quando o back estiver pronto */}
           <Text style={styles.nome}>
-            Usuário
+            {user?.name ?? "Usuário"}
           </Text>
 
-          {/* TODO: puxar username/@ do usuário logado quando o back estiver pronto */}
           <Text style={styles.usuario}>
-            @User_TwT
+            {user?.email ?? ""}
           </Text>
-
         </View>
 
-        {/* CONTEÚDO DOS CARDS */}
         <View style={styles.conteudoCards}>
-
-          {/* CARD PREMIUM */}
           <Card
-            gradiente={[Cores.fundo.destaque, '#3b1b92']}
+            gradiente={[
+              Cores.fundo.destaque,
+              "#3b1b92",
+            ]}
             style={styles.cardPremium}
           >
-
             <View style={styles.premiumTituloContainer}>
               <Image
-                source={require("../../../assets/icones/coroa.png")}
+                source={require(
+                  "../../../assets/icones/coroa.png"
+                )}
                 style={styles.coroa}
               />
 
               <Text style={styles.premiumTitulo}>
-                Seja <Text style={styles.premiumVerde}>PREMIUM</Text>
+                Seja{" "}
+                <Text style={styles.premiumVerde}>
+                  PREMIUM
+                </Text>
               </Text>
             </View>
 
@@ -76,10 +98,9 @@ export default function Perfil() {
               relatórios avançados
             </Text>
 
-            {/* Único elemento clicável do card, leva pra tela de assinatura Premium */}
             <TouchableOpacity
               style={styles.botaoPremium}
-              onPress={() => router.push(Rotas.premium)}
+              onPress={() => router.push("/")}
             >
               <Text style={styles.botaoTexto}>
                 Assine já
@@ -87,17 +108,17 @@ export default function Perfil() {
             </TouchableOpacity>
           </Card>
 
-          {/* CARDS DE EDIÇÃO (conta e dados bancários) */}
           <View style={styles.linhaCards}>
-
-            {/* CARD "Editar conta" — clicável, leva pra tela de edição de conta */}
             <TouchableOpacity
               style={{ flex: 1 }}
               activeOpacity={0.85}
               onPress={() => router.push("/")}
             >
               <Card
-                gradiente={[Cores.fundo.destaque, '#3b1b92']}
+                gradiente={[
+                  Cores.fundo.destaque,
+                  "#3b1b92",
+                ]}
                 style={styles.cardEdicao}
               >
                 <Text style={styles.cardTitulo}>
@@ -105,20 +126,24 @@ export default function Perfil() {
                 </Text>
 
                 <Image
-                  source={require("../../../assets/icones/EngrenagemPerfil.png")}
+                  source={require(
+                    "../../../assets/icones/EngrenagemPerfil.png"
+                  )}
                   style={styles.EngrenagemPerfil}
                 />
               </Card>
             </TouchableOpacity>
 
-            {/* CARD "Editar dados bancários" — clicável, leva pra tela de dados bancários */}
             <TouchableOpacity
               style={{ flex: 1 }}
               activeOpacity={0.85}
               onPress={() => router.push("/")}
             >
               <Card
-                gradiente={[Cores.fundo.destaque, '#3b1b92']}
+                gradiente={[
+                  Cores.fundo.destaque,
+                  "#3b1b92",
+                ]}
                 style={styles.cardEdicao}
               >
                 <Text style={styles.cardTitulo}>
@@ -127,82 +152,123 @@ export default function Perfil() {
                 </Text>
 
                 <Image
-                  source={require("../../../assets/icones/BonecoPerfil.png")}
+                  source={require(
+                    "../../../assets/icones/BonecoPerfil.png"
+                  )}
                   style={styles.BonecoPerfil}
                 />
               </Card>
             </TouchableOpacity>
-
           </View>
 
-          {/* CARD ÚNICO COM CONFIGURAÇÕES E SUPORTE
-              (não precisa de TouchableOpacity no Card inteiro,
-              porque cada item de dentro já é clicável individualmente) */}
           <Card
-            gradiente={[Cores.fundo.destaque, '#3b1b92']}
+            gradiente={[
+              Cores.fundo.destaque,
+              "#3b1b92",
+            ]}
             style={styles.cardConfiguracoes}
           >
             <Text style={styles.tituloSecao}>
               Configurações
             </Text>
 
-            {/* Item "Configurar" — leva pra tela de configurações gerais */}
             <TouchableOpacity
               style={styles.item}
               onPress={() => router.push("/")}
             >
               <Image
-                source={require("../../../assets/icones/Configurar.png")}
+                source={require(
+                  "../../../assets/icones/Configurar.png"
+                )}
                 style={styles.itemIcone}
               />
-              <Text style={styles.itemTexto}>Configurar</Text>
+
+              <Text style={styles.itemTexto}>
+                Configurar
+              </Text>
             </TouchableOpacity>
 
-            {/* Item "Segurança" — leva pra tela de segurança (senha, etc) */}
             <TouchableOpacity
               style={styles.item}
               onPress={() => router.push("/")}
             >
               <Image
-                source={require("../../../assets/icones/Seguranca.png")}
+                source={require(
+                  "../../../assets/icones/Seguranca.png"
+                )}
                 style={styles.itemIcone}
               />
-              <Text style={styles.itemTexto}>Segurança</Text>
+
+              <Text style={styles.itemTexto}>
+                Segurança
+              </Text>
             </TouchableOpacity>
 
             <Text style={styles.tituloSecao}>
               Suporte
             </Text>
 
-            {/* Item "Contate-nos" — leva pra tela/formulário de contato */}
             <TouchableOpacity
               style={styles.item}
               onPress={() => router.push("/")}
             >
               <Image
-                source={require("../../../assets/icones/Telefone.png")}
+                source={require(
+                  "../../../assets/icones/Telefone.png"
+                )}
                 style={styles.itemIcone}
               />
-              <Text style={styles.itemTexto}>Contate-nos</Text>
+
+              <Text style={styles.itemTexto}>
+                Contate-nos
+              </Text>
             </TouchableOpacity>
 
-            {/* Item "Ajuda" — leva pra tela de ajuda/FAQ */}
             <TouchableOpacity
               style={styles.item}
               onPress={() => router.push("/")}
             >
               <Image
-                source={require("../../../assets/icones/Ajuda.png")}
+                source={require(
+                  "../../../assets/icones/Ajuda.png"
+                )}
                 style={styles.itemIcone}
               />
-              <Text style={styles.itemTexto}>Ajuda</Text>
+
+              <Text style={styles.itemTexto}>
+                Ajuda
+              </Text>
             </TouchableOpacity>
           </Card>
 
+          <View
+            style={{
+              marginTop: 20,
+              gap: 12,
+            }}
+          >
+            {error ? (
+              <Text
+                style={{ color: "#ffb4b4" }}
+                accessibilityRole="alert"
+              >
+                {error}
+              </Text>
+            ) : null}
+
+            <Button
+              titulo={
+                busy
+                  ? "Saindo..."
+                  : "Sair da conta"
+              }
+              variante="outline"
+              disabled={busy}
+              onPress={() => void run(logout)}
+            />
+          </View>
         </View>
-
       </ScrollView>
-
-    </LinearGradient >
+    </LinearGradient>
   );
 }
