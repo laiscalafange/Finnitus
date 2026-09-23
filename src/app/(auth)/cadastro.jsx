@@ -10,7 +10,6 @@ import { authService } from "../../services/auth";
 
 import {
   normalizeEmail,
-  normalizePhone,
   validEmail,
   validatePassword,
 } from "../../shared/utils/formValidation";
@@ -32,41 +31,40 @@ export default function Cadastro() {
 
 
   function cadastrar() {
-    void run(async () => {
-      const normalized = normalizeEmail(email);
-      const phone = normalizePhone(telefone);
+  void run(async () => {
+    const normalized = normalizeEmail(email);
+    const normalizedName = nome.trim();
 
-      if (!validEmail(normalized)) {
-        throw new Error(
-          "Informe um e-mail válido."
-        );
-      }
+    if (!validEmail(normalized)) {
+      throw new Error("Informe um e-mail válido.");
+    }
 
-      if (nome.trim().length < 2 || nome.trim().length > 100) {
-  throw new Error("Informe um nome entre 2 e 100 caracteres.");
-}
-
-      validatePassword(
-        senha,
-        confirmarSenha
+    if (
+      normalizedName.length < 2 ||
+      normalizedName.length > 100
+    ) {
+      throw new Error(
+        "Informe um nome entre 2 e 100 caracteres."
       );
+    }
 
-      await authService.register({
-        name: nome.trim(),
-        email: normalized,
-        password: senha,
-      });
+    validatePassword(senha, confirmarSenha);
 
-      router.replace({
-        pathname: "/login",
-
-        params: {
-          cadastrado: "1",
-          email: normalized,
-        },
-      });
+    await authService.register({
+      name: normalizedName,
+      email: normalized,
+      password: senha,
     });
-  }
+
+    router.replace({
+      pathname: "/login",
+      params: {
+        cadastrado: "1",
+        email: normalized,
+      },
+    });
+  });
+}
 
   return (
     <AuthForm
