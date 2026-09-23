@@ -17,6 +17,7 @@ type AuthFormProps = {
   title: string;
   subtitle?: string;
   error?: string;
+  header?: ReactNode;
   children: ReactNode;
 };
 
@@ -24,6 +25,7 @@ export function AuthForm({
   title,
   subtitle,
   error,
+  header,
   children,
 }: AuthFormProps) {
   return (
@@ -43,15 +45,19 @@ export function AuthForm({
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.content}
           >
-            <Text style={styles.title}>
-              {title}
-            </Text>
+            {header ?? (
+              <>
+                <Text style={styles.title}>
+                  {title}
+                </Text>
 
-            {subtitle ? (
-              <Text style={styles.text}>
-                {subtitle}
-              </Text>
-            ) : null}
+                {subtitle ? (
+                  <Text style={styles.text}>
+                    {subtitle}
+                  </Text>
+                ) : null}
+              </>
+            )}
 
             {error ? (
               <Text

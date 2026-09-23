@@ -13,6 +13,8 @@ import {
   validEmail,
   validatePassword,
 } from "../../shared/utils/formValidation";
+import { Text, View } from "react-native";
+import { styles as cadastroStyles } from "../../styles/cadastroStyles";
 
 export default function Cadastro() {
   const router = useRouter();
@@ -68,10 +70,23 @@ export default function Cadastro() {
 
   return (
     <AuthForm
-      title="Crie sua conta"
-      subtitle="Preencha seus dados para começar."
-      error={error}
-    >
+  title="Crie sua conta"
+  error={error}
+  header={
+    <View>
+      <Text style={cadastroStyles.title2}>
+        Crie{" "}
+        <Text style={cadastroStyles.title}>
+          sua conta
+        </Text>
+      </Text>
+
+      <Text style={cadastroStyles.subtitle}>
+        Preencha seus dados.
+      </Text>
+    </View>
+  }
+>
       <Input
         label="Nome"
         value={nome}
