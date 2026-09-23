@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 
 import {
   useRouter,
@@ -10,6 +10,8 @@ import {
   AuthForm,
   formStyles,
 } from "../../shared/components/AuthForm";
+
+import { styles as loginStyles } from "../../styles/loginStyles";
 
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
@@ -35,25 +37,15 @@ export default function Login() {
 
   const [senha, setSenha] = useState("");
 
-  const {
-    login,
-    googleLogin,
-  } = useAuth();
-
-  const {
-    busy,
-    error,
-    run,
-  } = useAction();
+  const { login, googleLogin } = useAuth();
+  const { busy, error, run } = useAction();
 
   function entrar() {
     void run(async () => {
       const normalized = normalizeEmail(email);
 
       if (!validEmail(normalized) || !senha) {
-        throw new Error(
-          "Preencha e-mail e senha."
-        );
+        throw new Error("Preencha e-mail e senha.");
       }
 
       await login(normalized, senha);
@@ -73,8 +65,21 @@ export default function Login() {
   return (
     <AuthForm
       title="Entre na sua conta"
-      subtitle="Preencha seus dados."
       error={error}
+      header={
+        <View>
+          <Text style={loginStyles.title2}>
+            Entre na{" "}
+            <Text style={loginStyles.title}>
+              sua conta
+            </Text>
+          </Text>
+
+          <Text style={loginStyles.subtitle}>
+            Preencha seus dados.
+          </Text>
+        </View>
+      }
     >
       {params.cadastrado === "1" ? (
         <Text style={formStyles.success}>
