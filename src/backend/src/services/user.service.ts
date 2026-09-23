@@ -245,8 +245,6 @@ export async function deleteUser(
 
     await tx.redefinicaoSenha.deleteMany({ where });
 
-await tx.gastos.deleteMany({ where });
-
 // Receitas e despesas precisam ser removidas antes das categorias.
 await tx.receita.deleteMany({ where });
 await tx.despesa.deleteMany({ where });
