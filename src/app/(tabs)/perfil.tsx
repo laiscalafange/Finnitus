@@ -112,7 +112,7 @@ export default function Perfil() {
             <TouchableOpacity
               style={{ flex: 1 }}
               activeOpacity={0.85}
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/conta/editar")}
             >
               <Card
                 gradiente={[
@@ -137,7 +137,7 @@ export default function Perfil() {
             <TouchableOpacity
               style={{ flex: 1 }}
               activeOpacity={0.85}
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/conta/dadosBancarios")}
             >
               <Card
                 gradiente={[
@@ -262,7 +262,7 @@ export default function Perfil() {
                   ? "Saindo..."
                   : "Sair da conta"
               }
-              variante="outline"
+              variante="terciario"
               disabled={busy}
               onPress={() => void run(logout)}
             />

@@ -1,7 +1,16 @@
 import { useState } from "react";
-import { useRouter } from "expo-router";
+import {
+  View,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 
-import { AuthForm } from "../../shared/components/AuthForm";
+import { useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
+
+import { HeaderInterno } from "../../shared/components/Header";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 
@@ -14,6 +23,11 @@ import {
   validateProfile,
 } from "../../shared/utils/formValidation";
 
+import { styles } from "../../styles/editarConta";
+
+// Tela "Editar conta".
+// Ela também é usada como "Complete seu perfil": o app/index.jsx manda pra cá
+// quem ainda não completou o cadastro (user.profileComplete === false).
 export default function Editar() {
   const router = useRouter();
 
@@ -23,6 +37,10 @@ export default function Editar() {
     logout,
   } = useAuth();
 
+  // true = edição normal (vindo do Perfil) | false = primeiro preenchimento
+  const perfilCompleto = Boolean(user?.profileComplete);
+
+  // Campos do formulário, já começam preenchidos com os dados do usuário
   const [name, setName] = useState(
     user?.name ?? ""
   );
@@ -31,10 +49,12 @@ export default function Editar() {
     user?.telefone ?? ""
   );
 
+  // A API devolve a data completa; aqui fica só AAAA-MM-DD (10 primeiros caracteres)
   const [birth, setBirth] = useState(
     user?.data_nasc?.slice(0, 10) ?? ""
   );
 
+  // busy = salvando | error = mensagem de erro | run = executa a ação com trava
   const {
     busy,
     error,
@@ -45,6 +65,7 @@ export default function Editar() {
     void run(async () => {
       const telefone = normalizePhone(phone);
 
+      // Lança um erro com mensagem amigável se algum campo for inválido
       validateProfile(
         name,
         telefone,
@@ -59,7 +80,8 @@ export default function Editar() {
 
       updateUser(updated);
 
-      if (user?.profileComplete) {
+      // Edição normal volta pro Perfil; primeiro preenchimento segue pro onboarding
+      if (perfilCompleto) {
         router.dismissTo("/perfil");
       } else {
         router.replace("/onboarding/BemVindo");
@@ -68,58 +90,114 @@ export default function Editar() {
   }
 
   return (
-    <AuthForm
-      title={
-        user?.profileComplete
-          ? "Editar conta"
-          : "Complete seu perfil"
-      }
-      subtitle={user?.email}
-      error={error}
+    <LinearGradient
+      colors={["#160B24", "#08070A", "#160B24"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
     >
-      <Input
-        label="Nome"
-        value={name}
-        onChangeText={setName}
-        autoCapitalize="words"
-        editable={!busy}
-      />
+      {/* Empurra o formulário pra cima quando o teclado abre */}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={
+          Platform.OS === "ios"
+            ? "padding"
+            : "height"
+        }
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.conteudo}
+        >
+          {/* Cabeçalho: sem coroa e sem sino, igual ao protótipo.
+              No primeiro preenchimento a seta de voltar some, pra pessoa
+              não pular o cadastro do perfil */}
+          <HeaderInterno
+            titulo={
+              perfilCompleto
+                ? "Editar conta"
+                : "Complete seu perfil"
+            }
+            subtitulo={
+              perfilCompleto
+                ? "Perfil"
+                : "Seus dados"
+            }
+            mostrarVoltar={perfilCompleto}
+            mostrarPremium={false}
+            mostrarNotificacao={false}
+          />
 
-      <Input
-        label="Telefone"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
-        editable={!busy}
-      />
+          {/* Formulário (sobe por cima da faixa roxa do header) */}
+          <View style={styles.formulario}>
+            <Input
+              label="Nome"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              editable={!busy}
+            />
 
-      <Input
-        label="Nascimento (AAAA-MM-DD)"
-        value={birth}
-        onChangeText={setBirth}
-        maxLength={10}
-        editable={!busy}
-      />
+            {/* E-mail só para consulta: a API (PATCH /me) não aceita alterar o e-mail */}
+            <Input
+              label="E-mail"
+              value={user?.email ?? ""}
+              keyboardType="email-address"
+              editable={false}
+            />
 
-      <Button
-        titulo={busy ? "Salvando..." : "Salvar"}
-        onPress={save}
-        disabled={busy}
-      />
+            <Input
+              label="Telefone"
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+              editable={!busy}
+            />
 
-      <Button
-        titulo="Voltar ao perfil"
-        variante="outline"
-        onPress={() => router.dismissTo("/perfil")}
-        disabled={busy}
-      />
+            {/* Data de nascimento no formato que a validação e a API esperam */}
+            <Input
+              label="Data de nascimento (AAAA-MM-DD)"
+              placeholder="AAAA-MM-DD"
+              value={birth}
+              onChangeText={setBirth}
+              maxLength={10}
+              editable={!busy}
+            />
 
-      <Button
-        titulo="Sair da conta"
-        variante="outline"
-        onPress={() => void run(logout)}
-        disabled={busy}
-      />
-    </AuthForm>
+            {/* Mensagem de erro (validação ou falha na API) */}
+            {error ? (
+              <Text
+                style={styles.erro}
+                accessibilityRole="alert"
+              >
+                {error}
+              </Text>
+            ) : null}
+
+            <Button
+              titulo={
+                busy
+                  ? "Salvando..."
+                  : "Salvar alterações"
+              }
+              onPress={save}
+              disabled={busy}
+            />
+
+            {/* Só no primeiro preenchimento: é a única saída da tela
+                (no fluxo normal o "Sair da conta" fica no Perfil) */}
+            {!perfilCompleto ? (
+              <Button
+                titulo="Sair da conta"
+                variante="outline"
+                onPress={() => void run(logout)}
+                disabled={busy}
+              />
+            ) : null}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
