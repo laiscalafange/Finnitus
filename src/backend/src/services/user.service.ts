@@ -57,8 +57,6 @@ export async function createUser(input: {
   name: string;
   email: string;
   password: string;
-  telefone: string;
-  data_nasc: Date;
 }) {
   const hash = await bcrypt.hash(input.password, 12);
 
@@ -68,8 +66,6 @@ export async function createUser(input: {
         Unome: input.name,
         Uemail: input.email,
         Usenha: hash,
-        Utelefone: input.telefone,
-        Udata_nasc: input.data_nasc,
         Udata_cadastro: new Date(),
         UTipo: "usuario",
       },
@@ -248,14 +244,21 @@ export async function deleteUser(
     };
 
     await tx.redefinicaoSenha.deleteMany({ where });
-    await tx.gastos.deleteMany({ where });
-    await tx.entradaDinheiro.deleteMany({ where });
-    await tx.metas.deleteMany({ where });
-    await tx.imprevistos.deleteMany({ where });
-    await tx.eventos.deleteMany({ where });
-    await tx.analiseSentimental.deleteMany({ where });
 
-    await tx.usuario.delete({ where });
+await tx.gastos.deleteMany({ where });
+
+// Receitas e despesas precisam ser removidas antes das categorias.
+await tx.receita.deleteMany({ where });
+await tx.despesa.deleteMany({ where });
+
+await tx.meta.deleteMany({ where });
+await tx.imprevisto.deleteMany({ where });
+await tx.evento.deleteMany({ where });
+
+await tx.categoria.deleteMany({ where });
+
+// O usuário é removido por último.
+await tx.usuario.delete({ where });
   });
 }
 

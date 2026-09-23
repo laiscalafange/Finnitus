@@ -21,8 +21,6 @@ import {
   text,
   emailValue,
   password,
-  phone,
-  birthDate,
 } from "../utils/validation.js";
 
 import { HttpError } from "../utils/errors.js";
@@ -34,8 +32,6 @@ export async function register(req: Request, res: Response) {
     name: text(body.name, "name", 2, 100),
     email: emailValue(body.email),
     password: password(body.password),
-    telefone: phone(body.telefone),
-    data_nasc: birthDate(body.data_nasc),
   });
 
   res.status(201).json({ user });

@@ -110,29 +110,26 @@ export default function Perfil() {
 
           <View style={styles.linhaCards}>
             <TouchableOpacity
-              style={{ flex: 1 }}
-              activeOpacity={0.85}
-              onPress={() => router.push("/")}
-            >
-              <Card
-                gradiente={[
-                  Cores.fundo.destaque,
-                  "#3b1b92",
-                ]}
-                style={styles.cardEdicao}
-              >
-                <Text style={styles.cardTitulo}>
-                  Editar conta
-                </Text>
+  style={{ flex: 1 }}
+  activeOpacity={0.85}
+  onPress={() => router.push("/conta/editar")}
+>
+  <Card
+    gradiente={[Cores.fundo.destaque, "#3b1b92"]}
+    style={styles.cardEdicao}
+  >
+    <Text style={styles.cardTitulo}>
+      Editar conta
+    </Text>
 
-                <Image
-                  source={require(
-                    "../../../assets/icones/EngrenagemPerfil.png"
-                  )}
-                  style={styles.EngrenagemPerfil}
-                />
-              </Card>
-            </TouchableOpacity>
+    <Image
+      source={require(
+        "../../../assets/icones/EngrenagemPerfil.png"
+      )}
+      style={styles.EngrenagemPerfil}
+    />
+  </Card>
+</TouchableOpacity>
 
             <TouchableOpacity
               style={{ flex: 1 }}
