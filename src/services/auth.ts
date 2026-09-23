@@ -21,6 +21,10 @@ export type RegisterData = {
   name: string;
   email: string;
   password: string;
+};
+
+export type UpdateProfileData = {
+  name: string;
   telefone: string;
   data_nasc: string;
 };
@@ -67,19 +71,14 @@ export const authService = {
     return response.data.user;
   },
 
-  update: async (
-    data: Pick<
-      RegisterData,
-      "name" | "telefone" | "data_nasc"
-    >
-  ) => {
-    const response = await api.patch<{ user: User }>(
-      "/me",
-      data
-    );
+  update: async (data: UpdateProfileData) => {
+  const response = await api.patch<{ user: User }>(
+    "/me",
+    data
+  );
 
-    return response.data.user;
-  },
+  return response.data.user;
+},
 
   forgot: async (email: string) => {
     const response = await api.post<{

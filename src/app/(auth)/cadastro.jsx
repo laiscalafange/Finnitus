@@ -13,7 +13,6 @@ import {
   normalizePhone,
   validEmail,
   validatePassword,
-  validateProfile,
 } from "../../shared/utils/formValidation";
 
 export default function Cadastro() {
@@ -31,8 +30,6 @@ export default function Cadastro() {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  const [telefone, setTelefone] = useState("");
-  const [nascimento, setNascimento] = useState("");
 
   function cadastrar() {
     void run(async () => {
@@ -45,11 +42,9 @@ export default function Cadastro() {
         );
       }
 
-      validateProfile(
-        nome,
-        phone,
-        nascimento
-      );
+      if (nome.trim().length < 2 || nome.trim().length > 100) {
+  throw new Error("Informe um nome entre 2 e 100 caracteres.");
+}
 
       validatePassword(
         senha,
@@ -60,8 +55,6 @@ export default function Cadastro() {
         name: nome.trim(),
         email: normalized,
         password: senha,
-        telefone: phone,
-        data_nasc: nascimento,
       });
 
       router.replace({
@@ -99,23 +92,6 @@ export default function Cadastro() {
         editable={!busy}
       />
 
-      <Input
-        label="Telefone"
-        placeholder="11999999999"
-        value={telefone}
-        onChangeText={setTelefone}
-        keyboardType="phone-pad"
-        editable={!busy}
-      />
-
-      <Input
-        label="Nascimento (AAAA-MM-DD)"
-        placeholder="2000-01-31"
-        value={nascimento}
-        onChangeText={setNascimento}
-        maxLength={10}
-        editable={!busy}
-      />
 
       <Input
         label="Senha"

@@ -9,9 +9,5 @@ export default function Index() {
     return <Redirect href="/inicie" />;
   }
 
-  if (!user.profileComplete) {
-    return <Redirect href="/conta/editar" />;
-  }
-
   return <Redirect href="/paginaInicial" />;
 }

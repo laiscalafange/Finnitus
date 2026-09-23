@@ -108,58 +108,60 @@ export default function Perfil() {
             </TouchableOpacity>
           </Card>
 
-          <View style={styles.linhaCards}>
-            <TouchableOpacity
-              style={{ flex: 1 }}
-              activeOpacity={0.85}
-              onPress={() => router.push("/conta/editar")}
-            >
-              <Card
-                gradiente={[
-                  Cores.fundo.destaque,
-                  "#3b1b92",
-                ]}
-                style={styles.cardEdicao}
-              >
-                <Text style={styles.cardTitulo}>
-                  Editar conta
-                </Text>
+         <View style={styles.linhaCards}>
+  {/* Botão Editar conta */}
+  <TouchableOpacity
+    style={{ flex: 1 }}
+    activeOpacity={0.85}
+    onPress={() => router.push("/conta/editar")}
+  >
+    <Card
+      gradiente={[
+        Cores.fundo.destaque,
+        "#3b1b92",
+      ]}
+      style={styles.cardEdicao}
+    >
+      <Text style={styles.cardTitulo}>
+        Editar conta
+      </Text>
 
-                <Image
-                  source={require(
-                    "../../../assets/icones/EngrenagemPerfil.png"
-                  )}
-                  style={styles.EngrenagemPerfil}
-                />
-              </Card>
-            </TouchableOpacity>
+      <Image
+        source={require(
+          "../../../assets/icones/EngrenagemPerfil.png"
+        )}
+        style={styles.EngrenagemPerfil}
+      />
+    </Card>
+  </TouchableOpacity>
 
-            <TouchableOpacity
-              style={{ flex: 1 }}
-              activeOpacity={0.85}
-              onPress={() => router.push("/conta/dadosBancarios")}
-            >
-              <Card
-                gradiente={[
-                  Cores.fundo.destaque,
-                  "#3b1b92",
-                ]}
-                style={styles.cardEdicao}
-              >
-                <Text style={styles.cardTitulo}>
-                  Editar dados{"\n"}
-                  bancários
-                </Text>
+  {/* Botão Editar dados bancários */}
+  <TouchableOpacity
+    style={{ flex: 1 }}
+    activeOpacity={0.85}
+    onPress={() => router.push("/conta/dadosBancarios")}
+  >
+    <Card
+      gradiente={[
+        Cores.fundo.destaque,
+        "#3b1b92",
+      ]}
+      style={styles.cardEdicao}
+    >
+      <Text style={styles.cardTitulo}>
+        Editar dados{"\n"}
+        bancários
+      </Text>
 
-                <Image
-                  source={require(
-                    "../../../assets/icones/BonecoPerfil.png"
-                  )}
-                  style={styles.BonecoPerfil}
-                />
-              </Card>
-            </TouchableOpacity>
-          </View>
+      <Image
+        source={require(
+          "../../../assets/icones/BonecoPerfil.png"
+        )}
+        style={styles.BonecoPerfil}
+      />
+    </Card>
+  </TouchableOpacity>
+</View>
 
           <Card
             gradiente={[
