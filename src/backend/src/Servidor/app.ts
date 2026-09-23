@@ -110,7 +110,7 @@ const errorHandler: ErrorRequestHandler = (
   }
 
   // Evita registrar senhas, tokens ou dados sensíveis.
-  console.error("Falha interna na API.");
+  console.error("Falha interna na API.", err);
 
   res.status(500).json({
     error: "Erro interno. Tente novamente.",
