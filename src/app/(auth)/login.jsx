@@ -72,14 +72,14 @@ export default function Login() {
   }
 
   function google() {
-    void run(async () => {
-      const token = await googleIdToken();
+  void run(async () => {
+    const idToken = await googleIdToken();
 
-      if (token) {
-        await googleLogin(token);
-      }
-    });
-  }
+    if (idToken) {
+      await googleLogin(idToken);
+    }
+  });
+}
 
   return (
     <AuthForm

@@ -17,14 +17,21 @@ module.exports = () => {
     );
   }
 
-  if (googleEnabled && process.env.GOOGLE_IOS_URL_SCHEME) {
+  if (googleEnabled) {
+  if (process.env.GOOGLE_IOS_URL_SCHEME) {
     plugins.push([
       "@react-native-google-signin/google-signin",
       {
-        iosUrlScheme: process.env.GOOGLE_IOS_URL_SCHEME,
+        iosUrlScheme:
+          process.env.GOOGLE_IOS_URL_SCHEME,
       },
     ]);
+  } else {
+    plugins.push(
+      "@react-native-google-signin/google-signin"
+    );
   }
+}
 
   return {
     ...expo,

@@ -175,6 +175,8 @@ export function AuthProvider({
     clearRecovery();
   }
 
+  
+
   async function login(
     email: string,
     password: string
@@ -190,13 +192,12 @@ export function AuthProvider({
   }
 
   async function googleLogin(idToken: string) {
-    const current = ++revision.current;
+  const current = ++revision.current;
 
-    const session = await authService.google(idToken);
+  const session = await authService.google(idToken);
 
-    await establish(session, current);
-  }
-
+  await establish(session, current);
+}
   async function logout() {
     let failed = false;
 
