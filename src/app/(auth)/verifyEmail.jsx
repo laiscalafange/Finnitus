@@ -8,6 +8,7 @@ import { Text } from "react-native";
 import {
   Redirect,
   useRouter,
+  useLocalSearchParams,
 } from "expo-router";
 
 import {
@@ -29,6 +30,9 @@ export default function VerifyEmail() {
     recoveryEmail,
     setResetToken,
   } = useAuth();
+
+  const params = useLocalSearchParams();
+  const trocando = params.modo === "trocar";
 
   const [codigo, setCodigo] = useState("");
   const [remaining, setRemaining] = useState(60);
@@ -54,7 +58,14 @@ export default function VerifyEmail() {
   }, []);
 
   if (!recoveryEmail) {
-    return <Redirect href="/forgotPassword" />;
+    return (
+      <Redirect
+        href={{
+          pathname: "/forgotPassword",
+          params: trocando ? { modo: "trocar" } : {},
+        }}
+      />
+    );
   }
 
   function validar() {
@@ -72,7 +83,10 @@ export default function VerifyEmail() {
 
       setResetToken(result.resetToken);
 
-      router.replace("/resetPassword");
+      router.replace({
+        pathname: "/resetPassword",
+        params: trocando ? { modo: "trocar" } : {},
+      });
     });
   }
 
@@ -138,7 +152,10 @@ export default function VerifyEmail() {
         variante="outline"
         disabled={busy}
         onPress={() => {
-          router.replace("/forgotPassword");
+          router.replace({
+            pathname: "/forgotPassword",
+            params: trocando ? { modo: "trocar" } : {},
+          });
         }}
       />
     </AuthForm>

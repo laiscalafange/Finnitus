@@ -10,7 +10,8 @@ export interface ButtonProps {
     | "outline"
     | "secundario"
     | "terciario"
-    | "botaotexto";
+    | "botaotexto"
+    | "perigo";
 
   onPress?: () => void;
 }

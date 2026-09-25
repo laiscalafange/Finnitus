@@ -23,7 +23,13 @@ export default function ForgotPassword() {
 
   const params = useLocalSearchParams<{
     email?: string;
+    // Vem preenchido quando essa tela foi aberta pelo botão
+    // "Trocar senha" da tela Segurança (usuário já logado) —
+    // muda só o texto, o fluxo por trás é o mesmo
+    modo?: string;
   }>();
+
+  const trocando = params.modo === "trocar";
 
   const [email, setEmail] = useState(
     typeof params.email === "string"
@@ -53,14 +59,21 @@ export default function ForgotPassword() {
 
       startRecovery(normalized);
 
-      router.push("/emailSent");
+      router.push({
+        pathname: "/emailSent",
+        params: trocando ? { modo: "trocar" } : {},
+      });
     });
   }
 
   return (
     <AuthForm
-      title="Recuperar senha"
-      subtitle="Se a conta existir, enviaremos um código para o e-mail informado."
+      title={trocando ? "Trocar senha" : "Recuperar senha"}
+      subtitle={
+        trocando
+          ? "Confirme seu e-mail: enviaremos um código pra garantir que é você antes de trocar a senha."
+          : "Se a conta existir, enviaremos um código para o e-mail informado."
+      }
       error={error}
     >
       <Input
@@ -82,10 +95,14 @@ export default function ForgotPassword() {
       />
 
       <Button
-        titulo="Voltar ao login"
+        titulo={trocando ? "Cancelar" : "Voltar ao login"}
         variante="outline"
         disabled={busy}
-        onPress={() => router.replace("/login")}
+        onPress={() =>
+          trocando
+            ? router.dismissTo("/conta/seguranca")
+            : router.replace("/login")
+        }
       />
     </AuthForm>
   );

@@ -8,11 +8,15 @@ import {
 import { AuthForm } from "../../shared/components/AuthForm";
 import { Button } from "../../shared/components/Button";
 import { useAuth } from "../../features/authContext";
+import { useLocalSearchParams } from "expo-router";
 
 export default function EmailSent() {
   const router = useRouter();
 
   const { recoveryEmail } = useAuth();
+
+  const params = useLocalSearchParams<{ modo?: string }>();
+  const trocando = params.modo === "trocar";
 
   useEffect(() => {
     if (!recoveryEmail) {
@@ -20,7 +24,10 @@ export default function EmailSent() {
     }
 
     const timer = setTimeout(() => {
-      router.replace("/verifyEmail");
+      router.replace({
+        pathname: "/verifyEmail",
+        params: trocando ? { modo: "trocar" } : {},
+      });
     }, 3000);
 
     return () => {
@@ -29,7 +36,14 @@ export default function EmailSent() {
   }, [recoveryEmail, router]);
 
   if (!recoveryEmail) {
-    return <Redirect href="/forgotPassword" />;
+    return (
+      <Redirect
+        href={{
+          pathname: "/forgotPassword",
+          params: trocando ? { modo: "trocar" } : {},
+        }}
+      />
+    );
   }
 
   return (
@@ -40,7 +54,10 @@ export default function EmailSent() {
       <Button
         titulo="Já tenho o código"
         onPress={() => {
-          router.replace("/verifyEmail");
+          router.replace({
+            pathname: "/verifyEmail",
+            params: trocando ? { modo: "trocar" } : {},
+          });
         }}
       />
     </AuthForm>

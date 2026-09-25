@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   Redirect,
   useRouter,
+  useLocalSearchParams,
 } from "expo-router";
 
 import { AuthForm } from "../../shared/components/AuthForm";
@@ -23,6 +24,9 @@ export default function ResetPassword() {
     clearRecovery,
   } = useAuth();
 
+  const params = useLocalSearchParams<{ modo?: string }>();
+  const trocando = params.modo === "trocar";
+
   const [complete, setComplete] = useState(false);
 
   const [senha, setSenha] = useState("");
@@ -35,6 +39,12 @@ export default function ResetPassword() {
   } = useAction();
 
   if (complete) {
+    // Trocando a senha já logada: volta pra Segurança em vez de
+    // mandar pro login (a sessão atual continua valendo).
+    if (trocando) {
+      return <Redirect href="/conta/seguranca" />;
+    }
+
     return (
       <Redirect
         href={{
@@ -48,7 +58,14 @@ export default function ResetPassword() {
   }
 
   if (!resetToken) {
-    return <Redirect href="/forgotPassword" />;
+    return (
+      <Redirect
+        href={{
+          pathname: "/forgotPassword",
+          params: trocando ? { modo: "trocar" } : {},
+        }}
+      />
+    );
   }
 
   function reset() {
@@ -109,7 +126,10 @@ export default function ResetPassword() {
         disabled={busy}
         onPress={() => {
           clearRecovery();
-          router.replace("/forgotPassword");
+          router.replace({
+            pathname: "/forgotPassword",
+            params: trocando ? { modo: "trocar" } : {},
+          });
         }}
       />
     </AuthForm>

@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
   // da faixa roxa do HeaderInterno (mesmo padrão da tela de Notificação)
   formulario: {
     paddingHorizontal: 16,
-    paddingTop: 18,
+    paddingTop: 40,
     marginTop: -300,
   },
 

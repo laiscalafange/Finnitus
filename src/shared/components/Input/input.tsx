@@ -22,6 +22,8 @@ export function Input({
   autoComplete,
   editable = true,
   maxLength,
+  multiline = false,
+  numberOfLines,
 }: InputProps) {
   return (
     <View style={styles.wrapper}>
@@ -34,6 +36,7 @@ export function Input({
       <View
         style={[
           styles.campo,
+          multiline ? styles.campoMultilinha : null,
           erro ? styles.campoErro : null,
         ]}
       >
@@ -44,7 +47,10 @@ export function Input({
         ) : null}
 
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            multiline ? styles.inputMultilinha : null,
+          ]}
           accessibilityLabel={label}
           placeholder={placeholder}
           placeholderTextColor={Cores.texto.desabilitado}
@@ -57,6 +63,8 @@ export function Input({
           autoComplete={autoComplete}
           editable={editable}
           maxLength={maxLength}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
         />
       </View>
 
