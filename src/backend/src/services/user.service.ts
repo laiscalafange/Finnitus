@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../utils/errors.js";
+import { criarCategoriasPadrao } from "./categoria.service.js";
 
 export const safeSelect = {
   id_Usuario: true,
@@ -71,6 +72,8 @@ export async function createUser(input: {
       },
       select: safeSelect,
     });
+
+    await criarCategoriasPadrao(user.id_Usuario);
 
     return safeUser(user);
   } catch (error) {
