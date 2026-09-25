@@ -192,7 +192,7 @@ export default function Perfil() {
 
             <TouchableOpacity
               style={styles.item}
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/conta/seguranca")}
             >
               <Image
                 source={require(
@@ -212,7 +212,7 @@ export default function Perfil() {
 
             <TouchableOpacity
               style={styles.item}
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/conta/contato")}
             >
               <Image
                 source={require(
@@ -228,7 +228,7 @@ export default function Perfil() {
 
             <TouchableOpacity
               style={styles.item}
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/conta/ajuda")}
             >
               <Image
                 source={require(

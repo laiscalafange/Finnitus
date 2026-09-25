@@ -25,6 +25,16 @@ export const styles = StyleSheet.create({
   campoErro: {
     borderColor: Cores.estado.erro,
   },
+  // Modo multilinha: caixa mais alta, com o texto começando no topo
+  campoMultilinha: {
+    height: 140,
+    alignItems: 'flex-start',
+    paddingVertical: 14,
+  },
+  inputMultilinha: {
+    height: '100%',
+    textAlignVertical: 'top',
+  },
   icone: {
     marginRight: 10,
   },

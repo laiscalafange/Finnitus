@@ -32,6 +32,13 @@ export const styles = StyleSheet.create({
     borderColor: "#7e3bed",
   },
 
+  // Ações destrutivas (ex.: excluir conta)
+  perigo: {
+    backgroundColor: "transparent",
+    borderWidth: 1.5,
+    borderColor: "#EF4444",
+  },
+
   secundario: {
     padding: 6,
     borderRadius: 6,
@@ -66,6 +73,10 @@ export const styles = StyleSheet.create({
 
   texto_outline: {
     color: "#7E3BED",
+  },
+
+  texto_perigo: {
+    color: "#EF4444",
   },
 
 
