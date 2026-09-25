@@ -6,6 +6,8 @@ import {
   Image,
 } from "react-native";
 
+import { useState } from "react";
+
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -14,27 +16,24 @@ import { HeaderPerfil } from "../../shared/components/Header";
 import { Avatar } from "../../shared/components/Avatar";
 import { Card } from "../../shared/components/Cards";
 import { Button } from "../../shared/components/Button";
+import { ModalFotoPerfil } from "../../shared/components/Modal/ModalFotoPerfil";
 
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/perfil";
 
 import { useAuth } from "../../features/authContext";
 import { useAction } from "../../shared/hooks/useAction";
+import { Rotas } from "../../shared/constants/Rotas";
 
 export default function Perfil() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const {
-    user,
-    logout,
-  } = useAuth();
+  const { user, logout } = useAuth();
+  const { busy, error, run } = useAction();
 
-  const {
-    busy,
-    error,
-    run,
-  } = useAction();
+  const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
+  const [modalFotoVisible, setModalFotoVisible] = useState(false);
 
   return (
     <LinearGradient
@@ -47,18 +46,22 @@ export default function Perfil() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.conteudo,
-          {
-            paddingBottom: 150 + insets.bottom,
-          },
+          { paddingBottom: 150 + insets.bottom },
         ]}
       >
         <HeaderPerfil />
 
         <View style={styles.profile}>
-          <Avatar
-            name={user?.name ?? "Usuário"}
-            size={200}
-          />
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => setModalFotoVisible(true)}
+          >
+            <Avatar
+              name={user?.name ?? "Usuário"}
+              image={fotoPerfil ?? undefined}
+              size={200}
+            />
+          </TouchableOpacity>
 
           <Text style={styles.nome}>
             {user?.name ?? "Usuário"}
@@ -71,25 +74,18 @@ export default function Perfil() {
 
         <View style={styles.conteudoCards}>
           <Card
-            gradiente={[
-              Cores.fundo.destaque,
-              "#3b1b92",
-            ]}
+            gradiente={[Cores.fundo.destaque, "#3b1b92"]}
             style={styles.cardPremium}
           >
             <View style={styles.premiumTituloContainer}>
               <Image
-                source={require(
-                  "../../../assets/icones/coroa.png"
-                )}
+                source={require("../../../assets/icones/coroa.png")}
                 style={styles.coroa}
               />
 
               <Text style={styles.premiumTitulo}>
                 Seja{" "}
-                <Text style={styles.premiumVerde}>
-                  PREMIUM
-                </Text>
+                <Text style={styles.premiumVerde}>PREMIUM</Text>
               </Text>
             </View>
 
@@ -100,7 +96,8 @@ export default function Perfil() {
 
             <TouchableOpacity
               style={styles.botaoPremium}
-              onPress={() => router.push("/")}
+              activeOpacity={0.8}
+              onPress={() => router.push(Rotas.premium)}
             >
               <Text style={styles.botaoTexto}>
                 Assine já
@@ -108,66 +105,52 @@ export default function Perfil() {
             </TouchableOpacity>
           </Card>
 
-         <View style={styles.linhaCards}>
-  {/* Botão Editar conta */}
-  <TouchableOpacity
-    style={{ flex: 1 }}
-    activeOpacity={0.85}
-    onPress={() => router.push("/conta/editar")}
-  >
-    <Card
-      gradiente={[
-        Cores.fundo.destaque,
-        "#3b1b92",
-      ]}
-      style={styles.cardEdicao}
-    >
-      <Text style={styles.cardTitulo}>
-        Editar conta
-      </Text>
+          <View style={styles.linhaCards}>
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.85}
+              onPress={() => router.push("/conta/editar")}
+            >
+              <Card
+                gradiente={[Cores.fundo.destaque, "#3b1b92"]}
+                style={styles.cardEdicao}
+              >
+                <Text style={styles.cardTitulo}>
+                  Editar conta
+                </Text>
 
-      <Image
-        source={require(
-          "../../../assets/icones/EngrenagemPerfil.png"
-        )}
-        style={styles.EngrenagemPerfil}
-      />
-    </Card>
-  </TouchableOpacity>
+                <Image
+                  source={require("../../../assets/icones/EngrenagemPerfil.png")}
+                  style={styles.EngrenagemPerfil}
+                />
+              </Card>
+            </TouchableOpacity>
 
-  {/* Botão Editar dados bancários */}
-  <TouchableOpacity
-    style={{ flex: 1 }}
-    activeOpacity={0.85}
-    onPress={() => router.push("/conta/dadosBancarios")}
-  >
-    <Card
-      gradiente={[
-        Cores.fundo.destaque,
-        "#3b1b92",
-      ]}
-      style={styles.cardEdicao}
-    >
-      <Text style={styles.cardTitulo}>
-        Editar dados{"\n"}
-        bancários
-      </Text>
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.85}
+              onPress={() =>
+                router.push("/conta/dadosBancarios")
+              }
+            >
+              <Card
+                gradiente={[Cores.fundo.destaque, "#3b1b92"]}
+                style={styles.cardEdicao}
+              >
+                <Text style={styles.cardTitulo}>
+                  Editar dados{"\n"}bancários
+                </Text>
 
-      <Image
-        source={require(
-          "../../../assets/icones/BonecoPerfil.png"
-        )}
-        style={styles.BonecoPerfil}
-      />
-    </Card>
-  </TouchableOpacity>
-</View>
+                <Image
+                  source={require("../../../assets/icones/BonecoPerfil.png")}
+                  style={styles.BonecoPerfil}
+                />
+              </Card>
+            </TouchableOpacity>
+          </View>
 
           <Card
-            gradiente={[
-              Cores.fundo.destaque,
-              "#3b1b92",
-            ]}
+            gradiente={[Cores.fundo.destaque, "#3b1b92"]}
             style={styles.cardConfiguracoes}
           >
             <Text style={styles.tituloSecao}>
@@ -179,9 +162,7 @@ export default function Perfil() {
               onPress={() => router.push("/")}
             >
               <Image
-                source={require(
-                  "../../../assets/icones/Configurar.png"
-                )}
+                source={require("../../../assets/icones/Configurar.png")}
                 style={styles.itemIcone}
               />
 
@@ -195,9 +176,7 @@ export default function Perfil() {
               onPress={() => router.push("/conta/seguranca")}
             >
               <Image
-                source={require(
-                  "../../../assets/icones/Seguranca.png"
-                )}
+                source={require("../../../assets/icones/Seguranca.png")}
                 style={styles.itemIcone}
               />
 
@@ -215,9 +194,7 @@ export default function Perfil() {
               onPress={() => router.push("/conta/contato")}
             >
               <Image
-                source={require(
-                  "../../../assets/icones/Telefone.png"
-                )}
+                source={require("../../../assets/icones/Telefone.png")}
                 style={styles.itemIcone}
               />
 
@@ -231,9 +208,7 @@ export default function Perfil() {
               onPress={() => router.push("/conta/ajuda")}
             >
               <Image
-                source={require(
-                  "../../../assets/icones/Ajuda.png"
-                )}
+                source={require("../../../assets/icones/Ajuda.png")}
                 style={styles.itemIcone}
               />
 
@@ -243,12 +218,7 @@ export default function Perfil() {
             </TouchableOpacity>
           </Card>
 
-          <View
-            style={{
-              marginTop: 20,
-              gap: 12,
-            }}
-          >
+          <View style={{ marginTop: 20, gap: 12 }}>
             {error ? (
               <Text
                 style={{ color: "#ffb4b4" }}
@@ -259,18 +229,23 @@ export default function Perfil() {
             ) : null}
 
             <Button
-              titulo={
-                busy
-                  ? "Saindo..."
-                  : "Sair da conta"
-              }
+              titulo={busy ? "Saindo..." : "Sair da conta"}
               variante="terciario"
               disabled={busy}
               onPress={() => void run(logout)}
             />
           </View>
         </View>
+
+        <ModalFotoPerfil
+          visible={modalFotoVisible}
+          onClose={() => setModalFotoVisible(false)}
+          onImageSelected={(uri) => setFotoPerfil(uri)}
+          onRemove={() => setFotoPerfil(null)}
+          hasImage={!!fotoPerfil}
+        />
       </ScrollView>
     </LinearGradient>
   );
 }
+
