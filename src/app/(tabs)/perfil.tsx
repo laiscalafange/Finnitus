@@ -159,7 +159,7 @@ export default function Perfil() {
 
             <TouchableOpacity
               style={styles.item}
-              onPress={() => router.push("/")}
+              onPress={() => router.push("/conta/configuracoes")}
             >
               <Image
                 source={require("../../../assets/icones/Configurar.png")}
@@ -248,4 +248,3 @@ export default function Perfil() {
     </LinearGradient>
   );
 }
-

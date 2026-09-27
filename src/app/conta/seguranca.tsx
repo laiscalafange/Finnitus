@@ -11,7 +11,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import {
   Smartphone,
   Laptop,
-  ChevronRight,
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
@@ -86,9 +85,12 @@ export default function Seguranca() {
 
         <View style={styles.lista}>
           {/* Trocar senha: em vez do formulário de senha aparecer direto
-              aqui (menos seguro), o botão reaproveita o fluxo de
-              "Esqueci minha senha" (e-mail + código), só com o texto
-              trocado pra "Trocar senha" (ver modo=trocar em forgotPassword) */}
+              aqui (menos seguro), o botão leva pra um fluxo próprio de
+              3 telas dentro de app/conta (e-mail → código → Redefinir
+              senha). Não dá pra reaproveitar o forgotPassword de dentro
+              do app logado: aquela pasta (auth) só existe pra quem está
+              deslogado (guard={!user} no _layout raiz) — por isso
+              navegar pra lá com o usuário logado não fazia nada. */}
           <Card
             gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
             style={styles.card}
@@ -100,12 +102,7 @@ export default function Seguranca() {
             <Button
               titulo="Trocar senha"
               variante="terciario"
-              onPress={() =>
-                router.push({
-                  pathname: "/forgotPassword",
-                  params: { modo: "trocar" },
-                })
-              }
+              onPress={() => router.push("/conta/trocarSenhaEmail")}
             />
           </Card>
 
