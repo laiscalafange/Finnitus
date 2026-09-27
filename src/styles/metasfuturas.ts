@@ -8,8 +8,6 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Não estava sendo usado no arquivo original (não tinha ScrollView),
-  // mantido aqui só caso decida adicionar um ScrollView depois
   conteudo: {
     paddingBottom: 30,
   },
@@ -28,18 +26,19 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
-  // Ícone do campo "Salário" (cifrão)
-  iconeInput: {
-    width: 24,
-    height: 24,
-    resizeMode: "contain",
+  // Prefixo "R$" nos campos de valor (Valor objetivo / Valor inicial)
+  prefixoMoeda: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 16,
+    color: Cores.destaque.limao,
   },
 
-  // Ícone do campo "Despesas" (cifrão proibido) — um pouco maior que o outro
-  iconeInputs: {
-    width: 30,
-    height: 30,
-    resizeMode: "contain",
+  // Mensagem de erro de validação, acima do botão "Criar meta"
+  erro: {
+    color: "#ffb4b4",
+    fontSize: 14,
+    fontFamily: FONTS.quicksand.semibold,
+    marginTop: 4,
   },
 
   // Empurra o botão "Confirmar" pro final da tela

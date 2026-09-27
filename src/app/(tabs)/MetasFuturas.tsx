@@ -1,11 +1,46 @@
-import { Image, Text, View } from "react-native";
+import { useState } from "react";
+import { Text, View } from "react-native";
+
+import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+
 import { HeaderInterno } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
 import { Input } from "../../shared/components/Input";
+
 import { styles } from "@/styles/metasfuturas";
 
+// Tela "Metas > Criação". Os campos antigos (Salário/Despesas) não
+// faziam sentido aqui — eram de outra etapa do fluxo. Troquei pelos
+// campos de criação de meta em si (nome, valor objetivo, valor já
+// guardado e data limite), com os mesmos componentes Input/Button já
+// usados no resto do app, mantendo o design (gradiente, header e
+// título) como estava.
 export default function MetasFuturas() {
+  const router = useRouter();
+
+  const [nome, setNome] = useState("");
+  const [valorObjetivo, setValorObjetivo] = useState("");
+  const [valorInicial, setValorInicial] = useState("");
+  const [dataLimite, setDataLimite] = useState("");
+
+  const [erro, setErro] = useState("");
+
+  function criarMeta() {
+    if (!nome.trim() || !valorObjetivo.trim()) {
+      setErro("Informe pelo menos o nome e o valor objetivo.");
+      return;
+    }
+
+    setErro("");
+
+    // TODO (backend): não existe endpoint pra criar metas ainda —
+    // quando existir, enviar { nome, valorObjetivo, valorInicial,
+    // dataLimite } pra API aqui.
+
+    router.dismissTo("/metas");
+  }
+
   return (
     <LinearGradient
       // Gradiente próprio dessa tela (não usa mais o GRADIENTS.background
@@ -31,39 +66,50 @@ export default function MetasFuturas() {
           Sonhos futuros
         </Text>
 
-        {/* Campo de salário — usado pra calcular o quanto sobra pra metas */}
         <Input
-          label="Salário"
-          placeholder="Qual sua renda mensal?"
-          keyboardType="numeric"
-          icone={
-            <Image
-              source={require("../../../assets/icones/cifrao.png")}
-              style={styles.iconeInput}
-            />
-          }
+          label="Nome da meta"
+          placeholder="Ex: Viagem para Europa"
+          value={nome}
+          onChangeText={setNome}
         />
 
-        {/* Campo de despesas — usado junto com o salário pra calcular a sobra mensal */}
         <Input
-          label="Despesas"
-          placeholder="Seus gastos mensais"
+          label="Valor objetivo"
+          placeholder="0,00"
           keyboardType="numeric"
-          icone={
-            <Image
-              source={require("../../../assets/icones/cifraoproibido.png")}
-              style={styles.iconeInputs}
-            />
-          }
+          value={valorObjetivo}
+          onChangeText={setValorObjetivo}
+          icone={<Text style={styles.prefixoMoeda}>R$</Text>}
         />
+
+        <Input
+          label="Valor inicial já guardado"
+          placeholder="0"
+          keyboardType="numeric"
+          value={valorInicial}
+          onChangeText={setValorInicial}
+          icone={<Text style={styles.prefixoMoeda}>R$</Text>}
+        />
+
+        <Input
+          label="Data limite (opcional)"
+          placeholder="AAAA-MM-DD"
+          maxLength={10}
+          value={dataLimite}
+          onChangeText={setDataLimite}
+        />
+
+        {erro ? (
+          <Text style={styles.erro} accessibilityRole="alert">
+            {erro}
+          </Text>
+        ) : null}
 
         {/* Botão de confirmação, fixado mais pro final da tela via marginTop */}
-        {/* TODO: implementar onPress — validar os campos e avançar pra próxima etapa
-            (provavelmente salvar salário/despesas e ir pra próxima tela de metas) */}
         <View style={styles.botaoContainer}>
           <Button
-            titulo="Confirmar"
-            onPress={() => { }}
+            titulo="Criar meta"
+            onPress={criarMeta}
           />
         </View>
 
