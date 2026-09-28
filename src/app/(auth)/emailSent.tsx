@@ -9,6 +9,11 @@ import { AuthForm } from "../../shared/components/AuthForm";
 import { Button } from "../../shared/components/Button";
 import { useAuth } from "../../features/authContext";
 import { useLocalSearchParams } from "expo-router";
+import { Text, View, Image } from "react-native";
+
+import {
+  styles as emailStyles,
+} from "../../styles/emailSentStyles";
 
 export default function EmailSent() {
   const router = useRouter();
@@ -33,7 +38,7 @@ export default function EmailSent() {
     return () => {
       clearTimeout(timer);
     };
-  }, [recoveryEmail, router]);
+  }, [recoveryEmail, router, trocando]);
 
   if (!recoveryEmail) {
     return (
@@ -48,9 +53,33 @@ export default function EmailSent() {
 
   return (
     <AuthForm
-      title="Confira seu e-mail"
-      subtitle="Se a conta existir e o envio for concluído, o código chegará em instantes. Confira também o spam."
-    >
+  title="Confira seu e-mail"
+  header={
+    <View style={{ alignItems: "center" }}>
+      <Image
+        source={require("../../../assets/icones/sent.png")}
+        style={emailStyles.icone}
+      />
+
+      <Text style={emailStyles.titulo}>
+        <Text style={emailStyles.tituloDestaque}>
+          Confira
+        </Text>
+        {" "}seu e-mail
+      </Text>
+
+      <Text
+        style={[
+          emailStyles.subtitulo,
+          { marginBottom: 20 },
+        ]}
+      >
+        Se houver uma conta com esse e-mail, você receberá
+        um código. Confira também o spam.
+      </Text>
+    </View>
+  }
+>
       <Button
         titulo="Já tenho o código"
         onPress={() => {
