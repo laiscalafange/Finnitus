@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../utils/errors.js";
-import { criarCategoriasPadrao } from "./categoria.service.js";
 
 export const safeSelect = {
   id_Usuario: true,
@@ -73,7 +72,6 @@ export async function createUser(input: {
       select: safeSelect,
     });
 
-    await criarCategoriasPadrao(user.id_Usuario);
 
     return safeUser(user);
   } catch (error) {
@@ -256,7 +254,7 @@ await tx.meta.deleteMany({ where });
 await tx.imprevisto.deleteMany({ where });
 await tx.evento.deleteMany({ where });
 
-await tx.categoria.deleteMany({ where });
+await tx.categoriaPersonalizada.deleteMany({ where });
 
 // O usuário é removido por último.
 await tx.usuario.delete({ where });

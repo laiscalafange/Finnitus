@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 enum ReceitaTipo {
   FIXA
   VARIAVEL
@@ -19,6 +18,11 @@ enum Frequencia {
   QUINZENAL
   MENSAL
   ANUAL
+}
+
+enum CategoriaTipo {
+  RECEITA
+  DESPESA
 }
 
 enum StatusReceita {
@@ -93,18 +97,16 @@ model Usuario {
   Udata_cadastro DateTime
   UTipo          String
 
-  Categoria          Categoria[]
-  Despesa            Despesa[]
-  Evento             Evento[]
-  Imprevisto         Imprevisto[]
-  Meta               Meta[]
-  Receita            Receita[]
-  redefinicoes       RedefinicaoSenha[]
-  Divida             Divida[]
-  ReservaFinanceira  ReservaFinanceira?
+  CategoriaPersonalizada CategoriaPersonalizada[]
+  Despesa                Despesa[]
+  Evento                 Evento[]
+  Imprevisto             Imprevisto[]
+  Meta                   Meta[]
+  Receita                Receita[]
+  redefinicoes           RedefinicaoSenha[]
+  Divida                 Divida[]
+  ReservaFinanceira      ReservaFinanceira?
 }
-
-
 
 model RedefinicaoSenha {
   id_Redefinicao Int      @id @default(autoincrement())
@@ -116,13 +118,15 @@ model RedefinicaoSenha {
   tentativas     Int      @default(0)
   verificado     Boolean  @default(false)
 
-  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+  Usuario Usuario @relation(fields: [id_Usuario],references: [id_Usuario],onDelete: Cascade)
 }
 
 model Receita {
-  id_Receita       Int            @id @default(autoincrement())
-  id_Usuario       Int
-  id_Categoria     Int
+  id_Receita               Int            @id @default(autoincrement())
+  id_Usuario               Int
+  id_Categoria             Int?
+  id_CategoriaPersonalizada Int?
+
   descricao        String         @db.VarChar(255)
   valor            Decimal        @db.Decimal(10, 2)
   data_recebimento DateTime       @db.Date
@@ -132,63 +136,77 @@ model Receita {
   observacao       String?        @db.VarChar(255)
   createdAt        DateTime       @default(now())
 
-  Usuario   Usuario   @relation(fields: [id_Usuario],references: [id_Usuario])
-  Categoria Categoria @relation(fields: [id_Categoria],references: [id_Categoria])
+  Usuario Usuario @relation(fields: [id_Usuario],references: [id_Usuario])
+
+  Categoria Categoria? @relation(fields: [id_Categoria],references: [id_Categoria])
+
+  CategoriaPersonalizada CategoriaPersonalizada? @relation(fields: [id_CategoriaPersonalizada],references: [id_CategoriaPersonalizada])
 
   @@index([id_Usuario])
   @@index([id_Categoria])
+  @@index([id_CategoriaPersonalizada])
   @@index([data_recebimento])
   @@index([id_Usuario, data_recebimento])
 }
 
-
 model Categoria {
-  id_Categoria Int    @id @default(autoincrement())
-  id_Usuario   Int
-  nome         String @db.VarChar(100)
-  tipo         String @db.VarChar(20)
+  id_Categoria Int          @id @default(autoincrement())
+  nome         String       @db.VarChar(100)
+  tipo         CategoriaTipo
+
+  Receita Receita[]
+  Despesa Despesa[]
+  Divida  Divida[]
+
+  @@unique([nome, tipo])
+}
+
+model CategoriaPersonalizada {
+  id_CategoriaPersonalizada Int          @id @default(autoincrement())
+  id_Usuario                Int
+  nome                      String       @db.VarChar(100)
+  tipo                      CategoriaTipo
 
   Usuario Usuario @relation(fields: [id_Usuario],references: [id_Usuario])
 
-  Despesa Despesa[]
   Receita Receita[]
-  Divida Divida[]
+  Despesa Despesa[]
+  Divida  Divida[]
 
   @@unique([id_Usuario, nome, tipo])
   @@index([id_Usuario])
 }
 
-
 model Despesa {
-  id_Despesa       Int             @id @default(autoincrement())
-  id_Usuario       Int
-  id_Categoria     Int
+  id_Despesa                Int             @id @default(autoincrement())
+  id_Usuario                Int
+  id_Categoria              Int?
+  id_CategoriaPersonalizada Int?
+
   descricao        String          @db.VarChar(255)
   valor            Decimal         @db.Decimal(10, 2)
-
   data_vencimento  DateTime        @db.Date
   data_pagamento   DateTime?       @db.Date
-
   tipo             DespesaTipo
   frequencia       Frequencia
   forma_pagamento  FormaPagamento?
   status           StatusDespesa   @default(PENDENTE)
-
   observacao       String?         @db.VarChar(255)
   createdAt        DateTime        @default(now())
 
   Usuario Usuario @relation(fields: [id_Usuario],references: [id_Usuario])
-  Categoria Categoria @relation(fields: [id_Categoria],references: [id_Categoria])
+
+  Categoria Categoria? @relation(fields: [id_Categoria],references: [id_Categoria])
+
+  CategoriaPersonalizada CategoriaPersonalizada? @relation(fields: [id_CategoriaPersonalizada],references: [id_CategoriaPersonalizada])
 
   @@index([id_Usuario])
   @@index([id_Categoria])
+  @@index([id_CategoriaPersonalizada])
   @@index([data_vencimento])
   @@index([data_pagamento])
   @@index([id_Usuario, data_vencimento])
 }
-
-
-
 
 model Imprevisto {
   id_Imprevisto     Int             @id @default(autoincrement())
@@ -208,8 +226,6 @@ model Imprevisto {
   @@index([Idata])
   @@index([id_Usuario, Idata])
 }
-
-
 
 model Meta {
   id_Meta          Int             @id @default(autoincrement())
@@ -231,17 +247,16 @@ model Meta {
   @@index([Mprazo])
 }
 
-
 model MovimentacaoMeta {
   id_Movimentacao Int                  @id @default(autoincrement())
   id_Meta         Int
 
-  valor           Decimal              @db.Decimal(10, 2)
-  tipo            TipoMovimentacaoMeta
-  data            DateTime             @db.Date
-  descricao       String?              @db.VarChar(255)
+  valor       Decimal              @db.Decimal(10, 2)
+  tipo        TipoMovimentacaoMeta
+  data        DateTime             @db.Date
+  descricao   String?              @db.VarChar(255)
 
-  Meta Meta @relation(fields: [id_Meta],references: [id_Meta],onDelete: Cascade)
+ Meta Meta @relation(fields: [id_Meta], references: [id_Meta], onDelete: Cascade)
 
   @@index([id_Meta])
   @@index([data])
@@ -266,37 +281,40 @@ model Evento {
 }
 
 model Divida {
-  id_Divida              Int           @id @default(autoincrement())
-  id_Usuario             Int
-  id_Categoria           Int?
+  id_Divida                Int           @id @default(autoincrement())
+  id_Usuario               Int
+  id_Categoria             Int?
+  id_CategoriaPersonalizada Int?
 
-  nome                   String        @db.VarChar(100)
-  valor_total            Decimal       @db.Decimal(10, 2)
-  valor_parcela          Decimal       @db.Decimal(10, 2)
-  quantidade_parcelas    Int
-  parcelas_restantes     Int
-  data_vencimento        DateTime      @db.Date
-  taxa_juros             Decimal?      @db.Decimal(5, 2)
-  status                 StatusDivida  @default(ATIVA)
+  nome                String       @db.VarChar(100)
+  valor_total         Decimal      @db.Decimal(10, 2)
+  valor_parcela       Decimal      @db.Decimal(10, 2)
+  quantidade_parcelas Int
+  parcelas_restantes  Int
+  data_vencimento     DateTime     @db.Date
+  taxa_juros          Decimal?     @db.Decimal(5, 2)
+  status              StatusDivida @default(ATIVA)
 
   Usuario Usuario @relation(fields: [id_Usuario],references: [id_Usuario])
-  Categoria Categoria? @relation(fields: [id_Categoria], references: [id_Categoria])
+
+  Categoria Categoria? @relation(fields: [id_Categoria],references: [id_Categoria])
+
+  CategoriaPersonalizada CategoriaPersonalizada? @relation(fields: [id_CategoriaPersonalizada],references: [id_CategoriaPersonalizada])
 
   @@index([id_Usuario])
   @@index([id_Categoria])
+  @@index([id_CategoriaPersonalizada])
   @@index([data_vencimento])
   @@index([id_Usuario, data_vencimento])
 }
 
-
 model ReservaFinanceira {
-  id_Reserva           Int       @id @default(autoincrement())
-  id_Usuario           Int       @unique
-
-  valor_atual          Decimal   @db.Decimal(10, 2)
-  valor_desejado       Decimal   @db.Decimal(10, 2)
-  objetivo             String?   @db.VarChar(255)
-  localizacao          String?   @db.VarChar(255)
+  id_Reserva     Int     @id @default(autoincrement())
+  id_Usuario     Int     @unique
+  valor_atual   Decimal @db.Decimal(10, 2)
+  valor_desejado Decimal @db.Decimal(10, 2)
+  objetivo      String? @db.VarChar(255)
+  localizacao   String? @db.VarChar(255)
 
   Usuario Usuario @relation(fields: [id_Usuario],references: [id_Usuario])
 }
