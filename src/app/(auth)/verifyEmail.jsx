@@ -1,9 +1,5 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import { Text } from "react-native";
+import { useEffect, useState } from "react";
+import { Text, View, Pressable } from "react-native";
 
 import {
   Redirect,
@@ -11,11 +7,7 @@ import {
   useLocalSearchParams,
 } from "expo-router";
 
-import {
-  AuthForm,
-  formStyles,
-} from "../../shared/components/AuthForm";
-
+import { AuthForm } from "../../shared/components/AuthForm";
 import { Button } from "../../shared/components/Button";
 import { FourInput } from "../../shared/components/Four";
 
@@ -23,16 +15,20 @@ import { useAuth } from "../../features/authContext";
 import { authService } from "../../services/auth";
 import { useAction } from "../../shared/hooks/useAction";
 
+import {
+  styles as verificacaoStyles,
+} from "../../styles/VerifyEmailStyles";
+
 export default function VerifyEmail() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+
+  const trocando = params.modo === "trocar";
 
   const {
     recoveryEmail,
     setResetToken,
   } = useAuth();
-
-  const params = useLocalSearchParams();
-  const trocando = params.modo === "trocar";
 
   const [codigo, setCodigo] = useState("");
   const [remaining, setRemaining] = useState(60);
@@ -47,14 +43,10 @@ export default function VerifyEmail() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setRemaining((value) =>
-        Math.max(0, value - 1)
-      );
+      setRemaining((value) => Math.max(0, value - 1));
     }, 1000);
 
-    return () => {
-      clearInterval(timer);
-    };
+    return () => clearInterval(timer);
   }, []);
 
   if (!recoveryEmail) {
@@ -71,9 +63,7 @@ export default function VerifyEmail() {
   function validar() {
     void run(async () => {
       if (!/^\d{4}$/.test(codigo)) {
-        throw new Error(
-          "Informe os quatro dígitos."
-        );
+        throw new Error("Informe os quatro dígitos.");
       }
 
       const result = await authService.verify(
@@ -96,19 +86,42 @@ export default function VerifyEmail() {
 
       setRemaining(60);
       setCodigo("");
-
       setAttempt((value) => value + 1);
     });
   }
 
   return (
     <AuthForm
-      title="Código de recuperação"
-      subtitle={
-        `Confira o e-mail ${recoveryEmail}. ` +
-        "O código expira em 15 minutos."
-      }
+      title="Verificação de e-mail"
       error={error}
+      header={
+        <View>
+          <Text
+            style={[
+              verificacaoStyles.titulo,
+              { marginBottom: 12 },
+            ]}
+          >
+            <Text style={verificacaoStyles.tituloDestaque}>
+              Verificação
+            </Text>
+            {" "}de e-mail
+          </Text>
+
+          <Text
+            style={[
+              verificacaoStyles.subtitulo,
+              { marginBottom: 20 },
+            ]}
+          >
+            Digite o código de 4 dígitos recebido em{" "}
+            <Text style={verificacaoStyles.emailDestaque}>
+              {recoveryEmail}
+            </Text>
+            .
+          </Text>
+        </View>
+      }
     >
       <FourInput
         key={attempt}
@@ -120,36 +133,46 @@ export default function VerifyEmail() {
       />
 
       <Button
-        titulo={
-          busy
-            ? "Aguarde..."
-            : "Validar código"
-        }
-        disabled={
-          busy || codigo.length !== 4
-        }
+        titulo={busy ? "Aguarde..." : "Validar código"}
+        variante="primario"
+        disabled={busy || codigo.length !== 4}
         onPress={validar}
       />
 
-      <Button
-        titulo={
-          remaining > 0
-            ? `Reenviar em ${remaining}s`
-            : "Reenviar código"
-        }
-        variante="outline"
+      <Pressable
+        accessibilityRole="button"
+        accessibilityState={{
+          disabled: busy || remaining > 0,
+        }}
         disabled={busy || remaining > 0}
         onPress={reenviar}
-      />
-
-      <Text style={formStyles.text}>
-        A API permite até cinco tentativas por código.
-        Um novo pedido invalida o código anterior.
-      </Text>
+        style={({ pressed }) => ({
+          alignSelf: "center",
+          paddingVertical: 10,
+          marginBottom: 16,
+          opacity:
+            busy || remaining > 0
+              ? 0.5
+              : pressed
+                ? 0.7
+                : 1,
+        })}
+      >
+        <Text
+          style={[
+            verificacaoStyles.reenviar,
+            { marginTop: 0 },
+          ]}
+        >
+          {remaining > 0
+            ? `Reenviar em ${remaining}s`
+            : "Reenviar código"}
+        </Text>
+      </Pressable>
 
       <Button
         titulo="Usar outro e-mail"
-        variante="outline"
+        variante="primario"
         disabled={busy}
         onPress={() => {
           router.replace({

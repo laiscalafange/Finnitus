@@ -102,14 +102,16 @@ export const formStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   content: {
-    flexGrow: 1,
-    justifyContent: "center",
-    gap: 18,
-    padding: 24,
-    width: "100%",
-    maxWidth: 540,
-    alignSelf: "center",
-  },
+  flexGrow: 1,
+  justifyContent: "flex-start",
+  gap: 0,
+  paddingHorizontal: 24,
+  paddingTop: 24,
+  paddingBottom: 24,
+  width: "100%",
+  maxWidth: 540,
+  alignSelf: "center",
+},
 
   title: {
     color: "#fff",

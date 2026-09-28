@@ -17,6 +17,11 @@ import {
   normalizeEmail,
   validEmail,
 } from "../../shared/utils/formValidation";
+import { Text, View, Image } from "react-native";
+
+import {
+  styles as recuperacaoStyles,
+} from "../../styles/forgotPasswordStyles";
 
 export default function ForgotPassword() {
   const router = useRouter();
@@ -69,34 +74,61 @@ export default function ForgotPassword() {
   return (
     <AuthForm
       title={trocando ? "Trocar senha" : "Recuperar senha"}
-      subtitle={
-        trocando
-          ? "Confirme seu e-mail: enviaremos um código pra garantir que é você antes de trocar a senha."
-          : "Se a conta existir, enviaremos um código para o e-mail informado."
-      }
       error={error}
+      header={
+        <View>
+          <Text style={recuperacaoStyles.titulo}>
+            <Text style={recuperacaoStyles.tituloDestaque}>
+              {trocando ? "Trocar" : "Recuperar"}
+            </Text>
+            {" "}senha
+          </Text>
+
+          <Text
+            style={[
+              recuperacaoStyles.subtitulo,
+              { marginBottom: 20 },
+            ]}
+          >
+            {trocando
+              ? "Confirme seu e-mail para receber um código de troca de senha."
+              : "Informe seu e-mail para recuperar sua senha."}
+          </Text>
+        </View>
+      }
     >
       <Input
         label="E-mail"
+        placeholder="Digite seu e-mail"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="email"
         editable={!busy}
+        icone={
+          <Image
+            source={require("../../../assets/icones/email.png")}
+            style={{
+              width: 24,
+              height: 24,
+              resizeMode: "contain",
+            }}
+          />
+        }
       />
 
       <Button
-        titulo={
-          busy
-            ? "Enviando..."
-            : "Enviar código"
-        }
+        titulo={busy ? "Enviando..." : "Enviar código"}
+        variante="primario"
         disabled={busy}
         onPress={enviar}
       />
 
       <Button
         titulo={trocando ? "Cancelar" : "Voltar ao login"}
-        variante="outline"
+        variante="primario"
         disabled={busy}
         onPress={() =>
           trocando
