@@ -17,6 +17,7 @@ import { Avatar } from "../../shared/components/Avatar";
 import { Card } from "../../shared/components/Cards";
 import { Button } from "../../shared/components/Button";
 import { ModalFotoPerfil } from "../../shared/components/Modal/ModalFotoPerfil";
+import { ModalConfirmarAcao } from "../../shared/components/Modal/ModalConfirmarAcao";
 
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/perfil";
@@ -32,6 +33,7 @@ export default function Perfil() {
 
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
   const [modalFotoVisible, setModalFotoVisible] = useState(false);
+  const [modalSairVisible, setModalSairVisible] = useState(false);
 
   return (
     <LinearGradient
@@ -217,16 +219,11 @@ export default function Perfil() {
           </Card>
 
           <View style={{ marginTop: 20, gap: 12 }}>
-            {/* Leva pra tela de confirmação (com contagem de 10s) */}
+            {/* Abre o card de confirmação (botão libera após 10s) */}
             <Button
               titulo="Sair da conta"
               variante="terciario"
-              onPress={() =>
-                router.push({
-                  pathname: "/conta/confirmarAcao",
-                  params: { acao: "sair" },
-                })
-              }
+              onPress={() => setModalSairVisible(true)}
             />
           </View>
         </View>
@@ -237,6 +234,12 @@ export default function Perfil() {
           onImageSelected={(uri) => setFotoPerfil(uri)}
           onRemove={() => setFotoPerfil(null)}
           hasImage={!!fotoPerfil}
+        />
+
+        <ModalConfirmarAcao
+          visible={modalSairVisible}
+          acao="sair"
+          onClose={() => setModalSairVisible(false)}
         />
       </ScrollView>
     </LinearGradient>

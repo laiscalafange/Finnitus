@@ -16,6 +16,7 @@ import {
 import { HeaderInterno } from "../../shared/components/Header";
 import { Card } from "../../shared/components/Cards";
 import { Button } from "../../shared/components/Button";
+import { ModalConfirmarAcao } from "../../shared/components/Modal/ModalConfirmarAcao";
 
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/seguranca";
@@ -46,6 +47,9 @@ export default function Seguranca() {
 
   // Autenticação em duas etapas (mock local — sem endpoint ainda)
   const [duasEtapas, setDuasEtapas] = useState(false);
+
+  // Card flutuante de confirmação de "Excluir conta"
+  const [modalExcluirVisivel, setModalExcluirVisivel] = useState(false);
 
   return (
     <LinearGradient
@@ -175,16 +179,17 @@ export default function Seguranca() {
             <Button
               titulo="Excluir conta"
               variante="perigo"
-              onPress={() =>
-                router.push({
-                  pathname: "/conta/confirmarAcao",
-                  params: { acao: "excluir" },
-                })
-              }
+              onPress={() => setModalExcluirVisivel(true)}
             />
           </Card>
         </View>
       </ScrollView>
+
+      <ModalConfirmarAcao
+        visible={modalExcluirVisivel}
+        acao="excluir"
+        onClose={() => setModalExcluirVisivel(false)}
+      />
     </LinearGradient>
   );
 }
