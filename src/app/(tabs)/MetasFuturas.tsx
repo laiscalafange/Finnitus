@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Text, View } from "react-native";
+import {
+  Text,
+  View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -50,8 +56,20 @@ export default function MetasFuturas() {
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
+      {/* Empurra o formulário pra cima quando o teclado abre */}
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+      {/* ScrollView: se o conteúdo passar da altura da tela (ex.: quando
+          aparece a mensagem de erro), dá pra rolar até o botão */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.conteudo}
+      >
 
-      {/* Cabeçalho fixo do topo (título "Metas" + subtítulo "Criação") */}
+      {/* Cabeçalho (título "Metas" + subtítulo "Criação") */}
       <HeaderInterno
         titulo="Metas"
         subtitulo="Criação"
@@ -60,11 +78,6 @@ export default function MetasFuturas() {
       {/* Conteúdo principal, posicionado por cima do header
           (marginTop negativo no style "conteudoSobreHeader") */}
       <View style={styles.conteudoSobreHeader}>
-
-        {/* Título da seção */}
-        <Text style={styles.titulo}>
-          Sonhos futuros
-        </Text>
 
         <Input
           label="Nome da meta"
@@ -105,7 +118,7 @@ export default function MetasFuturas() {
           </Text>
         ) : null}
 
-        {/* Botão de confirmação, fixado mais pro final da tela via marginTop */}
+        {/* Botão de confirmação */}
         <View style={styles.botaoContainer}>
           <Button
             titulo="Criar meta"
@@ -114,6 +127,8 @@ export default function MetasFuturas() {
         </View>
 
       </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }

@@ -12,6 +12,9 @@ function BarraInferior() {
     : pathname.includes('perfil') ? 'perfil'
     : 'home'
 
+  // Telas que não mostram a barra de navegação (ex.: criação de meta)
+  const semBarra = pathname.includes('MetasFuturas')
+
   function navegar(aba) {
     if (aba === 'home') router.push('/paginaInicial')
     if (aba === 'calendario') router.push('/calendario')
@@ -22,6 +25,8 @@ function BarraInferior() {
     // FAB permanece visualmente disponível até existir uma ação de lançamento
     // financeiro implementada no projeto.
   }
+
+  if (semBarra) return null
 
   return <FloatingButton abaAtiva={abaAtiva} aoPress={navegar} />
 }

@@ -16,11 +16,8 @@ import {
 import { HeaderInterno } from "../../shared/components/Header";
 import { Card } from "../../shared/components/Cards";
 import { Button } from "../../shared/components/Button";
-import { Modal } from "../../shared/components/Modal";
 
 import { Cores } from "../../shared/constants/Cores";
-import { useAuth } from "../../features/authContext";
-import { useAction } from "../../shared/hooks/useAction";
 import { styles } from "../../styles/seguranca";
 
 // Dispositivos conectados à conta.
@@ -46,23 +43,9 @@ const DISPOSITIVOS = [
 // Tela "Segurança".
 export default function Seguranca() {
   const router = useRouter();
-  const { logout } = useAuth();
 
   // Autenticação em duas etapas (mock local — sem endpoint ainda)
   const [duasEtapas, setDuasEtapas] = useState(false);
-
-  // Confirmação de excluir conta
-  const [modalVisivel, setModalVisivel] = useState(false);
-
-  const { busy, run } = useAction();
-
-  function excluirConta() {
-    setModalVisivel(false);
-
-    // TODO (backend): não existe endpoint de exclusão de conta ainda.
-    // Por enquanto, confirmar aqui só desconecta o usuário (logout).
-    void run(logout);
-  }
 
   return (
     <LinearGradient
@@ -192,22 +175,16 @@ export default function Seguranca() {
             <Button
               titulo="Excluir conta"
               variante="perigo"
-              disabled={busy}
-              onPress={() => setModalVisivel(true)}
+              onPress={() =>
+                router.push({
+                  pathname: "/conta/confirmarAcao",
+                  params: { acao: "excluir" },
+                })
+              }
             />
           </Card>
         </View>
       </ScrollView>
-
-      <Modal
-        visible={modalVisivel}
-        title="Excluir conta"
-        message="Essa ação não pode ser desfeita. Todos os seus dados serão apagados permanentemente."
-        confirmText="Excluir"
-        cancelText="Cancelar"
-        onConfirm={excluirConta}
-        onCancel={() => setModalVisivel(false)}
-      />
     </LinearGradient>
   );
 }

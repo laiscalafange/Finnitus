@@ -49,7 +49,7 @@ const ACOES = [
   { chave: 'novoImprevisto', icone: require("../../../../assets/icones/B.png"), rotulo: 'Novo imprevisto' },
   { chave: 'novoGasto', textoIcone: '↓', rotulo: 'Novo gasto' },
   { chave: 'novoEvento', icone: require("../../../../assets/icones/calendar2.png"), rotulo: 'Novo evento' },
-  { chave: 'novaMeta', icone: require("../../../../assets/icones/medalha.png"), rotulo: 'Nova meta' },
+  { chave: 'reservaEmergencia', icone: require("../../../../assets/icones/saco.png"), rotulo: 'Reserva de emergência' },
 ]
 
 export function FloatingButton({
@@ -81,9 +81,16 @@ export function FloatingButton({
 
   // ── Posições em arco (meia-lua) ao redor do + ──────────────
   // Ângulos em graus (0° = direita, 90° = topo, 180° = esquerda),
-  // distribuídos da esquerda pra direita.
-  const RAIO_ARCO = 115
-  const ANGULOS_ARCO = [165, 117, 63, 15]
+  // distribuídos da esquerda pra direita. Cada botão tem raio e ângulo
+  // próprios: os dois de fora ficam mais baixos e mais afastados, e os
+  // dois de dentro mais altos, pra o texto de um não ficar por cima do
+  // círculo do vizinho (o rótulo "Reserva de emergência" ocupa 2 linhas).
+  const POSICOES_ARCO = [
+    { raio: 130, angulo: 166 },
+    { raio: 125, angulo: 115 },
+    { raio: 125, angulo: 65 },
+    { raio: 130, angulo: 14 },
+  ]
   // Altura aproximada do centro do botão + (soma do recuo do
   // dispositivo, já que o próprio + também sobe nesse caso).
   const CENTRO_FAB_BOTTOM = 77 + insetExtra
@@ -102,9 +109,10 @@ export function FloatingButton({
         <Pressable style={styles.backdrop} onPress={() => setMenuAberto(false)} />
 
         {ACOES.map((acao, indice) => {
-          const anguloRad = (ANGULOS_ARCO[indice] * Math.PI) / 180
-          const dx = RAIO_ARCO * Math.cos(anguloRad)
-          const dy = RAIO_ARCO * Math.sin(anguloRad)
+          const { raio, angulo } = POSICOES_ARCO[indice]
+          const anguloRad = (angulo * Math.PI) / 180
+          const dx = raio * Math.cos(anguloRad)
+          const dy = raio * Math.sin(anguloRad)
 
           return (
             <TouchableOpacity
@@ -114,7 +122,8 @@ export function FloatingButton({
                 {
                   left: '50%',
                   bottom: CENTRO_FAB_BOTTOM + dy - 29,
-                  transform: [{ translateX: dx - 38 }],
+                  // metade da largura do botão (100) pra centralizar no +
+                  transform: [{ translateX: dx - 50 }],
                 },
               ]}
               onPress={() => acionarMenu(acao.chave)}
