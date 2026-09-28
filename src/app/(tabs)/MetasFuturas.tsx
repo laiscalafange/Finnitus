@@ -7,12 +7,13 @@ import {
   Platform,
 } from "react-native";
 
-import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
 import { Input } from "../../shared/components/Input";
+
+import MetasFrame from "./MetasFrame";
 
 import { styles } from "@/styles/metasfuturas";
 
@@ -23,14 +24,15 @@ import { styles } from "@/styles/metasfuturas";
 // usados no resto do app, mantendo o design (gradiente, header e
 // título) como estava.
 export default function MetasFuturas() {
-  const router = useRouter();
-
   const [nome, setNome] = useState("");
   const [valorObjetivo, setValorObjetivo] = useState("");
   const [valorInicial, setValorInicial] = useState("");
   const [dataLimite, setDataLimite] = useState("");
 
   const [erro, setErro] = useState("");
+
+  // Card flutuante de confirmação (MetasFrame) por cima desta tela
+  const [modalVisivel, setModalVisivel] = useState(false);
 
   function criarMeta() {
     if (!nome.trim() || !valorObjetivo.trim()) {
@@ -44,7 +46,16 @@ export default function MetasFuturas() {
     // quando existir, enviar { nome, valorObjetivo, valorInicial,
     // dataLimite } pra API aqui.
 
-    router.dismissTo("/metas");
+    setModalVisivel(true);
+  }
+
+  // "Definir nova meta" no card: fecha o card e limpa os campos
+  function novaMeta() {
+    setModalVisivel(false);
+    setNome("");
+    setValorObjetivo("");
+    setValorInicial("");
+    setDataLimite("");
   }
 
   return (
@@ -129,6 +140,11 @@ export default function MetasFuturas() {
       </View>
       </ScrollView>
       </KeyboardAvoidingView>
+
+      <MetasFrame
+        visible={modalVisivel}
+        onClose={novaMeta}
+      />
     </LinearGradient>
   );
 }
