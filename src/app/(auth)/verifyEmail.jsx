@@ -90,8 +90,9 @@ export default function VerifyEmail() {
     });
   }
 
-  return (
+    return (
     <AuthForm
+      layout="centro"
       title="Verificação de e-mail"
       error={error}
       header={
@@ -122,6 +123,59 @@ export default function VerifyEmail() {
           </Text>
         </View>
       }
+      footer={
+        <>
+          <Button
+            titulo={busy ? "Aguarde..." : "Validar código"}
+            variante="primario"
+            disabled={busy || codigo.length !== 4}
+            onPress={validar}
+          />
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{
+              disabled: busy || remaining > 0,
+            }}
+            disabled={busy || remaining > 0}
+            onPress={reenviar}
+            style={({ pressed }) => ({
+              alignSelf: "center",
+              paddingVertical: 10,
+              marginBottom: 16,
+              opacity:
+                busy || remaining > 0
+                  ? 0.5
+                  : pressed
+                    ? 0.7
+                    : 1,
+            })}
+          >
+            <Text
+              style={[
+                verificacaoStyles.reenviar,
+                { marginTop: 0 },
+              ]}
+            >
+              {remaining > 0
+                ? `Reenviar em ${remaining}s`
+                : "Reenviar código"}
+            </Text>
+          </Pressable>
+
+          <Button
+            titulo="Usar outro e-mail"
+            variante="primario"
+            disabled={busy}
+            onPress={() => {
+              router.replace({
+                pathname: "/forgotPassword",
+                params: trocando ? { modo: "trocar" } : {},
+              });
+            }}
+          />
+        </>
+      }
     >
       <FourInput
         key={attempt}
@@ -129,56 +183,6 @@ export default function VerifyEmail() {
         onCodigoCompleto={(value) => {
           setCodigo(value);
           setError("");
-        }}
-      />
-
-      <Button
-        titulo={busy ? "Aguarde..." : "Validar código"}
-        variante="primario"
-        disabled={busy || codigo.length !== 4}
-        onPress={validar}
-      />
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{
-          disabled: busy || remaining > 0,
-        }}
-        disabled={busy || remaining > 0}
-        onPress={reenviar}
-        style={({ pressed }) => ({
-          alignSelf: "center",
-          paddingVertical: 10,
-          marginBottom: 16,
-          opacity:
-            busy || remaining > 0
-              ? 0.5
-              : pressed
-                ? 0.7
-                : 1,
-        })}
-      >
-        <Text
-          style={[
-            verificacaoStyles.reenviar,
-            { marginTop: 0 },
-          ]}
-        >
-          {remaining > 0
-            ? `Reenviar em ${remaining}s`
-            : "Reenviar código"}
-        </Text>
-      </Pressable>
-
-      <Button
-        titulo="Usar outro e-mail"
-        variante="primario"
-        disabled={busy}
-        onPress={() => {
-          router.replace({
-            pathname: "/forgotPassword",
-            params: trocando ? { modo: "trocar" } : {},
-          });
         }}
       />
     </AuthForm>

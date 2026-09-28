@@ -51,44 +51,47 @@ export default function EmailSent() {
     );
   }
 
-  return (
+    return (
     <AuthForm
-  title="Confira seu e-mail"
-  header={
-    <View style={{ alignItems: "center" }}>
-      <Image
-        source={require("../../../assets/icones/sent.png")}
-        style={emailStyles.icone}
-      />
+      layout="mensagem"
+      title="Confira seu e-mail"
+      header={
+        <View style={{ alignItems: "center" }}>
+          <Image
+            source={require("../../../assets/icones/sent.png")}
+            style={emailStyles.icone}
+          />
 
-      <Text style={emailStyles.titulo}>
-        <Text style={emailStyles.tituloDestaque}>
-          Confira
-        </Text>
-        {" "}seu e-mail
-      </Text>
+          <Text style={emailStyles.titulo}>
+            <Text style={emailStyles.tituloDestaque}>
+              Confira
+            </Text>
+            {" "}seu e-mail
+          </Text>
 
-      <Text
-        style={[
-          emailStyles.subtitulo,
-          { marginBottom: 20 },
-        ]}
-      >
-        Se houver uma conta com esse e-mail, você receberá
-        um código. Confira também o spam.
-      </Text>
-    </View>
-  }
->
-      <Button
-        titulo="Já tenho o código"
-        onPress={() => {
-          router.replace({
-            pathname: "/verifyEmail",
-            params: trocando ? { modo: "trocar" } : {},
-          });
-        }}
-      />
-    </AuthForm>
+          <Text
+            style={[
+              emailStyles.subtitulo,
+              { marginBottom: 0 },
+            ]}
+          >
+            Se houver uma conta com esse e-mail, você receberá
+            um código. Confira também o spam.
+          </Text>
+        </View>
+      }
+      footer={
+        <Button
+          titulo="Já tenho o código"
+          variante="primario"
+          onPress={() => {
+            router.replace({
+              pathname: "/verifyEmail",
+              params: trocando ? { modo: "trocar" } : {},
+            });
+          }}
+        />
+      }
+    />
   );
 }

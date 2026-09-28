@@ -10,7 +10,6 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { BackgroundGradient } from "./backgroundGradient";
 
 type AuthFormProps = {
@@ -18,7 +17,13 @@ type AuthFormProps = {
   subtitle?: string;
   error?: string;
   header?: ReactNode;
-  children: ReactNode;
+  footer?: ReactNode;
+  children?: ReactNode;
+
+  // topo: campos próximos do título.
+  // centro: campos centralizados abaixo do título.
+  // mensagem: cabeçalho e conteúdo centralizados juntos.
+  layout?: "topo" | "centro" | "mensagem";
 };
 
 export function AuthForm({
@@ -26,49 +31,82 @@ export function AuthForm({
   subtitle,
   error,
   header,
+  footer,
   children,
+  layout = "centro",
 }: AuthFormProps) {
+  const cabecalho = (
+    <View style={styles.header}>
+      {header ?? (
+        <>
+          <Text style={styles.title}>{title}</Text>
+
+          {subtitle ? (
+            <Text style={formStyles.text}>
+              {subtitle}
+            </Text>
+          ) : null}
+        </>
+      )}
+    </View>
+  );
+
+  const conteudo = (
+    <>
+      {error ? (
+        <Text
+          accessibilityRole="alert"
+          style={[formStyles.error, styles.errorSpacing]}
+        >
+          {error}
+        </Text>
+      ) : null}
+
+      {children}
+    </>
+  );
+
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.screen}>
       <BackgroundGradient />
 
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={styles.screen}>
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={
-            Platform.OS === "ios"
-              ? "padding"
-              : "height"
-          }
+          style={styles.screen}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
           <ScrollView
+            style={styles.screen}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={styles.content}
           >
-            {header ?? (
+            {layout === "mensagem" ? (
+              <View style={styles.mensagem}>
+                {cabecalho}
+                {conteudo}
+              </View>
+            ) : (
               <>
-                <Text style={styles.title}>
-                  {title}
-                </Text>
+                {cabecalho}
 
-                {subtitle ? (
-                  <Text style={styles.text}>
-                    {subtitle}
-                  </Text>
-                ) : null}
+                <View
+                  style={[
+                    styles.formulario,
+                    layout === "topo"
+                      ? styles.formularioTopo
+                      : styles.formularioCentro,
+                  ]}
+                >
+                  {conteudo}
+                </View>
               </>
             )}
 
-            {error ? (
-              <Text
-                accessibilityRole="alert"
-                style={styles.error}
-              >
-                {error}
-              </Text>
+            {footer ? (
+              <View style={styles.footer}>
+                {footer}
+              </View>
             ) : null}
-
-            {children}
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -97,21 +135,53 @@ export const formStyles = StyleSheet.create({
   success: {
     color: "#a7efc1",
     fontSize: 16,
+    marginBottom: 16,
   },
 });
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+
   content: {
-  flexGrow: 1,
-  justifyContent: "flex-start",
-  gap: 0,
-  paddingHorizontal: 24,
-  paddingTop: 24,
-  paddingBottom: 24,
-  width: "100%",
-  maxWidth: 540,
-  alignSelf: "center",
-},
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 24,
+    width: "100%",
+    maxWidth: 540,
+    alignSelf: "center",
+  },
+
+  header: {
+    flexShrink: 0,
+    marginBottom: 12,
+  },
+
+  formulario: {
+    flexGrow: 1,
+    flexShrink: 0,
+  },
+
+  formularioTopo: {
+    justifyContent: "flex-start",
+  },
+
+  formularioCentro: {
+    justifyContent: "center",
+  },
+
+  mensagem: {
+    flexGrow: 1,
+    flexShrink: 0,
+    justifyContent: "center",
+  },
+
+  footer: {
+    flexShrink: 0,
+    paddingTop: 24,
+  },
 
   title: {
     color: "#fff",
@@ -119,6 +189,7 @@ const styles = StyleSheet.create({
     fontFamily: "Raleway_700Bold",
   },
 
-  text: formStyles.text,
-  error: formStyles.error,
+  errorSpacing: {
+    marginBottom: 16,
+  },
 });
