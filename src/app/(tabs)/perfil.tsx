@@ -22,15 +22,13 @@ import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/perfil";
 
 import { useAuth } from "../../features/authContext";
-import { useAction } from "../../shared/hooks/useAction";
 import { Rotas } from "../../shared/constants/Rotas";
 
 export default function Perfil() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const { user, logout } = useAuth();
-  const { busy, error, run } = useAction();
+  const { user } = useAuth();
 
   const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
   const [modalFotoVisible, setModalFotoVisible] = useState(false);
@@ -219,20 +217,16 @@ export default function Perfil() {
           </Card>
 
           <View style={{ marginTop: 20, gap: 12 }}>
-            {error ? (
-              <Text
-                style={{ color: "#ffb4b4" }}
-                accessibilityRole="alert"
-              >
-                {error}
-              </Text>
-            ) : null}
-
+            {/* Leva pra tela de confirmação (com contagem de 10s) */}
             <Button
-              titulo={busy ? "Saindo..." : "Sair da conta"}
+              titulo="Sair da conta"
               variante="terciario"
-              disabled={busy}
-              onPress={() => void run(logout)}
+              onPress={() =>
+                router.push({
+                  pathname: "/conta/confirmarAcao",
+                  params: { acao: "sair" },
+                })
+              }
             />
           </View>
         </View>

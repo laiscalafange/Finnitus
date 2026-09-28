@@ -8,22 +8,19 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
 
+  // Conteúdo do ScrollView: ocupa pelo menos a tela toda (flexGrow),
+  // o que deixa o botão "Criar meta" no final da tela; se o conteúdo
+  // ficar maior que a tela, a tela rola normalmente
   conteudo: {
-    paddingBottom: 30,
+    flexGrow: 1,
+    paddingBottom: 24,
   },
 
   // Bloco de conteúdo que "sobe" por cima do header (marginTop negativo)
   conteudoSobreHeader: {
     marginTop: -235,
     paddingHorizontal: 16,
-    flex: 1,
-  },
-
-  titulo: {
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 24,
-    color: Cores.destaque.limao,
-    marginBottom: 15,
+    flexGrow: 1,
   },
 
   // Prefixo "R$" nos campos de valor (Valor objetivo / Valor inicial)
@@ -38,12 +35,13 @@ export const styles = StyleSheet.create({
     color: "#ffb4b4",
     fontSize: 14,
     fontFamily: FONTS.quicksand.semibold,
-    marginTop: 4,
+    marginBottom: 12,
   },
 
-  // Empurra o botão "Confirmar" pro final da tela
+  // marginTop "auto" empurra o botão pro final da tela; o paddingTop
+  // garante um respiro mínimo entre o último campo e o botão
   botaoContainer: {
-    marginTop: 250,
-    paddingBottom: 20,
+    marginTop: "auto",
+    paddingTop: 16,
   },
 });
