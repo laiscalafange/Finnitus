@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Text, View, Image } from "react-native";
 
 import {
   useLocalSearchParams,
@@ -17,7 +18,6 @@ import {
   normalizeEmail,
   validEmail,
 } from "../../shared/utils/formValidation";
-import { Text, View, Image } from "react-native";
 
 import {
   styles as recuperacaoStyles,
@@ -28,9 +28,6 @@ export default function ForgotPassword() {
 
   const params = useLocalSearchParams<{
     email?: string;
-    // Vem preenchido quando essa tela foi aberta pelo botão
-    // "Trocar senha" da tela Segurança (usuário já logado) —
-    // muda só o texto, o fluxo por trás é o mesmo
     modo?: string;
   }>();
 
@@ -43,21 +40,14 @@ export default function ForgotPassword() {
   );
 
   const { startRecovery } = useAuth();
-
-  const {
-    busy,
-    error,
-    run,
-  } = useAction();
+  const { busy, error, run } = useAction();
 
   function enviar() {
     void run(async () => {
       const normalized = normalizeEmail(email);
 
       if (!validEmail(normalized)) {
-        throw new Error(
-          "Informe um e-mail válido."
-        );
+        throw new Error("Informe um e-mail válido.");
       }
 
       await authService.forgot(normalized);
@@ -73,7 +63,8 @@ export default function ForgotPassword() {
 
   return (
     <AuthForm
-      title={trocando ? "Trocar senha" : "Recuperar senha"}
+    layout="topo"  
+    title={trocando ? "Trocar senha" : "Recuperar senha"}
       error={error}
       header={
         <View>
@@ -96,6 +87,27 @@ export default function ForgotPassword() {
           </Text>
         </View>
       }
+      footer={
+        <>
+          <Button
+            titulo={busy ? "Enviando..." : "Enviar código"}
+            variante="primario"
+            disabled={busy}
+            onPress={enviar}
+          />
+
+          <Button
+            titulo={trocando ? "Cancelar" : "Voltar ao login"}
+            variante="primario"
+            disabled={busy}
+            onPress={() =>
+              trocando
+                ? router.dismissTo("/conta/seguranca")
+                : router.replace("/login")
+            }
+          />
+        </>
+      }
     >
       <Input
         label="E-mail"
@@ -116,24 +128,6 @@ export default function ForgotPassword() {
               resizeMode: "contain",
             }}
           />
-        }
-      />
-
-      <Button
-        titulo={busy ? "Enviando..." : "Enviar código"}
-        variante="primario"
-        disabled={busy}
-        onPress={enviar}
-      />
-
-      <Button
-        titulo={trocando ? "Cancelar" : "Voltar ao login"}
-        variante="primario"
-        disabled={busy}
-        onPress={() =>
-          trocando
-            ? router.dismissTo("/conta/seguranca")
-            : router.replace("/login")
         }
       />
     </AuthForm>

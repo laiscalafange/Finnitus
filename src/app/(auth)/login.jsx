@@ -81,8 +81,9 @@ export default function Login() {
   });
 }
 
-  return (
+    return (
     <AuthForm
+      layout="topo"
       title="Entre na sua conta"
       error={error}
       header={
@@ -98,6 +99,66 @@ export default function Login() {
             Preencha seus dados.
           </Text>
         </View>
+      }
+      footer={
+        <>
+          <Button
+            titulo={busy ? "Aguarde..." : "Entrar"}
+            variante="primario"
+            onPress={entrar}
+            disabled={busy}
+          />
+
+          <Button
+            titulo="Entrar com Google"
+            variante="primario"
+            onPress={google}
+            disabled={busy}
+            icone={
+              <Image
+                source={require(
+                  "../../../assets/icones/google.png"
+                )}
+                style={googleIconStyle}
+              />
+            }
+          />
+
+          <Pressable
+            accessibilityRole="link"
+            accessibilityState={{ disabled: busy }}
+            disabled={busy}
+            hitSlop={8}
+            onPress={() => {
+              router.push({
+                pathname: "/forgotPassword",
+                params: { email },
+              });
+            }}
+            style={({ pressed }) => ({
+              alignSelf: "center",
+              paddingVertical: 10,
+              marginBottom: 12,
+              opacity: busy ? 0.5 : pressed ? 0.7 : 1,
+            })}
+          >
+            <Text
+              style={[
+                loginStyles.texto,
+                { marginTop: 0 },
+              ]}
+            >
+              Esqueceu sua senha?
+            </Text>
+          </Pressable>
+
+          <Button
+            titulo="Criar uma conta"
+            variante="primario"
+            onPress={() => router.push("/cadastro")}
+            disabled={busy}
+          />
+        </>
       }
     >
       {params.cadastrado === "1" ? (
@@ -146,57 +207,6 @@ export default function Login() {
             style={inputIconStyle}
           />
         }
-      />
-
-      <Button
-        titulo={busy ? "Aguarde..." : "Entrar"}
-        variante="primario"
-        onPress={entrar}
-        disabled={busy}
-      />
-
-      <Button
-        titulo="Entrar com Google"
-        variante="primario"
-        onPress={google}
-        disabled={busy}
-        icone={
-          <Image
-            source={require(
-              "../../../assets/icones/google.png"
-            )}
-            style={googleIconStyle}
-          />
-        }
-      />
-
-      <Pressable
-        accessibilityRole="link"
-        accessibilityState={{ disabled: busy }}
-        disabled={busy}
-        hitSlop={8}
-        onPress={() => {
-          router.push({
-            pathname: "/forgotPassword",
-            params: { email },
-          });
-        }}
-        style={({ pressed }) => ({
-          alignSelf: "center",
-          paddingVertical: 8,
-          opacity: busy ? 0.5 : pressed ? 0.7 : 1,
-        })}
-      >
-        <Text style={loginStyles.texto}>
-          Esqueceu sua senha?
-        </Text>
-      </Pressable>
-
-      <Button
-        titulo="Criar uma conta"
-        variante="primario"
-        onPress={() => router.push("/cadastro")}
-        disabled={busy}
       />
     </AuthForm>
   );
