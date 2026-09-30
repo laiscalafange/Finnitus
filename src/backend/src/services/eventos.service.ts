@@ -56,3 +56,30 @@ export async function criarEvento(dados: CriarEventoDados) {
 
   return evento;
 }
+
+export async function listarEventos(
+  id_Usuario: number,
+  inicio?: string,
+  fim?: string,
+) {
+  const eventos = await prisma.evento.findMany({
+    where: {
+      id_Usuario,
+
+      ...(inicio && fim
+        ? {
+            data_inicio: {
+              gte: new Date(inicio),
+              lt: new Date(fim),
+            },
+          }
+        : {}),
+    },
+
+    orderBy: {
+      data_inicio: "asc",
+    },
+  });
+
+  return eventos;
+}
