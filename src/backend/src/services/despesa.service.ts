@@ -6,7 +6,7 @@ export async function criarDespesa(dados: {
   descricao: string;
   valor: number;
   data_vencimento: string;
-  data_pagamento: string;
+  data_pagamento?: string;
   tipo: "FIXA" | "VARIAVEL";
   frequencia: "UNICA" | "SEMANAL" | "QUINZENAL" | "MENSAL" | "ANUAL";
   forma_pagamento: "DINHEIRO" | "PIX" | "DEBITO" | "CREDITO" | "BOLETO"
@@ -21,7 +21,7 @@ export async function criarDespesa(dados: {
       descricao: dados.descricao,
       valor: dados.valor,
       data_vencimento: new Date(dados.data_vencimento),
-      data_pagamento: new Date(dados.data_pagamento),
+      data_pagamento: dados.data_pagamento ? new Date(dados.data_pagamento) : null,
       tipo: dados.tipo,
       frequencia: dados.frequencia,
       forma_pagamento: dados.forma_pagamento,

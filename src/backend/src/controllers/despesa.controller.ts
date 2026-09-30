@@ -5,9 +5,19 @@ export async function criarDespesa(
   req: Request,
   res: Response
 ) {
-  const receita = await criarDespesaService(req.body);
+  if (!req.userId) {
+    return res.status(401).json({
+      mensagem: "Usuário não autenticado",
+    });
+  }
 
-  return res.status(201).json(receita);
+  const despesa =
+    await criarDespesaService({
+      ...req.body,
+      id_Usuario: req.userId,
+    });
+
+  return res.status(201).json(despesa);
 }
 
 export async function listarDespesas(
