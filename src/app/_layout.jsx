@@ -139,6 +139,7 @@ function SessionNavigator() {
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="configuracaoInicial" />
           <Stack.Screen name="conta" />
+          <Stack.Screen name="mais" />
 
           <Stack.Screen name="Premium/Premium" />
           <Stack.Screen name="Notificacao/Notificacao" />
