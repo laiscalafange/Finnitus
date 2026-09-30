@@ -28,10 +28,6 @@ import { Cores } from "../../shared/constants/Cores";
 import { FONTS } from "../../shared/constants/Tipografia";
 import { Rotas } from "../../shared/constants/Rotas";
 
-import {
-  TRANSACOES_MOCK,
-} from "../../shared/components/Mocks";
-
 import { styles } from "../../styles/calendariostyle";
 
 import coroaIcon from "../../../assets/icones/coroa.png";
@@ -375,6 +371,27 @@ if (dataSelecionada) {
     );
   });
 
+  const movimentacoesDoDia =
+  itensCalendario.filter((item) => {
+    return (
+      (item.tipo === "DESPESA" ||
+        item.tipo === "RECEITA") &&
+      dataSelecionada !== null &&
+      obterDataCalendario(item) ===
+        dataSelecionada
+    );
+  });
+
+  const compromissosDoDia =
+  itensCalendario.filter((item) => {
+    return (
+      (item.tipo === "META" ||
+        item.tipo === "DIVIDA") &&
+      dataSelecionada !== null &&
+      obterDataCalendario(item) ===
+        dataSelecionada
+    );
+  });
 
   // ─────────────────────────────────────────
   // TELA
@@ -690,76 +707,149 @@ if (dataSelecionada) {
           {/* ───────── GASTOS DO DIA ───────── */}
 
           <Text style={styles.secaoTitulo}>
-            Gastos do dia
+            Movimentações do dia
+            </Text>
+
+          {movimentacoesDoDia.length > 0 ? (
+  movimentacoesDoDia.map((item) => {
+    const ehReceita =
+      item.tipo === "RECEITA";
+
+    return (
+      <LinearGradient
+        key={`${item.tipo}-${item.id}`}
+        colors={[
+          "#30096e",
+          "#30096e",
+        ]}
+        style={styles.gastoCard}
+      >
+        <View
+          style={[
+            styles.gastoIconeContainer,
+            {
+              backgroundColor: "#5f33a77a",
+              borderWidth: 1,
+              borderColor: "#7F3BED",
+              borderRadius: 100,
+            },
+          ]}
+        >
+          <Text
+            style={{
+              color: Cores.base.branco,
+              fontSize: 18,
+            }}
+          >
+            {ehReceita ? "+" : "−"}
+          </Text>
+        </View>
+
+        <View style={styles.gastoInfo}>
+          <Text style={styles.gastoNome}>
+            {item.titulo}
           </Text>
 
-          {TRANSACOES_MOCK.map((t) => (
-            <LinearGradient
-              key={t.id}
-              colors={[
-                "#30096e",
-                "#30096e",
-              ]}
-              style={styles.gastoCard}
-            >
-              <View
-                style={[
-                  styles.gastoIconeContainer,
-                  {
-                    backgroundColor:
-                      "#5f33a77a",
+          <Text style={styles.gastoHora}>
+            {ehReceita
+              ? "Receita"
+              : "Despesa"}
+          </Text>
+        </View>
 
-                    borderWidth: 1,
+        <Text
+          style={[
+            styles.gastoValor,
+            {
+              color: ehReceita
+                ? Cores.destaque.limao
+                : Cores.base.branco,
+            },
+          ]}
+        >
+          {ehReceita ? "+ " : "- "}
+          R${" "}
+          {(item.valor ?? 0)
+            .toFixed(2)
+            .replace(".", ",")}
+        </Text>
+      </LinearGradient>
+    );
+  })
+) : (
+  <Text style={styles.eventoDescricao}>
+    {dataSelecionada
+      ? "Nenhuma movimentação nesta data."
+      : "Selecione uma data."}
+  </Text>
+)}
 
-                    borderColor:
-                      "#7F3BED",
+<Text style={styles.secaoTitulo}>
+  Compromissos financeiros
+</Text>
 
-                    borderRadius: 100,
-                  },
-                ]}
-              >
-                <Image
-                  source={t.icone}
-                  style={styles.gastoIcone}
-                  resizeMode="contain"
-                />
-              </View>
+{compromissosDoDia.length > 0 ? (
+  compromissosDoDia.map((item) => {
+    const ehMeta = item.tipo === "META";
 
-              <View
-                style={styles.gastoInfo}
-              >
-                <Text
-                  style={styles.gastoNome}
-                >
-                  {t.nome}
-                </Text>
+    return (
+      <LinearGradient
+        key={`${item.tipo}-${item.id}`}
+        colors={[
+          "#30096e",
+          "#30096e",
+        ]}
+        style={styles.gastoCard}
+      >
+        <View
+          style={[
+            styles.gastoIconeContainer,
+            {
+              backgroundColor: "#5f33a77a",
+              borderWidth: 1,
+              borderColor: "#7F3BED",
+              borderRadius: 100,
+            },
+          ]}
+        >
+          <Text
+            style={{
+              color: Cores.base.branco,
+              fontSize: 16,
+            }}
+          >
+            {ehMeta ? "M" : "D"}
+          </Text>
+        </View>
 
-                <Text
-                  style={styles.gastoHora}
-                >
-                  {t.hora}
-                </Text>
-              </View>
+        <View style={styles.gastoInfo}>
+          <Text style={styles.gastoNome}>
+            {item.titulo}
+          </Text>
 
-              <Text
-                style={[
-                  styles.gastoValor,
-                  {
-                    color:
-                      t.tipo ===
-                      "entrada"
-                        ? Cores.destaque
-                            .limao
-                        : Cores.base
-                            .branco,
-                  },
-                ]}
-              >
-                R${" "}
-                {t.valor.toFixed(2)}
-              </Text>
-            </LinearGradient>
-          ))}
+          <Text style={styles.gastoHora}>
+            {ehMeta
+              ? "Prazo da meta"
+              : "Vencimento da dívida"}
+          </Text>
+        </View>
+
+        <Text style={styles.gastoValor}>
+          R${" "}
+          {(item.valor ?? 0)
+            .toFixed(2)
+            .replace(".", ",")}
+        </Text>
+      </LinearGradient>
+    );
+  })
+) : (
+  <Text style={styles.eventoDescricao}>
+    {dataSelecionada
+      ? "Nenhum compromisso financeiro nesta data."
+      : "Selecione uma data."}
+  </Text>
+)}
 
 
           {/* ───────── GASTOS DO MÊS ───────── */}
