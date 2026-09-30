@@ -30,14 +30,12 @@ import { Rotas } from "../../shared/constants/Rotas";
 
 import {
   TRANSACOES_MOCK,
-  EVENTOS_MES_MOCK,
 } from "../../shared/components/Mocks";
 
 import { styles } from "../../styles/calendariostyle";
 
 import coroaIcon from "../../../assets/icones/coroa.png";
 import sinoIcon from "../../../assets/icones/sino.png";
-
 
 // ─────────────────────────────────────────────
 // TIPOS
@@ -142,6 +140,27 @@ const markedDatesBase: MarcacoesCalendario = {
   },
 };
 
+function obterDataCalendario(
+  item: ItemCalendario
+): string {
+  if (item.tipo === "EVENTO") {
+    const data = new Date(item.data);
+
+    const ano = data.getFullYear();
+
+    const mes = String(
+      data.getMonth() + 1
+    ).padStart(2, "0");
+
+    const dia = String(
+      data.getDate()
+    ).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+  }
+
+  return item.data.slice(0, 10);
+}
 
 // ─────────────────────────────────────────────
 // GAUGE
@@ -272,23 +291,27 @@ export default function Calendario() {
   // MARCAÇÕES DO CALENDÁRIO
   // ─────────────────────────────────────────
 
-  const markedDates: MarcacoesCalendario = {
-    ...markedDatesBase,
+ const markedDates: MarcacoesCalendario = {};
 
-    ...(dataSelecionada
-      ? {
-          [dataSelecionada]: {
-            ...markedDatesBase[
-              dataSelecionada
-            ],
+itensCalendario.forEach((item) => {
+  const dataItem =
+    obterDataCalendario(item);
 
-            selected: true,
-            selectedColor:
-              Cores.destaque.limao,
-          },
-        }
-      : {}),
+  markedDates[dataItem] = {
+    marked: true,
+    dotColor: Cores.estado.perigo,
   };
+});
+
+if (dataSelecionada) {
+  markedDates[dataSelecionada] = {
+    ...markedDates[dataSelecionada],
+
+    selected: true,
+    selectedColor:
+      Cores.destaque.limao,
+  };
+}
 
 
   // ─────────────────────────────────────────
@@ -341,6 +364,16 @@ export default function Calendario() {
 
     carregarCalendario();
   }, [mesAtual]);
+
+  const eventosDoDia =
+  itensCalendario.filter((item) => {
+    return (
+      item.tipo === "EVENTO" &&
+      dataSelecionada !== null &&
+      obterDataCalendario(item) ===
+        dataSelecionada
+    );
+  });
 
 
   // ─────────────────────────────────────────
@@ -587,42 +620,70 @@ export default function Calendario() {
                 style={styles.eventoData}
               >
                 {dataSelecionada
-                  ? dataSelecionada
-                      .split("-")
-                      .reverse()
-                      .join("/")
-                  : "09/02"}
+  ? dataSelecionada
+      .split("-")
+      .reverse()
+      .join("/")
+  : "Selecione uma data"}
               </Text>
             </View>
 
-            {EVENTOS_MES_MOCK.map(
-              (ev, i) => (
-                <View
-                  key={i}
-                  style={styles.eventoItem}
-                >
-                  <Text
-                    style={styles.eventoNome}
-                  >
-                    • {ev.nome}
-                  </Text>
+            {eventosDoDia.length > 0 ? (
+  eventosDoDia.map((evento) => {
+    const dataHora = new Date(
+      evento.horarioInicio ??
+        evento.data
+    );
 
-                  <Text
-                    style={
-                      styles.eventoDescricao
-                    }
-                  >
-                    • {ev.descricao}
-                  </Text>
+    const hora =
+      dataHora.toLocaleTimeString(
+        "pt-BR",
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      );
 
-                  <Text
-                    style={styles.eventoHora}
-                  >
-                    {ev.hora}
-                  </Text>
-                </View>
-              )
-            )}
+    return (
+      <View
+        key={`${evento.tipo}-${evento.id}`}
+        style={styles.eventoItem}
+      >
+        <Text
+          style={styles.eventoNome}
+        >
+          • {evento.titulo}
+        </Text>
+
+        {evento.descricao && (
+          <Text
+            style={
+              styles.eventoDescricao
+            }
+          >
+            • {evento.descricao}
+          </Text>
+        )}
+
+        {!evento.diaInteiro && (
+          <Text
+            style={styles.eventoHora}
+          >
+            {hora}
+          </Text>
+        )}
+      </View>
+    );
+  })
+) : (
+  <Text
+    style={styles.eventoDescricao}
+  >
+    {dataSelecionada
+      ? "Nenhum evento nesta data."
+      : "Selecione uma data."}
+  </Text>
+)}
           </LinearGradient>
 
 
