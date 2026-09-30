@@ -5,10 +5,19 @@ export async function criarEvento(
   req: Request,
   res: Response
 ) {
-  const receita = await criarEventosService(req.body);
+  try {
+    const evento = await criarEventosService(req.body);
 
-  return res.status(201).json(receita);
+    return res.status(201).json(evento);
+  } catch (error) {
+    console.error("Erro ao criar evento:", error);
+
+    return res.status(500).json({
+      mensagem: "Erro ao criar evento",
+    });
+  }
 }
+
 
 export async function listarEventos(
   req: Request,
@@ -48,7 +57,7 @@ export async function excluirEvento(
   const id = req.params.id;
 
   return res.status(200).json({
-    mensagem: "Receita excluída",
+    mensagem: "Evento  excluída",
     id
   });
 }
