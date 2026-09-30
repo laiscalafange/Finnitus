@@ -1,10 +1,18 @@
 import { Router } from "express";
-import {criarReceita, listarReceitas, buscarReceita, atualizarReceita, excluirReceita} from "../controllers/receita.controller.js";
 
+import {
+  criarReceita,
+  listarReceitas,
+  buscarReceita,
+  atualizarReceita,
+  excluirReceita,
+} from "../controllers/receita.controller.js";
 
-
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = Router();
+
+router.use(authMiddleware);
 
 router.post("/", criarReceita);
 router.get("/", listarReceitas);

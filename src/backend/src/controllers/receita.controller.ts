@@ -5,7 +5,16 @@ export async function criarReceita(
   req: Request,
   res: Response
 ) {
-  const receita = await criarReceitaService(req.body);
+  if (!req.userId) {
+    return res.status(401).json({
+      mensagem: "Usuário não autenticado",
+    });
+  }
+
+  const receita = await criarReceitaService({
+    ...req.body,
+    id_Usuario: req.userId,
+  });
 
   return res.status(201).json(receita);
 }
