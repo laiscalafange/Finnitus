@@ -22,8 +22,12 @@ function BarraInferior() {
     if (aba === 'dashboard') router.push('/dashboard')
     if (aba === 'planoB') router.push('/PlanoB')
     if (aba === 'perfil') router.push('/perfil')
-    // FAB permanece visualmente disponível até existir uma ação de lançamento
-    // financeiro implementada no projeto.
+
+    // Ações do menu que abre ao tocar no + (telas em src/app/mais)
+    if (aba === 'novoImprevisto') router.push('/mais/novoImprevisto')
+    if (aba === 'novoGasto') router.push('/mais/novoGasto')
+    if (aba === 'novoEvento') router.push('/mais/novoEvento')
+    if (aba === 'reservaEmergencia') router.push('/mais/reservaEmergencia')
   }
 
   if (semBarra) return null
