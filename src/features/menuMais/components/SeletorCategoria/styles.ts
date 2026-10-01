@@ -29,6 +29,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
     paddingVertical: 14,
+    paddingHorizontal: 6,
     marginBottom: 10,
     borderWidth: 1.5,
     borderColor: Cores.roxo.claro,
@@ -42,11 +43,8 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(183, 255, 0, 0.08)",
   },
 
-  emoji: {
-    fontSize: 22,
-  },
-
   nome: {
+    maxWidth: "100%",
     fontFamily: FONTS.quicksand.bold,
     fontSize: 12,
     color: Cores.texto.claro,
