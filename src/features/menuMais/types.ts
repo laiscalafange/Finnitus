@@ -1,10 +1,14 @@
+import type { LucideIcon } from "lucide-react-native";
+
 // Tipos das telas acessadas pelo botão "+" da barra de navegação
 
-// Item de categoria mostrado na grade (emoji + nome)
+// Item de categoria mostrado na grade (ícone + nome)
 export type CategoriaItem = {
   id: string;
   rotulo: string;
-  emoji: string;
+  icone: LucideIcon;
+  // Só o card "Outros" tem: lista de categorias extras que abrem no modal
+  extras?: CategoriaItem[];
 };
 
 // "Novo gasto" registra saídas (gasto) e entradas (receita)
