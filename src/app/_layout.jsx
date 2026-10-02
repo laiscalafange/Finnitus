@@ -144,6 +144,9 @@ function SessionNavigator() {
           <Stack.Screen name="Premium/Premium" />
           <Stack.Screen name="Notificacao/Notificacao" />
 
+          <Stack.Screen name="Premium/Pagamento" />
+          <Stack.Screen name="Premium/PremiumAtivo" />
+
           <Stack.Screen
             name="Notifica#U00e7#U00e3o/Notificacao"
           />

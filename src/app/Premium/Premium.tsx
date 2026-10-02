@@ -5,64 +5,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { HeaderInterno } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
+import { Rotas } from "../../shared/constants/Rotas";
+import { PLANOS } from "@/features/planosData";
 import { styles } from "@/styles/premium";
 
-// Tipagem de cada plano de assinatura exibido no carrossel
-interface Plano {
-  id: string;
-  nome: string;
-  descricao: string;
-  preco: string;
-  periodo?: string;
-  teste?: string;
-  badge?: string;
-  beneficios: string[];
-}
-
-// Lista fixa com os 3 planos disponíveis (Básico, Mega finn, Infinitos)
-// Cada um tem seus próprios benefícios e preço
-const PLANOS: Plano[] = [
-  {
-    id: "basico",
-    nome: "Básico",
-    descricao: "Para quem está começando a organizar as finanças",
-    preco: "Grátis",
-    beneficios: [
-      "Controle de gastos",
-      "Até 3 metas ativas",
-      "Relatório mensal simples",
-    ],
-  },
-  {
-    id: "mega-finn",
-    nome: "Mega finn",
-    badge: "Mais popular",
-    descricao: "Para quem deseja ter controle sobre o próprio futuro",
-    preco: "R$15,95",
-    periodo: "/mês",
-    teste: "7 dias de teste grátis!",
-    beneficios: [
-      "Tudo do Básico",
-      "Metas ilimitadas",
-      "Plano-B completo (simulação de imprevistos)",
-      "Calendário inteligente de contas e vencimentos",
-      "Relatórios e gráficos avançados",
-    ],
-  },
-  {
-    id: "infinitos",
-    nome: "Infinitos",
-    descricao: "Para quem quer o máximo de recursos e liberdade",
-    preco: "R$29,90",
-    periodo: "/mês",
-    beneficios: [
-      "Tudo do Mega Finn",
-      "Consultoria financeira mensal",
-      "Metas compartilhadas em família",
-      "Suporte prioritário",
-    ],
-  },
-];
 
 export default function Premium() {
   const router = useRouter();
@@ -100,12 +46,17 @@ export default function Premium() {
     setIndiceAtivo(indice);
   }
 
-  // Ao clicar em "Obter Agora": leva pra tela de checkout/pagamento,
-  // passando o id do plano escolhido como parâmetro de rota
-  // TODO: ajustar "/checkout" pro nome real da rota quando ela existir
+  // Ao clicar em "Obter Agora": leva pra tela de Pagamento,
+  // passando o id do plano escolhido como parâmetro de rota.
+  // O plano Básico é grátis (não tem pagamento), então só volta pra tela anterior.
   function aoConfirmarPlano(planoId: string) {
+    if (planoId === "basico") {
+      router.back();
+      return;
+    }
+
     router.push({
-      pathname: "/",
+      pathname: Rotas.pagamento,
       params: { plano: planoId },
     });
   }
@@ -238,7 +189,7 @@ export default function Premium() {
                   </View>
                 ))}
 
-                {/* Botão principal — confirma a escolha do plano e vai pro checkout */}
+                {/* Botão principal — confirma a escolha do plano e vai pro Pagamento */}
                 <Button
                   titulo="Obter Agora"
                   variante="terciario"
