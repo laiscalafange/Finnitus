@@ -406,21 +406,34 @@ export default function Dashboard() {
           ===================================================== */}
 
           <View style={styles.duploRow}>
-            <SumarioCard
-              disponivel={SUMARIO_PLANOB_MOCK.disponivel}
-              itens={SUMARIO_PLANOB_MOCK.itens.map(item => ({
-                label: item.label,
-                valor: item.valor.toFixed(2).replace('.', ','),
-                cor: item.cor,
-                pct: item.porcentagem,
-              }))}
-            />
+            {/* Toque no card Sumário abre o Sumário detalhado */}
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir sumário detalhado"
+              onPress={() => router.push(Rotas.sumarioDetalhado)}
+            >
+              <SumarioCard
+                disponivel={SUMARIO_PLANOB_MOCK.disponivel}
+                itens={SUMARIO_PLANOB_MOCK.itens}
+              />
+            </TouchableOpacity>
 
-            <HeatmapCard
-              mes={ATIVIDADE_HEATMAP_MOCK.mes}
-              ano={ATIVIDADE_HEATMAP_MOCK.ano}
-              dias={ATIVIDADE_HEATMAP_MOCK.dias}
-            />
+            {/* Toque no card Atividade abre a tela de Atividade */}
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir atividade"
+              onPress={() => router.push(Rotas.atividade)}
+            >
+              <HeatmapCard
+                mes={ATIVIDADE_HEATMAP_MOCK.mes}
+                ano={ATIVIDADE_HEATMAP_MOCK.ano}
+                dias={ATIVIDADE_HEATMAP_MOCK.dias}
+              />
+            </TouchableOpacity>
           </View>
 
           <Text style={styles.secaoTitulo}>Planejamentos</Text>

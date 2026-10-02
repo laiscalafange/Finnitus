@@ -8,6 +8,12 @@
 
 export const Rotas = {
   premium: '/Premium/Premium',
+  pagamento: '/Premium/Pagamento',
+  premiumAtivo: '/Premium/PremiumAtivo',
   notificacao: '/Notificacao/Notificacao',
   inicio: '/paginaInicial',
+  planoB: '/PlanoB',
+  // Telas abertas pelos cards de Sumário e Atividade (Dashboard e Plano-B)
+  sumarioDetalhado: '/Detalhes/SumarioDetalhado',
+  atividade: '/Detalhes/Atividade',
 } as const;
