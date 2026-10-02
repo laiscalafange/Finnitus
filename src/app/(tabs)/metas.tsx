@@ -38,12 +38,11 @@ export default function Metas() {
           {/* ── ANÁLISES / HISTÓRICO ── */}
           <View style={styles.navRow}>
 
-            {/* ANÁLISES — leva pra tela de análises financeiras das metas
-                TODO: ajustar "/analises" pro nome real da rota */}
+            {/* ANÁLISES — leva pra tela de análises financeiras das metas */}
             <TouchableOpacity
               style={styles.navItem}
               activeOpacity={0.8}
-              onPress={() => router.push('/')}
+              onPress={() => router.push('/MetasAnalises')}
             >
               <LinearGradient
                 colors={[Cores.fundo.destaque, '#5a2dc7']}
@@ -60,12 +59,11 @@ export default function Metas() {
               </Text>
             </TouchableOpacity>
 
-            {/* HISTÓRICO — leva pra tela com o histórico completo de movimentações
-                TODO: ajustar "/historico-metas" pro nome real da rota */}
+            {/* HISTÓRICO — leva pra tela com as metas concluídas e canceladas */}
             <TouchableOpacity
               style={styles.navItem}
               activeOpacity={0.8}
-              onPress={() => router.push('/')}
+              onPress={() => router.push('/MetasHistorico')}
             >
               <LinearGradient
                 colors={[Cores.fundo.destaque, '#5a2dc7']}

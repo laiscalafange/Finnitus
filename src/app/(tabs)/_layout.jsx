@@ -12,8 +12,11 @@ function BarraInferior() {
     : pathname.includes('perfil') ? 'perfil'
     : 'home'
 
-  // Telas que não mostram a barra de navegação (ex.: criação de meta)
+  // Telas que não mostram a barra de navegação (criação de meta e as
+  // telas Histórico e Análises de Metas)
   const semBarra = pathname.includes('MetasFuturas')
+    || pathname.includes('MetasHistorico')
+    || pathname.includes('MetasAnalises')
 
   function navegar(aba) {
     if (aba === 'home') router.push('/paginaInicial')
@@ -51,5 +54,7 @@ export default function TabsLayout() {
     <Tabs.Screen name="MetasDetalhes" options={{ href: null }} />
     <Tabs.Screen name="MetasFrame" options={{ href: null }} />
     <Tabs.Screen name="MetasFuturas" options={{ href: null }} />
+    <Tabs.Screen name="MetasHistorico" options={{ href: null }} />
+    <Tabs.Screen name="MetasAnalises" options={{ href: null }} />
   </Tabs>
 }
