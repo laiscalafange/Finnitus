@@ -70,3 +70,16 @@ export const CATEGORIAS_ENTRADA: CategoriaItem[] = [
     extras: EXTRAS_ENTRADA,
   },
 ];
+
+
+// Busca de categoria pelo id (inclui as listas do card "Outros"). Usada pelas
+// telas de Metas pra mostrar o mesmo ícone da categoria.
+export const CATEGORIAS_POR_ID: Record<string, CategoriaItem> =
+  Object.fromEntries(
+    [
+      ...CATEGORIAS_GASTO,
+      ...EXTRAS_GASTO,
+      ...CATEGORIAS_ENTRADA,
+      ...EXTRAS_ENTRADA,
+    ].map((categoria) => [categoria.id, categoria])
+  );

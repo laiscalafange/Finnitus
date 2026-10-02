@@ -1,0 +1,239 @@
+import { ScrollView, Text, View, useWindowDimensions } from "react-native";
+
+import { LinearGradient } from "expo-linear-gradient";
+import { Lightbulb } from "lucide-react-native";
+import { VictoryAxis, VictoryBar, VictoryChart } from "victory-native";
+
+import { HeaderInterno } from "../../shared/components/Header";
+import { Card } from "../../shared/components/Cards";
+import { Progress } from "../../shared/components/Progress";
+import { Cores } from "../../shared/constants/Cores";
+import { FONTS } from "../../shared/constants/Tipografia";
+
+import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
+import { formatarMoeda } from "@/features/menuMais/utils";
+import {
+  HABITO_GUARDAR,
+  METAS_DO_MES,
+  METAS_FINALIZADAS,
+  METAS_LONGO_PRAZO,
+} from "@/features/metasData";
+import { styles } from "../../styles/Metasanalises";
+
+// Gradientes iguais aos das outras telas de Metas
+const GRADIENTE_FUNDO: [string, string, string] = [
+  "#3f1e69",
+  "#08070A",
+  "#291444",
+];
+const GRADIENTE_CARD: [string, string] = [
+  Cores.fundo.cardAlt,
+  Cores.fundo.navBarra,
+];
+
+// A meta com maior progresso fica em verde-limão, mas só se passou desse %
+const PERCENTUAL_DESTAQUE = 75;
+
+// Tela "Análises" de Metas: resumo, progresso de cada meta em andamento,
+// hábito de guardar por mês e uma dica. Aberta pelo botão "Análises" da
+// tela Metas.
+export default function MetasAnalises() {
+  const { width: larguraTela } = useWindowDimensions();
+
+  // Mesma largura do gráfico da Home: cabe dentro do card
+  const larguraGrafico = Math.max(280, larguraTela - 70);
+
+  // TODO (backend): trocar os dados de metasData.ts pelos dados da API
+  // Metas em andamento: as do mês + as de longo prazo
+  const emAndamento = [...METAS_DO_MES, ...METAS_LONGO_PRAZO].map((meta) => ({
+    nome: meta.nome.replace("\n", " "),
+    categoriaId: meta.categoriaId,
+    valorAtual: meta.valorAtual,
+    pct: Math.round(Math.min(100, (meta.valorAtual / meta.valorTotal) * 100)),
+  }));
+
+  const totalGuardado = emAndamento.reduce(
+    (soma, meta) => soma + meta.valorAtual,
+    0
+  );
+
+  const concluidas = METAS_FINALIZADAS.filter(
+    (meta) => meta.status === "concluida"
+  ).length;
+
+  const maiorPct = Math.max(...emAndamento.map((meta) => meta.pct), 0);
+
+  // Variação (%) do último mês em relação ao anterior (null = não dá pra comparar)
+  const anterior = HABITO_GUARDAR[HABITO_GUARDAR.length - 2]?.valor ?? 0;
+  const atual = HABITO_GUARDAR[HABITO_GUARDAR.length - 1]?.valor ?? 0;
+  const variacao =
+    anterior > 0 ? Math.round(((atual - anterior) / anterior) * 100) : null;
+
+  return (
+    <LinearGradient
+      colors={GRADIENTE_FUNDO}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.conteudo}
+      >
+        {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
+        <HeaderInterno
+          titulo="Análises"
+          subtitulo="Metas"
+          mostrarPremium={false}
+          mostrarNotificacao={false}
+        />
+
+        {/* Conteúdo (sobe por cima da faixa roxa do header) */}
+        <View style={styles.conteudoSobreHeader}>
+          {/* Resumo: total guardado | em andamento | concluídas */}
+          <View style={styles.linhaResumo}>
+            <Card gradiente={GRADIENTE_CARD} style={styles.cardResumo}>
+              <Text
+                style={[styles.valorResumo, { color: Cores.destaque.limao }]}
+              >
+                {formatarMoeda(totalGuardado).replace(",00", "")}
+              </Text>
+              <Text style={styles.rotuloResumo}>Total guardado</Text>
+            </Card>
+
+            <Card gradiente={GRADIENTE_CARD} style={styles.cardResumo}>
+              <Text
+                style={[styles.valorResumo, { color: Cores.roxo.principal }]}
+              >
+                {emAndamento.length}
+              </Text>
+              <Text style={styles.rotuloResumo}>Em andamento</Text>
+            </Card>
+
+            <Card gradiente={GRADIENTE_CARD} style={styles.cardResumo}>
+              <Text
+                style={[styles.valorResumo, { color: Cores.estado.perigo }]}
+              >
+                {concluidas}
+              </Text>
+              <Text style={styles.rotuloResumo}>Concluídas</Text>
+            </Card>
+          </View>
+
+          {/* Progresso de cada meta em andamento */}
+          <Card gradiente={GRADIENTE_CARD}>
+            <Text style={styles.tituloCard}>Progresso das metas</Text>
+
+            {emAndamento.map((meta) => {
+              const destaque =
+                meta.pct === maiorPct && maiorPct >= PERCENTUAL_DESTAQUE;
+
+              // Mesmo ícone da categoria usado no Novo gasto
+              const Icone = (
+                CATEGORIAS_POR_ID[meta.categoriaId] ?? CATEGORIAS_POR_ID.outros
+              ).icone;
+
+              return (
+                <View key={meta.nome} style={styles.itemMeta}>
+                  <View style={styles.linhaMeta}>
+                    <View style={styles.nomeMeta}>
+                      <Icone size={18} color={Cores.destaque.limao} />
+
+                      <Text numberOfLines={1} style={styles.textoNome}>
+                        {meta.nome}
+                      </Text>
+                    </View>
+
+                    <Text
+                      style={[
+                        styles.percentual,
+                        destaque && styles.percentualDestaque,
+                      ]}
+                    >
+                      {meta.pct}%
+                    </Text>
+                  </View>
+
+                  <Progress
+                    value={meta.pct}
+                    height={6}
+                    color={
+                      destaque ? Cores.destaque.limao : Cores.roxo.principal
+                    }
+                    backgroundColor={Cores.fundo.cardAlt}
+                  />
+                </View>
+              );
+            })}
+          </Card>
+
+          {/* Quanto foi guardado em cada mês (mesmo gráfico de barras do Dashboard) */}
+          <Card gradiente={GRADIENTE_CARD}>
+            <Text style={styles.tituloCard}>Hábito de guardar</Text>
+
+            <VictoryChart
+              width={larguraGrafico}
+              height={160}
+              padding={{ top: 8, bottom: 30, left: 8, right: 8 }}
+              domainPadding={{ x: 24, y: 8 }}
+            >
+              <VictoryAxis
+                tickValues={HABITO_GUARDAR.map((_, indice) => indice + 1)}
+                tickFormat={HABITO_GUARDAR.map((item) => item.mes)}
+                style={{
+                  axis: { stroke: "transparent" },
+                  grid: { stroke: "transparent" },
+                  ticks: { stroke: "transparent" },
+                  tickLabels: {
+                    fill: Cores.texto.claro,
+                    fontSize: 11,
+                    fontFamily: FONTS.quicksand.regular,
+                  },
+                }}
+              />
+
+              {/* Última barra (mês atual) em verde-limão */}
+              <VictoryBar
+                data={HABITO_GUARDAR.map((item, indice) => ({
+                  x: indice + 1,
+                  y: item.valor,
+                }))}
+                cornerRadius={{ top: 6 }}
+                style={{
+                  data: {
+                    width: 28,
+                    fill: ({ index }: { index?: number | string }) =>
+                      Number(index) === HABITO_GUARDAR.length - 1
+                        ? Cores.destaque.limao
+                        : Cores.roxo.principal,
+                  },
+                }}
+              />
+            </VictoryChart>
+          </Card>
+
+          {/* Dica final */}
+          {variacao !== null && (
+            <Card
+              gradiente={[Cores.base.cinza, Cores.fundo.principal]}
+              style={styles.cardDica}
+            >
+              <View style={styles.linhaDica}>
+                <Lightbulb size={22} color={Cores.estado.alerta} />
+
+                <Text style={styles.textoDica}>
+                  Você guardou{" "}
+                  <Text style={styles.textoDicaDestaque}>
+                    {Math.abs(variacao)}% {variacao >= 0 ? "mais" : "menos"}
+                  </Text>{" "}
+                  do que no mês passado.{" "}
+                  {variacao >= 0 ? "Continue assim!" : "Vamos retomar o ritmo!"}
+                </Text>
+              </View>
+            </Card>
+          )}
+        </View>
+      </ScrollView>
+    </LinearGradient>
+  );
+}
