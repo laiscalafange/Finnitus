@@ -16,6 +16,11 @@ import { percentualMeta, textoPrazo, type Meta } from '../../features/metasData'
 
 import MetasFrame from './MetasFrame'
 
+// Cor dos cards da tela: Metas do mês, Metas longo prazo, aviso "nenhuma meta
+// do mês" e botões Análises/Histórico usam todos o mesmo roxo
+const COR_LONGO_PRAZO: [string, string] = [Cores.fundo.destaque, '#5a2dc7']
+const COR_META_MES = COR_LONGO_PRAZO
+
 export default function Metas() {
   // Hook de navegação do Expo Router
   const router = useRouter()
@@ -37,6 +42,15 @@ export default function Metas() {
   const [alcancada, setAlcancada] = useState<{ nome: string; valor: number } | null>(null)
 
   const metaAtiva = metas.find(meta => meta.id === metaAtivaId)
+
+  // Prazo (DD/MM/AAAA -> AAAA-MM-DD) de cada meta em andamento: esses dias
+  // ficam com fundo verde no calendário do cabeçalho
+  const diasMarcados = metas
+    .filter(meta => meta.status === 'andamento' && meta.dataLimite)
+    .map(meta => {
+      const [dia, mes, ano] = (meta.dataLimite as string).split('/')
+      return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`
+    })
 
   // Tocar no card: abre o modal com os botões "Depositar" e "Retirar"
   function abrirMovimentar(meta: Meta) {
@@ -104,15 +118,12 @@ export default function Metas() {
 
       <ScrollView style={styles.scroll}>
 
-        {/* Cabeçalho com calendário da semana + ações de adicionar/editar meta */}
+        {/* Cabeçalho com calendário da semana: os prazos das metas ficam em
+            verde e a seta embaixo esconde/mostra o calendário */}
         <CalendarioSemana
           titulo="Metas"
           subtitulo="Financeiras"
-          aoSelecionarDia={(data) => console.log(data)}
-          mostrarAcoes
-          aoPressAdicionar={() => router.push('/MetasFuturas')}
-          // TODO: ajustar "/editar-metas" pro nome real da rota de edição de metas
-          aoPressEditar={() => router.push('/')}
+          diasMarcados={diasMarcados}
         />
 
         <View style={styles.conteudo}>
@@ -127,7 +138,7 @@ export default function Metas() {
               onPress={() => router.push('/MetasAnalises')}
             >
               <LinearGradient
-                colors={[Cores.fundo.destaque, '#5a2dc7']}
+                colors={COR_META_MES}
                 style={styles.navCaixa}
               >
                 <Image
@@ -148,7 +159,7 @@ export default function Metas() {
               onPress={() => router.push('/MetasHistorico')}
             >
               <LinearGradient
-                colors={[Cores.fundo.destaque, '#5a2dc7']}
+                colors={COR_META_MES}
                 style={styles.navCaixa}
               >
                 <Image
@@ -170,10 +181,24 @@ export default function Metas() {
           </Text>
 
           <View style={styles.metasLista}>
+            {/* Aviso: some assim que a primeira meta do mês é criada */}
             {metasDoMes.length === 0 ? (
-              <Text style={styles.vazio}>
-                Nenhuma meta do mês. Toque no + para criar uma.
-              </Text>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => router.push('/MetasFuturas')}
+              >
+                <LinearGradient
+                  colors={COR_LONGO_PRAZO}
+                  style={styles.semMetaCard}
+                >
+                  <Text style={styles.semMetaTitulo}>
+                    Nenhuma meta do mês criada
+                  </Text>
+                  <Text style={styles.semMetaTexto}>
+                    Toque aqui para criar sua primeira meta do mês.
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
             ) : null}
 
             {metasDoMes.map(meta => {
@@ -195,7 +220,7 @@ export default function Metas() {
                     onPress={() => abrirMovimentar(meta)}
                   >
                     <LinearGradient
-                      colors={[Cores.fundo.destaque, '#330e6d']}
+                      colors={COR_META_MES}
                       style={styles.metaCard}
                     >
                       <View style={styles.metaHeader}>
@@ -290,7 +315,7 @@ export default function Metas() {
                 }
               >
                 <LinearGradient
-                  colors={[Cores.fundo.destaque, '#5a2dc7']}
+                  colors={COR_LONGO_PRAZO}
                   style={styles.longoPrazoGradiente}
                 >
                   <Text style={styles.longoPrazoNome}>

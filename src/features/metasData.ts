@@ -32,28 +32,12 @@ export type Meta = {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Dados de exemplo (os mesmos do protótipo). Eles só servem de ponto de
-// partida: o estado das metas vive no FinanceiroProvider.
+// Ponto de partida das metas: lista vazia. Só aparecem metas que o usuário
+// realmente criou (estado vive no FinanceiroProvider).
 // TODO (backend): ainda não existem endpoints de metas (o schema do Prisma
 // já tem Meta e MovimentacaoMeta). Quando existirem, carregar da API.
 // ─────────────────────────────────────────────────────────────
-export const METAS_INICIAIS: Meta[] = [
-  // Metas do mês
-  { id: 'm1', nome: 'Presente', tipo: 'mes', status: 'andamento', valorAtual: 80, valorTotal: 100, dataLimite: '14/10/2026', categoriaId: 'presentes', movimentacoes: [] },
-  { id: 'm2', nome: 'Bolsa nova', tipo: 'mes', status: 'andamento', valorAtual: 1500, valorTotal: 4500, categoriaId: 'vestuario', movimentacoes: [] },
-  { id: 'm3', nome: 'Batedeira', tipo: 'mes', status: 'andamento', valorAtual: 200, valorTotal: 1200, dataLimite: '21/11/2026', categoriaId: 'alimentacao', movimentacoes: [] },
-
-  // Metas de longo prazo
-  { id: 'l1', nome: 'Carro novo', tipo: 'longoPrazo', status: 'andamento', valorAtual: 15420, valorTotal: 45000, categoriaId: 'transporte', movimentacoes: [] },
-  { id: 'l2', nome: 'Viagem nova', tipo: 'longoPrazo', status: 'andamento', valorAtual: 4000, valorTotal: 10000, categoriaId: 'viagem', movimentacoes: [] },
-  { id: 'l3', nome: 'Casa nova', tipo: 'longoPrazo', status: 'andamento', valorAtual: 9500, valorTotal: 50000, categoriaId: 'moradia', movimentacoes: [] },
-
-  // Já finalizadas (aparecem no Histórico)
-  { id: 'h1', nome: 'Tênis novo', tipo: 'mes', status: 'concluida', valorAtual: 850, valorTotal: 850, dataFinal: '2025-06-15', categoriaId: 'vestuario', movimentacoes: [] },
-  { id: 'h2', nome: 'Curso online', tipo: 'mes', status: 'concluida', valorAtual: 297, valorTotal: 297, dataFinal: '2025-05-03', categoriaId: 'educacao', movimentacoes: [] },
-  { id: 'h3', nome: 'Fone Bluetooth', tipo: 'mes', status: 'concluida', valorAtual: 450, valorTotal: 450, dataFinal: '2025-04-10', categoriaId: 'lazer', movimentacoes: [] },
-  { id: 'h4', nome: 'Tablet', tipo: 'longoPrazo', status: 'cancelada', valorAtual: 200, valorTotal: 1800, dataFinal: '2025-03-28', categoriaId: 'outros', movimentacoes: [] },
-]
+export const METAS_INICIAIS: Meta[] = []
 
 // Quanto foi guardado por mês (gráfico "Hábito de guardar" das Análises).
 // O último item é o mês atual (aparece em destaque).
@@ -61,15 +45,6 @@ export type HabitoMes = {
   mes: string
   valor: number
 }
-
-export const HABITO_GUARDAR: HabitoMes[] = [
-  { mes: 'Jan', valor: 460 },
-  { mes: 'Fev', valor: 640 },
-  { mes: 'Mar', valor: 540 },
-  { mes: 'Abr', valor: 800 },
-  { mes: 'Mai', valor: 1000 },
-  { mes: 'Jun', valor: 1180 },
-]
 
 // ─────────────────────────────────────────────────────────────
 // Funções usadas por várias telas de Metas
@@ -128,4 +103,30 @@ export function textoPrazo(dataLimite?: string): string {
   if (dias === 1) return 'Falta 1 dia !'
 
   return `Faltam ${dias} dias !`
+}
+
+// Quanto foi guardado nos últimos 6 meses (o último é o mês atual), calculado
+// a partir dos depósitos e retiradas que o usuário realmente fez nas metas.
+export function habitoGuardar(metas: Meta[], quantidadeMeses = 6): HabitoMes[] {
+  const hoje = new Date()
+  const meses: { chave: string; mes: string; valor: number }[] = []
+
+  for (let i = quantidadeMeses - 1; i >= 0; i--) {
+    const ref = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1)
+    const chave = `${ref.getFullYear()}-${String(ref.getMonth() + 1).padStart(2, '0')}`
+
+    meses.push({ chave, mes: MESES[ref.getMonth()], valor: 0 })
+  }
+
+  for (const meta of metas) {
+    for (const mov of meta.movimentacoes) {
+      const item = meses.find(m => m.chave === mov.data.slice(0, 7))
+
+      if (item) {
+        item.valor += mov.tipo === 'deposito' ? mov.valor : -mov.valor
+      }
+    }
+  }
+
+  return meses.map(({ mes, valor }) => ({ mes, valor: Math.max(0, valor) }))
 }

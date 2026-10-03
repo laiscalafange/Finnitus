@@ -13,7 +13,7 @@ import { FONTS } from "../../shared/constants/Tipografia";
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
 import { useFinanceiro } from "@/features/financeiroContext";
-import { HABITO_GUARDAR, percentualMeta } from "@/features/metasData";
+import { habitoGuardar, percentualMeta } from "@/features/metasData";
 import { styles } from "../../styles/Metasanalises";
 
 // Gradientes iguais aos das outras telas de Metas
@@ -22,10 +22,8 @@ const GRADIENTE_FUNDO: [string, string, string] = [
   "#08070A",
   "#291444",
 ];
-const GRADIENTE_CARD: [string, string] = [
-  Cores.fundo.cardAlt,
-  Cores.fundo.navBarra,
-];
+// Mesmo roxo dos cards da tela Metas (mês e longo prazo)
+const GRADIENTE_CARD: [string, string] = [Cores.fundo.destaque, "#5a2dc7"];
 
 // A meta com maior progresso fica em verde-limão, mas só se passou desse %
 const PERCENTUAL_DESTAQUE = 75;
@@ -61,6 +59,10 @@ export default function MetasAnalises() {
   const concluidas = metas.filter((meta) => meta.status === "concluida").length;
 
   const maiorPct = Math.max(...emAndamento.map((meta) => meta.pct), 0);
+
+  // Hábito de guardar calculado com os depósitos reais das metas
+  const HABITO_GUARDAR = habitoGuardar(metas);
+  const temHabito = HABITO_GUARDAR.some((item) => item.valor > 0);
 
   // Variação (%) do último mês em relação ao anterior (null = não dá pra comparar)
   const anterior = HABITO_GUARDAR[HABITO_GUARDAR.length - 2]?.valor ?? 0;
@@ -123,6 +125,10 @@ export default function MetasAnalises() {
           <Card gradiente={GRADIENTE_CARD}>
             <Text style={styles.tituloCard}>Progresso das metas</Text>
 
+            {emAndamento.length === 0 ? (
+              <Text style={styles.vazio}>Nenhuma meta em andamento.</Text>
+            ) : null}
+
             {emAndamento.map((meta) => {
               const destaque =
                 meta.pct === maiorPct && maiorPct >= PERCENTUAL_DESTAQUE;
@@ -157,9 +163,9 @@ export default function MetasAnalises() {
                     value={meta.pct}
                     height={6}
                     color={
-                      destaque ? Cores.destaque.limao : Cores.roxo.principal
+                      destaque ? Cores.destaque.limao : Cores.texto.principal
                     }
-                    backgroundColor={Cores.fundo.cardAlt}
+                    backgroundColor={Cores.fundo.navBarra}
                   />
                 </View>
               );
@@ -170,6 +176,11 @@ export default function MetasAnalises() {
           <Card gradiente={GRADIENTE_CARD}>
             <Text style={styles.tituloCard}>Hábito de guardar</Text>
 
+            {!temHabito ? (
+              <Text style={styles.vazio}>
+                Ainda não há depósitos para mostrar.
+              </Text>
+            ) : (
             <VictoryChart
               width={larguraGrafico}
               height={160}
@@ -209,6 +220,7 @@ export default function MetasAnalises() {
                 }}
               />
             </VictoryChart>
+            )}
           </Card>
 
           {/* Dica final */}

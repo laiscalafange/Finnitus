@@ -10,10 +10,9 @@ export interface CalendarioSemanaProps {
   subtitulo?: string
   dataInicial?: Date
   mostrarSeta?: boolean
-  mostrarAcoes?: boolean
+  // Dias com fundo verde (AAAA-MM-DD, data local), ex.: prazo das metas
+  diasMarcados?: string[]
   aoSelecionarDia?: (data: Date) => void
   aoPressCoroa?: () => void
   aoPressSino?: () => void
-  aoPressAdicionar?: () => void
-  aoPressEditar?: () => void
 }

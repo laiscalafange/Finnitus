@@ -29,10 +29,8 @@ const GRADIENTE_FUNDO: [string, string, string] = [
   "#08070A",
   "#291444",
 ];
-const GRADIENTE_CARD: [string, string] = [
-  Cores.fundo.cardAlt,
-  Cores.fundo.navBarra,
-];
+// Mesmo roxo dos cards da tela Metas (mês e longo prazo)
+const GRADIENTE_CARD: [string, string] = [Cores.fundo.destaque, "#5a2dc7"];
 
 // Tela "Histórico" de Metas: metas que já foram concluídas ou canceladas,
 // com filtro por situação. Aberta pelo botão "Histórico" da tela Metas.

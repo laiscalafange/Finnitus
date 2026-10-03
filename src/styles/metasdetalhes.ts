@@ -81,6 +81,16 @@ export const styles = StyleSheet.create({
     marginBottom: 15,
   },
 
+  // Depositar | Retirar lado a lado
+  linhaBotoes: {
+    flexDirection: "row",
+    gap: 12,
+  },
+
+  colunaBotao: {
+    flex: 1,
+  },
+
   // "Cancelar meta": botão discreto, no lado direito, abaixo do Depositar
   linhaCancelar: {
     alignItems: "flex-end",
