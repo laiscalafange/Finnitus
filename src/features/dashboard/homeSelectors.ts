@@ -4,7 +4,7 @@ import {
   EVENTOS_MES_MOCK,
   PLANOB_MOCK,
 } from '../../shared/components/Mocks'
-import { METAS_DO_MES } from '../metasData'
+import { textoPrazo, type Meta } from '../metasData'
 import type { EstatisticaResumo, EventoResumo, PlanoBResumo, PlanejamentoResumo } from './types'
 
 const DATA_FORMAT = new Intl.DateTimeFormat('pt-BR', {
@@ -51,12 +51,13 @@ export function obterPlanoBResumo(salario?: number, despesas?: number): PlanoBRe
   }
 }
 
-export function obterPlanejamentoHome(): PlanejamentoResumo | undefined {
-  const meta = METAS_DO_MES[0]
+// Recebe a meta que aparece no card "Planejamento" da Home (a primeira
+// meta do mês em andamento, vinda do FinanceiroProvider)
+export function obterPlanejamentoHome(meta?: Meta): PlanejamentoResumo | undefined {
   if (!meta) return undefined
 
   return {
     titulo: meta.nome,
-    valor: `${meta.prazo} • ${meta.valorAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} de ${meta.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
+    valor: `${textoPrazo(meta.dataLimite)} • ${meta.valorAtual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} de ${meta.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`,
   }
 }

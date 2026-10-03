@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 
-import { Trash2, TriangleAlert, X } from "lucide-react-native";
+import { Ban, Trash2, TriangleAlert, X } from "lucide-react-native";
 
 import { Card } from "@/shared/components/Cards";
 import { Button } from "@/shared/components/Button";
@@ -28,42 +28,62 @@ import { styles } from "./styles";
 type Props = {
   // Qual card mostrar (null = fechado)
   tipo: TipoModalReserva | null;
-  // Saldo atual da reserva (mostrado em "Depositar" e "Retirar")
+  // Saldo atual (mostrado em "Depositar", "Retirar" e "Movimentar")
   saldo: number;
   aoFechar: () => void;
   // Chamado ao confirmar. Nos cards com campo de valor, recebe o valor
-  // digitado; nos demais (criar, excluir, entendi) recebe 0
-  aoConfirmar: (valor: number) => void;
+  // digitado (e, no card "movimentar", qual botão foi tocado); nos demais
+  // (criar, excluir, entendi) recebe 0
+  aoConfirmar: (valor: number, acao?: "depositar" | "retirar") => void;
+  // O que está sendo movimentado: muda os textos dos cards. Padrão: reserva
+  alvo?: "reserva" | "meta";
+  // Título do card "movimentar" (nome da meta)
+  titulo?: string;
+  // Se vier, o card "movimentar" mostra o botão "Ver detalhes"
+  aoVerDetalhes?: () => void;
 };
 
-// Textos dos cards que têm campo de valor
-const CARDS_COM_VALOR = {
-  depositar: {
-    titulo: "Depositar na reserva",
-    pergunta: "Quanto deseja depositar?",
-    dica: "Saldo atual",
-  },
-  retirar: {
-    titulo: "Retirar da reserva",
-    pergunta: "Quanto deseja retirar?",
-    dica: "Saldo disponível",
+// Textos que mudam entre a reserva de emergência e as metas
+const TEXTOS = {
+  reserva: {
+    depositar: "Depositar na reserva",
+    retirar: "Retirar da reserva",
+    dicaDepositar: "Saldo atual",
+    dicaRetirar: "Saldo disponível",
+    insuficienteTitulo: "Valor maior que o saldo",
+    insuficienteTexto:
+      "O valor informado é maior que o saldo disponível na sua reserva de emergência.",
+    excluirTitulo: "Excluir reserva?",
+    excluirTexto: "Todos os dados dessa reserva serão removidos.",
   },
   meta: {
-    titulo: "Meta da reserva",
-    pergunta: "Qual valor deseja alcançar?",
-    dica: "",
+    depositar: "Depositar na meta",
+    retirar: "Retirar da meta",
+    dicaDepositar: "Guardado até agora",
+    dicaRetirar: "Disponível para retirar",
+    insuficienteTitulo: "Valor maior que o guardado",
+    insuficienteTexto:
+      "O valor informado é maior que o valor guardado nessa meta.",
+    excluirTitulo: "Excluir meta?",
+    excluirTexto: "Todos os dados dessa meta serão removidos.",
   },
 } as const;
 
-// Cards flutuantes da tela de Reserva de emergência (criar, depositar,
-// retirar, definir meta, saldo insuficiente e excluir). Mesmo visual do
-// ModalConfirmarAcao: fica por cima da tela, com o fundo escurecido.
+// Cards flutuantes usados na Reserva de emergência e nas Metas (criar,
+// depositar, retirar, movimentar, definir meta, saldo insuficiente, excluir e
+// cancelar). Mesmo visual do ModalConfirmarAcao: fica por cima da tela, com o
+// fundo escurecido.
 export function ModalReserva({
   tipo,
   saldo,
   aoFechar,
   aoConfirmar,
+  alvo = "reserva",
+  titulo,
+  aoVerDetalhes,
 }: Props) {
+  const textos = TEXTOS[alvo];
+
   const [valorTexto, setValorTexto] = useState("");
   const [erro, setErro] = useState("");
 
@@ -73,7 +93,7 @@ export function ModalReserva({
     setErro("");
   }, [tipo]);
 
-  function confirmarValor() {
+  function confirmarValor(acao?: "depositar" | "retirar") {
     const valor = moedaParaNumero(valorTexto);
 
     if (valor <= 0) {
@@ -81,38 +101,62 @@ export function ModalReserva({
       return;
     }
 
-    aoConfirmar(valor);
+    aoConfirmar(valor, acao);
   }
 
-  // Card com campo de valor (depositar, retirar ou definir meta)
-  function renderCardComValor(chave: keyof typeof CARDS_COM_VALOR) {
-    const { titulo, pergunta, dica } = CARDS_COM_VALOR[chave];
+  // Campo de valor com o "R$" (igual em todos os cards que pedem valor)
+  function renderCampoValor() {
+    return (
+      <Input
+        placeholder="0,00"
+        keyboardType="numeric"
+        value={valorTexto}
+        onChangeText={(texto) => {
+          setValorTexto(mascararMoeda(texto));
+          setErro("");
+        }}
+        erro={erro}
+        icone={<Text style={styles.prefixoMoeda}>R$</Text>}
+      />
+    );
+  }
+
+  // Card com campo de valor (depositar, retirar ou definir meta da reserva)
+  function renderCardComValor(chave: "depositar" | "retirar" | "meta") {
+    const card =
+      chave === "meta"
+        ? {
+            titulo: "Meta da reserva",
+            pergunta: "Qual valor deseja alcançar?",
+            dica: "",
+          }
+        : {
+            titulo: textos[chave],
+            pergunta:
+              chave === "depositar"
+                ? "Quanto deseja depositar?"
+                : "Quanto deseja retirar?",
+            dica:
+              chave === "depositar"
+                ? textos.dicaDepositar
+                : textos.dicaRetirar,
+          };
 
     return (
       <>
-        <Text style={styles.titulo}>{titulo}</Text>
-        <Text style={styles.pergunta}>{pergunta}</Text>
+        <Text style={styles.titulo}>{card.titulo}</Text>
+        <Text style={styles.pergunta}>{card.pergunta}</Text>
 
-        <Input
-          placeholder="0,00"
-          keyboardType="numeric"
-          value={valorTexto}
-          onChangeText={(texto) => {
-            setValorTexto(mascararMoeda(texto));
-            setErro("");
-          }}
-          erro={erro}
-          icone={<Text style={styles.prefixoMoeda}>R$</Text>}
-        />
+        {renderCampoValor()}
 
-        {dica ? (
+        {card.dica ? (
           <Text style={styles.dica}>
-            {dica}: {formatarMoeda(saldo)}
+            {card.dica}: {formatarMoeda(saldo)}
           </Text>
         ) : null}
 
         <View style={styles.botoes}>
-          <Button titulo="Confirmar" onPress={confirmarValor} />
+          <Button titulo="Confirmar" onPress={() => confirmarValor()} />
 
           <Button
             titulo="Cancelar"
@@ -124,10 +168,48 @@ export function ModalReserva({
     );
   }
 
+  // Card com um campo de valor e dois botões: "Depositar" e "Retirar"
+  // (tela Metas, ao tocar numa meta do mês)
+  function renderCardMovimentar() {
+    return (
+      <>
+        <Text style={styles.titulo}>{titulo ?? "Movimentar"}</Text>
+        <Text style={styles.pergunta}>Quanto deseja movimentar?</Text>
+
+        {renderCampoValor()}
+
+        <Text style={styles.dica}>
+          {textos.dicaDepositar}: {formatarMoeda(saldo)}
+        </Text>
+
+        <View style={styles.botoes}>
+          <Button
+            titulo="Depositar"
+            onPress={() => confirmarValor("depositar")}
+          />
+
+          <Button
+            titulo="Retirar"
+            variante="outline"
+            onPress={() => confirmarValor("retirar")}
+          />
+
+          {aoVerDetalhes ? (
+            <Button
+              titulo="Ver detalhes"
+              variante="botaotexto"
+              onPress={aoVerDetalhes}
+            />
+          ) : null}
+        </View>
+      </>
+    );
+  }
+
   // Card centralizado, com ícone no topo (criar, saldo insuficiente, excluir)
   function renderCardComIcone(
     icone: ReactNode,
-    titulo: string,
+    tituloCard: string,
     texto: string,
     botoes: ReactNode
   ) {
@@ -135,7 +217,7 @@ export function ModalReserva({
       <View style={styles.centralizado}>
         <View style={styles.iconeTopo}>{icone}</View>
 
-        <Text style={[styles.titulo, styles.tituloCentro]}>{titulo}</Text>
+        <Text style={[styles.titulo, styles.tituloCentro]}>{tituloCard}</Text>
         <Text style={styles.texto}>{texto}</Text>
 
         <View style={styles.botoes}>{botoes}</View>
@@ -149,6 +231,9 @@ export function ModalReserva({
       case "retirar":
       case "meta":
         return renderCardComValor(tipo);
+
+      case "movimentar":
+        return renderCardMovimentar();
 
       case "criar":
         return renderCardComIcone(
@@ -176,16 +261,16 @@ export function ModalReserva({
       case "saldoInsuficiente":
         return renderCardComIcone(
           <TriangleAlert size={44} color={Cores.roxo.claro} />,
-          "Valor maior que o saldo",
-          "O valor informado é maior que o saldo disponível na sua reserva de emergência.",
+          textos.insuficienteTitulo,
+          textos.insuficienteTexto,
           <Button titulo="Entendi" onPress={() => aoConfirmar(0)} />
         );
 
       case "excluir":
         return renderCardComIcone(
           <Trash2 size={44} color={Cores.roxo.claro} />,
-          "Excluir reserva?",
-          "Todos os dados dessa reserva serão removidos.",
+          textos.excluirTitulo,
+          textos.excluirTexto,
           <>
             <Button
               titulo="Excluir"
@@ -195,6 +280,26 @@ export function ModalReserva({
 
             <Button
               titulo="Cancelar"
+              variante="botaotexto"
+              onPress={aoFechar}
+            />
+          </>
+        );
+
+      case "cancelar":
+        return renderCardComIcone(
+          <Ban size={44} color={Cores.roxo.claro} />,
+          "Cancelar meta?",
+          "A meta vai para o Histórico como cancelada. O valor guardado não é apagado.",
+          <>
+            <Button
+              titulo="Cancelar meta"
+              variante="perigo"
+              onPress={() => aoConfirmar(0)}
+            />
+
+            <Button
+              titulo="Voltar"
               variante="botaotexto"
               onPress={aoFechar}
             />

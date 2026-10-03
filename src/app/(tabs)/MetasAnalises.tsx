@@ -12,12 +12,8 @@ import { FONTS } from "../../shared/constants/Tipografia";
 
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
-import {
-  HABITO_GUARDAR,
-  METAS_DO_MES,
-  METAS_FINALIZADAS,
-  METAS_LONGO_PRAZO,
-} from "@/features/metasData";
+import { useFinanceiro } from "@/features/financeiroContext";
+import { HABITO_GUARDAR, percentualMeta } from "@/features/metasData";
 import { styles } from "../../styles/Metasanalises";
 
 // Gradientes iguais aos das outras telas de Metas
@@ -43,23 +39,26 @@ export default function MetasAnalises() {
   // Mesma largura do gráfico da Home: cabe dentro do card
   const larguraGrafico = Math.max(280, larguraTela - 70);
 
-  // TODO (backend): trocar os dados de metasData.ts pelos dados da API
+  // As mesmas metas das outras telas de Metas (FinanceiroProvider)
+  const { metas } = useFinanceiro();
+
   // Metas em andamento: as do mês + as de longo prazo
-  const emAndamento = [...METAS_DO_MES, ...METAS_LONGO_PRAZO].map((meta) => ({
-    nome: meta.nome.replace("\n", " "),
-    categoriaId: meta.categoriaId,
-    valorAtual: meta.valorAtual,
-    pct: Math.round(Math.min(100, (meta.valorAtual / meta.valorTotal) * 100)),
-  }));
+  const emAndamento = metas
+    .filter((meta) => meta.status === "andamento")
+    .map((meta) => ({
+      id: meta.id,
+      nome: meta.nome,
+      categoriaId: meta.categoriaId ?? "outros",
+      valorAtual: meta.valorAtual,
+      pct: percentualMeta(meta),
+    }));
 
   const totalGuardado = emAndamento.reduce(
     (soma, meta) => soma + meta.valorAtual,
     0
   );
 
-  const concluidas = METAS_FINALIZADAS.filter(
-    (meta) => meta.status === "concluida"
-  ).length;
+  const concluidas = metas.filter((meta) => meta.status === "concluida").length;
 
   const maiorPct = Math.max(...emAndamento.map((meta) => meta.pct), 0);
 
@@ -134,7 +133,7 @@ export default function MetasAnalises() {
               ).icone;
 
               return (
-                <View key={meta.nome} style={styles.itemMeta}>
+                <View key={meta.id} style={styles.itemMeta}>
                   <View style={styles.linhaMeta}>
                     <View style={styles.nomeMeta}>
                       <Icone size={18} color={Cores.destaque.limao} />

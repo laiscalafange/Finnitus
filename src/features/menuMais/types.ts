@@ -29,11 +29,15 @@ export type Reserva = {
   movimentacoes: Movimentacao[];
 };
 
-// Cards flutuantes da tela de Reserva de emergência
+// Cards flutuantes do ModalReserva (Reserva de emergência e Metas)
 export type TipoModalReserva =
   | "criar"
   | "depositar"
   | "retirar"
+  // Depositar OU retirar no mesmo card, com dois botões (card da tela Metas)
+  | "movimentar"
   | "meta"
   | "saldoInsuficiente"
-  | "excluir";
+  | "excluir"
+  // Confirmação de "Cancelar meta"
+  | "cancelar";

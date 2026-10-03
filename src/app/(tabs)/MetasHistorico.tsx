@@ -10,7 +10,8 @@ import { Cores } from "../../shared/constants/Cores";
 import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
-import { METAS_FINALIZADAS } from "@/features/metasData";
+import { useFinanceiro } from "@/features/financeiroContext";
+import { formatarDataCurta } from "@/features/metasData";
 import { styles } from "../../styles/Metashistorico";
 
 type Filtro = "todas" | "concluida" | "cancelada";
@@ -38,10 +39,14 @@ const GRADIENTE_CARD: [string, string] = [
 export default function MetasHistorico() {
   const [filtro, setFiltro] = useState<Filtro>("todas");
 
-  // TODO (backend): trocar METAS_FINALIZADAS pelos dados da API
-  const lista = METAS_FINALIZADAS.filter(
-    (meta) => filtro === "todas" || meta.status === filtro
-  );
+  // As mesmas metas das outras telas de Metas (FinanceiroProvider): aqui só
+  // as concluídas e canceladas, da mais recente pra mais antiga
+  const { metas } = useFinanceiro();
+
+  const lista = metas
+    .filter((meta) => meta.status !== "andamento")
+    .filter((meta) => filtro === "todas" || meta.status === filtro)
+    .sort((a, b) => (b.dataFinal ?? "").localeCompare(a.dataFinal ?? ""));
 
   return (
     <LinearGradient
@@ -78,7 +83,8 @@ export default function MetasHistorico() {
 
               // Mesmo ícone da categoria usado no Novo gasto
               const Icone = (
-                CATEGORIAS_POR_ID[meta.categoriaId] ?? CATEGORIAS_POR_ID.outros
+                CATEGORIAS_POR_ID[meta.categoriaId ?? "outros"] ??
+                CATEGORIAS_POR_ID.outros
               ).icone;
 
               return (
@@ -121,7 +127,8 @@ export default function MetasHistorico() {
                       </View>
 
                       <Text style={styles.detalhe}>
-                        {formatarMoeda(meta.valor)} · {meta.data}
+                        {formatarMoeda(meta.valorAtual)}
+                        {meta.dataFinal ? ` · ${formatarDataCurta(meta.dataFinal)}` : ""}
                       </Text>
                     </View>
                   </View>

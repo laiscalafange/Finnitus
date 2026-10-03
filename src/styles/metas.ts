@@ -151,6 +151,30 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
 
+  // Opção "Excluir meta" que aparece ao tocar no ⋮
+  metaMenuOpcao: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    backgroundColor: Cores.overlay.medio,
+  },
+
+  metaMenuTexto: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 12,
+    color: Cores.texto.claro,
+  },
+
+  // Texto quando não há nenhuma meta do mês
+  vazio: {
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 14,
+    color: Cores.texto.claro,
+  },
+
   metaBarraFundo: {
     height: 8,
     borderRadius: 4,
