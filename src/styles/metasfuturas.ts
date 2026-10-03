@@ -23,6 +23,14 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
   },
 
+  // Rótulo "Tipo de meta" (mesmo visual do label dos Inputs)
+  rotuloTipo: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 16,
+    color: Cores.destaque.limao,
+    marginBottom: 8,
+  },
+
   // Prefixo "R$" nos campos de valor (Valor objetivo / Valor inicial)
   prefixoMoeda: {
     fontFamily: FONTS.raleway.bold,

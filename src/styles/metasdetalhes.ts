@@ -54,8 +54,22 @@ export const styles = StyleSheet.create({
     color: Cores.texto.principal,
   },
 
-  progresso: {
+  // Barra de progresso + percentual ao lado (igual à Reserva de emergência)
+  linhaProgresso: {
     marginTop: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  barraProgresso: {
+    flex: 1,
+  },
+
+  percentual: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 14,
+    color: Cores.texto.principal,
   },
 
   faltam: {
@@ -65,6 +79,20 @@ export const styles = StyleSheet.create({
     color: Cores.texto.principal,
     marginTop: 5,
     marginBottom: 15,
+  },
+
+  // "Cancelar meta": botão discreto, no lado direito, abaixo do Depositar
+  linhaCancelar: {
+    alignItems: "flex-end",
+    marginTop: -10,
+    marginBottom: 16,
+  },
+
+  cancelarMeta: {
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 13,
+    color: Cores.texto.secundario,
+    textDecorationLine: "underline",
   },
 
   // Histórico
@@ -97,12 +125,17 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  // Ícone dentro do card
-  iconeHistorico: {
-    width: 30,
-    height: 30,
-    resizeMode: "contain",
+  // Espaço entre o círculo (+ / −) e os textos do card
+  circuloHistorico: {
     marginRight: 12,
+  },
+
+  vazio: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 13,
+    color: Cores.texto.principal,
+    marginTop: 8,
+    marginBottom: 8,
   },
 
   tipoDeposito: {

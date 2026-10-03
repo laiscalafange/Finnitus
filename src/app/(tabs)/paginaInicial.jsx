@@ -29,6 +29,7 @@ export default function PaginaInicial() {
     despesas,
     economiaFutura,
     tempoEconomia,
+    metas,
   } = useFinanceiro()
 
   const temDadosFinanceiros =
@@ -56,7 +57,10 @@ export default function PaginaInicial() {
   const evento = obterProximoEvento()
   const estatisticas = obterEstatisticasHome()
   const planoB = obterPlanoBResumo(salario, despesas)
-  const planejamento = obterPlanejamentoHome()
+  // Primeira meta do mês em andamento (a mesma da tela Metas)
+  const planejamento = obterPlanejamentoHome(
+    metas.find(meta => meta.tipo === 'mes' && meta.status === 'andamento'),
+  )
 
   const mesAtual = new Date().toLocaleDateString('pt-BR', {
     month: '2-digit',
