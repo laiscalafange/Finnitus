@@ -20,6 +20,14 @@ function getInicioSemana(data: Date) {
     return novaData
 }
 
+// AAAA-MM-DD na data local (toISOString usa UTC e pode mudar o dia)
+export function chaveDia(data: Date) {
+    const mes = String(data.getMonth() + 1).padStart(2, '0')
+    const dia = String(data.getDate()).padStart(2, '0')
+
+    return `${data.getFullYear()}-${mes}-${dia}`
+}
+
 function getDiasSemana(data: Date): DiaSemana[] {
     const inicio = getInicioSemana(data)
 
@@ -31,7 +39,7 @@ function getDiasSemana(data: Date): DiaSemana[] {
             data: dia,
             letra: LETRAS_DIAS[i],
             numero: String(dia.getDate()).padStart(2, '0'),
-            chave: dia.toISOString().split('T')[0],
+            chave: chaveDia(dia),
         }
     })
 }
@@ -46,18 +54,19 @@ export function CalendarioSemana({
     subtitulo,
     dataInicial = new Date(),
     mostrarSeta = true,
-    mostrarAcoes = false,
+    diasMarcados = [],
     aoSelecionarDia,
     aoPressCoroa,
     aoPressSino,
-    aoPressAdicionar,
-    aoPressEditar,
 }: CalendarioSemanaProps) {
     // Hook de navegação do Expo Router
     const router = useRouter()
 
     const [diaSelecionado, setDiaSelecionado] = useState(dataInicial)
     const [semanaOffset, setSemanaOffset] = useState(0)
+
+    // A seta (⌄) abaixo do header esconde e mostra o calendário
+    const [calendarioAberto, setCalendarioAberto] = useState(true)
 
     const inicioSemana = getInicioSemana(diaSelecionado)
     inicioSemana.setDate(inicioSemana.getDate() + semanaOffset * 7)
@@ -79,7 +88,7 @@ export function CalendarioSemana({
                 end={GRADIENTS.header.end}
                 style={styles.header}
             >
-                <View style={styles.headerRow}>
+                <View style={[styles.headerRow, !calendarioAberto && styles.headerRowFechado]}>
                     <View>
                         <Text style={styles.headerTitulo}>{titulo}</Text>
                         {subtitulo && (
@@ -112,81 +121,77 @@ export function CalendarioSemana({
                     </View>
                 </View>
 
-                <View style={styles.weekHeader}>
-                    <TouchableOpacity
-                        style={styles.weekArrow}
-                        onPress={() => setSemanaOffset(prev => prev - 1)}
-                    >
-                        <Text style={styles.weekArrowTexto}>‹</Text>
-                    </TouchableOpacity>
-
-                    <Text style={styles.weekMes}>{mesAtual}</Text>
-
-                    <TouchableOpacity
-                        style={styles.weekArrow}
-                        onPress={() => setSemanaOffset(prev => prev + 1)}
-                    >
-                        <Text style={styles.weekArrowTexto}>›</Text>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.weekStrip}>
-                    {diasSemana.map(dia => {
-                        const selecionado =
-                            dia.chave === diaSelecionado.toISOString().split('T')[0]
-
-                        return (
-                            <TouchableOpacity
-                                key={dia.chave}
-                                style={[
-                                    styles.diaContainer,
-                                    selecionado && styles.diaContainerAtivo,
-                                ]}
-                                onPress={() => selecionarDia(dia)}
-                                activeOpacity={0.7}
-                            >
-                                <Text style={styles.diaLetra}>{dia.letra}</Text>
-                                <Text style={styles.diaNumero}>{dia.numero}</Text>
-                                <View
-                                    style={[
-                                        styles.diaPonto,
-                                        selecionado && styles.diaPontoAtivo,
-                                    ]}
-                                />
-                            </TouchableOpacity>
-                        )
-                    })}
-                </View>
-
-                {mostrarAcoes && (
-                    <View style={styles.acoesRow}>
+                {calendarioAberto && (
+                    <>
+                    <View style={styles.weekHeader}>
                         <TouchableOpacity
-                            style={styles.acaoBotao}
-                            onPress={aoPressAdicionar}
-                            activeOpacity={0.8}
+                            style={styles.weekArrow}
+                            onPress={() => setSemanaOffset(prev => prev - 1)}
                         >
-                            <Text style={styles.acaoTexto}>+</Text>
+                            <Text style={styles.weekArrowTexto}>‹</Text>
                         </TouchableOpacity>
 
+                        <Text style={styles.weekMes}>{mesAtual}</Text>
+
                         <TouchableOpacity
-                            style={styles.acaoBotao}
-                            onPress={aoPressEditar}
-                            activeOpacity={0.8}
+                            style={styles.weekArrow}
+                            onPress={() => setSemanaOffset(prev => prev + 1)}
                         >
-                            <Image
-                                source={require('../../../../assets/icones/lapis.png')}
-                                style={styles.acaoIcone}
-                            />
+                            <Text style={styles.weekArrowTexto}>›</Text>
                         </TouchableOpacity>
                     </View>
+
+                    <View style={styles.weekStrip}>
+                        {diasSemana.map(dia => {
+                            const selecionado = dia.chave === chaveDia(diaSelecionado)
+                            const marcado = diasMarcados.includes(dia.chave)
+
+                            return (
+                                <TouchableOpacity
+                                    key={dia.chave}
+                                    style={[
+                                        styles.diaContainer,
+                                        selecionado && styles.diaContainerAtivo,
+                                        marcado && styles.diaContainerMarcado,
+                                        marcado && selecionado && styles.diaContainerMarcadoAtivo,
+                                    ]}
+                                    onPress={() => selecionarDia(dia)}
+                                    activeOpacity={0.7}
+                                >
+                                    <Text style={[styles.diaLetra, marcado && styles.diaLetraMarcado]}>
+                                        {dia.letra}
+                                    </Text>
+                                    <Text style={[styles.diaNumero, marcado && styles.diaNumeroMarcado]}>
+                                        {dia.numero}
+                                    </Text>
+                                    <View
+                                        style={[
+                                            styles.diaPonto,
+                                            selecionado && styles.diaPontoAtivo,
+                                            marcado && styles.diaPontoMarcado,
+                                        ]}
+                                    />
+                                </TouchableOpacity>
+                            )
+                        })}
+                    </View>
+                    </>
                 )}
             </LinearGradient>
 
             {mostrarSeta && (
                 <View style={styles.setaContainer}>
-                    <View style={styles.setaCirculo}>
-                        <Text style={styles.setaTexto}>⌄</Text>
-                    </View>
+                    <TouchableOpacity
+                        style={styles.setaCirculo}
+                        onPress={() => setCalendarioAberto(atual => !atual)}
+                        activeOpacity={0.8}
+                        accessibilityRole="button"
+                        accessibilityLabel={
+                            calendarioAberto ? 'Esconder calendário' : 'Mostrar calendário'
+                        }
+                    >
+                        <Text style={styles.setaTexto}>{calendarioAberto ? '⌃' : '⌄'}</Text>
+                    </TouchableOpacity>
                 </View>
             )}
         </>

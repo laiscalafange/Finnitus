@@ -168,10 +168,22 @@ export const styles = StyleSheet.create({
     color: Cores.texto.claro,
   },
 
-  // Texto quando não há nenhuma meta do mês
-  vazio: {
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 14,
+  // Card quando não há nenhuma meta do mês
+  semMetaCard: {
+    borderRadius: 16,
+    padding: 16,
+    gap: 4,
+  },
+
+  semMetaTitulo: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 15,
+    color: Cores.texto.claro,
+  },
+
+  semMetaTexto: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 13,
     color: Cores.texto.claro,
   },
 

@@ -120,4 +120,11 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.bold,
     color: Cores.destaque.limao,
   },
+
+  // Texto quando não há dados reais pra mostrar no card
+  vazio: {
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 14,
+    color: Cores.texto.claro,
+  },
 });

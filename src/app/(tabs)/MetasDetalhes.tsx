@@ -39,7 +39,7 @@ export default function MetasDetalhes() {
   const { metas, movimentarMeta, cancelarMeta } = useFinanceiro();
   const meta = metas.find((item) => item.id === id);
 
-  // Card flutuante aberto ("depositar" ou "cancelar")
+  // Card flutuante aberto ("depositar", "retirar", "saldoInsuficiente" ou "cancelar")
   const [modal, setModal] = useState<TipoModalReserva | null>(null);
   const [verTodas, setVerTodas] = useState(false);
   const [alcancada, setAlcancada] = useState(false);
@@ -86,6 +86,19 @@ export default function MetasDetalhes() {
         setAlcancada(true);
       }
 
+      return;
+    }
+
+    if (modal === "retirar") {
+      const resultado = movimentarMeta(meta.id, "retirada", valor);
+
+      // Tentou retirar mais do que tem guardado na meta
+      if (resultado === "saldoInsuficiente") {
+        setModal("saldoInsuficiente");
+        return;
+      }
+
+      setModal(null);
       return;
     }
 
@@ -164,15 +177,28 @@ export default function MetasDetalhes() {
             {faltam > 0 ? `Faltam ${formatarMoeda(faltam)}` : "Meta alcançada!"}
           </Text>
 
-          {/* Depositar e Cancelar meta só aparecem enquanto a meta está em
-              andamento */}
+          {/* Depositar, Retirar e Cancelar meta só aparecem enquanto a meta
+              está em andamento */}
           {emAndamento ? (
             <>
-              <Button
-                titulo="Depositar"
-                variante="secundario"
-                onPress={() => setModal("depositar")}
-              />
+              {/* Depositar | Retirar, lado a lado */}
+              <View style={styles.linhaBotoes}>
+                <View style={styles.colunaBotao}>
+                  <Button
+                    titulo="Depositar"
+                    variante="secundario"
+                    onPress={() => setModal("depositar")}
+                  />
+                </View>
+
+                <View style={styles.colunaBotao}>
+                  <Button
+                    titulo="Retirar"
+                    variante="secundario"
+                    onPress={() => setModal("retirar")}
+                  />
+                </View>
+              </View>
 
               {/* Botão discreto, no lado direito, abaixo do Depositar */}
               <View style={styles.linhaCancelar}>
@@ -267,7 +293,7 @@ export default function MetasDetalhes() {
         </View>
       </ScrollView>
 
-      {/* Cards flutuantes: depositar e cancelar meta */}
+      {/* Cards flutuantes: depositar, retirar, aviso de saldo e cancelar meta */}
       <ModalReserva
         tipo={modal}
         saldo={meta.valorAtual}

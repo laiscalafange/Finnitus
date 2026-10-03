@@ -18,6 +18,11 @@ export const styles = StyleSheet.create({
         marginBottom: 14,
     },
 
+    // Calendário escondido: sem o espaço extra embaixo do título
+    headerRowFechado: {
+        marginBottom: 0,
+    },
+
     headerTitulo: {
         fontFamily: FONTS.raleway.extrabold,
         fontSize: 28,
@@ -95,6 +100,29 @@ export const styles = StyleSheet.create({
         backgroundColor: '#3A1D6C',
     },
 
+    // Dia com prazo de meta: fundo verde
+    diaContainerMarcado: {
+        backgroundColor: Cores.destaque.limao,
+    },
+
+    // Dia marcado que também está selecionado: contorno branco
+    diaContainerMarcadoAtivo: {
+        borderWidth: 2,
+        borderColor: Cores.base.branco,
+    },
+
+    diaLetraMarcado: {
+        color: Cores.texto.contraste,
+    },
+
+    diaNumeroMarcado: {
+        color: Cores.texto.contraste,
+    },
+
+    diaPontoMarcado: {
+        backgroundColor: Cores.texto.contraste,
+    },
+
     diaLetra: {
         fontFamily: FONTS.quicksand.bold,
         fontSize: 15,
@@ -137,32 +165,5 @@ export const styles = StyleSheet.create({
     setaTexto: {
         color: Cores.base.branco,
         fontSize: 20,
-    },
-
-    acoesRow: {
-        flexDirection: 'row',
-        gap: 10,
-        marginTop: 10,
-    },
-
-    acaoBotao: {
-        width: 35,
-        height: 35,
-        borderRadius: 17,
-        backgroundColor: '#ffffff20',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-
-    acaoTexto: {
-        color: Cores.roxo.claro,
-        fontSize: 18,
-        fontFamily: FONTS.quicksand.bold,
-    },
-
-    acaoIcone: {
-        width: 16,
-        height: 16,
-        resizeMode: 'contain',
     },
 })
