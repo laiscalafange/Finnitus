@@ -7,9 +7,11 @@
     "icon": "./assets/images/icon.png",
     "scheme": "finnitusnovo",
     "userInterfaceStyle": "automatic",
+
     "ios": {
       "icon": "./assets/expo.icon"
     },
+
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -17,14 +19,23 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+
+      "permissions": [
+        "READ_CALENDAR",
+        "WRITE_CALENDAR"
+      ],
+
       "predictiveBackGestureEnabled": false
     },
+
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+
     "plugins": [
       "expo-router",
+
       [
         "expo-splash-screen",
         {
@@ -33,10 +44,19 @@
           "imageWidth": 76
         }
       ],
+
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "O Finnitus precisa acessar seu calendário para identificar eventos e compromissos financeiros."
+        }
+      ],
+
       "expo-font",
       "expo-image",
       "expo-web-browser"
     ],
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
