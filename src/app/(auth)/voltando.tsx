@@ -8,6 +8,7 @@ import { useRouter } from "expo-router";
 
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
+import { BotaoVoltarAuth } from "../../shared/components/BotaoVoltar";
 
 import { styles } from "../../styles/voltandoStyles";
 
@@ -34,6 +35,8 @@ export default function Voltando() {
   return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
+
+      <BotaoVoltarAuth absoluto />
 
       <View style={styles.content}>
         <Text style={styles.title}>

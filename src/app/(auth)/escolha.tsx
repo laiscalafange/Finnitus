@@ -8,6 +8,7 @@ import { useRouter } from "expo-router";
 
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
+import { BotaoVoltarAuth } from "../../shared/components/BotaoVoltar";
 import { Underline } from "../../shared/components/underline";
 
 import { styles } from "../../styles/escolhaStyles";
@@ -35,6 +36,8 @@ export default function Escolha() {
   return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
+
+      <BotaoVoltarAuth absoluto />
 
       <View style={styles.content}>
         <View style={styles.linha}>

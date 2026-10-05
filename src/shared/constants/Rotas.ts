@@ -8,7 +8,7 @@ export const Rotas = {
   premiumAtivo: '/Premium/PremiumAtivo',
   notificacao: '/Notificacao/Notificacao',
   inicio: '/paginaInicial',
-  planoB: '/PlanoB',
+  inicie: '/inicie', 
   sumarioDetalhado: '/Detalhes/SumarioDetalhado',
   atividade: '/Detalhes/Atividade',
   rotasGastos: '/Detalhes/RotasGastos',

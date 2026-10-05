@@ -2,3 +2,4 @@
 
 export { BotaoVoltar } from "./BotaoVoltar";
 export type { BotaoVoltarProps } from "./BotaoVoltarTypes";
+export { BotaoVoltarAuth } from "./BotaoVoltarAuth";

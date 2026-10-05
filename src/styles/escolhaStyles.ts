@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
   position: "absolute",
   left: 10,
   right: 10,
-  top: 50,
+  top: 100,
 },
 
 botaoComIcone: {

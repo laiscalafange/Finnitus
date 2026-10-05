@@ -11,6 +11,7 @@ import {
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BackgroundGradient } from "./backgroundGradient";
+import { BotaoVoltarAuth } from "./BotaoVoltar";
 
 type AuthFormProps = {
   title: string;
@@ -24,6 +25,9 @@ type AuthFormProps = {
   // centro: campos centralizados abaixo do título.
   // mensagem: cabeçalho e conteúdo centralizados juntos.
   layout?: "topo" | "centro" | "mensagem";
+
+  // seta verde de voltar no topo (padrão: aparece)
+  mostrarVoltar?: boolean;
 };
 
 export function AuthForm({
@@ -34,6 +38,7 @@ export function AuthForm({
   footer,
   children,
   layout = "centro",
+  mostrarVoltar = true,
 }: AuthFormProps) {
   const cabecalho = (
     <View style={styles.header}>
@@ -71,6 +76,8 @@ export function AuthForm({
       <BackgroundGradient />
 
       <SafeAreaView style={styles.screen}>
+        {mostrarVoltar ? <BotaoVoltarAuth /> : null}
+
         <KeyboardAvoidingView
           style={styles.screen}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
