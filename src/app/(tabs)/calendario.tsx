@@ -30,6 +30,11 @@ import { Rotas } from "../../shared/constants/Rotas";
 
 import { styles } from "../../styles/calendariostyle";
 
+// Seletor de mês/ano e a função que gera "AAAA-MM-DD" na data local (a mesma
+// usada no calendário da semana de Metas)
+import { ModalMesAno } from "../../features/calendar/components/ModalMesAno";
+import { chaveDia } from "../../shared/components/CalendarioSemana/CalendarioSemana";
+
 import coroaIcon from "../../../assets/icones/coroa.png";
 import sinoIcon from "../../../assets/icones/sino.png";
 
@@ -251,10 +256,23 @@ export default function Calendario() {
     setDataSelecionada,
   ] = useState<string | null>(null);
 
+  // Mês que o calendário mostra. Começa no mês de hoje
   const [
     mesAtual,
     setMesAtual,
-  ] = useState<string>("2026-02-09");
+  ] = useState<string>(() => chaveDia(new Date()));
+
+  // Card "Escolher mês e ano" aberto?
+  const [
+    modalMesAno,
+    setModalMesAno,
+  ] = useState<boolean>(false);
+
+  // A seta embaixo do header esconde e mostra o calendário
+  const [
+    calendarioAberto,
+    setCalendarioAberto,
+  ] = useState<boolean>(true);
 
   const [
     itensCalendario,
@@ -275,12 +293,10 @@ export default function Calendario() {
     `${mesAtual}T12:00:00`
   );
 
-  const nomeMes =
-    LocaleConfig.locales["pt"].monthNames[
-      dataMes.getMonth()
-    ];
-
   const anoAtual = dataMes.getFullYear();
+
+  // Dia de hoje (AAAA-MM-DD): fica em roxo claro no calendário
+  const hoje = chaveDia(new Date());
 
 
   // ─────────────────────────────────────────
@@ -427,13 +443,19 @@ if (dataSelecionada) {
                 Plano do mês
               </Text>
 
-              <Text style={styles.headerAno}>
-                {anoAtual}
-              </Text>
-
-              <Text style={styles.headerMes}>
-                {nomeMes} ⌄
-              </Text>
+              {/* Tocar no ano ou no mês abre o card pra escolher outro */}
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() =>
+                  setModalMesAno(true)
+                }
+                accessibilityRole="button"
+                accessibilityLabel="Escolher mês e ano"
+              >
+                <Text style={styles.headerAno}>
+                  {anoAtual}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.headerIcones}>
@@ -466,145 +488,208 @@ if (dataSelecionada) {
 
           {/* ───────── CALENDÁRIO ───────── */}
 
-          <Calendar
-            current={mesAtual}
-            markedDates={markedDates}
-            enableSwipeMonths
-            hideExtraDays={false}
-            firstDay={1}
-            style={{
-              marginTop: 10,
-            }}
-            onMonthChange={(month) => {
-              setMesAtual(
-                month.dateString
-              );
-            }}
-            renderArrow={(direction) => (
-              <Text
-                style={{
-                  color:
-                    Cores.destaque.limao,
-
-                  fontSize: 20,
-                }}
-              >
-                {direction === "left"
-                  ? "‹"
-                  : "›"}
-              </Text>
-            )}
-            dayComponent={({
-              date,
-              state,
-              marking,
-            }) => {
-              const isSelected =
-                date?.dateString ===
-                dataSelecionada;
-
-              return (
+          {calendarioAberto && (
+            <Calendar
+              current={mesAtual}
+              // O Calendar só troca de mês sozinho quando o initialDate muda
+              // (o "current" é usado só na primeira vez). Assim, escolher um
+              // mês no card atualiza o calendário
+              initialDate={mesAtual}
+              markedDates={markedDates}
+              enableSwipeMonths
+              hideExtraDays={false}
+              firstDay={1}
+              style={{
+                marginTop: 10,
+              }}
+              onMonthChange={(month) => {
+                setMesAtual(
+                  month.dateString
+                );
+              }}
+              // Título do calendário também abre o card de mês/ano
+              renderHeader={(month) => (
                 <TouchableOpacity
                   activeOpacity={0.7}
-                  onPress={() => {
-                    if (date?.dateString) {
-                      setDataSelecionada(
-                        date.dateString
-                      );
-                    }
-                  }}
-                  style={{
-                    width: 42,
-                    height: 42,
-                    margin: 2,
-                    borderRadius: 100,
-
-                    justifyContent:
-                      "center",
-
-                    alignItems: "center",
-
-                    backgroundColor:
-                      isSelected
-                        ? Cores.destaque
-                            .limao
-                        : "#53269D",
-                  }}
+                  onPress={() =>
+                    setModalMesAno(true)
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel="Escolher mês e ano"
                 >
                   <Text
+                    allowFontScaling={false}
                     style={{
                       fontFamily:
-                        FONTS.raleway.bold,
+                        FONTS.raleway.extrabold,
 
-                      fontSize: 13,
+                      fontSize: 26,
 
-                      color: isSelected
-                        ? Cores.roxo.escuro
-                        : state ===
-                            "disabled"
-                          ? "#36166C"
-                          : "#A966FBF8",
+                      color:
+                        Cores.destaque.limao,
+
+                      margin: 10,
                     }}
                   >
-                    {date?.day}
+                    {month
+                      ? `${
+                          LocaleConfig.locales["pt"]
+                            .monthNames[
+                            month.getMonth()
+                          ]
+                        } ${month.getFullYear()}`
+                      : ""}
                   </Text>
-
-                  {marking?.marked &&
-                    !isSelected && (
-                      <View
-                        style={{
-                          width: 5,
-                          height: 5,
-
-                          borderRadius: 3,
-
-                          backgroundColor:
-                            marking.dotColor ||
-                            Cores.estado
-                              .perigo,
-
-                          marginTop: 3,
-                        }}
-                      />
-                    )}
                 </TouchableOpacity>
-              );
-            }}
-            theme={{
-              calendarBackground:
-                "transparent",
+              )}
+              renderArrow={(direction) => (
+                <Text
+                  style={{
+                    color:
+                      Cores.destaque.limao,
 
-              textSectionTitleColor:
-                "#e3d9ff",
+                    fontSize: 20,
+                  }}
+                >
+                  {direction === "left"
+                    ? "‹"
+                    : "›"}
+                </Text>
+              )}
+              dayComponent={({
+                date,
+                state,
+                marking,
+              }) => {
+                const isSelected =
+                  date?.dateString ===
+                  dataSelecionada;
 
-              monthTextColor:
-                Cores.destaque.limao,
+                const isHoje =
+                  date?.dateString === hoje;
 
-              textMonthFontFamily:
-                FONTS.raleway.extrabold,
+                return (
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      if (date?.dateString) {
+                        setDataSelecionada(
+                          date.dateString
+                        );
+                      }
+                    }}
+                    style={{
+                      width: 42,
+                      height: 42,
+                      margin: 2,
+                      borderRadius: 100,
 
-              textMonthFontSize: 18,
+                      justifyContent:
+                        "center",
 
-              textDayHeaderFontFamily:
-                FONTS.quicksand.regular,
+                      alignItems: "center",
 
-              textDayHeaderFontSize: 14,
+                      backgroundColor:
+                        isSelected
+                          ? Cores.destaque
+                              .limao
+                          : isHoje
+                            ? Cores.fundo.navBarra
+                            : "#53269D",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily:
+                          FONTS.raleway.bold,
 
-              arrowColor:
-                Cores.destaque.limao,
-            }}
-          />
+                        fontSize: 13,
+
+                        color: isSelected
+                          ? Cores.roxo.escuro
+                          : isHoje
+                            ? Cores.texto
+                                .claro
+                            : state ===
+                              "disabled"
+                            ? "#36166C"
+                            : "#A966FBF8",
+                      }}
+                    >
+                      {date?.day}
+                    </Text>
+
+                    {marking?.marked &&
+                      !isSelected && (
+                        <View
+                          style={{
+                            width: 5,
+                            height: 5,
+
+                            borderRadius: 3,
+
+                            backgroundColor:
+                              marking.dotColor ||
+                              Cores.estado
+                                .perigo,
+
+                            marginTop: 3,
+                          }}
+                        />
+                      )}
+                  </TouchableOpacity>
+                );
+              }}
+              theme={{
+                calendarBackground:
+                  "transparent",
+
+                textSectionTitleColor:
+                  "#e3d9ff",
+
+                monthTextColor:
+                  Cores.destaque.limao,
+
+                textMonthFontFamily:
+                  FONTS.raleway.extrabold,
+
+                textMonthFontSize: 18,
+
+                textDayHeaderFontFamily:
+                  FONTS.quicksand.regular,
+
+                textDayHeaderFontSize: 14,
+
+                arrowColor:
+                  Cores.destaque.limao,
+              }}
+            />
+          )}
         </LinearGradient>
 
 
         {/* ───────── SETA ───────── */}
 
         <View style={styles.setaContainer}>
-          <View style={styles.setaCirculo}>
+          <TouchableOpacity
+            style={styles.setaCirculo}
+            activeOpacity={0.8}
+            onPress={() =>
+              setCalendarioAberto(
+                (atual) => !atual
+              )
+            }
+            accessibilityRole="button"
+            accessibilityLabel={
+              calendarioAberto
+                ? "Esconder calendário"
+                : "Mostrar calendário"
+            }
+          >
             <Text style={styles.setaTexto}>
-              ⌄
+              {calendarioAberto ? "⌃" : "⌄"}
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
 
@@ -1015,6 +1100,30 @@ if (dataSelecionada) {
 
         </View>
       </ScrollView>
+
+      {/* Escolher mês e ano do calendário */}
+      <ModalMesAno
+        visible={modalMesAno}
+        mes={dataMes.getMonth()}
+        ano={anoAtual}
+        nomesMeses={
+          LocaleConfig.locales["pt"]
+            .monthNamesShort
+        }
+        aoFechar={() =>
+          setModalMesAno(false)
+        }
+        aoConfirmar={(mes, ano) => {
+          // Sempre dia 01, pra nunca cair num dia que não existe no mês
+          setMesAtual(
+            `${ano}-${String(
+              mes + 1
+            ).padStart(2, "0")}-01`
+          );
+
+          setModalMesAno(false);
+        }}
+      />
     </View>
   );
 }
