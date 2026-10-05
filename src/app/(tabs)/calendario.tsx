@@ -1,4 +1,7 @@
 import {
+  listarCalendariosDoDispositivo,
+} from "../../features/calendar/services/deviceCalendarService";
+import {
   ScrollView,
   View,
   Text,
@@ -258,9 +261,15 @@ export default function Calendario() {
 
   // Mês que o calendário mostra. Começa no mês de hoje
   const [
-    mesAtual,
-    setMesAtual,
-  ] = useState<string>(() => chaveDia(new Date()));
+  mesAtual,
+  setMesAtual,
+] = useState<string>(() => {
+    const hoje = new Date();
+
+    return `${hoje.getFullYear()}-${String(
+      hoje.getMonth() + 1
+    ).padStart(2, "0")}-01`;
+  });
 
   // Card "Escolher mês e ano" aberto?
   const [
@@ -329,6 +338,20 @@ if (dataSelecionada) {
   // ─────────────────────────────────────────
   // CARREGAR DADOS REAIS DO BACKEND
   // ─────────────────────────────────────────
+
+  useEffect(() => {
+  async function testarCalendarioDispositivo() {
+    const calendarios =
+      await listarCalendariosDoDispositivo();
+
+    console.log(
+      "TESTE CALENDÁRIO DO CELULAR:",
+      calendarios
+    );
+  }
+
+  testarCalendarioDispositivo();
+}, []);
 
   useEffect(() => {
     async function carregarCalendario() {
