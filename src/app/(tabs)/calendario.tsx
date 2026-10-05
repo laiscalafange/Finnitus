@@ -1,13 +1,18 @@
 import {
-  listarCalendariosDoDispositivo,
-} from "../../features/calendar/services/deviceCalendarService";
+  classificarEventoFinanceiro,
+} from "../../features/calendar/utils/classificarEventoFinanceiro";
 import {
+  Image,
   ScrollView,
-  View,
   Text,
   TouchableOpacity,
-  Image,
+  View,
 } from "react-native";
+import {
+  listarCalendariosDoDispositivo,
+  listarEventosDoDispositivo,
+  type EventoDispositivo,
+} from "../../features/calendar/services/deviceCalendarService";
 
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Circle } from "react-native-svg";
@@ -17,8 +22,8 @@ import {
   LocaleConfig,
 } from "react-native-calendars";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 
 import {
   listarItensCalendario,
@@ -26,10 +31,10 @@ import {
 } from "../../features/calendar/services/calendarService";
 
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
-import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Cores } from "../../shared/constants/Cores";
-import { FONTS } from "../../shared/constants/Tipografia";
+import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Rotas } from "../../shared/constants/Rotas";
+import { FONTS } from "../../shared/constants/Tipografia";
 
 import { styles } from "../../styles/calendariostyle";
 
@@ -289,6 +294,11 @@ export default function Calendario() {
   ] = useState<ItemCalendario[]>([]);
 
   const [
+  eventosDispositivo,
+  setEventosDispositivo,
+] = useState<EventoDispositivo[]>([]);
+
+  const [
     carregandoCalendario,
     setCarregandoCalendario,
   ] = useState<boolean>(false);
@@ -321,6 +331,16 @@ itensCalendario.forEach((item) => {
   markedDates[dataItem] = {
     marked: true,
     dotColor: Cores.estado.perigo,
+  };
+});
+
+eventosDispositivo.forEach((evento) => {
+  const dataEvento =
+    evento.dataInicio.slice(0, 10);
+
+  markedDates[dataEvento] = {
+    marked: true,
+    dotColor: Cores.destaque.limao,
   };
 });
 
@@ -375,11 +395,42 @@ if (dataSelecionada) {
                 mes + 1
               ).padStart(2, "0")}-01`;
 
+              
+
         const itens =
           await listarItensCalendario(
             inicio,
             proximoMes
           );
+
+          const eventosDoDispositivo =
+  await listarEventosDoDispositivo(
+    inicio,
+    proximoMes
+  );
+
+setEventosDispositivo(
+  eventosDoDispositivo
+);
+
+eventosDoDispositivo.forEach(
+  (evento) => {
+    const classificacao =
+      classificarEventoFinanceiro(
+        evento.titulo
+      );
+
+    console.log(
+      "ANÁLISE FINANCEIRA:",
+      evento.titulo,
+      classificacao
+    );
+  }
+);
+console.log(
+  "Eventos do dispositivo:",
+  eventosDoDispositivo
+);
 
         setItensCalendario(itens);
 
@@ -409,6 +460,17 @@ if (dataSelecionada) {
         dataSelecionada
     );
   });
+
+  const eventosDispositivoDoDia =
+  eventosDispositivo.filter(
+    (evento) => {
+      return (
+        dataSelecionada !== null &&
+        evento.dataInicio.slice(0, 10) ===
+          dataSelecionada
+      );
+    }
+  );
 
   const movimentacoesDoDia =
   itensCalendario.filter((item) => {
@@ -753,57 +815,100 @@ if (dataSelecionada) {
               </Text>
             </View>
 
-            {eventosDoDia.length > 0 ? (
-  eventosDoDia.map((evento) => {
-    const dataHora = new Date(
-      evento.horarioInicio ??
-        evento.data
-    );
+           {eventosDoDia.length > 0 ||
+eventosDispositivoDoDia.length > 0 ? (
+  <>
+    {/* EVENTOS DO FINNITUS */}
 
-    const hora =
-      dataHora.toLocaleTimeString(
-        "pt-BR",
-        {
-          hour: "2-digit",
-          minute: "2-digit",
-        }
+    {eventosDoDia.map((evento) => {
+      const dataHora = new Date(
+        evento.horarioInicio ?? evento.data
       );
 
-    return (
-      <View
-        key={`${evento.tipo}-${evento.id}`}
-        style={styles.eventoItem}
-      >
-        <Text
-          style={styles.eventoNome}
+      const hora =
+        dataHora.toLocaleTimeString(
+          "pt-BR",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        );
+
+      return (
+        <View
+          key={`${evento.tipo}-${evento.id}`}
+          style={styles.eventoItem}
         >
-          • {evento.titulo}
-        </Text>
+          <Text style={styles.eventoNome}>
+            • {evento.titulo}
+          </Text>
 
-        {evento.descricao && (
+          {evento.descricao && (
+            <Text
+              style={styles.eventoDescricao}
+            >
+              • {evento.descricao}
+            </Text>
+          )}
+
           <Text
-            style={
-              styles.eventoDescricao
+            style={styles.eventoDescricao}
+          >
+            Finnitus
+          </Text>
+
+          {!evento.diaInteiro && (
+            <Text style={styles.eventoHora}>
+              {hora}
+            </Text>
+          )}
+        </View>
+      );
+    })}
+
+    {/* EVENTOS DO CELULAR */}
+
+    {eventosDispositivoDoDia.map(
+      (evento) => {
+        const dataHora =
+          new Date(evento.dataInicio);
+
+        const hora =
+          dataHora.toLocaleTimeString(
+            "pt-BR",
+            {
+              hour: "2-digit",
+              minute: "2-digit",
             }
-          >
-            • {evento.descricao}
-          </Text>
-        )}
+          );
 
-        {!evento.diaInteiro && (
-          <Text
-            style={styles.eventoHora}
+        return (
+          <View
+            key={evento.id}
+            style={styles.eventoItem}
           >
-            {hora}
-          </Text>
-        )}
-      </View>
-    );
-  })
+            <Text style={styles.eventoNome}>
+              • {evento.titulo}
+            </Text>
+
+            <Text
+              style={styles.eventoDescricao}
+            >
+              Calendário do celular
+            </Text>
+
+            <Text style={styles.eventoHora}>
+              {evento.diaInteiro
+                ? "Dia inteiro"
+                : hora}
+            </Text>
+          </View>
+        );
+      }
+    )}
+  </>
 ) : (
-  <Text
-    style={styles.eventoDescricao}
-  >
+  <Text style={styles.eventoDescricao}>
     {dataSelecionada
       ? "Nenhum evento nesta data."
       : "Selecione uma data."}
