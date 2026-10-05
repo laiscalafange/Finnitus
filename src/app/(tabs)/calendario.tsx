@@ -881,6 +881,13 @@ eventosDispositivoDoDia.length > 0 ? (
               minute: "2-digit",
             }
           );
+          const classificacao =
+  classificarEventoFinanceiro(
+    evento.titulo
+  );
+
+const ehSuspeito =
+  classificacao.status === "SUSPEITO";
 
         return (
           <View
@@ -902,6 +909,55 @@ eventosDispositivoDoDia.length > 0 ? (
                 ? "Dia inteiro"
                 : hora}
             </Text>
+            {ehSuspeito && (
+  <View
+    style={{
+      marginTop: 10,
+      padding: 10,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor:
+        Cores.destaque.limao,
+      backgroundColor:
+        "#231044",
+    }}
+  >
+    <Text
+      style={{
+        color:
+          Cores.destaque.limao,
+        fontFamily:
+          FONTS.raleway.bold,
+        fontSize: 14,
+      }}
+    >
+      Possível movimentação financeira
+    </Text>
+
+    <Text
+      style={{
+        color:
+          Cores.base.branco,
+        marginTop: 4,
+      }}
+    >
+      {classificacao.tipoProvavel ===
+      "DESPESA"
+        ? "Despesa"
+        : classificacao.tipoProvavel ===
+            "RECEITA"
+          ? "Receita"
+          : "Movimentação"}
+
+      {classificacao.valorDetectado !==
+      undefined
+        ? ` • R$ ${classificacao.valorDetectado
+            .toFixed(2)
+            .replace(".", ",")}`
+        : ""}
+    </Text>
+  </View>
+)}
           </View>
         );
       }
