@@ -3,11 +3,12 @@ import { View, Text } from 'react-native'
 import Svg, { Circle } from 'react-native-svg'
 import { LinearGradient } from 'expo-linear-gradient'
 
-import { Cores } from '../../constants/Cores'
 import { FONTS } from '../../constants/Tipografia'
+import { CATEGORIAS_POR_ID } from '@/features/menuMais/constants'
 
 export interface RotaCategoria {
-  nome: string
+  // Mesmo id das categorias do Novo gasto (src/features/menuMais/constants.ts)
+  categoriaId: string
   valor: number
   percentual: number
   cor: string
@@ -18,9 +19,10 @@ interface RotasCardProps {
   titulo: string
   total: number
   categorias: RotaCategoria[]
-  resumo: string[]
   sobra?: number
   sobraTexto?: string
+  // Mensagem mostrada no lugar da lista quando não há categorias
+  vazio?: string
   styles: any
 }
 
@@ -35,9 +37,9 @@ export function RotasCard({
   titulo,
   total,
   categorias,
-  resumo,
   sobra,
   sobraTexto,
+  vazio,
   styles,
 }: RotasCardProps) {
 
@@ -62,7 +64,6 @@ export function RotasCard({
         styles.duploCard,
         {
           flex: 1,
-          minHeight: 400,
         },
       ]}
     >
@@ -100,7 +101,8 @@ export function RotasCard({
             strokeWidth={strokeWidth}
           />
 
-          {categorias.map((categoria) => {
+          {/* Sem categorias (totalPercentual 0) só aparece a trilha */}
+          {totalPercentual > 0 && categorias.map((categoria) => {
 
             const tamanho =
               circumference *
@@ -117,7 +119,7 @@ export function RotasCard({
 
             return (
               <Circle
-                key={categoria.nome}
+                key={categoria.categoriaId}
                 cx={centro}
                 cy={centro}
                 r={radius}
@@ -143,75 +145,65 @@ export function RotasCard({
       </View>
 
 
-      {/* CATEGORIAS */}
+      {/* CATEGORIAS: o ícone (mesmo do Novo gasto) já usa a cor do gráfico,
+          por isso não tem nome nem pontinho de cor */}
 
       <View style={styles.rotasCategorias}>
 
-        {categorias.map((categoria) => (
+        {categorias.map((categoria) => {
 
-          <View
-            key={categoria.nome}
-            style={styles.rotasCategoriaLinha}
-          >
+          const item =
+            CATEGORIAS_POR_ID[categoria.categoriaId] ??
+            CATEGORIAS_POR_ID.outros
 
+          const Icone = item.icone
+
+          return (
             <View
-              style={[
-                styles.rotasIndicador,
-                {
-                  backgroundColor: categoria.cor,
-                },
-              ]}
-            />
+              key={categoria.categoriaId}
+              style={styles.rotasCategoriaLinha}
+            >
 
-            <Text style={styles.rotasCategoriaNome}>
-              {categoria.nome}
-            </Text>
+              <View
+                style={{ flex: 1 }}
+                accessible
+                accessibilityLabel={item.rotulo}
+              >
+                <Icone size={18} color={categoria.cor} />
+              </View>
 
-            <Text style={styles.rotasCategoriaValor}>
-              {formatarMoeda(categoria.valor)}
-            </Text>
-
-            <Text style={styles.rotasCategoriaPercentual}>
-              {categoria.percentual}%
-            </Text>
-
-            {categoria.tendencia && (
-              <Text style={styles.rotasTendencia}>
-                {categoria.tendencia === 'up'
-                  ? '↑'
-                  : categoria.tendencia === 'down'
-                    ? '↓'
-                    : '→'}
+              <Text style={styles.rotasCategoriaValor}>
+                {formatarMoeda(categoria.valor)}
               </Text>
-            )}
 
-          </View>
+              <Text style={styles.rotasCategoriaPercentual}>
+                {categoria.percentual}%
+              </Text>
 
-        ))}
+              {categoria.tendencia && (
+                <Text style={styles.rotasTendencia}>
+                  {categoria.tendencia === 'up'
+                    ? '↑'
+                    : categoria.tendencia === 'down'
+                      ? '↓'
+                      : '→'}
+                </Text>
+              )}
 
-      </View>
-
-
-      {/* RESUMO */}
-
-      <Text style={styles.rotasResumoTitulo}>
-        Resumo
-      </Text>
-
-      <View style={styles.rotasResumo}>
-
-        {resumo.map((item) => (
-
-          <Text
-            key={item}
-            style={styles.rotasResumoTexto}
-          >
-            {item}
-          </Text>
-
-        ))}
+            </View>
+          )
+        })}
 
       </View>
+
+
+      {/* MENSAGEM QUANDO NÃO HÁ O QUE MOSTRAR */}
+
+      {vazio && (
+        <Text style={styles.rotasSobraTexto}>
+          {vazio}
+        </Text>
+      )}
 
 
       {/* SOBRA */}

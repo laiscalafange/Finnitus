@@ -8,6 +8,7 @@ import {
   type MovimentacaoMeta,
   type TipoMeta,
 } from './metasData'
+import type { TipoTransacao } from './menuMais/types'
 
 export type FinanceiroState = {
   salario?: number
@@ -27,6 +28,22 @@ export type NovaMeta = {
   dataLimite?: string
 }
 
+// Uma transação registrada em "Novo gasto" (saída ou entrada)
+export type Transacao = {
+  id: string
+  tipo: TipoTransacao
+  valor: number
+  // Mesmo id das categorias do Novo gasto (src/features/menuMais/constants.ts)
+  categoriaId: string
+  // DD/MM/AAAA
+  data: string
+  descricao?: string
+  repetirMensalmente: boolean
+}
+
+// Dados do formulário do Novo gasto (o id é criado ao salvar)
+export type NovaTransacao = Omit<Transacao, 'id'>
+
 // Resultado de um depósito ou retirada numa meta
 export type ResultadoMovimento = 'ok' | 'concluida' | 'saldoInsuficiente' | 'naoEncontrada'
 
@@ -43,6 +60,10 @@ type FinanceiroContextValue = FinanceiroState & {
   movimentarMeta: (id: string, tipo: 'deposito' | 'retirada', valor: number) => ResultadoMovimento
   cancelarMeta: (id: string) => void
   excluirMeta: (id: string) => void
+
+  // Transações do Novo gasto (alimentam as Rotas do Plano-B)
+  transacoes: Transacao[]
+  adicionarTransacao: (dados: NovaTransacao) => Transacao
 }
 
 const FinanceiroContext = createContext<FinanceiroContextValue | undefined>(undefined)
@@ -66,6 +87,20 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   // estado fica só em memória; quando existirem, carregar a lista da API e
   // chamar a API em cada uma das ações abaixo.
   const [metas, setMetas] = useState<Meta[]>(METAS_INICIAIS)
+
+  // TODO (backend): ainda não existe endpoint de transações. Por enquanto a
+  // lista fica só em memória (some ao fechar o app); quando existir, carregar
+  // da API aqui e enviar cada nova transação na ação abaixo.
+  const [transacoes, setTransacoes] = useState<Transacao[]>([])
+
+  // Guarda a transação do Novo gasto (a mais recente fica no começo da lista)
+  const adicionarTransacao = useCallback((dados: NovaTransacao): Transacao => {
+    const transacao: Transacao = { id: novoId(), ...dados }
+
+    setTransacoes((atual) => [transacao, ...atual])
+
+    return transacao
+  }, [])
 
   // Cria a meta com exatamente os dados digitados. O valor inicial já
   // guardado entra como o primeiro depósito do histórico.
@@ -159,6 +194,8 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       movimentarMeta,
       cancelarMeta,
       excluirMeta,
+      transacoes,
+      adicionarTransacao,
     }),
     [
       salario,
@@ -171,6 +208,8 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       movimentarMeta,
       cancelarMeta,
       excluirMeta,
+      transacoes,
+      adicionarTransacao,
     ],
   )
 

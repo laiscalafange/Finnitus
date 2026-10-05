@@ -21,6 +21,7 @@ import {
   CATEGORIAS_ENTRADA,
   CATEGORIAS_GASTO,
 } from "@/features/menuMais/constants";
+import { useFinanceiro } from "@/features/financeiroContext";
 import { useVoltar } from "@/features/menuMais/useVoltar";
 import {
   dataValida,
@@ -36,6 +37,9 @@ import { styles } from "@/features/menuMais/styles/formulario";
 // aconteceu — saída (gasto) ou entrada (receita). Alimenta Receitas/Despesas.
 export default function NovoGasto() {
   const voltar = useVoltar();
+
+  // Guarda a transação pra alimentar as Rotas do Plano-B
+  const { adicionarTransacao } = useFinanceiro();
 
   // Gasto ou entrada
   const [tipo, setTipo] = useState<TipoTransacao>("gasto");
@@ -77,6 +81,16 @@ export default function NovoGasto() {
     }
 
     setErro("");
+
+    // Guarda a transação (por enquanto só em memória)
+    adicionarTransacao({
+      tipo,
+      valor: moedaParaNumero(valor),
+      categoriaId: categoria,
+      data,
+      descricao: descricao.trim() || undefined,
+      repetirMensalmente: repetir,
+    });
 
     // TODO (backend): ainda não existe endpoint de transações. Quando existir,
     // enviar { tipo, valor: moedaParaNumero(valor), categoria, data,
