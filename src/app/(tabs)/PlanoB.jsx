@@ -17,7 +17,6 @@ import {
   PERFORMANCE_MOCK,
   SUMARIO_PLANOB_MOCK,
   ATIVIDADE_HEATMAP_MOCK,
-  ROTAS_PLANOB_MOCK,
 } from '../../shared/components/Mocks'
 
 import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
@@ -25,6 +24,8 @@ import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
 import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
 import { PerformanceGauge } from '../../shared/components/PlanoB/PerformanceGauge'
 import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
+import { useFinanceiro } from '../../features/financeiroContext'
+import { calcularRotas, montarCardsRotas } from '../../features/rotasDatas'
 
 import { styles } from '../../styles/Planobstyle'
 
@@ -34,6 +35,10 @@ export default function PlanoBScreen() {
 
   const restante =
     SALDO_MOCK.maximoDisponivel - SALDO_MOCK.atual
+
+  // Rotas calculadas com os gastos e entradas registrados no Novo gasto
+  const { transacoes, salario } = useFinanceiro()
+  const cardsRotas = montarCardsRotas(calcularRotas(transacoes, salario))
 
   return (
     <View style={{ flex: 1 }}>
@@ -418,25 +423,55 @@ export default function PlanoBScreen() {
           </Text>
 
           <View style={styles.duploRow}>
-            <RotasCard
-  titulo={ROTAS_PLANOB_MOCK.gastosAtuais.titulo}
-  total={ROTAS_PLANOB_MOCK.gastosAtuais.total}
-  categorias={ROTAS_PLANOB_MOCK.gastosAtuais.categorias}
-  resumo={ROTAS_PLANOB_MOCK.gastosAtuais.resumo}
-  sobra={ROTAS_PLANOB_MOCK.gastosAtuais.sobra}
-  sobraTexto={ROTAS_PLANOB_MOCK.gastosAtuais.sobraTexto}
-  styles={styles}
-/>
+            {/* Toque no card Gastos atuais abre a tela Rotas de gastos
+                já na versão "Gastos atuais" */}
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir rotas de gastos atuais"
+              onPress={() =>
+                router.push({
+                  pathname: Rotas.rotasGastos,
+                  params: { versao: 'atuais' },
+                })
+              }
+            >
+              <RotasCard
+                titulo={cardsRotas.atuais.titulo}
+                total={cardsRotas.atuais.total}
+                categorias={cardsRotas.atuais.categorias}
+                sobra={cardsRotas.atuais.sobra}
+                sobraTexto={cardsRotas.atuais.sobraTexto}
+                vazio={cardsRotas.atuais.vazio}
+                styles={styles}
+              />
+            </TouchableOpacity>
 
-            <RotasCard
-  titulo={ROTAS_PLANOB_MOCK.recomendado.titulo}
-  total={ROTAS_PLANOB_MOCK.recomendado.total}
-  categorias={ROTAS_PLANOB_MOCK.recomendado.categorias}
-  resumo={ROTAS_PLANOB_MOCK.recomendado.resumo}
-  sobra={ROTAS_PLANOB_MOCK.recomendado.sobra}
-  sobraTexto={ROTAS_PLANOB_MOCK.recomendado.sobraTexto}
-  styles={styles}
-/>
+            {/* Toque no card Recomendado abre a tela Rotas de gastos
+                já na versão "Recomendado" */}
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir rotas de gastos recomendados"
+              onPress={() =>
+                router.push({
+                  pathname: Rotas.rotasGastos,
+                  params: { versao: 'recomendado' },
+                })
+              }
+            >
+              <RotasCard
+                titulo={cardsRotas.recomendado.titulo}
+                total={cardsRotas.recomendado.total}
+                categorias={cardsRotas.recomendado.categorias}
+                sobra={cardsRotas.recomendado.sobra}
+                sobraTexto={cardsRotas.recomendado.sobraTexto}
+                vazio={cardsRotas.recomendado.vazio}
+                styles={styles}
+              />
+            </TouchableOpacity>
           </View>
 
         </View>
