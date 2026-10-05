@@ -5,19 +5,17 @@ import { LinearGradient } from "expo-linear-gradient";
 import { HeaderInterno } from "../../shared/components/Header";
 import { Card } from "../../shared/components/Cards";
 import { Cores } from "../../shared/constants/Cores";
-import { ATIVIDADE_HEATMAP_MOCK } from "../../shared/components/Mocks";
+import { useFinanceiro } from "@/features/financeiroContext";
+import {
+  calcularAtividade,
+  NIVEIS_ATIVIDADE,
+  type NivelAtividade,
+} from "@/features/sumarioData";
 import { styles } from "../../styles/atividade";
 
-type Nivel = "alta" | "media" | "baixa" | "nenhuma";
-
-// Cor e nome de cada nível de atividade (iguais ao protótipo).
-// A ordem daqui é a ordem da legenda.
-const NIVEIS: { id: Nivel; rotulo: string; cor: string }[] = [
-  { id: "nenhuma", rotulo: "Nenhuma", cor: "#1B1530" },
-  { id: "baixa", rotulo: "Baixa", cor: Cores.destaque.limao },
-  { id: "alta", rotulo: "Alta", cor: "#FF8800" },
-  { id: "media", rotulo: "Média", cor: "#F2E01B" },
-];
+// Cor e nome de cada nível de atividade (iguais ao protótipo) ficam em
+// NIVEIS_ATIVIDADE, os mesmos usados no card do Plano-B e do Dashboard.
+const NIVEIS = NIVEIS_ATIVIDADE;
 
 const LETRAS_SEMANA = ["S", "T", "Q", "Q", "S", "S", "D"];
 
@@ -32,12 +30,12 @@ const GRADIENTE_CARD: [string, string] = [
 ];
 
 // Dia do calendário (ou null = espaço vazio pra alinhar com o dia da semana)
-type Celula = { dia: number; nivel: Nivel } | null;
+type Celula = { dia: number; nivel: NivelAtividade } | null;
 
 // Monta as linhas do calendário (semana começa na segunda, como no protótipo).
-// Cada dia vem do mock como { data: "AAAA-MM-DD", nivel }.
+// Cada dia vem como { data: "AAAA-MM-DD", nivel }.
 function montarSemanas(
-  dias: { data: string; nivel: string }[]
+  dias: { data: string; nivel: NivelAtividade }[]
 ): Celula[][] {
   if (dias.length === 0) {
     return [];
@@ -52,7 +50,7 @@ function montarSemanas(
     ...Array.from({ length: primeiroDia }, () => null),
     ...dias.map((item) => ({
       dia: Number(item.data.split("-")[2]),
-      nivel: item.nivel as Nivel,
+      nivel: item.nivel,
     })),
   ];
 
@@ -71,10 +69,18 @@ function montarSemanas(
 }
 
 // Tela "Atividade": aberta ao tocar no card Atividade do Dashboard e do Plano-B.
+// Mostra quantas movimentações a pessoa teve em cada dia do mês (gastos e
+// entradas do Novo gasto + depósitos e retiradas das Metas).
 export default function Atividade() {
-  const { mes, ano, dias } = ATIVIDADE_HEATMAP_MOCK;
+  // Gastos, entradas e metas registrados no app (FinanceiroProvider)
+  const { transacoes, metas } = useFinanceiro();
+
+  const { mes, ano, dias } = calcularAtividade(transacoes, metas);
 
   const semanas = montarSemanas(dias);
+
+  // Mês sem nenhuma movimentação
+  const semAtividade = dias.every((dia) => dia.nivel === "nenhuma");
 
   return (
     <LinearGradient
@@ -106,46 +112,46 @@ export default function Atividade() {
             ))}
           </View>
 
-          {semanas.length === 0 ? (
+          {semAtividade ? (
             <Text style={styles.vazio}>Nenhuma atividade neste mês.</Text>
-          ) : (
-            semanas.map((semana, indiceSemana) => (
-              <View key={indiceSemana} style={styles.linhaDias}>
-                {semana.map((celula, indiceDia) => {
-                  if (!celula) {
-                    return <View key={indiceDia} style={styles.diaVazio} />;
-                  }
+          ) : null}
 
-                  const nivel =
-                    NIVEIS.find((item) => item.id === celula.nivel) ??
-                    NIVEIS[0];
+          {semanas.map((semana, indiceSemana) => (
+            <View key={indiceSemana} style={styles.linhaDias}>
+              {semana.map((celula, indiceDia) => {
+                if (!celula) {
+                  return <View key={indiceDia} style={styles.diaVazio} />;
+                }
 
-                  return (
-                    <View
-                      key={indiceDia}
-                      accessible
-                      accessibilityLabel={`Dia ${celula.dia}, atividade ${nivel.rotulo.toLowerCase()}`}
-                      style={[styles.dia, { backgroundColor: nivel.cor }]}
+                const nivel =
+                  NIVEIS.find((item) => item.id === celula.nivel) ??
+                  NIVEIS[0];
+
+                return (
+                  <View
+                    key={indiceDia}
+                    accessible
+                    accessibilityLabel={`Dia ${celula.dia}, atividade ${nivel.rotulo.toLowerCase()}`}
+                    style={[styles.dia, { backgroundColor: nivel.cor }]}
+                  >
+                    <Text
+                      style={[
+                        styles.diaNumero,
+                        {
+                          color:
+                            nivel.id === "nenhuma"
+                              ? Cores.texto.claro
+                              : Cores.texto.contraste,
+                        },
+                      ]}
                     >
-                      <Text
-                        style={[
-                          styles.diaNumero,
-                          {
-                            color:
-                              nivel.id === "nenhuma"
-                                ? Cores.texto.claro
-                                : Cores.texto.contraste,
-                          },
-                        ]}
-                      >
-                        {celula.dia}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
-            ))
-          )}
+                      {celula.dia}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
+          ))}
 
           {/* Legenda */}
           <Card gradiente={GRADIENTE_CARD} style={{ marginTop: 8 }}>

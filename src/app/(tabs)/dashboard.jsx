@@ -13,14 +13,14 @@ import { Rotas } from '../../shared/constants/Rotas'
 import {
   DASHBOARD_MOCK,
   ESTATISTICAS_MOCK,
-  SUMARIO_PLANOB_MOCK,
-  ATIVIDADE_HEATMAP_MOCK,
   PLANOB_MOCK,
 } from '../../shared/components/Mocks'
 
 import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
 import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
 import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
+import { useFinanceiro } from '../../features/financeiroContext'
+import { calcularSumario, calcularAtividade } from '../../features/sumarioData'
 import { styles } from '../../styles/dashboardstyle'
 
 import coroaIcon from '../../../assets/icones/coroa.png'
@@ -129,6 +129,12 @@ function GaugeCircular({
 export default function Dashboard() {
   // Hook de navegação do Expo Router
   const router = useRouter()
+
+  // Sumário e Atividade calculados com o que a pessoa registrou no Novo gasto
+  // e nas Metas
+  const { transacoes, salario, metas } = useFinanceiro()
+  const sumario = calcularSumario(transacoes, metas, salario)
+  const atividade = calcularAtividade(transacoes, metas)
 
   const [periodo, setPeriodo] = useState('semanal')
   const [diaSelecionado, setDiaSelecionado] = useState(
@@ -415,8 +421,8 @@ export default function Dashboard() {
               onPress={() => router.push(Rotas.sumarioDetalhado)}
             >
               <SumarioCard
-                disponivel={SUMARIO_PLANOB_MOCK.disponivel}
-                itens={SUMARIO_PLANOB_MOCK.itens}
+                disponivel={sumario.disponivel}
+                itens={sumario.itens}
               />
             </TouchableOpacity>
 
@@ -429,9 +435,9 @@ export default function Dashboard() {
               onPress={() => router.push(Rotas.atividade)}
             >
               <HeatmapCard
-                mes={ATIVIDADE_HEATMAP_MOCK.mes}
-                ano={ATIVIDADE_HEATMAP_MOCK.ano}
-                dias={ATIVIDADE_HEATMAP_MOCK.dias}
+                mes={atividade.mes}
+                ano={atividade.ano}
+                dias={atividade.dias}
               />
             </TouchableOpacity>
           </View>
