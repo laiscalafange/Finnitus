@@ -15,8 +15,6 @@ import {
   DADOS_AREA_COMPARACAO_MOCK,
   SALDO_MOCK,
   PERFORMANCE_MOCK,
-  SUMARIO_PLANOB_MOCK,
-  ATIVIDADE_HEATMAP_MOCK,
 } from '../../shared/components/Mocks'
 
 import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
@@ -26,6 +24,7 @@ import { PerformanceGauge } from '../../shared/components/PlanoB/PerformanceGaug
 import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
 import { useFinanceiro } from '../../features/financeiroContext'
 import { calcularRotas, montarCardsRotas } from '../../features/rotasDatas'
+import { calcularSumario, calcularAtividade } from '../../features/sumarioData'
 
 import { styles } from '../../styles/Planobstyle'
 
@@ -36,9 +35,12 @@ export default function PlanoBScreen() {
   const restante =
     SALDO_MOCK.maximoDisponivel - SALDO_MOCK.atual
 
-  // Rotas calculadas com os gastos e entradas registrados no Novo gasto
-  const { transacoes, salario } = useFinanceiro()
+  // Rotas, Sumário e Atividade calculados com o que a pessoa registrou no
+  // Novo gasto e nas Metas
+  const { transacoes, salario, metas } = useFinanceiro()
   const cardsRotas = montarCardsRotas(calcularRotas(transacoes, salario))
+  const sumario = calcularSumario(transacoes, metas, salario)
+  const atividade = calcularAtividade(transacoes, metas)
 
   return (
     <View style={{ flex: 1 }}>
@@ -393,8 +395,8 @@ export default function PlanoBScreen() {
               onPress={() => router.push(Rotas.sumarioDetalhado)}
             >
               <SumarioCard
-                disponivel={SUMARIO_PLANOB_MOCK.disponivel}
-                itens={SUMARIO_PLANOB_MOCK.itens}
+                disponivel={sumario.disponivel}
+                itens={sumario.itens}
               />
             </TouchableOpacity>
 
@@ -407,9 +409,9 @@ export default function PlanoBScreen() {
               onPress={() => router.push(Rotas.atividade)}
             >
               <HeatmapCard
-                mes={ATIVIDADE_HEATMAP_MOCK.mes}
-                ano={ATIVIDADE_HEATMAP_MOCK.ano}
-                dias={ATIVIDADE_HEATMAP_MOCK.dias}
+                mes={atividade.mes}
+                ano={atividade.ano}
+                dias={atividade.dias}
               />
             </TouchableOpacity>
           </View>
