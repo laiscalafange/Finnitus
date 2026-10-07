@@ -25,6 +25,10 @@ const palavrasDespesa = [
   "mensalidade",
   "assinatura",
   "conta",
+  "aniversário",
+  "presente",
+  "doação",
+  
 ];
 
 const palavrasReceita = [

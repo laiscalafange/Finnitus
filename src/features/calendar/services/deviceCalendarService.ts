@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import * as Calendar from "expo-calendar";
+import * as Calendar from "expo-calendar/legacy";
 
 export async function listarCalendariosDoDispositivo() {
   if (Platform.OS === "web") {
@@ -22,7 +22,7 @@ export async function listarCalendariosDoDispositivo() {
 
   try {
     const permissao =
-      await Calendar.requestCalendarPermissions();
+      await Calendar.requestCalendarPermissionsAsync();
 
     console.log(
       "Permissão do calendário:",
@@ -34,9 +34,9 @@ export async function listarCalendariosDoDispositivo() {
     }
 
     const calendarios =
-      await Calendar.getCalendars(
-        Calendar.EntityTypes.EVENT
-      );
+      await Calendar.getCalendarsAsync(
+  Calendar.EntityTypes.EVENT
+);
 
     console.log(
       "Calendários encontrados:",
@@ -104,9 +104,114 @@ export async function listarEventosDoDispositivo(
     });
   }
 
-  // Por enquanto ainda não vamos fazer a leitura real
-  // no Android/iOS.
-  return [];
+    // As datas recebidas da tela estão no formato AAAA-MM-DD.
+  // Acrescentamos o horário para interpretar no fuso do celular.
+  const dataInicio = new Date(`${inicio}T00:00:00`);
+  const dataFim = new Date(`${fim}T00:00:00`);
+
+  if (
+    !Number.isFinite(dataInicio.getTime()) ||
+    !Number.isFinite(dataFim.getTime()) ||
+    dataInicio >= dataFim
+  ) {
+    throw new Error("Intervalo inválido para consultar o calendário.");
+  }
+
+  let permissao = await Calendar.getCalendarPermissionsAsync();
+
+  if (permissao.status !== "granted") {
+    permissao = await Calendar.requestCalendarPermissionsAsync();
+  }
+
+  if (permissao.status !== "granted") {
+    return [];
+  }
+
+  const calendarios = await Calendar.getCalendarsAsync(
+    Calendar.EntityTypes.EVENT
+  );
+
+  // No Android, consulta as agendas visíveis no calendário.
+  // No iOS, essa propriedade pode não estar disponível.
+  const calendariosVisiveis = calendarios.filter(
+    (calendario) => calendario.isVisible !== false
+  );
+
+  const ids = calendariosVisiveis.map(
+    (calendario) => calendario.id
+  );
+
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const eventos = await Calendar.getEventsAsync(
+    ids,
+    dataInicio,
+    dataFim
+  );
+
+  function formatarData(
+    valor: string | Date,
+    diaInteiro: boolean
+  ): string {
+    // Preserva a data civil dos eventos de dia inteiro.
+    if (diaInteiro) {
+      const data =
+        typeof valor === "string"
+          ? valor.slice(0, 10)
+          : valor.toISOString().slice(0, 10);
+
+      return `${data}T00:00:00`;
+    }
+
+    // A tela usa slice(0, 10) para descobrir o dia.
+    // Por isso, retornamos os componentes no horário local.
+    const data = new Date(valor);
+
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, "0");
+    const dia = String(data.getDate()).padStart(2, "0");
+    const hora = String(data.getHours()).padStart(2, "0");
+    const minuto = String(data.getMinutes()).padStart(2, "0");
+    const segundo = String(data.getSeconds()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}T${hora}:${minuto}:${segundo}`;
+  }
+
+  const resultado: EventoDispositivo[] = eventos.map(
+    (evento) => {
+      const diaInteiro = Boolean(evento.allDay);
+
+      const dataInicioEvento = formatarData(
+        evento.startDate,
+        diaInteiro
+      );
+
+      return {
+        // Diferencia também as ocorrências de eventos repetidos.
+        id: `${evento.calendarId}:${evento.id}:${dataInicioEvento}`,
+        titulo: evento.title?.trim() || "Evento sem título",
+        dataInicio: dataInicioEvento,
+        dataFim: evento.endDate
+          ? formatarData(evento.endDate, diaInteiro)
+          : undefined,
+        diaInteiro,
+        calendarioId: evento.calendarId,
+        origem: "DISPOSITIVO",
+      };
+    }
+  );
+
+  // O último dia do intervalo é exclusivo.
+  return resultado
+    .filter((evento) => {
+      const dia = evento.dataInicio.slice(0, 10);
+      return dia >= inicio && dia < fim;
+    })
+    .sort((a, b) =>
+      a.dataInicio.localeCompare(b.dataInicio)
+    );
 }
 export type EventoDispositivo = {
   id: string;
