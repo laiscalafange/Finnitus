@@ -13,60 +13,32 @@ listarEventosDoDispositivo, type EventoDispositivo,
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Circle } from "react-native-svg";
 import { Calendar,
-
   LocaleConfig,
-
 } from "react-native-calendars";
 
-
-
 import { useRouter } from "expo-router";
-
 import { useEffect, useState } from "react";
 
-
-
 import {
-
   listarItensCalendario,
-
+  confirmarEventoFinanceiro,
   type ItemCalendario,
-
 } from "../../features/calendar/services/calendarService";
 
-
-
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
-
 import { Cores } from "../../shared/constants/Cores";
-
 import { GRADIENTS } from "../../shared/constants/Gradientes";
-
 import { Rotas } from "../../shared/constants/Rotas";
-
 import { FONTS } from "../../shared/constants/Tipografia";
-
-
-
 import { styles } from "../../styles/calendariostyle";
 
-
-
 // Seletor de mês/ano e a função que gera "AAAA-MM-DD" na data local (a mesma
-
 // usada no calendário da semana de Metas)
 
 import { ModalMesAno } from "../../features/calendar/components/ModalMesAno";
-
 import { chaveDia } from "../../shared/components/CalendarioSemana/CalendarioSemana";
-
-
-
 import coroaIcon from "../../../assets/icones/coroa.png";
-
 import sinoIcon from "../../../assets/icones/sino.png";
-
-
 
 // ─────────────────────────────────────────────
 
@@ -74,12 +46,8 @@ import sinoIcon from "../../../assets/icones/sino.png";
 
 // ─────────────────────────────────────────────
 
-
-
 type SegmentoGauge = {
-
   cor: string;
-
   pct: number;
 
 };
@@ -87,13 +55,9 @@ type SegmentoGauge = {
 
 
 type GaugeCircularProps = {
-
   tamanho?: number;
-
   label: string;
-
   sublabel: string;
-
   segmentos: SegmentoGauge[];
 
 };
@@ -101,24 +65,14 @@ type GaugeCircularProps = {
 
 
 type MarcacaoData = {
-
   marked?: boolean;
-
   dotColor?: string;
-
   selected?: boolean;
-
   selectedColor?: string;
 
 };
 
-
-
 type MarcacoesCalendario = Record<string, MarcacaoData>;
-
-
-
-
 
 // ─────────────────────────────────────────────
 
@@ -126,34 +80,19 @@ type MarcacoesCalendario = Record<string, MarcacaoData>;
 
 // ─────────────────────────────────────────────
 
-
-
 LocaleConfig.locales["pt"] = {
-
   monthNames: [
-
     "Janeiro",
-
     "Fevereiro",
-
     "Março",
-
     "Abril",
-
     "Maio",
-
     "Junho",
-
     "Julho",
-
     "Agosto",
-
     "Setembro",
-
     "Outubro",
-
     "Novembro",
-
     "Dezembro",
 
   ],
@@ -161,15 +100,10 @@ LocaleConfig.locales["pt"] = {
 
 
   monthNamesShort: [
-
     "Jan",
-
     "Fev",
-
     "Mar",
-
     "Abr",
-
     "Mai",
 
     "Jun",
@@ -477,6 +411,10 @@ export default function Calendario() {
 
 
   const [
+  recarregarCalendario,
+  setRecarregarCalendario,
+] = useState(0);
+const [
 
     dataSelecionada,
 
@@ -887,18 +825,12 @@ console.log(
         );
 
       } finally {
-
         setCarregandoCalendario(false);
-
       }
-
     }
 
-
-
     carregarCalendario();
-
-  }, [mesAtual]);
+  }, [mesAtual, recarregarCalendario]);
 
 
 
@@ -2856,76 +2788,123 @@ const ehSuspeito =
             />
 
             <TouchableOpacity
-              onPress={() => {
-                if (!eventoEmRevisao) {
-                  return;
-                }
+  onPress={async () => {
+    if (!eventoEmRevisao) {
+      return;
+    }
 
-                console.log(
-                  "MOVIMENTAÇÃO REVISADA:",
-                  {
-                    eventoId:
-                      eventoEmRevisao.id,
-                    tipo: tipoRevisao,
-                    valor:
-                      valorRevisao,
-                    descricao:
-                      descricaoRevisao,
-                    data: dataRevisao,
-                  }
-                );
+    const valorNumerico = Number(
+      valorRevisao
+        .replace(/\./g, "")
+        .replace(",", ".")
+    );
 
-                setDecisoesEventos(
-                  (atual) => ({
-                    ...atual,
-                    [eventoEmRevisao.id]:
-                      "CONFIRMADO",
-                  })
-                );
+    if (
+      !valorNumerico ||
+      valorNumerico <= 0
+    ) {
+      console.log(
+        "Valor inválido."
+      );
 
-                setEventoEmRevisao(
-                  null
-                );
-              }}
-              style={{
-                backgroundColor:
-                  Cores.destaque.limao,
-                padding: 13,
-                borderRadius: 9,
-                alignItems: "center",
-                marginBottom: 10,
-              }}
-            >
-              <Text
-                style={{
-                  color:
-                    Cores.roxo.escuro,
-                  fontFamily:
-                    FONTS.raleway.bold,
-                }}
-              >
-                Confirmar movimentação
-              </Text>
-            </TouchableOpacity>
+      return;
+    }
 
-            <TouchableOpacity
-              onPress={() =>
-                setEventoEmRevisao(null)
-              }
-              style={{
-                padding: 10,
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{
-                  color:
-                    Cores.base.branco,
-                }}
-              >
-                Cancelar
-              </Text>
-            </TouchableOpacity>
+    try {
+      const resultado =
+        await confirmarEventoFinanceiro({
+          idEventoExterno:
+            eventoEmRevisao.id,
+
+          tituloEvento:
+            eventoEmRevisao.titulo,
+
+          dataInicio:
+            eventoEmRevisao.dataInicio,
+
+          dataFim:
+            eventoEmRevisao.dataFim,
+
+          diaInteiro:
+            eventoEmRevisao.diaInteiro,
+
+          tipoMovimentacao:
+            tipoRevisao,
+
+          descricao:
+            descricaoRevisao,
+
+          valor:
+            valorNumerico,
+
+          data:
+            dataRevisao,
+        });
+
+      console.log(
+        "Movimentação salva:",
+        resultado
+      );
+
+      setDecisoesEventos(
+        (atual) => ({
+          ...atual,
+          [eventoEmRevisao.id]:
+            "CONFIRMADO",
+        })
+      );
+
+      setEventoEmRevisao(null);
+
+      setRecarregarCalendario(
+        (atual) => atual + 1
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao salvar movimentação:",
+        error
+      );
+    }
+  }}
+  style={{
+    backgroundColor:
+      Cores.destaque.limao,
+    padding: 13,
+    borderRadius: 9,
+    alignItems: "center",
+    marginBottom: 10,
+  }}
+>
+  <Text
+    style={{
+      color:
+        Cores.roxo.escuro,
+      fontFamily:
+        FONTS.raleway.bold,
+    }}
+  >
+    Confirmar movimentação
+  </Text>
+</TouchableOpacity>
+
+<TouchableOpacity
+  onPress={() =>
+    setEventoEmRevisao(null)
+  }
+  style={{
+    padding: 10,
+    alignItems: "center",
+  }}
+>
+  <Text
+    style={{
+      color:
+        Cores.base.branco,
+    }}
+  >
+    Cancelar
+  </Text>
+</TouchableOpacity>
           </View>
         </View>
       </Modal>

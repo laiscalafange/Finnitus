@@ -1,4 +1,30 @@
 import { api } from "../../../services/api";
+export type ConfirmarEventoFinanceiroPayload = {
+  idEventoExterno: string;
+  tituloEvento: string;
+  dataInicio: string;
+  dataFim?: string;
+  diaInteiro?: boolean;
+
+  tipoMovimentacao:
+    | "RECEITA"
+    | "DESPESA";
+
+  descricao: string;
+  valor: number;
+  data: string;
+};
+
+export async function confirmarEventoFinanceiro(
+  dados: ConfirmarEventoFinanceiroPayload
+) {
+  const response = await api.post(
+    "/calendario/confirmar-evento",
+    dados
+  );
+
+  return response.data;
+}
 
 export type TipoItemCalendario =
   | "RECEITA"
