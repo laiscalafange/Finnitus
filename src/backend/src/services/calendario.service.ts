@@ -19,6 +19,10 @@ export type ItemCalendario = {
   horarioInicio?: Date;
   horarioFim?: Date;
   diaInteiro?: boolean;
+
+  origem?: "FINNITUS" | "DISPOSITIVO";
+  idEventoExterno?: string;
+  statusFinanceiro?: string;
 };
 
 export async function listarItensCalendario(
@@ -121,7 +125,8 @@ export async function listarItensCalendario(
     valor: Number(divida.valor_parcela),
   }));
 
-  const itensEventos: ItemCalendario[] = eventos.map((evento) => ({
+  const itensEventos: ItemCalendario[] =
+  eventos.map((evento) => ({
     id: evento.id_Evento,
     titulo: evento.Enome,
     data: evento.data_inicio,
@@ -129,14 +134,34 @@ export async function listarItensCalendario(
 
     valor:
       evento.valor_relacionado !== null
-        ? Number(evento.valor_relacionado)
+        ? Number(
+            evento.valor_relacionado
+          )
         : undefined,
 
-    descricao: evento.Edescricao ?? undefined,
+    descricao:
+      evento.Edescricao ??
+      undefined,
 
-    horarioInicio: evento.data_inicio,
-    horarioFim: evento.data_fim ?? undefined,
-    diaInteiro: evento.dia_inteiro,
+    horarioInicio:
+      evento.data_inicio,
+
+    horarioFim:
+      evento.data_fim ??
+      undefined,
+
+    diaInteiro:
+      evento.dia_inteiro,
+
+    origem:
+      evento.origem,
+
+    idEventoExterno:
+      evento.id_evento_externo ??
+      undefined,
+
+    statusFinanceiro:
+      evento.status_financeiro,
   }));
 
   const itens: ItemCalendario[] = [
