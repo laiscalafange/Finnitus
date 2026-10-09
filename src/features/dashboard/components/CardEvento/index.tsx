@@ -1,37 +1,41 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { Text, View } from 'react-native'
+import { Cake, CalendarDays } from 'lucide-react-native'
+import { Cores } from '@/shared/constants/Cores'
 import { EventoResumo } from '../../types'
+import { BotaoPilula, CardSecao } from '../CardSecao'
 import { styles } from './styles'
 
 type Props = {
   evento?: EventoResumo
+  // "Ver todos" e "Ver evento" levam para o calendário
   onPress?: () => void
 }
 
+// Card "Eventos" da Home (separado do card "Metas")
 export function CardEvento({ evento, onPress }: Props) {
-  return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={onPress} disabled={!onPress} activeOpacity={0.88}>
-        <View style={styles.tituloLinha}>
-          <Text style={styles.titulo}>Eventos</Text>
-          {onPress && <Text style={styles.icone}>›</Text>}
-        </View>
+  // Aniversário ganha o ícone de bolo, os demais o de calendário
+  const Icone = evento && /anivers/i.test(evento.titulo) ? Cake : CalendarDays
 
-        {evento ? (
-          <View style={styles.evento}>
-            <View style={styles.ponto} />
-            <View style={styles.textos}>
-              <Text style={styles.label}>Próximo evento</Text>
-              <Text style={styles.nome}>{evento.titulo}</Text>
-            </View>
+  return (
+    <CardSecao titulo="Eventos" aoVerTodos={onPress}>
+      {evento ? (
+        <View style={styles.evento}>
+          <View style={styles.bolha}>
+            <Icone size={24} color={Cores.destaque.limao} />
+          </View>
+          <View style={styles.textos}>
+            <Text style={styles.label}>EVENTO</Text>
+            <Text style={styles.nome} numberOfLines={1}>{evento.titulo}</Text>
             <Text style={styles.data}>{evento.data}</Text>
           </View>
-        ) : (
-          <View style={styles.vazio}>
-            <Text style={styles.vazioTitulo}>Próximo evento</Text>
-            <Text style={styles.vazioTexto}>Nenhum próximo evento encontrado no calendário.</Text>
-          </View>
-        )}
-      </TouchableOpacity>
-    </View>
+          <BotaoPilula titulo="Ver evento" aoPress={onPress} />
+        </View>
+      ) : (
+        <View style={styles.vazio}>
+          <Text style={styles.vazioTitulo}>Próximo evento</Text>
+          <Text style={styles.vazioTexto}>Nenhum próximo evento encontrado no calendário.</Text>
+        </View>
+      )}
+    </CardSecao>
   )
 }

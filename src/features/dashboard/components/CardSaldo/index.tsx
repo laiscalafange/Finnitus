@@ -1,15 +1,11 @@
-import { Image, Text, TouchableOpacity, View } from 'react-native'
-import { LinearGradient } from 'expo-linear-gradient'
-import { styles, extraStyles } from './styles'
+import { useState } from 'react'
+import { Text, TouchableOpacity, View } from 'react-native'
+import { Eye, EyeOff } from 'lucide-react-native'
 import { Cores } from '@/shared/constants/Cores'
+import { styles } from './styles'
 
 type Props = {
   saldoAtual?: number
-  saldoMes?: number
-  maximoDisponivel?: number
-  data?: string
-  variacaoSemana?: number
-  variacaoMes?: number
   onPress?: () => void
 }
 
@@ -18,65 +14,36 @@ const moeda = (valor?: number) =>
     ? 'R$ —'
     : valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
-function Variacao({ valor }: { valor?: number }) {
-  if (valor === undefined) return null
-  const positivo = valor >= 0
-  return (
-    <View style={[styles.badge, positivo ? styles.badgePositivo : styles.badgeNegativo]}>
-      <Text style={[styles.badgeTexto, positivo ? styles.badgeTextoPositivo : styles.badgeTextoNegativo]}>
-        {positivo ? '↑' : '↓'} {Math.abs(valor)}%
-      </Text>
-    </View>
-  )
-}
+// Saldo atual (fica dentro do header roxo da Home, centralizado)
+export function CardSaldo({ saldoAtual, onPress }: Props) {
+  // Olho: mostra ou esconde o valor do saldo
+  const [oculto, setOculto] = useState(false)
 
-export function CardSaldo({
-  saldoAtual,
-  saldoMes,
-  maximoDisponivel,
-  data,
-  variacaoSemana,
-  variacaoMes,
-  onPress,
-}: Props) {
   return (
-    <TouchableOpacity activeOpacity={0.92} onPress={onPress} disabled={!onPress}>
-      <LinearGradient
-        colors={[Cores.destaque.limao, Cores.destaque.limao]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.container}
+    <View style={styles.container}>
+      <Text style={styles.label}>Saldo atual</Text>
+
+      <TouchableOpacity activeOpacity={0.9} onPress={onPress} disabled={!onPress}>
+        <Text style={styles.saldo} numberOfLines={1} adjustsFontSizeToFit>
+          {oculto ? 'R$ ••••••' : moeda(saldoAtual)}
+        </Text>
+      </TouchableOpacity>
+      <Text style={styles.descricao}>após despesas previstas</Text>
+
+      <TouchableOpacity
+        style={styles.olho}
+        onPress={() => setOculto(valor => !valor)}
+        activeOpacity={0.8}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel={oculto ? 'Mostrar saldo' : 'Ocultar saldo'}
       >
-        <View style={styles.topo}>
-          <View>
-            <Text style={styles.titulo}>Saldo</Text>
-            <View style={extraStyles.valorComIcone}>
-              <Text style={styles.saldo}>{moeda(saldoAtual)}</Text>
-              <Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olho} />
-            </View>
-          </View>
-          <Text style={styles.mes}>{data ?? 'mês atual'}</Text>
-        </View>
-
-        <View style={styles.linhaVariacao}>
-          <Text style={styles.label}>última semana</Text>
-          <Variacao valor={variacaoSemana} />
-        </View>
-
-        <View style={styles.divisor} />
-
-        <Text style={styles.titulo}>Saldo do mês</Text>
-        <View style={extraStyles.valorComIcone}>
-          <Text style={styles.valorMes}>{moeda(saldoMes)}</Text>
-          <Image source={require('../../../../../assets/icones/olho.png')} style={extraStyles.olhoMes} />
-        </View>
-
- <View style={styles.linhaVariacao}>
-          <Text style={styles.label}>último mês</Text>
-          <Variacao valor={variacaoSemana} />
-        </View>
-       
-      </LinearGradient>
-    </TouchableOpacity>
+        {oculto ? (
+          <EyeOff size={26} color={Cores.texto.claro} />
+        ) : (
+          <Eye size={26} color={Cores.texto.claro} />
+        )}
+      </TouchableOpacity>
+    </View>
   )
 }

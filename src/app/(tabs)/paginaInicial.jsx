@@ -1,28 +1,50 @@
-import { ScrollView, View, Text } from 'react-native'
+
+import { useState } from 'react'
+import { ScrollView, View, Text, Pressable } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { DashboardHeader } from '../../features/dashboard/components/DashboardHeader'
+import { ModalMesAno } from '../../features/calendar/components/ModalMesAno'
 import { GRADIENTS } from '../../shared/constants/Gradientes'
+import { Rotas } from '../../shared/constants/Rotas'
+import { formatarMoeda } from '../../features/menuMais/utils'
 import {
   CardSaldo,
+  CardResumo,
+  CardSecao,
+  ListaItens,
+  LinhaItem,
   CardEvento,
-  GraficoEstatisticas,
-  CardPlanob,
   CardPlanejamento,
   CardEconomia,
   obterProximoEvento,
-  obterEstatisticasHome,
-  obterPlanoBResumo,
   obterPlanejamentoHome,
+  obterResumoMes,
+  obterDespesasFixas,
+  obterAlertas,
+  obterEconomiaMes,
 } from '../../features/dashboard'
 import { useFinanceiro } from '../../features/financeiroContext'
+import { useAuth } from '../../features/authContext'
 import { styles } from '../../styles/paginaInicial'
+
+const MESES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+]
+
+const MESES_CURTOS = [
+  'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
+  'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
+]
 
 export default function PaginaInicial() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
 
   const {
     salario,
@@ -30,42 +52,53 @@ export default function PaginaInicial() {
     economiaFutura,
     tempoEconomia,
     metas,
+    transacoes,
   } = useFinanceiro()
 
-  const temDadosFinanceiros =
-    salario !== undefined && despesas !== undefined
+  const [referencia, setReferencia] = useState(() => {
+    const hoje = new Date()
 
-  const saldoAtual = temDadosFinanceiros
-    ? salario - despesas
-    : undefined
+    return {
+      mes: hoje.getMonth(),
+      ano: hoje.getFullYear(),
+    }
+  })
 
-  const economia =
-    economiaFutura !== undefined &&
-    tempoEconomia !== undefined &&
-    tempoEconomia > 0
-      ? {
-          economiaFutura,
-          tempoEconomia,
-          economiaMensal: economiaFutura / tempoEconomia,
-          percentualMeta:
-            salario && salario > 0
-              ? (economiaFutura / tempoEconomia / salario) * 100
-              : 0,
-        }
-      : undefined
+  const [modalMes, setModalMes] = useState(false)
+  const [resumoVisivel, setResumoVisivel] = useState(true)
 
-  const evento = obterProximoEvento()
-  const estatisticas = obterEstatisticasHome()
-  const planoB = obterPlanoBResumo(salario, despesas)
-  // Primeira meta do mês em andamento (a mesma da tela Metas)
-  const planejamento = obterPlanejamentoHome(
-    metas.find(meta => meta.tipo === 'mes' && meta.status === 'andamento'),
+  const mesTexto =
+    referencia.ano === new Date().getFullYear()
+      ? MESES[referencia.mes]
+      : `${MESES[referencia.mes]} ${referencia.ano}`
+
+  const resumo = obterResumoMes(
+    transacoes,
+    salario,
+    despesas,
+    referencia
   )
 
-  const mesAtual = new Date().toLocaleDateString('pt-BR', {
-    month: '2-digit',
-    year: '2-digit',
-  })
+  const despesasFixas = obterDespesasFixas(transacoes, referencia)
+  const alertas = obterAlertas(despesasFixas, referencia)
+
+  const economia = obterEconomiaMes(
+    metas,
+    resumo.receitas,
+    referencia,
+    economiaFutura,
+    tempoEconomia
+  )
+
+  const evento = obterProximoEvento()
+
+  const emAndamento = metas.filter(
+    item => item.status === 'andamento'
+  )
+
+  const meta = obterPlanejamentoHome(
+    emAndamento.find(item => item.tipo === 'mes') ?? emAndamento[0]
+  )
 
   return (
     <View style={styles.container}>
@@ -79,87 +112,141 @@ export default function PaginaInicial() {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {/* HEADER */}
+        {/* CABEÇALHO ROXO */}
         <LinearGradient
           colors={GRADIENTS.header.colors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
+          start={GRADIENTS.header.start}
+          end={GRADIENTS.header.end}
           style={[
             styles.hero,
-            {
-              paddingTop: insets.top + 2,
-            },
+            { paddingTop: insets.top + 8 },
           ]}
         >
           <DashboardHeader
-            onPremium={() => router.push('/Premium/Premium')}
-            onNotificacao={() =>
-              router.push('/Notificacao/Notificacao')
-            }
+            nome={user?.name}
+            mes={mesTexto}
+            aoPressMes={() => setModalMes(true)}
+            onPremium={() => router.push(Rotas.premium)}
+            onNotificacao={() => router.push(Rotas.notificacao)}
             onPerfil={() => router.push('/perfil')}
           />
 
           <CardSaldo
-            saldoAtual={saldoAtual}
-            saldoMes={
-              temDadosFinanceiros
-                ? saldoAtual
-                : undefined
-            }
-            maximoDisponivel={salario}
-            data={
-              temDadosFinanceiros
-                ? mesAtual
-                : undefined
-            }
+            saldoAtual={resumo.saldo}
             onPress={() => router.push('/dashboard')}
           />
 
-          <View
+          {/* RECEITAS E DESPESAS */}
+          {resumoVisivel && (
+            <CardResumo
+              receitas={resumo.receitas}
+              despesas={resumo.despesas}
+            />
+          )}
+
+          {/* SETA FUNCIONAL */}
+          <Pressable
             style={styles.heroCurva}
-            pointerEvents="none"
+            onPress={() => setResumoVisivel(visivel => !visivel)}
+            accessibilityRole="button"
+            accessibilityLabel={
+              resumoVisivel
+                ? 'Ocultar receitas e despesas'
+                : 'Mostrar receitas e despesas'
+            }
+            hitSlop={8}
           >
             <View style={styles.heroCurvaForma}>
-              <Text style={styles.heroCurvaSeta}>⌄</Text>
+              <Text style={styles.heroCurvaSeta}>
+                {resumoVisivel ? '⌄' : '⌃'}
+              </Text>
             </View>
-          </View>
+          </Pressable>
         </LinearGradient>
 
         {/* CONTEÚDO */}
         <View style={styles.conteudo}>
-          {/* EVENTO */}
           <CardEvento
             evento={evento}
             onPress={() => router.push('/calendario')}
           />
 
-          {/* ESTATÍSTICAS DO DASHBOARD */}
-          <GraficoEstatisticas
-            dados={estatisticas}
-            onPress={() => router.push('/dashboard')}
-          />
-
-          {/* PLANO B DO DASHBOARD */}
-          <CardPlanob
-            dados={planoB}
-            onPress={() => router.push('/PlanoB')}
-          />
-
-          {/* PLANEJAMENTO DO DASHBOARD */}
           <CardPlanejamento
-            dados={planejamento}
-            onPress={() => router.push('/calendario')}
+            dados={meta}
+            onPress={() => router.push('/metas')}
           />
 
-          {/* ECONOMIA */}
+          {/* DESPESAS FIXAS */}
+          <CardSecao
+            titulo="Despesas fixas"
+            textoVerTodos="Ver todas"
+            aoVerTodos={() => router.push('/calendario')}
+          >
+            {despesasFixas.length > 0 ? (
+              <ListaItens>
+                {despesasFixas.slice(0, 3).map(despesa => (
+                  <LinhaItem
+                    key={despesa.id}
+                    icone={despesa.icone}
+                    titulo={despesa.titulo}
+                    subtitulo={`Vencimento ${despesa.vencimento}  ·  ${formatarMoeda(despesa.valor)}`}
+                    aoPress={() => router.push('/calendario')}
+                  />
+                ))}
+              </ListaItens>
+            ) : (
+              <Text style={styles.vazio}>
+                Registre um gasto com “repetir mensalmente” e ele aparece aqui.
+              </Text>
+            )}
+          </CardSecao>
+
+          {/* ATENÇÃO */}
+          <CardSecao
+            titulo="Atenção"
+            textoVerTodos="Ver todas"
+            aoVerTodos={() => router.push(Rotas.notificacao)}
+          >
+            {alertas.length > 0 ? (
+              <ListaItens>
+                {alertas.slice(0, 2).map(alerta => (
+                  <LinhaItem
+                    key={alerta.id}
+                    destaque
+                    icone={alerta.icone}
+                    titulo={alerta.titulo}
+                    subtitulo={alerta.descricao}
+                    aoPress={() => router.push('/calendario')}
+                  />
+                ))}
+              </ListaItens>
+            ) : (
+              <Text style={styles.vazio}>
+                Tudo certo por aqui! Nenhum aviso no momento.
+              </Text>
+            )}
+          </CardSecao>
+
+          {/* ECONOMIA MENSAL */}
           <CardEconomia
             dados={economia}
-            onPress={() =>
-              router.push('/configuracaoInicial/FutureSavings')
-            }
+            onPress={() => router.push('/metas')}
           />
         </View>
       </ScrollView>
+
+      {/* SELETOR DE MÊS */}
+      <ModalMesAno
+        visible={modalMes}
+        mes={referencia.mes}
+        ano={referencia.ano}
+        nomesMeses={MESES_CURTOS}
+        aoFechar={() => setModalMes(false)}
+        aoConfirmar={(mes, ano) => {
+          setReferencia({ mes, ano })
+          setModalMes(false)
+        }}
+      />
     </View>
   )
 }
