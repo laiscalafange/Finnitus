@@ -1,10 +1,9 @@
-
 import { useState } from 'react'
-import { ScrollView, View, Text, Pressable } from 'react-native'
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
+import { ChevronDown, ChevronUp } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { DashboardHeader } from '../../features/dashboard/components/DashboardHeader'
 import { ModalMesAno } from '../../features/calendar/components/ModalMesAno'
@@ -29,17 +28,14 @@ import {
 } from '../../features/dashboard'
 import { useFinanceiro } from '../../features/financeiroContext'
 import { useAuth } from '../../features/authContext'
+import { Cores } from '../../shared/constants/Cores'
 import { styles } from '../../styles/paginaInicial'
 
 const MESES = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ]
-
-const MESES_CURTOS = [
-  'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
-  'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez',
-]
+const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
 export default function PaginaInicial() {
   const router = useRouter()
@@ -55,49 +51,33 @@ export default function PaginaInicial() {
     transacoes,
   } = useFinanceiro()
 
+  // Mês que a Home está mostrando (começa no mês atual)
   const [referencia, setReferencia] = useState(() => {
     const hoje = new Date()
-
-    return {
-      mes: hoje.getMonth(),
-      ano: hoje.getFullYear(),
-    }
+    return { mes: hoje.getMonth(), ano: hoje.getFullYear() }
   })
-
   const [modalMes, setModalMes] = useState(false)
+  // Seta do header: esconde ou mostra Receitas e Despesas
   const [resumoVisivel, setResumoVisivel] = useState(true)
 
+  // "Outubro" no ano atual; em outro ano mostra também o ano ("Outubro 2025")
   const mesTexto =
     referencia.ano === new Date().getFullYear()
       ? MESES[referencia.mes]
       : `${MESES[referencia.mes]} ${referencia.ano}`
 
-  const resumo = obterResumoMes(
-    transacoes,
-    salario,
-    despesas,
-    referencia
-  )
-
+  const resumo = obterResumoMes(transacoes, salario, despesas, referencia)
   const despesasFixas = obterDespesasFixas(transacoes, referencia)
   const alertas = obterAlertas(despesasFixas, referencia)
-
-  const economia = obterEconomiaMes(
-    metas,
-    resumo.receitas,
-    referencia,
-    economiaFutura,
-    tempoEconomia
-  )
+  const economia = obterEconomiaMes(metas, resumo.receitas, referencia, economiaFutura, tempoEconomia)
 
   const evento = obterProximoEvento()
 
-  const emAndamento = metas.filter(
-    item => item.status === 'andamento'
-  )
-
+  // Primeira meta do mês em andamento (a mesma da tela Metas); se não houver,
+  // a primeira de longo prazo
+  const emAndamento = metas.filter(meta => meta.status === 'andamento')
   const meta = obterPlanejamentoHome(
-    emAndamento.find(item => item.tipo === 'mes') ?? emAndamento[0]
+    emAndamento.find(item => item.tipo === 'mes') ?? emAndamento[0],
   )
 
   return (
@@ -106,21 +86,16 @@ export default function PaginaInicial() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={{
-          paddingBottom: 118 + insets.bottom,
-        }}
+        contentContainerStyle={{ paddingBottom: 118 + insets.bottom }}
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {/* CABEÇALHO ROXO */}
+        {/* HEADER ROXO: avatar, mês, sino, saldo, receitas e despesas */}
         <LinearGradient
           colors={GRADIENTS.header.colors}
           start={GRADIENTS.header.start}
           end={GRADIENTS.header.end}
-          style={[
-            styles.hero,
-            { paddingTop: insets.top + 8 },
-          ]}
+          style={[styles.hero, { paddingTop: insets.top + 8 }]}
         >
           <DashboardHeader
             nome={user?.name}
@@ -136,41 +111,38 @@ export default function PaginaInicial() {
             onPress={() => router.push('/dashboard')}
           />
 
-          {/* RECEITAS E DESPESAS */}
           {resumoVisivel && (
-            <CardResumo
-              receitas={resumo.receitas}
-              despesas={resumo.despesas}
-            />
+            <CardResumo receitas={resumo.receitas} despesas={resumo.despesas} />
           )}
 
-          {/* SETA FUNCIONAL */}
-          <Pressable
-            style={styles.heroCurva}
-            onPress={() => setResumoVisivel(visivel => !visivel)}
-            accessibilityRole="button"
-            accessibilityLabel={
-              resumoVisivel
-                ? 'Ocultar receitas e despesas'
-                : 'Mostrar receitas e despesas'
-            }
-            hitSlop={8}
-          >
-            <View style={styles.heroCurvaForma}>
-              <Text style={styles.heroCurvaSeta}>
-                {resumoVisivel ? '⌄' : '⌃'}
-              </Text>
-            </View>
-          </Pressable>
         </LinearGradient>
+
+        {/* Seta: esconde/mostra Receitas e Despesas */}
+        <View style={styles.setaContainer}>
+          <TouchableOpacity
+            style={styles.setaForma}
+            onPress={() => setResumoVisivel(visivel => !visivel)}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={resumoVisivel ? 'Esconder receitas e despesas' : 'Mostrar receitas e despesas'}
+          >
+            {resumoVisivel ? (
+              <ChevronUp size={26} color={Cores.base.branco} />
+            ) : (
+              <ChevronDown size={26} color={Cores.base.branco} />
+            )}
+          </TouchableOpacity>
+        </View>
 
         {/* CONTEÚDO */}
         <View style={styles.conteudo}>
+          {/* EVENTOS (card separado) */}
           <CardEvento
             evento={evento}
             onPress={() => router.push('/calendario')}
           />
 
+          {/* METAS (card separado) */}
           <CardPlanejamento
             dados={meta}
             onPress={() => router.push('/metas')}
@@ -221,9 +193,7 @@ export default function PaginaInicial() {
                 ))}
               </ListaItens>
             ) : (
-              <Text style={styles.vazio}>
-                Tudo certo por aqui! Nenhum aviso no momento.
-              </Text>
+              <Text style={styles.vazio}>Tudo certo por aqui! Nenhum aviso no momento.</Text>
             )}
           </CardSecao>
 
@@ -235,7 +205,7 @@ export default function PaginaInicial() {
         </View>
       </ScrollView>
 
-      {/* SELETOR DE MÊS */}
+      {/* Seletor de mês (o mesmo card flutuante do calendário) */}
       <ModalMesAno
         visible={modalMes}
         mes={referencia.mes}

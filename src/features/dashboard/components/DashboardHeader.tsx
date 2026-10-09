@@ -15,16 +15,13 @@ type Props = {
   onPerfil?: () => void
 }
 
-// Topo da Home: avatar (com a coroa do Premium), mês no centro e sino
+// Topo da Home: avatar, mês no centro e coroa + sino (igual às outras telas)
 export function DashboardHeader({ nome, mes, aoPressMes, onPremium, onNotificacao, onPerfil }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.avatarArea}>
         <TouchableOpacity onPress={onPerfil} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Abrir perfil">
           <Avatar name={nome} size={50} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.coroaBadge} onPress={onPremium} activeOpacity={0.8} accessibilityLabel="Abrir Premium">
-          <Image source={require('../../../../assets/icones/coroa.png')} style={styles.coroaIcone} />
         </TouchableOpacity>
       </View>
 
@@ -40,9 +37,17 @@ export function DashboardHeader({ nome, mes, aoPressMes, onPremium, onNotificaca
         <ChevronDown size={22} color={Cores.base.branco} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.botaoSino} onPress={onNotificacao} activeOpacity={0.8} accessibilityLabel="Abrir notificações">
-        <Image source={require('../../../../assets/icones/sino.png')} style={styles.sinoIcone} />
-      </TouchableOpacity>
+      <View style={styles.icones}>
+        {/* Coroa — leva pra tela Premium */}
+        <TouchableOpacity onPress={onPremium} activeOpacity={0.75} accessibilityLabel="Abrir Premium">
+          <Image source={require('../../../../assets/icones/coroa.png')} style={styles.icone} />
+        </TouchableOpacity>
+
+        {/* Sino — leva pra tela de Notificações */}
+        <TouchableOpacity onPress={onNotificacao} activeOpacity={0.75} accessibilityLabel="Abrir notificações">
+          <Image source={require('../../../../assets/icones/sino.png')} style={styles.icone} />
+        </TouchableOpacity>
+      </View>
     </View>
   )
 }
