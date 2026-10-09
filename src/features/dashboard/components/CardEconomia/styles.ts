@@ -9,32 +9,29 @@ export const styles = StyleSheet.create({
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 25,
+    fontSize: 22,
     lineHeight: 26,
     color: Cores.destaque.limao,
     marginBottom: 9,
   },
   card: {
-    minHeight: 188,
+    minHeight: 140,
     borderRadius: 18,
     backgroundColor: Cores.fundo.card,
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 14,
   },
   medidor: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 34,
   },
   medidorInterno: {
     position: 'absolute',
-    width:90,
-    height:90,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Cores.texto.contraste,
-     borderRadius: 41,
   },
   percentual: {
     fontFamily: FONTS.raleway.extrabold,
@@ -43,21 +40,35 @@ export const styles = StyleSheet.create({
   },
   textos: {
     flex: 1,
+    minWidth: 0,
   },
-  destaque: {
+  rotulo: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 15,
+    color: Cores.texto.principal,
+  },
+  valorLinha: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: 6,
+    flexWrap: 'wrap',
+  },
+  valor: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 20,
-    lineHeight: 24,
+    fontSize: 26,
+    lineHeight: 32,
     color: Cores.destaque.limao,
   },
-  destaqueAlerta: {
-    color: Cores.destaque.limao,
-  },
-  descricao: {
+  valorSufixo: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 14,
-    lineHeight: 16,
     color: Cores.texto.principal,
-    marginTop: 7,
+  },
+  mensagem: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    lineHeight: 17,
+    color: Cores.texto.principal,
+    marginTop: 5,
   },
 })

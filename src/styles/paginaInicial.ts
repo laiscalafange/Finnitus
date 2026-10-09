@@ -1,3 +1,4 @@
+
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
@@ -7,15 +8,18 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Cores.fundo.principal,
   },
+
   scroll: {
     flex: 1,
   },
+
   hero: {
     paddingBottom: 25,
     borderBottomLeftRadius: 34,
     borderBottomRightRadius: 34,
     overflow: 'visible',
   },
+
   heroCurva: {
     position: 'absolute',
     bottom: -38,
@@ -24,7 +28,9 @@ export const styles = StyleSheet.create({
     height: 38,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 10,
   },
+
   heroCurvaForma: {
     width: 79,
     height: 38,
@@ -34,6 +40,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   heroCurvaSeta: {
     fontFamily: FONTS.raleway.bold,
     fontSize: 20,
@@ -41,7 +48,20 @@ export const styles = StyleSheet.create({
     color: Cores.base.branco,
     marginTop: -3,
   },
+
   conteudo: {
     paddingTop: 39,
+  },
+
+  vazio: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    lineHeight: 19,
+    color: Cores.texto.principal,
+    backgroundColor: Cores.fundo.card,
+    borderRadius: 18,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    overflow: 'hidden',
   },
 })

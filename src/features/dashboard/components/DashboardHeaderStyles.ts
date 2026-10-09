@@ -1,3 +1,4 @@
+
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
@@ -5,47 +6,69 @@ import { FONTS } from '@/shared/constants/Tipografia'
 export const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingBottom: 7,
-    minHeight: 65,
+    minHeight: 64,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  identidade: {
-    flexDirection: 'row',
+
+  // Avatar e coroa
+  avatarArea: {
+    width: 56,
+    height: 56,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+
+  coroaBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -4,
+    width: 24,
+    height: 24,
     alignItems: 'center',
-    gap: 9,
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+
+  coroaIcone: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
+
+  // Seletor do mês
+  mes: {
     flex: 1,
-    minWidth: 0,
-  },
-  titulo: {
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 23,
-    lineHeight: 25,
-    color: Cores.destaque.limao,
-  },
-  subtitulo: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 12,
-    lineHeight: 16,
-    color: Cores.texto.principal,
-    marginTop: 1,
-  },
-  icones: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 15,
-    marginLeft: 10,
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 8,
   },
-  botaoIcone: {
-    width: 27,
-    height: 27,
+
+  mesTexto: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 24,
+    lineHeight: 28,
+    color: Cores.base.branco,
+    flexShrink: 1,
+  },
+
+  // Sino sem círculo de fundo
+  botaoSino: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  icone: {
-    width: 23,
-    height: 23,
+
+  sinoIcone: {
+    width: 28,
+    height: 28,
     resizeMode: 'contain',
+    tintColor: '#35106F',
   },
 })
