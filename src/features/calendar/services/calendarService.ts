@@ -45,6 +45,10 @@ export type ItemCalendario = {
   horarioInicio?: string;
   horarioFim?: string;
   diaInteiro?: boolean;
+
+  origem?: "FINNITUS" | "DISPOSITIVO";
+idEventoExterno?: string;
+statusFinanceiro?: string;
 };
 
 export async function listarItensCalendario(

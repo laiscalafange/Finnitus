@@ -614,17 +614,9 @@ const [
 
 
 itensCalendario.forEach((item) => {
-
-  const dataItem =
-
-    obterDataCalendario(item);
-
-
-
+  const dataItem = obterDataCalendario(item);
   markedDates[dataItem] = {
-
     marked: true,
-
     dotColor: Cores.estado.perigo,
 
   };
@@ -681,241 +673,170 @@ if (dataSelecionada) {
 
   // ─────────────────────────────────────────
 
+useEffect(() => {
+  async function carregarCalendario() {
+    try {
+      setCarregandoCalendario(true);
 
+      const [ano, mes] = mesAtual
+        .split("-")
+        .map(Number);
 
+      const inicio =
+        `${ano}-${String(mes).padStart(
+          2,
+          "0"
+        )}-01`;
 
-  useEffect(() => {
+      const proximoMes =
+        mes === 12
+          ? `${ano + 1}-01-01`
+          : `${ano}-${String(
+              mes + 1
+            ).padStart(2, "0")}-01`;
 
-    async function carregarCalendario() {
+      // 1. BUSCA OS DADOS DO FINNITUS
+      const itens =
+        await listarItensCalendario(
+          inicio,
+          proximoMes
+        );
 
-      try {
+      // 2. BUSCA OS EVENTOS DO DISPOSITIVO
+      const eventosDoDispositivo =
+        await listarEventosDoDispositivo(
+          inicio,
+          proximoMes
+        );
 
-        setCarregandoCalendario(true);
+      // 3. DESCOBRE QUAIS EVENTOS EXTERNOS
+      // JÁ FORAM IMPORTADOS PARA O FINNITUS
+      const idsEventosImportados =
+        new Set(
+          itens
+            .filter(
+              (item) =>
+                item.tipo === "EVENTO" &&
+                item.origem ===
+                  "DISPOSITIVO" &&
+                item.idEventoExterno
+            )
+            .map(
+              (item) =>
+                item.idEventoExterno as string
+            )
+        );
 
+      // 4. REMOVE DA LISTA EXTERNA
+      // OS QUE JÁ ESTÃO NO FINNITUS
+      const eventosAindaNaoImportados =
+        eventosDoDispositivo.filter(
+          (evento) =>
+            !idsEventosImportados.has(
+              evento.id
+            )
+        );
 
+      // 5. ATUALIZA OS ESTADOS
+      setItensCalendario(itens);
 
-        const [ano, mes] = mesAtual
-
-          .split("-")
-
-          .map(Number);
-
-
-
-        const inicio =
-
-          `${ano}-${String(mes).padStart(
-
-            2,
-
-            "0"
-
-          )}-01`;
-
-
-
-        const proximoMes =
-
-          mes === 12
-
-            ? `${ano + 1}-01-01`
-
-            : `${ano}-${String(
-
-                mes + 1
-
-              ).padStart(2, "0")}-01`;
-
-
-
-
-
-
-
-        const itens =
-
-          await listarItensCalendario(
-
-            inicio,
-
-            proximoMes
-
-          );
-
-
-
-          const eventosDoDispositivo =
-
-  await listarEventosDoDispositivo(
-
-    inicio,
-
-    proximoMes
-
-  );
-
-
-
-setEventosDispositivo(
-
-  eventosDoDispositivo
-
-);
-
-
-
-eventosDoDispositivo.forEach(
-
-  (evento) => {
-
-    const classificacao =
-
-      classificarEventoFinanceiro(
-
-        evento.titulo
-
+      setEventosDispositivo(
+        eventosAindaNaoImportados
       );
 
+      // TESTE DA CLASSIFICAÇÃO
+      eventosAindaNaoImportados.forEach(
+        (evento) => {
+          const classificacao =
+            classificarEventoFinanceiro(
+              evento.titulo
+            );
 
+          console.log(
+            "ANÁLISE FINANCEIRA:",
+            evento.titulo,
+            classificacao
+          );
+        }
+      );
 
-    console.log(
+      console.log(
+        "Itens reais do calendário:",
+        itens
+      );
 
-      "ANÁLISE FINANCEIRA:",
+      console.log(
+        "Eventos do dispositivo:",
+        eventosDoDispositivo
+      );
 
-      evento.titulo,
-
-      classificacao
-
-    );
-
+      console.log(
+        "Eventos ainda não importados:",
+        eventosAindaNaoImportados
+      );
+    } catch (error) {
+      console.error(
+        "Erro ao carregar calendário:",
+        error
+      );
+    } finally {
+      setCarregandoCalendario(false);
+    }
   }
 
-);
-
-console.log(
-
-  "Eventos do dispositivo:",
-
-  eventosDoDispositivo
-
-);
-
-
-
-        setItensCalendario(itens);
-
-
-
-        console.log(
-
-          "Itens reais do calendário:",
-
-          itens
-
-        );
-
-      } catch (error) {
-
-        console.error(
-
-          "Erro ao carregar calendário:",
-
-          error
-
-        );
-
-      } finally {
-        setCarregandoCalendario(false);
-      }
-    }
-
-    carregarCalendario();
-  }, [mesAtual, recarregarCalendario]);
-
-
+  carregarCalendario();
+}, [
+  mesAtual,
+  recarregarCalendario,
+]);
 
   const eventosDoDia =
-
   itensCalendario.filter((item) => {
+    const eventoImportadoConfirmado =
+      item.tipo === "EVENTO" &&
+      item.origem === "DISPOSITIVO" &&
+      item.statusFinanceiro === "CONFIRMADO";
 
     return (
-
       item.tipo === "EVENTO" &&
-
+      !eventoImportadoConfirmado &&
       dataSelecionada !== null &&
-
       obterDataCalendario(item) ===
-
         dataSelecionada
-
     );
-
   });
 
-
-
-  const eventosDispositivoDoDia =
-
+const eventosDispositivoDoDia =
   eventosDispositivo.filter(
-
     (evento) => {
-
       return (
-
         dataSelecionada !== null &&
-
         evento.dataInicio.slice(0, 10) ===
-
           dataSelecionada
-
       );
-
     }
-
   );
 
-
-
-  const movimentacoesDoDia =
-
+const movimentacoesDoDia =
   itensCalendario.filter((item) => {
-
     return (
-
       (item.tipo === "DESPESA" ||
-
         item.tipo === "RECEITA") &&
-
       dataSelecionada !== null &&
-
       obterDataCalendario(item) ===
-
         dataSelecionada
-
     );
-
   });
 
-
-
-  const compromissosDoDia =
-
+const compromissosDoDia =
   itensCalendario.filter((item) => {
-
     return (
-
       (item.tipo === "META" ||
-
         item.tipo === "DIVIDA") &&
-
       dataSelecionada !== null &&
-
       obterDataCalendario(item) ===
-
         dataSelecionada
-
     );
-
   });
 
 
