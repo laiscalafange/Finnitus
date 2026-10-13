@@ -13,8 +13,6 @@ export type {
   PlanejamentoResumo,
   EconomiaResumo,
   ResumoMes,
-  DespesaFixaResumo,
-  AlertaResumo,
 } from './types'
 export {
   obterProximoEvento,
@@ -22,8 +20,5 @@ export {
   obterPlanoBResumo,
   obterPlanejamentoHome,
   obterResumoMes,
-  obterDespesasFixas,
-  obterAlertas,
   obterEconomiaMes,
 } from './homeSelectors'
-export type { MesAno } from './homeSelectors'

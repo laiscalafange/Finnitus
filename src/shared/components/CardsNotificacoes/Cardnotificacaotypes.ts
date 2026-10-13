@@ -1,4 +1,4 @@
-export type TipoNotificacao = "meta" | "alerta" | "concluida";
+export type TipoNotificacao = "meta" | "alerta" | "concluida" | "conta" | "evento";
 
 export interface CardNotificacaoProps {
   tipo: TipoNotificacao;

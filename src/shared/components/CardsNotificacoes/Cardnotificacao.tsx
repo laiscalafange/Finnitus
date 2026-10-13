@@ -6,21 +6,18 @@ import { styles } from "./Cardnotificacaostyles";
 import { CardNotificacaoProps, TipoNotificacao } from "./Cardnotificacaotypes";
 
 function iconePorTipo(tipo: TipoNotificacao) {
-  if (tipo === "alerta") {
-    return (
-      <Image
-        source={require("../../../../assets/icones/alerta.png")}
-        style={styles.icone}
-      />
-    );
-  }
+  // Cada tipo tem o seu ícone: contas (conta/despesa fixa), eventos
+  // (calendário), alerta e, nos demais (metas), a medalha
+  const fonte =
+    tipo === "alerta"
+      ? require("../../../../assets/icones/alerta.png")
+      : tipo === "conta"
+        ? require("../../../../assets/icones/contas.png")
+        : tipo === "evento"
+          ? require("../../../../assets/icones/calendar.png")
+          : require("../../../../assets/icones/medalha.png");
 
-  return (
-    <Image
-      source={require("../../../../assets/icones/medalha.png")}
-      style={styles.icone}
-    />
-  );
+  return <Image source={fonte} style={styles.icone} />;
 }
 
 export function CardNotificacao({

@@ -29,6 +29,11 @@ export const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
+  rotuloLinha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
   label: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 16,
