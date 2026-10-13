@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
-import { ChevronDown, ChevronUp } from 'lucide-react-native'
+import { ChevronDown, ChevronUp, CalendarDays, Target, TriangleAlert } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { DashboardHeader } from '../../features/dashboard/components/DashboardHeader'
@@ -22,10 +22,10 @@ import {
   obterProximoEvento,
   obterPlanejamentoHome,
   obterResumoMes,
-  obterDespesasFixas,
-  obterAlertas,
   obterEconomiaMes,
 } from '../../features/dashboard'
+import { competenciaDe, contasDoMes, rotuloStatus, diaMes } from '../../features/contas/contasData'
+import { gerarNotificacoes } from '../../features/contas/notificacoesData'
 import { useFinanceiro } from '../../features/financeiroContext'
 import { useAuth } from '../../features/authContext'
 import { Cores } from '../../shared/constants/Cores'
@@ -49,6 +49,8 @@ export default function PaginaInicial() {
     tempoEconomia,
     metas,
     transacoes,
+    baixas,
+    notificacoesLidas,
   } = useFinanceiro()
 
   // Mês que a Home está mostrando (começa no mês atual)
@@ -66,10 +68,24 @@ export default function PaginaInicial() {
       ? MESES[referencia.mes]
       : `${MESES[referencia.mes]} ${referencia.ano}`
 
-  const resumo = obterResumoMes(transacoes, salario, despesas, referencia)
-  const despesasFixas = obterDespesasFixas(transacoes, referencia)
-  const alertas = obterAlertas(despesasFixas, referencia)
-  const economia = obterEconomiaMes(metas, resumo.receitas, referencia, economiaFutura, tempoEconomia)
+  // Contas (fixas e avulsas) do mês selecionado
+  const competencia = competenciaDe(referencia.mes, referencia.ano)
+  const contas = contasDoMes(transacoes, baixas, competencia)
+  const resumo = obterResumoMes(contas, salario, despesas, transacoes.length > 0)
+  const economia = obterEconomiaMes(metas, resumo.receitas, competencia, economiaFutura, tempoEconomia)
+
+  // Despesas fixas: só algumas, as mais relevantes primeiro (atrasadas e
+  // pendentes antes das em dia e das já pagas)
+  const ordemStatus = { atrasada: 0, pendente: 1, emDia: 2, paga: 3, recebida: 3 }
+  const despesasFixas = contas
+    .filter(conta => conta.recorrente && conta.tipo === 'gasto')
+    .sort((a, b) => ordemStatus[a.status] - ordemStatus[b.status])
+
+  // Atenção: resumo das notificações ainda não lidas (a central completa
+  // fica na tela Notificações)
+  const atencao = gerarNotificacoes(transacoes, baixas, metas)
+    .filter(item => !notificacoesLidas.includes(item.id))
+    .slice(0, 2)
 
   const evento = obterProximoEvento()
 
@@ -112,7 +128,16 @@ export default function PaginaInicial() {
           />
 
           {resumoVisivel && (
-            <CardResumo receitas={resumo.receitas} despesas={resumo.despesas} />
+            <CardResumo
+              receitas={resumo.receitas}
+              despesas={resumo.despesas}
+              onPressReceitas={() =>
+                router.push({ pathname: Rotas.movimentacoes, params: { filtro: 'entrada', competencia } })
+              }
+              onPressDespesas={() =>
+                router.push({ pathname: Rotas.movimentacoes, params: { filtro: 'gasto', competencia } })
+              }
+            />
           )}
 
         </LinearGradient>
@@ -152,17 +177,22 @@ export default function PaginaInicial() {
           <CardSecao
             titulo="Despesas fixas"
             textoVerTodos="Ver todas"
-            aoVerTodos={() => router.push('/calendario')}
+            aoVerTodos={() => router.push(Rotas.contasFixas)}
           >
             {despesasFixas.length > 0 ? (
               <ListaItens>
-                {despesasFixas.slice(0, 3).map(despesa => (
+                {despesasFixas.slice(0, 3).map(conta => (
                   <LinhaItem
-                    key={despesa.id}
-                    icone={despesa.icone}
-                    titulo={despesa.titulo}
-                    subtitulo={`Vencimento ${despesa.vencimento}  ·  ${formatarMoeda(despesa.valor)}`}
-                    aoPress={() => router.push('/calendario')}
+                    key={`${conta.transacaoId}-${conta.competencia}`}
+                    icone={conta.icone}
+                    titulo={conta.nome}
+                    subtitulo={`Vencimento ${diaMes(conta.dataVencimento)}  ·  ${formatarMoeda(conta.valorRealizado ?? conta.valorPrevisto)}  ·  ${rotuloStatus(conta)}`}
+                    aoPress={() =>
+                      router.push({
+                        pathname: Rotas.detalhesConta,
+                        params: { id: conta.transacaoId, competencia: conta.competencia },
+                      })
+                    }
                   />
                 ))}
               </ListaItens>
@@ -173,22 +203,30 @@ export default function PaginaInicial() {
             )}
           </CardSecao>
 
-          {/* ATENÇÃO */}
+          {/* ATENÇÃO: resumo das notificações; toque abre a central completa */}
           <CardSecao
             titulo="Atenção"
             textoVerTodos="Ver todas"
             aoVerTodos={() => router.push(Rotas.notificacao)}
           >
-            {alertas.length > 0 ? (
+            {atencao.length > 0 ? (
               <ListaItens>
-                {alertas.slice(0, 2).map(alerta => (
+                {atencao.map(item => (
                   <LinhaItem
-                    key={alerta.id}
+                    key={item.id}
                     destaque
-                    icone={alerta.icone}
-                    titulo={alerta.titulo}
-                    subtitulo={alerta.descricao}
-                    aoPress={() => router.push('/calendario')}
+                    icone={
+                      item.conta
+                        ? item.conta.icone
+                        : item.categoria === 'metas'
+                          ? Target
+                          : item.categoria === 'eventos'
+                            ? CalendarDays
+                            : TriangleAlert
+                    }
+                    titulo={item.titulo}
+                    subtitulo={`${item.subtitulo}  ·  ${item.quando}`}
+                    aoPress={() => router.push(Rotas.notificacao)}
                   />
                 ))}
               </ListaItens>

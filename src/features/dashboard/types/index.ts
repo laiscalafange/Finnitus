@@ -1,5 +1,3 @@
-import type { LucideIcon } from 'lucide-react-native'
-
 export type EventoResumo = {
   titulo: string
   // Já formatada para a tela (ex.: "21 de dezembro")
@@ -44,25 +42,4 @@ export type ResumoMes = {
   receitas?: number
   despesas?: number
   saldo?: number
-  // Variação em % contra o mês anterior (só existe se o mês anterior tinha valor)
-  variacaoReceitas?: number
-  variacaoDespesas?: number
-}
-
-// Despesa que se repete todo mês (gasto marcado com "repetir mensalmente")
-export type DespesaFixaResumo = {
-  id: string
-  titulo: string
-  // Dia do mês em que vence e texto DD/MM do mês selecionado
-  dia: number
-  vencimento: string
-  valor: number
-  icone: LucideIcon
-}
-
-export type AlertaResumo = {
-  id: string
-  titulo: string
-  descricao: string
-  icone: LucideIcon
 }
