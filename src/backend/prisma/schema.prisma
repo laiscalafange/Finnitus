@@ -97,6 +97,11 @@ enum TipoMovimentacaoMeta {
   RETIRADA
 }
 
+enum TipoMeta {
+  LONGO_PRAZO
+  MENSAL
+}
+
 model Usuario {
   id_Usuario     Int       @id @default(autoincrement())
   tokenVersion   Int       @default(0)
@@ -245,18 +250,40 @@ model Meta {
 
   Mnome           String         @db.VarChar(100)
   Mvalor_objetivo Decimal        @db.Decimal(10, 2)
-  Mvalor_atual    Decimal        @db.Decimal(10, 2)
-  Mvalor_periodo  Decimal?       @db.Decimal(10, 2)
-  Mprazo          DateTime       @db.Date
-  Mprioridade     PrioridadeMeta
-  Mstatus         StatusMeta     @default(EM_ANDAMENTO)
+  Mvalor_atual    Decimal        @default(0) @db.Decimal(10, 2)
 
-  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario])
+  // Quanto o usuário pretende guardar periodicamente.
+  // Pode ser usado futuramente para planejamento.
+  Mvalor_periodo Decimal? @db.Decimal(10, 2)
+
+  // LONGO_PRAZO ou MENSAL
+  Mtipo TipoMeta
+
+  // Para metas mensais.
+  // Salvar o primeiro dia do mês, por exemplo:
+  // Outubro/2026 -> 2026-10-01
+  Mmes_referencia DateTime? @db.Date
+
+  // Data limite opcional.
+  Mprazo DateTime? @db.Date
+
+  Mprioridade PrioridadeMeta @default(MEDIA)
+  Mstatus     StatusMeta     @default(EM_ANDAMENTO)
+
+  Mdata_criacao      DateTime  @default(now())
+  Mdata_conclusao    DateTime?
+  Mdata_cancelamento DateTime?
+
+  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
 
   MovimentacaoMeta MovimentacaoMeta[]
 
   @@index([id_Usuario])
   @@index([Mprazo])
+  @@index([Mmes_referencia])
+  @@index([id_Usuario, Mstatus])
+  @@index([id_Usuario, Mtipo])
+  @@index([id_Usuario, Mmes_referencia])
 }
 
 model MovimentacaoMeta {

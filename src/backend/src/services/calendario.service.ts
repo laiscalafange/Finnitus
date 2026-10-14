@@ -109,13 +109,17 @@ export async function listarItensCalendario(
     descricao: despesa.observacao ?? undefined,
   }));
 
-  const itensMetas: ItemCalendario[] = metas.map((meta) => ({
-    id: meta.id_Meta,
-    titulo: meta.Mnome,
-    data: meta.Mprazo,
-    tipo: "META",
-    valor: Number(meta.Mvalor_objetivo),
-  }));
+  const itensMetas: ItemCalendario[] = metas.flatMap((meta) =>
+    meta.Mprazo === null
+      ? []
+      : [{
+          id: meta.id_Meta,
+          titulo: meta.Mnome,
+          data: meta.Mprazo,
+          tipo: "META" as const,
+          valor: Number(meta.Mvalor_objetivo),
+        }],
+  );
 
   const itensDividas: ItemCalendario[] = dividas.map((divida) => ({
     id: divida.id_Divida,

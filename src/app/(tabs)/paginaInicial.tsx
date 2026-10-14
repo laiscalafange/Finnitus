@@ -406,45 +406,30 @@ export default function PaginaInicial() {
           <DashboardHeader
 
             nome={user?.name}
-
             mes={mesTexto}
-
             aoPressMes={() => setModalMes(true)}
-
             onPremium={() => router.push(Rotas.premium)}
-
             onNotificacao={() => router.push(Rotas.notificacao)}
-
             onPerfil={() => router.push('/perfil')}
 
           />
 
           <CardSaldo
-
             saldoAtual={resumo.saldo}
-
             onPress={() => router.push('/dashboard')}
 
           />
 
           {resumoVisivel && (
-
             <CardResumo
-
               receitas={resumo.receitas}
-
               despesas={resumo.despesas}
-
               onPressReceitas={() =>
-
                 router.push({ pathname: Rotas.movimentacoes, params: { filtro: 'entrada', competencia } })
-
               }
 
               onPressDespesas={() =>
-
                 router.push({ pathname: Rotas.movimentacoes, params: { filtro: 'gasto', competencia } })
-
               }
 
             />
@@ -456,27 +441,18 @@ export default function PaginaInicial() {
         {/* Seta: esconde/mostra Receitas e Despesas */}
 
         <View style={styles.setaContainer}>
-
           <TouchableOpacity
-
             style={styles.setaForma}
-
             onPress={() => setResumoVisivel(visivel => !visivel)}
-
             activeOpacity={0.8}
-
             accessibilityRole="button"
-
             accessibilityLabel={resumoVisivel ? 'Esconder receitas e despesas' : 'Mostrar receitas e despesas'}
 
           >
 
             {resumoVisivel ? (
-
               <ChevronUp size={26} color={Cores.base.branco} />
-
             ) : (
-
               <ChevronDown size={26} color={Cores.base.branco} />
 
             )}
@@ -492,49 +468,32 @@ export default function PaginaInicial() {
           {/* EVENTOS (card separado) */}
 
           <CardEvento
-
             evento={evento}
-
             onPress={() => router.push('/calendario')}
-
           />
 
           {/* METAS (card separado) */}
 
           <CardPlanejamento
-
             dados={meta}
-
             onPress={() => router.push('/metas')}
-
           />
 
           {/* DESPESAS FIXAS */}
 
           <CardSecao
-
             titulo="Despesas fixas"
-
             textoVerTodos="Ver todas"
-
             aoVerTodos={() => router.push(Rotas.contasFixas)}
-
           >
 
             {despesasFixas.length > 0 ? (
-
               <ListaItens>
-
                 {despesasFixas.slice(0, 3).map(conta => (
-
                   <LinhaItem
-
                     key={`${conta.transacaoId}-${conta.competencia}`}
-
                     icone={conta.icone}
-
                     titulo={conta.nome}
-
                     subtitulo={`Vencimento ${diaMes(conta.dataVencimento)}  ·  ${formatarMoeda(conta.valorRealizado ?? conta.valorPrevisto)}  ·  ${rotuloStatus(conta)}`}
 
                     aoPress={() =>
@@ -578,43 +537,24 @@ export default function PaginaInicial() {
             aoVerTodos={() => router.push(Rotas.notificacao)}
 
           >
-
             {atencao.length > 0 ? (
-
               <ListaItens>
-
                 {atencao.map(item => (
-
                   <LinhaItem
-
                     key={item.id}
-
                     destaque
-
                     icone={
-
                       item.conta
-
                         ? item.conta.icone
-
                         : item.categoria === 'metas'
-
                           ? Target
-
                           : item.categoria === 'eventos'
-
                             ? CalendarDays
-
                             : TriangleAlert
-
                     }
-
                     titulo={item.titulo}
-
                     subtitulo={`${item.subtitulo}  ·  ${item.quando}`}
-
                     aoPress={() => router.push(Rotas.notificacao)}
-
                   />
 
                 ))}
