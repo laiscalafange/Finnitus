@@ -22,6 +22,7 @@ import { useEffect, useState } from "react";
 import {
   listarItensCalendario,
   confirmarEventoFinanceiro,
+  marcarEventoNaoFinanceiro,
   type ItemCalendario,
 } from "../../features/calendar/services/calendarService";
 
@@ -709,56 +710,93 @@ useEffect(() => {
           proximoMes
         );
 
-      // 3. DESCOBRE QUAIS EVENTOS EXTERNOS
-      // JÁ FORAM IMPORTADOS PARA O FINNITUS
-      const idsEventosImportados =
-        new Set(
-          itens
-            .filter(
-              (item) =>
-                item.tipo === "EVENTO" &&
-                item.origem ===
-                  "DISPOSITIVO" &&
-                item.idEventoExterno
-            )
-            .map(
-              (item) =>
-                item.idEventoExterno as string
-            )
-        );
+      // 3. DESCOBRE O STATUS DOS EVENTOS
+// DO DISPOSITIVO JÁ SALVOS NO FINNITUS
 
-      // 4. REMOVE DA LISTA EXTERNA
-      // OS QUE JÁ ESTÃO NO FINNITUS
-      const eventosAindaNaoImportados =
-        eventosDoDispositivo.filter(
-          (evento) =>
-            !idsEventosImportados.has(
-              evento.id
-            )
-        );
+const statusEventosDispositivo =
+  new Map<string, string>();
 
-      // 5. ATUALIZA OS ESTADOS
-      setItensCalendario(itens);
+itens.forEach((item) => {
+  if (
+    item.tipo === "EVENTO" &&
+    item.origem ===
+      "DISPOSITIVO" &&
+    item.idEventoExterno
+  ) {
+    statusEventosDispositivo.set(
+      item.idEventoExterno,
+      item.statusFinanceiro ??
+        "NAO_ANALISADO"
+    );
+  }
+});
 
-      setEventosDispositivo(
-        eventosAindaNaoImportados
+// 4. EVENTOS CONFIRMADOS COMO RECEITA/DESPESA
+// NÃO PRECISAM MAIS APARECER COMO EVENTO EXTERNO.
+//
+// EVENTOS MARCADOS COMO NÃO FINANCEIRO
+// CONTINUAM APARECENDO NORMALMENTE.
+
+const eventosAindaVisiveis =
+  eventosDoDispositivo.filter(
+    (evento) =>
+      statusEventosDispositivo.get(
+        evento.id
+      ) !== "CONFIRMADO"
+  );
+
+// 5. RECUPERA AS DECISÕES SALVAS NO BANCO
+
+const decisoesPersistidas: Record<
+  string,
+  "CONFIRMADO" | "NAO_FINANCEIRO"
+> = {};
+
+eventosAindaVisiveis.forEach(
+  (evento) => {
+    const status =
+      statusEventosDispositivo.get(
+        evento.id
       );
+
+    if (
+      status ===
+      "NAO_FINANCEIRO"
+    ) {
+      decisoesPersistidas[
+        evento.id
+      ] = "NAO_FINANCEIRO";
+    }
+  }
+);
+
+// 6. ATUALIZA OS ESTADOS
+
+setItensCalendario(itens);
+
+setEventosDispositivo(
+  eventosAindaVisiveis
+);
+
+setDecisoesEventos(
+  decisoesPersistidas
+);
 
       // TESTE DA CLASSIFICAÇÃO
-      eventosAindaNaoImportados.forEach(
-        (evento) => {
-          const classificacao =
-            classificarEventoFinanceiro(
-              evento.titulo
-            );
-
-          console.log(
-            "ANÁLISE FINANCEIRA:",
-            evento.titulo,
-            classificacao
-          );
-        }
+eventosAindaVisiveis.forEach(
+  (evento) => {
+    const classificacao =
+      classificarEventoFinanceiro(
+        evento.titulo
       );
+
+    console.log(
+      "ANÁLISE FINANCEIRA:",
+      evento.titulo,
+      classificacao
+    );
+  }
+);
 
       console.log(
         "Itens reais do calendário:",
@@ -771,9 +809,9 @@ useEffect(() => {
       );
 
       console.log(
-        "Eventos ainda não importados:",
-        eventosAindaNaoImportados
-      );
+  "Eventos ainda visíveis:",
+  eventosAindaVisiveis
+);
     } catch (error) {
       console.error(
         "Erro ao carregar calendário:",
@@ -792,14 +830,14 @@ useEffect(() => {
 
   const eventosDoDia =
   itensCalendario.filter((item) => {
-    const eventoImportadoConfirmado =
+    const eventoDoDispositivo =
       item.tipo === "EVENTO" &&
-      item.origem === "DISPOSITIVO" &&
-      item.statusFinanceiro === "CONFIRMADO";
+      item.origem ===
+        "DISPOSITIVO";
 
     return (
       item.tipo === "EVENTO" &&
-      !eventoImportadoConfirmado &&
+      !eventoDoDispositivo &&
       dataSelecionada !== null &&
       obterDataCalendario(item) ===
         dataSelecionada
@@ -1784,15 +1822,45 @@ const ehSuspeito =
                     </TouchableOpacity>
 <TouchableOpacity
   activeOpacity={0.8}
-  onPress={() => {
+  onPress={async () => {
+  try {
+    await marcarEventoNaoFinanceiro({
+      idEventoExterno:
+        evento.id,
+
+      tituloEvento:
+        evento.titulo,
+
+      dataInicio:
+        evento.dataInicio,
+
+      dataFim:
+        evento.dataFim,
+
+      diaInteiro:
+        evento.diaInteiro,
+    });
+
     setDecisoesEventos(
       (atual) => ({
         ...atual,
+
         [evento.id]:
           "NAO_FINANCEIRO",
       })
     );
-  }}
+
+    setRecarregarCalendario(
+      (atual) =>
+        atual + 1
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao marcar evento como não financeiro:",
+      error
+    );
+  }
+}}
   style={{
     flex: 1,
     paddingVertical: 10,
@@ -2100,118 +2168,67 @@ const ehSuspeito =
       <LinearGradient
         key={`${item.tipo}-${item.id}`}
         colors={[
-
           "#30096e",
-
           "#30096e",
-
         ]}
 
         style={styles.gastoCard}
-
       >
 
         <View
 
           style={[
-
             styles.gastoIconeContainer,
-
             {
-
               backgroundColor: "#5f33a77a",
-
               borderWidth: 1,
-
               borderColor: "#7F3BED",
-
               borderRadius: 100,
-
             },
-
           ]}
 
         >
-
           <Text
-
             style={{
-
               color: Cores.base.branco,
-
               fontSize: 16,
-
             }}
-
           >
-
             {ehMeta ? "M" : "D"}
-
           </Text>
 
         </View>
-
-
-
         <View style={styles.gastoInfo}>
-
           <Text style={styles.gastoNome}>
-
             {item.titulo}
-
           </Text>
-
-
 
           <Text style={styles.gastoHora}>
-
             {ehMeta
-
               ? "Prazo da meta"
-
               : "Vencimento da dívida"}
-
           </Text>
-
         </View>
 
-
-
         <Text style={styles.gastoValor}>
-
           R${" "}
-
           {(item.valor ?? 0)
-
             .toFixed(2)
-
             .replace(".", ",")}
-
         </Text>
 
       </LinearGradient>
-
     );
-
   })
-
 ) : (
-
   <Text style={styles.eventoDescricao}>
-
     {dataSelecionada
-
       ? "Nenhum compromisso financeiro nesta data."
-
       : "Selecione uma data."}
 
   </Text>
 
 )}
-
-
-
-
 
           {/* ───────── GASTOS DO MÊS ───────── */}
 

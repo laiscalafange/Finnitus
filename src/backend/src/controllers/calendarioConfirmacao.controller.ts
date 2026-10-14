@@ -5,7 +5,14 @@ import type {
 
 import {
   confirmarEventoFinanceiro,
+  marcarEventoNaoFinanceiro,
 } from "../services/calendarioConfirmacao.service.js";
+
+/*
+ * =====================================================
+ * CONFIRMAR MOVIMENTAÇÃO
+ * =====================================================
+ */
 
 export async function confirmarEvento(
   req: Request,
@@ -14,7 +21,7 @@ export async function confirmarEvento(
   try {
     if (!req.userId) {
       return res.status(401).json({
-        mensagem:
+        error:
           "Usuário não autenticado",
       });
     }
@@ -37,12 +44,11 @@ export async function confirmarEvento(
       !dataInicio ||
       !tipoMovimentacao ||
       !descricao ||
-      valor === undefined ||
       !data
     ) {
       return res.status(400).json({
-        mensagem:
-          "Dados obrigatórios ausentes.",
+        error:
+          "Dados obrigatórios não informados.",
       });
     }
 
@@ -53,8 +59,23 @@ export async function confirmarEvento(
         "DESPESA"
     ) {
       return res.status(400).json({
-        mensagem:
+        error:
           "Tipo de movimentação inválido.",
+      });
+    }
+
+    const valorNumerico =
+      Number(valor);
+
+    if (
+      !Number.isFinite(
+        valorNumerico
+      ) ||
+      valorNumerico <= 0
+    ) {
+      return res.status(400).json({
+        error:
+          "Valor inválido.",
       });
     }
 
@@ -78,7 +99,7 @@ export async function confirmarEvento(
         descricao,
 
         valor:
-          Number(valor),
+          valorNumerico,
 
         data,
       });
@@ -92,20 +113,103 @@ export async function confirmarEvento(
       error
     );
 
-    if (
-      error instanceof Error &&
-      error.message ===
-        "Este evento já foi processado."
-    ) {
-      return res.status(409).json({
-        mensagem:
-          error.message,
+    const mensagem =
+      error instanceof Error
+        ? error.message
+        : "Erro ao confirmar evento.";
+
+    const status =
+      mensagem.includes(
+        "já foi processado"
+      )
+        ? 409
+        : 500;
+
+    return res.status(status).json({
+      error: mensagem,
+    });
+  }
+}
+
+/*
+ * =====================================================
+ * MARCAR COMO NÃO FINANCEIRO
+ * =====================================================
+ */
+
+export async function marcarNaoFinanceiro(
+  req: Request,
+  res: Response
+) {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({
+        error:
+          "Usuário não autenticado",
       });
     }
 
-    return res.status(500).json({
+    const {
+      idEventoExterno,
+      tituloEvento,
+      dataInicio,
+      dataFim,
+      diaInteiro,
+    } = req.body;
+
+    if (
+      !idEventoExterno ||
+      !tituloEvento ||
+      !dataInicio
+    ) {
+      return res.status(400).json({
+        error:
+          "Dados do evento não informados.",
+      });
+    }
+
+    const evento =
+      await marcarEventoNaoFinanceiro({
+        id_Usuario:
+          req.userId,
+
+        idEventoExterno,
+
+        tituloEvento,
+
+        dataInicio,
+
+        dataFim,
+
+        diaInteiro,
+      });
+
+    return res.status(200).json({
       mensagem:
-        "Erro ao confirmar movimentação.",
+        "Evento marcado como não financeiro.",
+
+      evento,
+    });
+  } catch (error) {
+    console.error(
+      "Erro ao marcar evento como não financeiro:",
+      error
+    );
+
+    const mensagem =
+      error instanceof Error
+        ? error.message
+        : "Erro ao atualizar evento.";
+
+    const status =
+      mensagem.includes(
+        "já foi confirmado"
+      )
+        ? 409
+        : 500;
+
+    return res.status(status).json({
+      error: mensagem,
     });
   }
 }

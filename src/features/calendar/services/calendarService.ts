@@ -15,6 +15,25 @@ export type ConfirmarEventoFinanceiroPayload = {
   data: string;
 };
 
+export type MarcarEventoNaoFinanceiroPayload = {
+  idEventoExterno: string;
+  tituloEvento: string;
+  dataInicio: string;
+  dataFim?: string;
+  diaInteiro?: boolean;
+};
+
+export async function marcarEventoNaoFinanceiro(
+  dados: MarcarEventoNaoFinanceiroPayload
+) {
+  const response = await api.post(
+    "/calendario/nao-financeiro",
+    dados
+  );
+
+  return response.data;
+}
+
 export async function confirmarEventoFinanceiro(
   dados: ConfirmarEventoFinanceiroPayload
 ) {
