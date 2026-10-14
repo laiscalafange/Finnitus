@@ -98,84 +98,45 @@ LocaleConfig.locales["pt"] = {
 
   ],
 
-
-
   monthNamesShort: [
     "Jan",
     "Fev",
     "Mar",
     "Abr",
     "Mai",
-
     "Jun",
-
     "Jul",
-
     "Ago",
-
     "Set",
-
     "Out",
-
     "Nov",
-
     "Dez",
-
   ],
-
-
 
   dayNames: [
-
     "Domingo",
-
     "Segunda",
-
     "Terça",
-
     "Quarta",
-
     "Quinta",
-
     "Sexta",
-
     "Sábado",
-
   ],
-
-
 
   dayNamesShort: [
-
     "seg",
-
     "ter",
-
     "qua",
-
     "qui",
-
     "sex",
-
     "sáb",
-
     "dom",
-
   ],
 
-
-
   today: "Hoje",
-
 };
 
-
-
 LocaleConfig.defaultLocale = "pt";
-
-
-
-
 
 // ─────────────────────────────────────────────
 
@@ -183,57 +144,27 @@ LocaleConfig.defaultLocale = "pt";
 
 // ─────────────────────────────────────────────
 
-
-
-
-
-
-
-
-
 function obterDataCalendario(
-
   item: ItemCalendario
-
 ): string {
-
   if (item.tipo === "EVENTO") {
-
     const data = new Date(item.data);
-
-
-
     const ano = data.getFullYear();
-
-
-
     const mes = String(
-
       data.getMonth() + 1
-
     ).padStart(2, "0");
-
-
 
     const dia = String(
-
       data.getDate()
-
     ).padStart(2, "0");
-
-
 
     return `${ano}-${mes}-${dia}`;
 
   }
 
-
-
   return item.data.slice(0, 10);
 
 }
-
-
 
 // ─────────────────────────────────────────────
 
@@ -241,104 +172,58 @@ function obterDataCalendario(
 
 // ─────────────────────────────────────────────
 
-
-
 function GaugeCircular({
-
   tamanho = 100,
-
   label,
-
   sublabel,
-
   segmentos,
-
 }: GaugeCircularProps) {
-
   const r = (tamanho - 25) / 2;
-
   const cx = tamanho / 2;
-
   const cy = tamanho / 2;
-
   const circ = 2 * Math.PI * r;
-
-
 
   return (
 
     <View
-
       style={{
-
         width: tamanho,
-
         height: tamanho,
-
       }}
 
     >
 
       <Svg
-
         width={tamanho}
-
         height={tamanho}
-
         style={{
-
           transform: [{ rotate: "-90deg" }],
-
         }}
 
       >
 
         {segmentos.map((seg, i) => {
-
           const len = (seg.pct / 100) * circ;
-
-
-
           const offset = segmentos
-
             .slice(0, i)
-
             .reduce(
-
               (acc, s) =>
-
                 acc + (s.pct / 100) * circ,
-
               0
-
             );
 
-
-
           return (
-
             <Circle
-
               key={i}
-
               cx={cx}
-
               cy={cy}
-
               r={r}
-
               fill="none"
-
               stroke={seg.cor}
-
               strokeWidth={15}
-
               strokeDasharray={`${len} ${circ - len}`}
-
               strokeDashoffset={-offset}
-
               strokeLinecap="round"
-
             />
 
           );
@@ -347,24 +232,14 @@ function GaugeCircular({
 
       </Svg>
 
-
-
       <View
-
         style={{
-
           position: "absolute",
-
           top: 0,
-
           right: 0,
-
           bottom: 0,
-
           left: 0,
-
           justifyContent: "center",
-
           alignItems: "center",
 
         }}
@@ -372,30 +247,18 @@ function GaugeCircular({
       >
 
         <Text style={styles.gaugeLabel}>
-
           {label}
-
         </Text>
-
-
 
         <Text style={styles.gaugeSublabel}>
-
           {sublabel}
-
         </Text>
-
       </View>
-
     </View>
 
   );
 
 }
-
-
-
-
 
 // ─────────────────────────────────────────────
 
@@ -403,14 +266,8 @@ function GaugeCircular({
 
 // ─────────────────────────────────────────────
 
-
-
 export default function Calendario() {
-
   const router = useRouter();
-
-
-
   const [
   recarregarCalendario,
   setRecarregarCalendario,
@@ -418,47 +275,29 @@ export default function Calendario() {
 const [
 
     dataSelecionada,
-
     setDataSelecionada,
-
   ] = useState<string | null>(null);
-
-
 
   // Mês que o calendário mostra. Começa no mês de hoje
 
   const [
-
   mesAtual,
-
   setMesAtual,
-
 ] = useState<string>(() => {
 
     const hoje = new Date();
 
-
-
     return `${hoje.getFullYear()}-${String(
-
       hoje.getMonth() + 1
-
     ).padStart(2, "0")}-01`;
 
   });
 
-
-
   // Card "Escolher mês e ano" aberto?
-
   const [
-
   eventoEmRevisao,
-
   setEventoEmRevisao,
-
 ] = useState<EventoDispositivo | null>(
-
   null
 
 );
@@ -1188,232 +1027,118 @@ function formatarValorCalendario(
           >
             <Text style={styles.setaTexto}>
               {calendarioAberto ? "⌃" : "⌄"}
-
             </Text>
-
           </TouchableOpacity>
-
         </View>
-
-
-
-
 
         {/* ───────── CONTEÚDO ───────── */}
 
 
 
         <View style={styles.conteudo}>
-
-
-
           <Text style={styles.secaoTitulo}>
-
             Visão geral
-
           </Text>
-
-
-
-
 
           {/* ───────── EVENTOS ───────── */}
 
-
-
           <LinearGradient
-
             colors={[
-
               "#3c1e75",
-
               "#30096e",
-
             ]}
-
             style={styles.card}
-
           >
-
             <View style={styles.eventoHeader}>
-
               <Text
-
                 style={styles.eventoTitulo}
-
               >
-
                 Eventos
-
               </Text>
-
-
-
               <Text
-
                 style={styles.eventoData}
-
               >
-
                 {dataSelecionada
-
   ? dataSelecionada
-
       .split("-")
-
       .reverse()
-
       .join("/")
-
   : "Selecione uma data"}
-
               </Text>
-
             </View>
-
-
-
            {eventosDoDia.length > 0 ||
 
 eventosDispositivoDoDia.length > 0 ? (
-
   <>
 
     {/* EVENTOS DO FINNITUS */}
 
-
-
     {eventosDoDia.map((evento) => {
-
       const dataHora = new Date(
-
         evento.horarioInicio ?? evento.data
-
       );
 
-
-
       const hora =
-
         dataHora.toLocaleTimeString(
-
           "pt-BR",
-
           {
-
             hour: "2-digit",
-
             minute: "2-digit",
-
           }
-
         );
 
-
-
       return (
-
         <View
-
           key={`${evento.tipo}-${evento.id}`}
-
           style={styles.eventoItem}
-
         >
 
           <Text style={styles.eventoNome}>
-
             • {evento.titulo}
-
           </Text>
-
-
 
           {evento.descricao && (
-
             <Text
-
               style={styles.eventoDescricao}
-
             >
-
               • {evento.descricao}
-
             </Text>
-
           )}
-
-
 
           <Text
-
             style={styles.eventoDescricao}
-
           >
-
             Finnitus
-
           </Text>
 
-
-
           {!evento.diaInteiro && (
-
             <Text style={styles.eventoHora}>
-
               {hora}
-
             </Text>
-
           )}
-
         </View>
-
       );
-
     })}
-
-
 
     {/* EVENTOS DO CELULAR */}
 
-
-
     {eventosDispositivoDoDia.map(
-
       (evento) => {
-
         const dataHora =
-
           new Date(evento.dataInicio);
-
-
-
         const hora =
-
           dataHora.toLocaleTimeString(
-
             "pt-BR",
-
             {
-
               hour: "2-digit",
-
               minute: "2-digit",
-
             }
-
           );
 
           const classificacao =
-
   classificarEventoFinanceiro(
-
     evento.titulo
-
   );
-
-
 
 const ehSuspeito =
   classificacao.status === "SUSPEITO";
@@ -1431,29 +1156,16 @@ const ehSuspeito =
               • {evento.titulo}
 
             </Text>
-
-
-
             <Text
-
               style={styles.eventoDescricao}
-
             >
-
               Calendário do celular
-
             </Text>
 
-
-
             <Text style={styles.eventoHora}>
-
               {evento.diaInteiro
-
                 ? "Dia inteiro"
-
                 : hora}
-
             </Text>
 
             {ehSuspeito && (
