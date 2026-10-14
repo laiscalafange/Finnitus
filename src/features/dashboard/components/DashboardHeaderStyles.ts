@@ -2,50 +2,51 @@ import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
 
+// Largura dos dois lados do header (avatar e ícones) igual, pra o mês ficar
+// exatamente no centro
+const LADO = 76
+
 export const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingBottom: 7,
-    minHeight: 65,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  identidade: {
+    minHeight: 64,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 9,
-    flex: 1,
-    minWidth: 0,
   },
-  titulo: {
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 23,
-    lineHeight: 25,
-    color: Cores.destaque.limao,
-  },
-  subtitulo: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 12,
-    lineHeight: 16,
-    color: Cores.texto.principal,
-    marginTop: 1,
-  },
-  icones: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15,
-    marginLeft: 10,
-  },
-  botaoIcone: {
-    width: 27,
-    height: 27,
-    alignItems: 'center',
+
+  avatarArea: {
+    width: LADO,
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
+
+  // Seletor do mês no centro ("Outubro ⌄")
+  mes: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  mesTexto: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 24,
+    lineHeight: 28,
+    color: Cores.base.branco,
+    flexShrink: 1,
+  },
+
+  // Coroa (Premium) e sino (notificações), como nas outras telas
+  icones: {
+    width: LADO,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 18,
+  },
   icone: {
-    width: 23,
-    height: 23,
+    width: 25,
+    height: 25,
     resizeMode: 'contain',
   },
 })

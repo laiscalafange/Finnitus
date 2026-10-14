@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 
-import { Cores } from '../../../shared/constants/Cores'
+import { NIVEIS_ATIVIDADE } from '../../../features/sumarioData'
 import { styles } from '../../../styles/Planobstyle'
 
 type DiaAtividade = {
@@ -15,21 +15,17 @@ type AtividadeHeatmapProps = {
   dias: DiaAtividade[]
 }
 
+// Mesmas cores da tela Atividade (NIVEIS_ATIVIDADE), pra o mesmo dia ter a
+// mesma cor nos dois lugares. Só o "nenhuma" é mais claro aqui, porque o
+// fundo do card é roxo.
 function obterCorNivel(nivel: string) {
-  switch (nivel) {
-    case 'alta':
-      return Cores.destaque.limao
-
-    case 'baixa':
-      return '#FF8800'
-
-    case 'media':
-      return Cores.roxo.claro
-
-    case 'nenhuma':
-    default:
-      return '#FFFFFF20'
+  if (nivel === 'nenhuma') {
+    return '#FFFFFF20'
   }
+
+  return (
+    NIVEIS_ATIVIDADE.find((item) => item.id === nivel)?.cor ?? '#FFFFFF20'
+  )
 }
 
 export function HeatmapCard({
@@ -105,20 +101,15 @@ export function HeatmapCard({
       {/* LEGENDA */}
       <View style={styles.heatmapLegenda}>
 
-        <Legenda
-          cor={Cores.destaque.limao}
-          label="Alta"
-        />
-
-        <Legenda
-          cor="#FF8800"
-          label="Baixa"
-        />
-
-        <Legenda
-          cor={Cores.roxo.claro}
-          label="Média"
-        />
+        {NIVEIS_ATIVIDADE.filter((nivel) => nivel.id !== 'nenhuma').map(
+          (nivel) => (
+            <Legenda
+              key={nivel.id}
+              cor={nivel.cor}
+              label={nivel.rotulo}
+            />
+          ),
+        )}
 
       </View>
 

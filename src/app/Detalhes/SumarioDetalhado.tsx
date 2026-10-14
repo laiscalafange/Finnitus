@@ -10,7 +10,9 @@ import { FONTS } from "../../shared/constants/Tipografia";
 
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
-import { SUMARIO_DETALHADO_MOCK } from "@/features/sumarioData";
+import { useFinanceiro } from "@/features/financeiroContext";
+import { calcularRotas } from "@/features/rotasDatas";
+import { calcularSumario } from "@/features/sumarioData";
 import { styles } from "../../styles/sumarioDetalhado";
 
 // Gradientes iguais aos das outras telas internas
@@ -27,18 +29,23 @@ const GRADIENTE_CARD: [string, string] = [
 // Cor dos gastos (laranja) e das economias (verde-limão), iguais às do Plano-B
 const COR_GASTOS = "#FF8800";
 
-// 3000 -> "R$ 3.000" (os cards do topo não mostram centavos)
-function moedaInteira(valor: number): string {
-  return `R$ ${valor.toLocaleString("pt-BR", { maximumFractionDigits: 0 })}`;
-}
-
 // Tela "Sumário detalhado": aberta ao tocar no card Sumário do
-// Dashboard e do Plano-B.
+// Dashboard e do Plano-B. Os valores vêm do que a pessoa registrou no
+// Novo gasto e nas Metas.
 export default function SumarioDetalhado() {
   const { width } = useWindowDimensions();
 
-  const { mes, ano, gastos, economias, ultimosMeses, categorias } =
-    SUMARIO_DETALHADO_MOCK;
+  // Gastos, entradas e metas registrados no app (FinanceiroProvider)
+  const { transacoes, metas, salario } = useFinanceiro();
+
+  const { nomeMes, ano, gastos, economias, ultimosMeses } = calcularSumario(
+    transacoes,
+    metas,
+    salario
+  );
+
+  // Gastos do mês por categoria (mesmo cálculo e mesmas cores das Rotas)
+  const { rotas: categorias } = calcularRotas(transacoes, salario);
 
   // Largura do gráfico = tela - margem lateral (16 x 2) - padding do card (18 x 2)
   const larguraGrafico = width - 32 - 36;
@@ -48,6 +55,9 @@ export default function SumarioDetalhado() {
     x: indice + 1,
     y: item.valor,
   }));
+
+  // Gráfico só aparece quando houve gasto em algum dos 6 meses
+  const temHistorico = ultimosMeses.some((item) => item.valor > 0);
 
   return (
     <LinearGradient
@@ -63,7 +73,7 @@ export default function SumarioDetalhado() {
         {/* Cabeçalho: seta de voltar, título e mês, igual ao protótipo */}
         <HeaderInterno
           titulo="Sumário detalhado"
-          subtitulo={`${mes} ${ano}`}
+          subtitulo={`${nomeMes} ${ano}`}
           mostrarPremium={false}
           mostrarNotificacao={false}
         />
@@ -74,17 +84,23 @@ export default function SumarioDetalhado() {
           <View style={styles.linhaTotais}>
             <Card gradiente={GRADIENTE_CARD} style={styles.cardTotal}>
               <Text style={styles.totalRotulo}>Gastos</Text>
-              <Text style={[styles.totalValor, { color: COR_GASTOS }]}>
-                {moedaInteira(gastos)}
+              <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={[styles.totalValor, { color: COR_GASTOS }]}
+              >
+                {formatarMoeda(gastos)}
               </Text>
             </Card>
 
             <Card gradiente={GRADIENTE_CARD} style={styles.cardTotal}>
               <Text style={styles.totalRotulo}>Economias</Text>
               <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
                 style={[styles.totalValor, { color: Cores.destaque.limao }]}
               >
-                {moedaInteira(economias)}
+                {formatarMoeda(economias)}
               </Text>
             </Card>
           </View>
@@ -93,44 +109,56 @@ export default function SumarioDetalhado() {
           <Card gradiente={GRADIENTE_CARD}>
             <Text style={styles.tituloCard}>Últimos 6 meses</Text>
 
-            <VictoryChart
-              width={larguraGrafico}
-              height={170}
-              padding={{ top: 10, bottom: 30, left: 0, right: 0 }}
-              domainPadding={{ y: [0, 10] }}
-            >
-              <VictoryAxis
-                tickValues={ultimosMeses.map((_, indice) => indice + 1)}
-                tickFormat={ultimosMeses.map((item) => item.mes)}
-                style={{
-                  axis: { stroke: "transparent" },
-                  grid: { stroke: "transparent" },
-                  ticks: { stroke: "transparent" },
-                  tickLabels: {
-                    fill: Cores.texto.claro,
-                    fontSize: 12,
-                    fontFamily: FONTS.quicksand.semibold,
-                  },
-                }}
-              />
+            {!temHistorico ? (
+              <Text style={styles.vazio}>
+                Ainda não há gastos para mostrar.
+              </Text>
+            ) : (
+              <VictoryChart
+                width={larguraGrafico}
+                height={170}
+                padding={{ top: 10, bottom: 30, left: 0, right: 0 }}
+                domainPadding={{ y: [0, 10] }}
+              >
+                <VictoryAxis
+                  tickValues={ultimosMeses.map((_, indice) => indice + 1)}
+                  tickFormat={ultimosMeses.map((item) => item.mes)}
+                  style={{
+                    axis: { stroke: "transparent" },
+                    grid: { stroke: "transparent" },
+                    ticks: { stroke: "transparent" },
+                    tickLabels: {
+                      fill: Cores.texto.claro,
+                      fontSize: 12,
+                      fontFamily: FONTS.quicksand.semibold,
+                    },
+                  }}
+                />
 
-              <VictoryArea
-                data={dados}
-                style={{
-                  data: {
-                    fill: Cores.destaque.limao,
-                    fillOpacity: 0.25,
-                    stroke: Cores.destaque.limao,
-                    strokeWidth: 2,
-                  },
-                }}
-              />
-            </VictoryChart>
+                <VictoryArea
+                  data={dados}
+                  style={{
+                    data: {
+                      fill: Cores.destaque.limao,
+                      fillOpacity: 0.25,
+                      stroke: Cores.destaque.limao,
+                      strokeWidth: 2,
+                    },
+                  }}
+                />
+              </VictoryChart>
+            )}
           </Card>
 
           {/* Gastos por categoria */}
           <Card gradiente={GRADIENTE_CARD}>
             <Text style={styles.tituloCard}>Por categoria</Text>
+
+            {categorias.length === 0 ? (
+              <Text style={styles.vazio}>
+                Nenhum gasto registrado neste mês.
+              </Text>
+            ) : null}
 
             {categorias.map((item) => {
               // Mesmo nome da categoria usado no Novo gasto
@@ -138,7 +166,8 @@ export default function SumarioDetalhado() {
                 CATEGORIAS_POR_ID[item.categoriaId] ?? CATEGORIAS_POR_ID.outros;
 
               // A barra mostra quanto essa categoria pesa no total de gastos
-              const porcentagem = Math.min((item.valor / gastos) * 100, 100);
+              const porcentagem =
+                gastos > 0 ? Math.min((item.atual / gastos) * 100, 100) : 0;
 
               return (
                 <View key={item.categoriaId} style={styles.linhaCategoria}>
@@ -146,7 +175,7 @@ export default function SumarioDetalhado() {
                     <Text style={styles.categoriaNome}>{categoria.rotulo}</Text>
 
                     <Text style={styles.categoriaValor}>
-                      {formatarMoeda(item.valor)}
+                      {formatarMoeda(item.atual)}
                     </Text>
                   </View>
 

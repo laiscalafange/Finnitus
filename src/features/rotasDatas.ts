@@ -11,24 +11,14 @@ import {
   CATEGORIAS_POR_ID,
 } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
+import {
+  NOMES_MESES,
+  rendaDoMes,
+  transacaoContaNoMes,
+} from "@/features/sumarioData";
 import type { Transacao } from "@/features/financeiroContext";
 import type { RotaCategoria } from "@/shared/components/PlanoB/RotasCard";
 import { Cores } from "@/shared/constants/Cores";
-
-export const NOMES_MESES = [
-  "Janeiro",
-  "Fevereiro",
-  "Março",
-  "Abril",
-  "Maio",
-  "Junho",
-  "Julho",
-  "Agosto",
-  "Setembro",
-  "Outubro",
-  "Novembro",
-  "Dezembro",
-];
 
 // Cor de cada categoria nos gráficos e nos ícones do Plano-B.
 // Mesmo id das categorias do Novo gasto (src/features/menuMais/constants.ts)
@@ -113,22 +103,6 @@ function idDaRota(categoriaId: string): string {
     : "outros";
 }
 
-// A transação vale no mês? Se for "repetir mensalmente", vale em todo mês
-// a partir do mês dela.
-function transacaoContaNoMes(
-  transacao: Transacao,
-  mes: number,
-  ano: number
-): boolean {
-  const [, mesTransacao, anoTransacao] = transacao.data.split("/").map(Number);
-
-  if (transacao.repetirMensalmente) {
-    return anoTransacao * 12 + mesTransacao <= ano * 12 + mes;
-  }
-
-  return anoTransacao === ano && mesTransacao === mes;
-}
-
 function dicaDaRota(categoriaId: string, status: StatusRota): string {
   if (status === "acima") {
     return DICA_ACIMA[categoriaId] ?? DICA_ACIMA.outros;
@@ -154,7 +128,6 @@ export function calcularRotas(
 
   // Soma em centavos pra não errar por arredondamento
   const gastosPorCategoria: Record<string, number> = {};
-  let entradasCentavos = 0;
 
   for (const transacao of transacoes) {
     if (!transacaoContaNoMes(transacao, mes, ano)) {
@@ -163,8 +136,8 @@ export function calcularRotas(
 
     const centavos = Math.round(transacao.valor * 100);
 
+    // As entradas não entram nos gastos (elas formam a renda, mais abaixo)
     if (transacao.tipo === "entrada") {
-      entradasCentavos += centavos;
       continue;
     }
 
@@ -172,8 +145,8 @@ export function calcularRotas(
     gastosPorCategoria[id] = (gastosPorCategoria[id] ?? 0) + centavos;
   }
 
-  const entradas = entradasCentavos / 100;
-  const renda = entradas > 0 ? entradas : salario && salario > 0 ? salario : 0;
+  // Renda = entradas do mês (ou o salário da configuração inicial)
+  const renda = rendaDoMes(transacoes, salario, mes, ano);
   const semRenda = renda <= 0;
 
   const rotas: RotaGasto[] = Object.entries(gastosPorCategoria)

@@ -1,28 +1,46 @@
-import { ScrollView, View, Text } from 'react-native'
+import { useState } from 'react'
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
+import { ChevronDown, ChevronUp, CalendarDays, Target, TriangleAlert } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { DashboardHeader } from '../../features/dashboard/components/DashboardHeader'
+import { ModalMesAno } from '../../features/calendar/components/ModalMesAno'
 import { GRADIENTS } from '../../shared/constants/Gradientes'
+import { Rotas } from '../../shared/constants/Rotas'
+import { formatarMoeda } from '../../features/menuMais/utils'
 import {
   CardSaldo,
+  CardResumo,
+  CardSecao,
+  ListaItens,
+  LinhaItem,
   CardEvento,
-  GraficoEstatisticas,
-  CardPlanob,
   CardPlanejamento,
   CardEconomia,
   obterProximoEvento,
-  obterEstatisticasHome,
-  obterPlanoBResumo,
   obterPlanejamentoHome,
+  obterResumoMes,
+  obterEconomiaMes,
 } from '../../features/dashboard'
+import { competenciaDe, contasDoMes, rotuloStatus, diaMes } from '../../features/contas/contasData'
+import { gerarNotificacoes } from '../../features/contas/notificacoesData'
 import { useFinanceiro } from '../../features/financeiroContext'
+import { useAuth } from '../../features/authContext'
+import { Cores } from '../../shared/constants/Cores'
 import { styles } from '../../styles/paginaInicial'
+
+const MESES = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+]
+const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
 export default function PaginaInicial() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
+  const { user } = useAuth()
 
   const {
     salario,
@@ -30,42 +48,53 @@ export default function PaginaInicial() {
     economiaFutura,
     tempoEconomia,
     metas,
+    transacoes,
+    baixas,
+    notificacoesLidas,
   } = useFinanceiro()
 
-  const temDadosFinanceiros =
-    salario !== undefined && despesas !== undefined
+  // Mês que a Home está mostrando (começa no mês atual)
+  const [referencia, setReferencia] = useState(() => {
+    const hoje = new Date()
+    return { mes: hoje.getMonth(), ano: hoje.getFullYear() }
+  })
+  const [modalMes, setModalMes] = useState(false)
+  // Seta do header: esconde ou mostra Receitas e Despesas
+  const [resumoVisivel, setResumoVisivel] = useState(true)
 
-  const saldoAtual = temDadosFinanceiros
-    ? salario - despesas
-    : undefined
+  // "Outubro" no ano atual; em outro ano mostra também o ano ("Outubro 2025")
+  const mesTexto =
+    referencia.ano === new Date().getFullYear()
+      ? MESES[referencia.mes]
+      : `${MESES[referencia.mes]} ${referencia.ano}`
 
-  const economia =
-    economiaFutura !== undefined &&
-    tempoEconomia !== undefined &&
-    tempoEconomia > 0
-      ? {
-          economiaFutura,
-          tempoEconomia,
-          economiaMensal: economiaFutura / tempoEconomia,
-          percentualMeta:
-            salario && salario > 0
-              ? (economiaFutura / tempoEconomia / salario) * 100
-              : 0,
-        }
-      : undefined
+  // Contas (fixas e avulsas) do mês selecionado
+  const competencia = competenciaDe(referencia.mes, referencia.ano)
+  const contas = contasDoMes(transacoes, baixas, competencia)
+  const resumo = obterResumoMes(contas, salario, despesas, transacoes.length > 0)
+  const economia = obterEconomiaMes(metas, resumo.receitas, competencia, economiaFutura, tempoEconomia)
+
+  // Despesas fixas: só algumas, as mais relevantes primeiro (atrasadas e
+  // pendentes antes das em dia e das já pagas)
+  const ordemStatus = { atrasada: 0, pendente: 1, emDia: 2, paga: 3, recebida: 3 }
+  const despesasFixas = contas
+    .filter(conta => conta.recorrente && conta.tipo === 'gasto')
+    .sort((a, b) => ordemStatus[a.status] - ordemStatus[b.status])
+
+  // Atenção: resumo das notificações ainda não lidas (a central completa
+  // fica na tela Notificações)
+  const atencao = gerarNotificacoes(transacoes, baixas, metas)
+    .filter(item => !notificacoesLidas.includes(item.id))
+    .slice(0, 2)
 
   const evento = obterProximoEvento()
-  const estatisticas = obterEstatisticasHome()
-  const planoB = obterPlanoBResumo(salario, despesas)
-  // Primeira meta do mês em andamento (a mesma da tela Metas)
-  const planejamento = obterPlanejamentoHome(
-    metas.find(meta => meta.tipo === 'mes' && meta.status === 'andamento'),
-  )
 
-  const mesAtual = new Date().toLocaleDateString('pt-BR', {
-    month: '2-digit',
-    year: '2-digit',
-  })
+  // Primeira meta do mês em andamento (a mesma da tela Metas); se não houver,
+  // a primeira de longo prazo
+  const emAndamento = metas.filter(meta => meta.status === 'andamento')
+  const meta = obterPlanejamentoHome(
+    emAndamento.find(item => item.tipo === 'mes') ?? emAndamento[0],
+  )
 
   return (
     <View style={styles.container}>
@@ -73,93 +102,159 @@ export default function PaginaInicial() {
 
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={{
-          paddingBottom: 118 + insets.bottom,
-        }}
+        contentContainerStyle={{ paddingBottom: 118 + insets.bottom }}
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="automatic"
       >
-        {/* HEADER */}
+        {/* HEADER ROXO: avatar, mês, sino, saldo, receitas e despesas */}
         <LinearGradient
           colors={GRADIENTS.header.colors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.hero,
-            {
-              paddingTop: insets.top + 2,
-            },
-          ]}
+          start={GRADIENTS.header.start}
+          end={GRADIENTS.header.end}
+          style={[styles.hero, { paddingTop: insets.top + 8 }]}
         >
           <DashboardHeader
-            onPremium={() => router.push('/Premium/Premium')}
-            onNotificacao={() =>
-              router.push('/Notificacao/Notificacao')
-            }
+            nome={user?.name}
+            mes={mesTexto}
+            aoPressMes={() => setModalMes(true)}
+            onPremium={() => router.push(Rotas.premium)}
+            onNotificacao={() => router.push(Rotas.notificacao)}
             onPerfil={() => router.push('/perfil')}
           />
 
           <CardSaldo
-            saldoAtual={saldoAtual}
-            saldoMes={
-              temDadosFinanceiros
-                ? saldoAtual
-                : undefined
-            }
-            maximoDisponivel={salario}
-            data={
-              temDadosFinanceiros
-                ? mesAtual
-                : undefined
-            }
+            saldoAtual={resumo.saldo}
             onPress={() => router.push('/dashboard')}
           />
 
-          <View
-            style={styles.heroCurva}
-            pointerEvents="none"
-          >
-            <View style={styles.heroCurvaForma}>
-              <Text style={styles.heroCurvaSeta}>⌄</Text>
-            </View>
-          </View>
+          {resumoVisivel && (
+            <CardResumo
+              receitas={resumo.receitas}
+              despesas={resumo.despesas}
+              onPressReceitas={() =>
+                router.push({ pathname: Rotas.movimentacoes, params: { filtro: 'entrada', competencia } })
+              }
+              onPressDespesas={() =>
+                router.push({ pathname: Rotas.movimentacoes, params: { filtro: 'gasto', competencia } })
+              }
+            />
+          )}
+
         </LinearGradient>
+
+        {/* Seta: esconde/mostra Receitas e Despesas */}
+        <View style={styles.setaContainer}>
+          <TouchableOpacity
+            style={styles.setaForma}
+            onPress={() => setResumoVisivel(visivel => !visivel)}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={resumoVisivel ? 'Esconder receitas e despesas' : 'Mostrar receitas e despesas'}
+          >
+            {resumoVisivel ? (
+              <ChevronUp size={26} color={Cores.base.branco} />
+            ) : (
+              <ChevronDown size={26} color={Cores.base.branco} />
+            )}
+          </TouchableOpacity>
+        </View>
 
         {/* CONTEÚDO */}
         <View style={styles.conteudo}>
-          {/* EVENTO */}
+          {/* EVENTOS (card separado) */}
           <CardEvento
             evento={evento}
             onPress={() => router.push('/calendario')}
           />
 
-          {/* ESTATÍSTICAS DO DASHBOARD */}
-          <GraficoEstatisticas
-            dados={estatisticas}
-            onPress={() => router.push('/dashboard')}
-          />
-
-          {/* PLANO B DO DASHBOARD */}
-          <CardPlanob
-            dados={planoB}
-            onPress={() => router.push('/PlanoB')}
-          />
-
-          {/* PLANEJAMENTO DO DASHBOARD */}
+          {/* METAS (card separado) */}
           <CardPlanejamento
-            dados={planejamento}
-            onPress={() => router.push('/calendario')}
+            dados={meta}
+            onPress={() => router.push('/metas')}
           />
 
-          {/* ECONOMIA */}
+          {/* DESPESAS FIXAS */}
+          <CardSecao
+            titulo="Despesas fixas"
+            textoVerTodos="Ver todas"
+            aoVerTodos={() => router.push(Rotas.contasFixas)}
+          >
+            {despesasFixas.length > 0 ? (
+              <ListaItens>
+                {despesasFixas.slice(0, 3).map(conta => (
+                  <LinhaItem
+                    key={`${conta.transacaoId}-${conta.competencia}`}
+                    icone={conta.icone}
+                    titulo={conta.nome}
+                    subtitulo={`Vencimento ${diaMes(conta.dataVencimento)}  ·  ${formatarMoeda(conta.valorRealizado ?? conta.valorPrevisto)}  ·  ${rotuloStatus(conta)}`}
+                    aoPress={() =>
+                      router.push({
+                        pathname: Rotas.detalhesConta,
+                        params: { id: conta.transacaoId, competencia: conta.competencia },
+                      })
+                    }
+                  />
+                ))}
+              </ListaItens>
+            ) : (
+              <Text style={styles.vazio}>
+                Registre um gasto com “repetir mensalmente” e ele aparece aqui.
+              </Text>
+            )}
+          </CardSecao>
+
+          {/* ATENÇÃO: resumo das notificações; toque abre a central completa */}
+          <CardSecao
+            titulo="Atenção"
+            textoVerTodos="Ver todas"
+            aoVerTodos={() => router.push(Rotas.notificacao)}
+          >
+            {atencao.length > 0 ? (
+              <ListaItens>
+                {atencao.map(item => (
+                  <LinhaItem
+                    key={item.id}
+                    destaque
+                    icone={
+                      item.conta
+                        ? item.conta.icone
+                        : item.categoria === 'metas'
+                          ? Target
+                          : item.categoria === 'eventos'
+                            ? CalendarDays
+                            : TriangleAlert
+                    }
+                    titulo={item.titulo}
+                    subtitulo={`${item.subtitulo}  ·  ${item.quando}`}
+                    aoPress={() => router.push(Rotas.notificacao)}
+                  />
+                ))}
+              </ListaItens>
+            ) : (
+              <Text style={styles.vazio}>Tudo certo por aqui! Nenhum aviso no momento.</Text>
+            )}
+          </CardSecao>
+
+          {/* ECONOMIA MENSAL */}
           <CardEconomia
             dados={economia}
-            onPress={() =>
-              router.push('/configuracaoInicial/FutureSavings')
-            }
+            onPress={() => router.push('/metas')}
           />
         </View>
       </ScrollView>
+
+      {/* Seletor de mês (o mesmo card flutuante do calendário) */}
+      <ModalMesAno
+        visible={modalMes}
+        mes={referencia.mes}
+        ano={referencia.ano}
+        nomesMeses={MESES_CURTOS}
+        aoFechar={() => setModalMes(false)}
+        aoConfirmar={(mes, ano) => {
+          setReferencia({ mes, ano })
+          setModalMes(false)
+        }}
+      />
     </View>
   )
 }

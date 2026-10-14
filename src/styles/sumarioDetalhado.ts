@@ -85,4 +85,13 @@ export const styles = StyleSheet.create({
     height: "100%",
     borderRadius: 4,
   },
+
+  // Mensagem quando ainda não há gastos pra mostrar
+  vazio: {
+    fontFamily: FONTS.quicksand.medium,
+    fontSize: 14,
+    color: Cores.texto.claro,
+    textAlign: "center",
+    marginVertical: 14,
+  },
 });

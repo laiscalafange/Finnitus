@@ -19,7 +19,8 @@ export function Avatar({ image, name, size = 48 }: AvatarProps) {
     width: size,
     height: size,
     borderRadius: size / 2,
-    borderWidth: 10,
+    // Borda proporcional ao tamanho (no Perfil, size 200, continua 10)
+    borderWidth: Math.round(size * 0.05),
     borderColor: "#0B0B0F",
   };
 

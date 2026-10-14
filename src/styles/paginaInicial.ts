@@ -10,22 +10,20 @@ export const styles = StyleSheet.create({
   scroll: {
     flex: 1,
   },
+  // Header roxo (mesmo das outras telas) com a curva e a seta embaixo
   hero: {
     paddingBottom: 25,
     borderBottomLeftRadius: 34,
     borderBottomRightRadius: 34,
     overflow: 'visible',
   },
-  heroCurva: {
-    position: 'absolute',
-    bottom: -38,
-    left: 0,
-    right: 0,
-    height: 38,
+  // Seta embaixo do header: toca pra esconder/mostrar Receitas e Despesas
+  // (fica FORA do header, como no Dashboard, pra o toque funcionar no Android)
+  setaContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: -1,
   },
-  heroCurvaForma: {
+  setaForma: {
     width: 79,
     height: 38,
     borderBottomLeftRadius: 35,
@@ -34,14 +32,19 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heroCurvaSeta: {
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 20,
-    lineHeight: 22,
-    color: Cores.base.branco,
-    marginTop: -3,
-  },
   conteudo: {
-    paddingTop: 39,
+    paddingTop: 14,
+  },
+  // Texto de "nada por aqui ainda" dentro dos cards de lista
+  vazio: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    lineHeight: 19,
+    color: Cores.texto.principal,
+    backgroundColor: Cores.fundo.card,
+    borderRadius: 18,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    overflow: 'hidden',
   },
 })

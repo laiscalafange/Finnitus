@@ -1,7 +1,8 @@
 import { Text, TouchableOpacity, View } from 'react-native'
 import Svg, { Circle } from 'react-native-svg'
-import { EconomiaResumo } from '../../types'
+import { ChevronRight } from 'lucide-react-native'
 import { Cores } from '@/shared/constants/Cores'
+import { EconomiaResumo } from '../../types'
 import { styles } from './styles'
 
 type Props = {
@@ -9,53 +10,65 @@ type Props = {
   onPress?: () => void
 }
 
+// R$ 208 (sem centavos quando o valor é inteiro) ou R$ 208,50
 const moeda = (valor: number) =>
-  valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  valor.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: valor % 1 === 0 ? 0 : 2,
+  })
 
+const TAMANHO = 100
+const RAIO = 34
+const CIRCUNFERENCIA = 2 * Math.PI * RAIO
+
+// Card "Economia mensal": quanto foi guardado nas metas no mês selecionado
 export function CardEconomia({ dados, onPress }: Props) {
-  const percentualBruto = dados?.percentualMeta ?? 0
-  const emAlerta = dados !== undefined && percentualBruto < 0
-  const percentual = Math.min(100, Math.max(0, Math.abs(percentualBruto)))
-  const corDestaque = emAlerta ? Cores.estado.perigo : Cores.destaque.limao
-  const raio = 34
-  const circ = 2 * Math.PI * raio
+  const percentual = Math.min(100, Math.max(0, dados?.percentual ?? 0))
 
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Economia mensal</Text>
-      <TouchableOpacity style={styles.card} onPress={onPress} disabled={!onPress} activeOpacity={0.88}>
+
+      <TouchableOpacity style={styles.card} onPress={onPress} disabled={!onPress} activeOpacity={0.88} accessibilityRole="button">
         <View style={styles.medidor}>
-          <Svg width={142} height={142} viewBox="0 0 92 92" style={{ transform: [{ rotate: '-90deg' }] }}>
-            <Circle cx="46" cy="46" r={raio} fill="none" stroke={Cores.roxo.principal} strokeWidth="9" />
+          <Svg
+            width={TAMANHO}
+            height={TAMANHO}
+            viewBox="0 0 92 92"
+            style={{ transform: [{ rotate: '-90deg' }] }}
+          >
+            <Circle cx="46" cy="46" r={RAIO} fill="none" stroke={Cores.roxo.principal} strokeWidth="9" />
             <Circle
               cx="46"
               cy="46"
-              r={raio}
+              r={RAIO}
               fill="none"
-              stroke={corDestaque}
+              stroke={Cores.destaque.limao}
               strokeWidth="9"
               strokeLinecap="round"
-              strokeDasharray={`${(percentual / 100) * circ} ${circ}`}
+              strokeDasharray={`${(percentual / 100) * CIRCUNFERENCIA} ${CIRCUNFERENCIA}`}
             />
           </Svg>
           <View style={styles.medidorInterno}>
-            <Text style={[styles.percentual, { color: corDestaque }]}>
-              {dados ? `${Math.round(percentual)}%` : '—'}
-            </Text>
+            <Text style={styles.percentual}>{dados ? `${Math.round(percentual)}%` : '—'}</Text>
           </View>
         </View>
+
         <View style={styles.textos}>
-          <Text style={[styles.destaque, emAlerta && styles.destaqueAlerta]}>
-            {!dados ? 'Dados não disponíveis' : emAlerta ? 'Ops!' : 'Meta de economia'}
-          </Text>
-          <Text style={styles.descricao}>
-            {dados
-              ? emAlerta
-                ? `Este mês você gastou ${moeda(Math.abs(dados.economiaMensal))} a mais do que ganhou. Pense bem nas próximas despesas e reveja metas e planejamento.`
-                : `Economize ${moeda(dados.economiaMensal)} por mês para chegar a ${moeda(dados.economiaFutura)} em ${dados.tempoEconomia} ${dados.tempoEconomia === 1 ? 'mês' : 'meses'}.`
-              : 'Preencha a economia futura e o tempo estimado para calcular sua meta mensal.'}
+          <Text style={styles.rotulo}>Você economizou</Text>
+          <View style={styles.valorLinha}>
+            <Text style={styles.valor}>{moeda(dados?.economizado ?? 0)}</Text>
+            <Text style={styles.valorSufixo}>este mês</Text>
+          </View>
+          <Text style={styles.mensagem}>
+            {dados?.metaMensal !== undefined
+              ? `Sua meta é economizar ${moeda(dados.metaMensal)} por mês.`
+              : 'Mesmo um pequeno esforço já faz uma grande diferença no futuro!'}
           </Text>
         </View>
+
+        {onPress && <ChevronRight size={22} color={Cores.roxo.claro} />}
       </TouchableOpacity>
     </View>
   )

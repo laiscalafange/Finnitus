@@ -12,6 +12,7 @@ import movimentacaoMetaRoutes from "./movimentacaoMeta.routes.js";
 import dividaRoutes from "./divida.routes.js";
 import reservaFinanceiraRoutes from "./reservaFinanceira.routes.js";
 import categoriaPersonalizadaRoutes from "./categoriaPersonalizada.routes.js";
+import planoBRoutes from "./planoB.routes.js";
 
 const routes = Router();
 
@@ -28,5 +29,6 @@ routes.use("/movimentacoes-meta", movimentacaoMetaRoutes);
 routes.use("/dividas", dividaRoutes);
 routes.use("/reserva-financeira", reservaFinanceiraRoutes);
 routes.use("/categorias-personalizadas", categoriaPersonalizadaRoutes);
+routes.use("/plano-b", planoBRoutes);
 
 export default routes;
