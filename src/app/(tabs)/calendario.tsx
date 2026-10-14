@@ -877,7 +877,76 @@ const compromissosDoDia =
     );
   });
 
+// ─────────────────────────────────────────
+// RESUMO FINANCEIRO DO MÊS
+// ─────────────────────────────────────────
 
+const despesasDoMes =
+  itensCalendario.filter(
+    (item) => item.tipo === "DESPESA"
+  );
+
+const receitasDoMes =
+  itensCalendario.filter(
+    (item) => item.tipo === "RECEITA"
+  );
+
+const totalDespesasMes =
+  despesasDoMes.reduce(
+    (total, item) =>
+      total + (item.valor ?? 0),
+    0
+  );
+
+const totalReceitasMes =
+  receitasDoMes.reduce(
+    (total, item) =>
+      total + (item.valor ?? 0),
+    0
+  );
+
+const saldoDoMes =
+  totalReceitasMes -
+  totalDespesasMes;
+
+/*
+ * Percentuais usados somente para desenhar
+ * o gráfico circular.
+ */
+const baseFinanceiraMes =
+  totalReceitasMes > 0
+    ? totalReceitasMes
+    : totalDespesasMes;
+
+const percentualGastosMes =
+  baseFinanceiraMes > 0
+    ? Math.min(
+        (totalDespesasMes /
+          baseFinanceiraMes) *
+          100,
+        100
+      )
+    : 0;
+
+const percentualRestanteMes =
+  totalReceitasMes > 0
+    ? Math.max(
+        100 - percentualGastosMes,
+        0
+      )
+    : 0;
+
+function formatarValorCalendario(
+  valor: number
+) {
+  return valor.toLocaleString(
+    "pt-BR",
+    {
+      style: "currency",
+      currency: "BRL",
+    }
+  );
+}
 
   function abrirRevisaoFinanceira(
     evento: EventoDispositivo
@@ -2230,327 +2299,151 @@ const ehSuspeito =
 
 )}
 
-          {/* ───────── GASTOS DO MÊS ───────── */}
+         {/* ───────── GASTOS DO MÊS ───────── */}
 
+<Text style={styles.secaoTitulo}>
+  Gastos do mês
+</Text>
 
+<LinearGradient
+  colors={[
+    "#34176b",
+    "#30096e",
+  ]}
+  style={styles.card}
+>
+  <View style={styles.gastosMesCorpo}>
+    <GaugeCircular
+      tamanho={140}
+      label={formatarValorCalendario(
+        totalDespesasMes
+      )}
+      sublabel="Gastos"
+      segmentos={[
+        {
+          cor: "#FF8800",
+          pct:
+            percentualGastosMes,
+        },
+        {
+          cor:
+            Cores.destaque.limao,
+          pct:
+            percentualRestanteMes,
+        },
+      ]}
+    />
 
-          <Text style={styles.secaoTitulo}>
+    <View style={styles.estatsList}>
+      {[
+        {
+          label:
+            "Receitas do\nmês",
 
-            Gastos do mês
+          valor:
+            formatarValorCalendario(
+              totalReceitasMes
+            ),
 
+          cor:
+            Cores.destaque.limao,
+        },
+
+        {
+          label:
+            "Despesas do\nmês",
+
+          valor:
+            formatarValorCalendario(
+              totalDespesasMes
+            ),
+
+          cor: "#FF8800",
+        },
+
+        {
+          label:
+            "Saldo do\nmês",
+
+          valor:
+            formatarValorCalendario(
+              saldoDoMes
+            ),
+
+          cor:
+            saldoDoMes >= 0
+              ? Cores.roxo.claro
+              : Cores.estado.perigo,
+        },
+      ].map((item) => (
+        <View
+          key={item.label}
+          style={styles.estatsItem}
+        >
+          <Text
+            style={
+              styles.estatsLabel
+            }
+          >
+            {item.label}
           </Text>
 
-
-
-          <LinearGradient
-
-            colors={[
-
-              "#34176b",
-
-              "#30096e",
-
+          <Text
+            style={[
+              styles.estatsValor,
+              {
+                color:
+                  item.cor,
+              },
             ]}
-
-            style={styles.card}
-
           >
-
-            <View
-
-              style={styles.gastosMesCorpo}
-
-            >
-
-              <GaugeCircular
-
-                tamanho={140}
-
-                label="R$100"
-
-                sublabel="Restante"
-
-                segmentos={[
-
-                  {
-
-                    cor:
-
-                      Cores.destaque
-
-                        .limao,
-
-
-
-                    pct: 40,
-
-                  },
-
-
-
-                  {
-
-                    cor: "#FF8800",
-
-                    pct: 30,
-
-                  },
-
-
-
-                  {
-
-                    cor:
-
-                      Cores.roxo.claro,
-
-
-
-                    pct: 30,
-
-                  },
-
-                ]}
-
-              />
-
-
-
-              <View
-
-                style={styles.estatsList}
-
-              >
-
-                {[
-
-                  {
-
-                    label:
-
-                      "Renda da\núltima semana",
-
-
-
-                    valor: "↓ 4,6%",
-
-
-
-                    cor:
-
-                      Cores.destaque
-
-                        .limao,
-
-                  },
-
-
-
-                  {
-
-                    label:
-
-                      "Gastos da\núltima semana",
-
-
-
-                    valor: "↑ 19%",
-
-
-
-                    cor: "#FF8800",
-
-                  },
-
-
-
-                  {
-
-                    label:
-
-                      "Economias da\núltima semana",
-
-
-
-                    valor: "↓ 19%",
-
-
-
-                    cor:
-
-                      Cores.roxo.claro,
-
-                  },
-
-                ].map((item) => (
-
-                  <View
-
-                    key={item.label}
-
-                    style={
-
-                      styles.estatsItem
-
-                    }
-
-                  >
-
-                    <Text
-
-                      style={
-
-                        styles.estatsLabel
-
-                      }
-
-                    >
-
-                      {item.label}
-
-                    </Text>
-
-
-
-                    <Text
-
-                      style={[
-
-                        styles.estatsValor,
-
-                        {
-
-                          color:
-
-                            item.cor,
-
-                        },
-
-                      ]}
-
-                    >
-
-                      {item.valor}
-
-                    </Text>
-
-                  </View>
-
-                ))}
-
-              </View>
-
-            </View>
-
-
-
-
-
-            {/* ───────── LEGENDA ───────── */}
-
-
-
-            <View style={styles.legenda}>
-
-              {[
-
-                {
-
-                  cor:
-
-                    Cores.destaque
-
-                      .limao,
-
-
-
-                  label: "Renda",
-
-                },
-
-
-
-                {
-
-                  cor: "#FF8800",
-
-
-
-                  label: "Gastos",
-
-                },
-
-
-
-                {
-
-                  cor:
-
-                    Cores.roxo.claro,
-
-
-
-                  label: "Economias",
-
-                },
-
-              ].map((l) => (
-
-                <View
-
-                  key={l.label}
-
-                  style={
-
-                    styles.legendaItem
-
-                  }
-
-                >
-
-                  <View
-
-                    style={[
-
-                      styles.legendaPonto,
-
-                      {
-
-                        backgroundColor:
-
-                          l.cor,
-
-                      },
-
-                    ]}
-
-                  />
-
-
-
-                  <Text
-
-                    style={
-
-                      styles.legendaTexto
-
-                    }
-
-                  >
-
-                    {l.label}
-
-                  </Text>
-
-                </View>
-
-              ))}
-
-            </View>
-
-          </LinearGradient>
-
-
+            {item.valor}
+          </Text>
+        </View>
+      ))}
+    </View>
+  </View>
+
+  {/* ───────── LEGENDA ───────── */}
+
+  <View style={styles.legenda}>
+    {[
+      {
+        cor: "#FF8800",
+        label: "Gastos",
+      },
+
+      {
+        cor:
+          Cores.destaque.limao,
+        label: "Restante",
+      },
+    ].map((item) => (
+      <View
+        key={item.label}
+        style={styles.legendaItem}
+      >
+        <View
+          style={[
+            styles.legendaPonto,
+            {
+              backgroundColor:
+                item.cor,
+            },
+          ]}
+        />
+
+        <Text
+          style={
+            styles.legendaTexto
+          }
+        >
+          {item.label}
+        </Text>
+      </View>
+    ))}
+  </View>
+</LinearGradient>
 
         </View>
 
