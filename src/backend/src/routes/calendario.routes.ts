@@ -10,6 +10,7 @@ import {
 
 import {
   confirmarEvento,
+  marcarNaoFinanceiro,
 } from "../controllers/calendarioConfirmacao.controller.js";
 
 const router = Router();
@@ -21,6 +22,11 @@ router.get("/", listarCalendario);
 router.post(
   "/confirmar-evento",
   confirmarEvento
+);
+
+router.post(
+  "/nao-financeiro",
+  marcarNaoFinanceiro
 );
 
 export default router;
