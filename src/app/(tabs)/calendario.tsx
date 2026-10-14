@@ -1659,22 +1659,14 @@ eventosDispositivoDoDia.length > 0 ? (
 
 
 const ehSuspeito =
-
   classificacao.status === "SUSPEITO";
-
         const decisao =
           decisoesEventos[evento.id];
-
-
-
         return (
-
           <View
-
             key={evento.id}
 
             style={styles.eventoItem}
-
           >
 
             <Text style={styles.eventoNome}>
@@ -1790,283 +1782,323 @@ const ehSuspeito =
                         Confirmar
                       </Text>
                     </TouchableOpacity>
+<TouchableOpacity
+  activeOpacity={0.8}
+  onPress={() => {
+    setDecisoesEventos(
+      (atual) => ({
+        ...atual,
+        [evento.id]:
+          "NAO_FINANCEIRO",
+      })
+    );
+  }}
+  style={{
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor:
+      Cores.base.branco,
+    alignItems: "center",
+  }}
+>
+  <Text
+    style={{
+      color:
+        Cores.base.branco,
+      fontFamily:
+        FONTS.raleway.bold,
+    }}
+  >
+    Não é financeiro
+  </Text>
+</TouchableOpacity>
 
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      onPress={() => {
-                        setDecisoesEventos(
-                          (atual) => ({
-                            ...atual,
-                            [evento.id]:
-                              "NAO_FINANCEIRO",
-                          })
-                        );
-                      }}
-                      style={{
-                        flex: 1,
-                        paddingVertical: 10,
-                        borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor:
-                          Cores.base.branco,
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color:
-                            Cores.base.branco,
-                          fontFamily:
-                            FONTS.raleway.bold,
-                        }}
-                      >
-                        Não é financeiro
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                )}
+{/* FECHA A LINHA DOS BOTÕES:
+    CONFIRMAR / NÃO É FINANCEIRO */}
+</View>
+)}
 
-                {decisao === "CONFIRMADO" && (
-                  <Text
-                    style={{
-                      color:
-                        Cores.destaque.limao,
-                      marginTop: 10,
-                      fontFamily:
-                        FONTS.raleway.bold,
-                    }}
-                  >
-                    ✓ Movimentação confirmada
-                  </Text>
-                )}
+{/* ======================================= */}
+{/* EVENTO CONFIRMADO COMO FINANCEIRO       */}
+{/* ======================================= */}
 
-                {decisao ===
-                  "NAO_FINANCEIRO" && (
-                  <Text
-                    style={{
-                      color:
-                        Cores.base.branco,
-                      marginTop: 10,
-                    }}
-                  >
-                    Evento marcado como não financeiro.
-                  </Text>
-                )}
-              </View>
-            )}
+{decisao === "CONFIRMADO" && (
+  <Text
+    style={{
+      color:
+        Cores.destaque.limao,
+      marginTop: 10,
+      fontFamily:
+        FONTS.raleway.bold,
+    }}
+  >
+    ✓ Movimentação confirmada
+  </Text>
+)}
 
+{/* ======================================= */}
+{/* USUÁRIO MARCOU COMO NÃO FINANCEIRO      */}
+{/* ======================================= */}
+
+{decisao ===
+  "NAO_FINANCEIRO" && (
+  <View
+    style={{
+      marginTop: 10,
+    }}
+  >
+    <Text
+      style={{
+        color:
+          Cores.base.branco,
+        marginBottom: 10,
+      }}
+    >
+      Evento marcado como não financeiro.
+    </Text>
+
+    <TouchableOpacity
+      activeOpacity={0.8}
+      onPress={() =>
+        abrirRevisaoFinanceira(
+          evento
+        )
+      }
+      style={{
+        paddingVertical: 9,
+        paddingHorizontal: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor:
+          Cores.destaque.limao,
+        alignItems: "center",
+      }}
+    >
+      <Text
+        style={{
+          color:
+            Cores.destaque.limao,
+          fontFamily:
+            FONTS.raleway.bold,
+        }}
+      >
+        Tornar financeiro
+      </Text>
+    </TouchableOpacity>
+  </View>
+)}
+
+{/* ======================================= */}
+{/* FECHA O CARD "POSSÍVEL MOVIMENTAÇÃO"    */}
+{/* ======================================= */}
+
+</View>
+)}
+
+{/* ======================================= */}
+{/* EVENTO NÃO DETECTADO COMO FINANCEIRO    */}
+{/* ======================================= */}
+
+{!ehSuspeito && !decisao && (
+  <TouchableOpacity
+    activeOpacity={0.8}
+    onPress={() =>
+      abrirRevisaoFinanceira(
+        evento
+      )
+    }
+    style={{
+      marginTop: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor:
+        Cores.destaque.limao,
+      alignItems: "center",
+    }}
+  >
+    <Text
+      style={{
+        color:
+          Cores.destaque.limao,
+        fontFamily:
+          FONTS.raleway.bold,
+      }}
+    >
+      Marcar como financeiro
+    </Text>
+  </TouchableOpacity>
+)}
+
+{/* FECHA O EVENTO DO CELULAR */}
+
+</View>
+);
+
+}
+)}
+
+</>
+
+) : (
+
+<Text
+  style={
+    styles.eventoDescricao
+  }
+>
+  {dataSelecionada
+    ? "Nenhum evento nesta data."
+    : "Selecione uma data."}
+</Text>
+
+)}
+
+</LinearGradient>
+
+
+{/* ───────────────────────────────────── */}
+{/* MOVIMENTAÇÕES DO DIA                  */}
+{/* ───────────────────────────────────── */}
+
+<Text
+  style={styles.secaoTitulo}
+>
+  Movimentações do dia
+</Text>
+
+{movimentacoesDoDia.length > 0 ? (
+  movimentacoesDoDia.map(
+    (item) => {
+      const ehReceita =
+        item.tipo ===
+        "RECEITA";
+
+      return (
+        <LinearGradient
+          key={`${item.tipo}-${item.id}`}
+          colors={[
+            "#30096e",
+            "#30096e",
+          ]}
+          style={
+            styles.gastoCard
+          }
+        >
+          <View
+            style={[
+              styles.gastoIconeContainer,
+              {
+                backgroundColor:
+                  "#5f33a77a",
+
+                borderWidth: 1,
+
+                borderColor:
+                  "#7F3BED",
+
+                borderRadius:
+                  100,
+              },
+            ]}
+          >
+            <Text
+              style={{
+                color:
+                  Cores.base
+                    .branco,
+
+                fontSize: 18,
+              }}
+            >
+              {ehReceita
+                ? "+"
+                : "−"}
+            </Text>
           </View>
 
-        );
-
-      }
-
-    )}
-
-  </>
-
-) : (
-
-  <Text style={styles.eventoDescricao}>
-
-    {dataSelecionada
-
-      ? "Nenhum evento nesta data."
-
-      : "Selecione uma data."}
-
-  </Text>
-
-)}
-
-          </LinearGradient>
-
-
-
-
-
-          {/* ───────── GASTOS DO DIA ───────── */}
-
-
-
-          <Text style={styles.secaoTitulo}>
-
-            Movimentações do dia
-
+          <View
+            style={
+              styles.gastoInfo
+            }
+          >
+            <Text
+              style={
+                styles.gastoNome
+              }
+            >
+              {item.titulo}
             </Text>
 
-
-
-          {movimentacoesDoDia.length > 0 ? (
-
-  movimentacoesDoDia.map((item) => {
-
-    const ehReceita =
-
-      item.tipo === "RECEITA";
-
-
-
-    return (
-
-      <LinearGradient
-
-        key={`${item.tipo}-${item.id}`}
-
-        colors={[
-
-          "#30096e",
-
-          "#30096e",
-
-        ]}
-
-        style={styles.gastoCard}
-
-      >
-
-        <View
-
-          style={[
-
-            styles.gastoIconeContainer,
-
-            {
-
-              backgroundColor: "#5f33a77a",
-
-              borderWidth: 1,
-
-              borderColor: "#7F3BED",
-
-              borderRadius: 100,
-
-            },
-
-          ]}
-
-        >
+            <Text
+              style={
+                styles.gastoHora
+              }
+            >
+              {ehReceita
+                ? "Receita"
+                : "Despesa"}
+            </Text>
+          </View>
 
           <Text
-
-            style={{
-
-              color: Cores.base.branco,
-
-              fontSize: 18,
-
-            }}
-
+            style={[
+              styles.gastoValor,
+              {
+                color:
+                  ehReceita
+                    ? Cores
+                        .destaque
+                        .limao
+                    : Cores
+                        .base
+                        .branco,
+              },
+            ]}
           >
-
-            {ehReceita ? "+" : "−"}
-
-          </Text>
-
-        </View>
-
-
-
-        <View style={styles.gastoInfo}>
-
-          <Text style={styles.gastoNome}>
-
-            {item.titulo}
-
-          </Text>
-
-
-
-          <Text style={styles.gastoHora}>
-
             {ehReceita
+              ? "+ "
+              : "- "}
 
-              ? "Receita"
+            R${" "}
 
-              : "Despesa"}
-
+            {(item.valor ?? 0)
+              .toFixed(2)
+              .replace(
+                ".",
+                ","
+              )}
           </Text>
-
-        </View>
-
-
-
-        <Text
-
-          style={[
-
-            styles.gastoValor,
-
-            {
-
-              color: ehReceita
-
-                ? Cores.destaque.limao
-
-                : Cores.base.branco,
-
-            },
-
-          ]}
-
-        >
-
-          {ehReceita ? "+ " : "- "}
-
-          R${" "}
-
-          {(item.valor ?? 0)
-
-            .toFixed(2)
-
-            .replace(".", ",")}
-
-        </Text>
-
-      </LinearGradient>
-
-    );
-
-  })
-
+        </LinearGradient>
+      );
+    }
+  )
 ) : (
-
-  <Text style={styles.eventoDescricao}>
-
+  <Text
+    style={
+      styles.eventoDescricao
+    }
+  >
     {dataSelecionada
-
       ? "Nenhuma movimentação nesta data."
-
       : "Selecione uma data."}
-
   </Text>
-
 )}
-
 
 
 <Text style={styles.secaoTitulo}>
-
   Compromissos financeiros
-
 </Text>
 
-
-
 {compromissosDoDia.length > 0 ? (
-
   compromissosDoDia.map((item) => {
-
     const ehMeta = item.tipo === "META";
-
-
-
     return (
-
       <LinearGradient
-
         key={`${item.tipo}-${item.id}`}
-
         colors={[
 
           "#30096e",
