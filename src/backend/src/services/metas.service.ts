@@ -281,38 +281,45 @@ export async function listarMetas(
     longoPrazo,
   ] = await Promise.all([
     prisma.meta.findMany({
-      where: {
-        id_Usuario,
+  where: {
+    id_Usuario,
+    Mtipo: "MENSAL",
+    Mmes_referencia: referencia,
+    Mstatus: "EM_ANDAMENTO",
+  },
 
-        Mtipo: "MENSAL",
-
-        Mmes_referencia:
-          referencia,
-
-        Mstatus:
-          "EM_ANDAMENTO",
-      },
-
+  include: {
+    MovimentacaoMeta: {
       orderBy: {
-        Mdata_criacao: "desc",
+        data: "desc",
       },
-    }),
+    },
+  },
+
+  orderBy: {
+    Mdata_criacao: "desc",
+  },
+}),
 
     prisma.meta.findMany({
-      where: {
-        id_Usuario,
+  where: {
+    id_Usuario,
+    Mtipo: "LONGO_PRAZO",
+    Mstatus: "EM_ANDAMENTO",
+  },
 
-        Mtipo:
-          "LONGO_PRAZO",
-
-        Mstatus:
-          "EM_ANDAMENTO",
-      },
-
+  include: {
+    MovimentacaoMeta: {
       orderBy: {
-        Mdata_criacao: "desc",
+        data: "desc",
       },
-    }),
+    },
+  },
+
+  orderBy: {
+    Mdata_criacao: "desc",
+  },
+}),
   ]);
 
   return {
@@ -808,31 +815,37 @@ export async function listarHistorico(
     );
   }
 
-  const metas =
-    await prisma.meta.findMany({
-      where: {
-        id_Usuario,
 
-        ...(status
-          ? {
-              Mstatus:
-                status,
-            }
-          : {
-              Mstatus: {
-                in: [
-                  "CONCLUIDA",
-                  "CANCELADA",
-                ],
-              },
-            }),
-      },
+    const metas = await prisma.meta.findMany({
+  where: {
+    id_Usuario,
 
+    ...(status
+      ? {
+          Mstatus: status,
+        }
+      : {
+          Mstatus: {
+            in: [
+              "CONCLUIDA",
+              "CANCELADA",
+            ],
+          },
+        }),
+  },
+
+  include: {
+    MovimentacaoMeta: {
       orderBy: {
-        Mdata_criacao:
-          "desc",
+        data: "desc",
       },
-    });
+    },
+  },
+
+  orderBy: {
+    Mdata_criacao: "desc",
+  },
+});
 
   return metas.map(
     formatarMeta,
