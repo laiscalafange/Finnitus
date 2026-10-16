@@ -1,11 +1,16 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 
 import {
-  METAS_INICIAIS,
-  agoraHorario,
-  hojeIso,
+  criarMetaApi,
+  listarMetasApi,
+  listarHistoricoApi,
+  adicionarAporteApi,
+  retirarMetaApi,
+  cancelarMetaApi,
+  type MetaApi,
+} from "../services/metasApi";
+import {
   type Meta,
-  type MovimentacaoMeta,
   type TipoMeta,
 } from './metasData'
 import type { TipoTransacao } from './menuMais/types'
@@ -97,10 +102,17 @@ type FinanceiroContextValue = FinanceiroState & {
 
   // Metas (todas as telas de Metas leem e alteram essa mesma lista)
   metas: Meta[]
-  criarMeta: (dados: NovaMeta) => Meta
-  movimentarMeta: (id: string, tipo: 'deposito' | 'retirada', valor: number) => ResultadoMovimento
-  cancelarMeta: (id: string) => void
-  excluirMeta: (id: string) => void
+  carregarMetas: () => Promise<void>
+  criarMeta: (dados: NovaMeta) => Promise<Meta>
+  movimentarMeta: (
+    id: string,
+    tipo: 'deposito' | 'retirada',
+    valor: number,
+  ) => Promise<ResultadoMovimento>
+  cancelarMeta: (id: string) => Promise<void>
+  // No frontend antigo o menu chama "excluirMeta"; no backend isso vira
+  // cancelamento para preservar a meta no Histórico.
+  excluirMeta: (id: string) => Promise<void>
 
   // Transações do Novo gasto (alimentam as Rotas do Plano-B)
   transacoes: Transacao[]
@@ -127,8 +139,146 @@ function novoId() {
   return `${Date.now()}-${Math.floor(Math.random() * 1000)}`
 }
 
-function novaMovimentacao(tipo: 'deposito' | 'retirada', valor: number): MovimentacaoMeta {
-  return { id: novoId(), tipo, valor, data: hojeIso(), horario: agoraHorario() }
+function dataBackendParaTela(
+  data?: string | null,
+) {
+  if (!data) {
+    return undefined;
+  }
+
+  const somenteData =
+    data.slice(0, 10);
+
+  const [ano, mes, dia] =
+    somenteData.split("-");
+
+  return `${dia}/${mes}/${ano}`;
+}
+
+function dataTelaParaBackend(
+  data?: string,
+) {
+  if (!data) {
+    return undefined;
+  }
+
+  const [dia, mes, ano] =
+    data.split("/");
+
+  return `${ano}-${mes}-${dia}`;
+}
+
+function mesAtualBackend() {
+  const hoje = new Date();
+
+  const ano =
+    hoje.getFullYear();
+
+  const mes = String(
+    hoje.getMonth() + 1,
+  ).padStart(2, "0");
+
+  return `${ano}-${mes}`;
+}
+
+function converterMetaApi(
+  meta: MetaApi,
+): Meta {
+  const dataFinal =
+    meta.Mdata_conclusao ??
+    meta.Mdata_cancelamento ??
+    undefined;
+
+  return {
+    id: String(
+      meta.id_Meta,
+    ),
+
+    nome:
+      meta.Mnome,
+
+    tipo:
+      meta.Mtipo === "MENSAL"
+        ? "mes"
+        : "longoPrazo",
+
+    status:
+      meta.Mstatus ===
+      "CONCLUIDA"
+        ? "concluida"
+        : meta.Mstatus ===
+            "CANCELADA"
+          ? "cancelada"
+          : "andamento",
+
+    valorAtual:
+      Number(
+        meta.Mvalor_atual,
+      ),
+
+    valorTotal:
+      Number(
+        meta.Mvalor_objetivo,
+      ),
+
+    dataLimite:
+      dataBackendParaTela(
+        meta.Mprazo,
+      ),
+
+    dataFinal:
+      dataFinal
+        ? dataFinal.slice(0, 10)
+        : undefined,
+
+    categoriaId:
+      "outros",
+
+    movimentacoes:
+      (
+        meta.MovimentacaoMeta ??
+        []
+      ).map(
+        (movimentacao) => {
+          const instante =
+            new Date(
+              movimentacao.data,
+            );
+
+          return {
+            id: String(
+              movimentacao.id_Movimentacao,
+            ),
+
+            tipo:
+              movimentacao.tipo ===
+              "APORTE"
+                ? "deposito"
+                : "retirada",
+
+            valor:
+              Number(
+                movimentacao.valor,
+              ),
+
+            data:
+              movimentacao.data.slice(
+                0,
+                10,
+              ),
+
+            horario:
+              instante.toLocaleTimeString(
+                "pt-BR",
+                {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                },
+              ),
+          };
+        },
+      ),
+  };
 }
 
 export function FinanceiroProvider({ children }: { children: ReactNode }) {
@@ -138,11 +288,9 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const [tempoEconomia, setTempoEconomia] = useState<number | undefined>()
   const [metasSelecionadas, setMetasSelecionadas] = useState<string[]>([])
 
-  // TODO (backend): ainda não existem endpoints de metas. Por enquanto o
-  // estado fica só em memória; quando existirem, carregar a lista da API e
-  // chamar a API em cada uma das ações abaixo.
-  const [metas, setMetas] = useState<Meta[]>(METAS_INICIAIS)
-
+  // Metas vêm do backend. O estado local serve apenas para manter a UI sincronizada
+  // com os dados persistidos no banco.
+  const [metas, setMetas] = useState<Meta[]>([])
   // TODO (backend): ainda não existe endpoint de transações. Por enquanto a
   // lista fica só em memória (some ao fechar o app); quando existir, carregar
   // da API aqui e enviar cada nova transação na ação abaixo.
@@ -316,80 +464,100 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
     setNotificacoesLidas((atual) => Array.from(new Set([...atual, ...ids])))
   }, [])
 
-  // Cria a meta com exatamente os dados digitados. O valor inicial já
-  // guardado entra como o primeiro depósito do histórico.
-  const criarMeta = useCallback((dados: NovaMeta): Meta => {
-    const meta: Meta = {
-      id: novoId(),
-      nome: dados.nome.trim(),
-      tipo: dados.tipo,
-      status: 'andamento',
-      valorAtual: dados.valorInicial,
-      valorTotal: dados.valorTotal,
-      dataLimite: dados.dataLimite || undefined,
-      categoriaId: 'outros',
-      movimentacoes:
-        dados.valorInicial > 0 ? [novaMovimentacao('deposito', dados.valorInicial)] : [],
-    }
+  // Carrega metas ativas do mês atual + metas concluídas/canceladas do histórico.
+  // Assim, ao fechar e abrir o app, os dados voltam do banco.
+  const carregarMetas = useCallback(async (): Promise<void> => {
+    const mes = mesAtualBackend()
 
-    setMetas((atual) => [...atual, meta])
+    const [ativas, historico] = await Promise.all([
+      listarMetasApi(mes),
+      listarHistoricoApi(),
+    ])
+
+    const todas = [
+      ...ativas.mensais,
+      ...ativas.longoPrazo,
+      ...historico,
+    ].map(converterMetaApi)
+
+    setMetas(todas)
+  }, [])
+
+  // Cria a meta no backend e só depois adiciona o registro retornado à UI.
+  const criarMeta = useCallback(async (dados: NovaMeta): Promise<Meta> => {
+    const resposta = await criarMetaApi({
+      nome: dados.nome.trim(),
+      tipo: dados.tipo === 'mes' ? 'MENSAL' : 'LONGO_PRAZO',
+      valorObjetivo: dados.valorTotal,
+      valorInicial: dados.valorInicial,
+      dataLimite: dataTelaParaBackend(dados.dataLimite),
+      mesReferencia: dados.tipo === 'mes' ? mesAtualBackend() : undefined,
+    })
+
+    const meta = converterMetaApi(resposta)
+
+    setMetas((atual) => [
+      ...atual.filter((item) => item.id !== meta.id),
+      meta,
+    ])
 
     return meta
   }, [])
 
-  // Deposita ou retira dinheiro de uma meta. Quando o depósito completa o
-  // valor objetivo, a meta passa pra "concluída" (vai pro Histórico).
+  // Deposita ou retira usando o backend. Depois recarrega as metas para que
+  // valor, status e histórico de movimentações fiquem iguais ao banco.
   const movimentarMeta = useCallback(
-    (id: string, tipo: 'deposito' | 'retirada', valor: number): ResultadoMovimento => {
+    async (
+      id: string,
+      tipo: 'deposito' | 'retirada',
+      valor: number,
+    ): Promise<ResultadoMovimento> => {
       const meta = metas.find((item) => item.id === id)
 
       if (!meta || meta.status !== 'andamento') {
         return 'naoEncontrada'
       }
 
-      // Soma em centavos pra não errar por arredondamento
-      const atual = Math.round(meta.valorAtual * 100)
-      const movido = Math.round(valor * 100)
-
-      if (tipo === 'retirada' && movido > atual) {
+      if (tipo === 'retirada' && valor > meta.valorAtual) {
         return 'saldoInsuficiente'
       }
 
-      const novoValor = (tipo === 'deposito' ? atual + movido : atual - movido) / 100
-      const concluiu = tipo === 'deposito' && novoValor >= meta.valorTotal
+      const idNumero = Number(id)
 
-      setMetas((lista) =>
-        lista.map((item) =>
-          item.id !== id
-            ? item
-            : {
-                ...item,
-                valorAtual: novoValor,
-                status: concluiu ? 'concluida' : item.status,
-                dataFinal: concluiu ? hojeIso() : item.dataFinal,
-                movimentacoes: [novaMovimentacao(tipo, valor), ...item.movimentacoes],
-              },
-        ),
-      )
+      if (!Number.isInteger(idNumero) || idNumero <= 0) {
+        return 'naoEncontrada'
+      }
 
-      return concluiu ? 'concluida' : 'ok'
+      const resposta =
+        tipo === 'deposito'
+          ? await adicionarAporteApi(idNumero, valor)
+          : await retirarMetaApi(idNumero, valor)
+
+      await carregarMetas()
+
+      return resposta?.meta?.Mstatus === 'CONCLUIDA' ? 'concluida' : 'ok'
     },
-    [metas],
+    [metas, carregarMetas],
   )
 
-  // Cancela a meta: ela sai das listas e vai pro Histórico como "cancelada"
-  const cancelarMeta = useCallback((id: string) => {
-    setMetas((lista) =>
-      lista.map((item) =>
-        item.id === id ? { ...item, status: 'cancelada', dataFinal: hojeIso() } : item,
-      ),
-    )
-  }, [])
+  // Cancela no backend. A meta continua salva e passa a aparecer no Histórico.
+  const cancelarMeta = useCallback(
+    async (id: string): Promise<void> => {
+      const idNumero = Number(id)
 
-  // Exclui a meta de vez (não aparece nem no Histórico)
-  const excluirMeta = useCallback((id: string) => {
-    setMetas((lista) => lista.filter((item) => item.id !== id))
-  }, [])
+      if (!Number.isInteger(idNumero) || idNumero <= 0) {
+        return
+      }
+
+      await cancelarMetaApi(idNumero)
+      await carregarMetas()
+    },
+    [carregarMetas],
+  )
+
+  // Mantido por compatibilidade com a tela atual. Em vez de apagar do banco,
+  // cancela a meta para que ela permaneça no Histórico.
+  const excluirMeta = cancelarMeta
 
   const value = useMemo(
     () => ({
@@ -404,6 +572,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       setTempoEconomia,
       setMetasSelecionadas,
       metas,
+      carregarMetas,
       criarMeta,
       movimentarMeta,
       cancelarMeta,
@@ -424,6 +593,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       tempoEconomia,
       metasSelecionadas,
       metas,
+      carregarMetas,
       criarMeta,
       movimentarMeta,
       cancelarMeta,
@@ -441,6 +611,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
 
   return <FinanceiroContext.Provider value={value}>{children}</FinanceiroContext.Provider>
 }
+
 
 export function useFinanceiro() {
   const context = useContext(FinanceiroContext)

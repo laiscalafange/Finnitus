@@ -292,7 +292,7 @@ model MovimentacaoMeta {
 
   valor     Decimal              @db.Decimal(10, 2)
   tipo      TipoMovimentacaoMeta
-  data      DateTime             @db.Date
+  data      DateTime             @default(now())
   descricao String?              @db.VarChar(255)
 
   Meta Meta @relation(fields: [id_Meta], references: [id_Meta], onDelete: Cascade)
