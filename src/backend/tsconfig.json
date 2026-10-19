@@ -10,7 +10,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "generated/**/*.ts"],
+  "include": ["src/**/*.ts", "generated/**/*.ts", "src/routes/meta.routes.ts"],
   "exclude": ["node_modules", "dist", "tests"]
 }
 

@@ -1,66 +1,102 @@
-import type { Request, Response } from "express";
-import { criarDivida as criarDividaService } from "../services/divida.service.js";
 
-export async function criarDivida(
-  req: Request,
-  res: Response
-) {
-  if (!req.userId) {
-    return res.status(401).json({
-      mensagem: "Usuário não autenticado",
-    });
-  }
+import { prisma } from "../lib/prisma.js";
 
-  const divida =
-    await criarDividaService({
-      ...req.body,
-      id_Usuario: req.userId,
-    });
-
-  return res.status(201).json(divida);
+export async function criarDivida(dados: {
+  id_Usuario: number;
+  id_Categoria?: number | null;
+  id_CategoriaPersonalizada?: number | null;
+  nome: string;
+  valor_total: number;
+  valor_parcela: number;
+  quantidade_parcelas: number;
+  parcelas_restantes: number;
+  data_vencimento: string;
+  taxa_juros?: number | null;
+  status?: "ATIVA" | "QUITADA" | "ATRASADA";
+}) {
+  return prisma.divida.create({
+    data: {
+      id_Usuario: dados.id_Usuario,
+      id_Categoria: dados.id_Categoria ?? null,
+      id_CategoriaPersonalizada:
+        dados.id_CategoriaPersonalizada ?? null,
+      nome: dados.nome,
+      valor_total: dados.valor_total,
+      valor_parcela: dados.valor_parcela,
+      quantidade_parcelas: dados.quantidade_parcelas,
+      parcelas_restantes: dados.parcelas_restantes,
+      data_vencimento: new Date(dados.data_vencimento),
+      taxa_juros: dados.taxa_juros ?? null,
+      status: dados.status ?? "ATIVA",
+    },
+  });
 }
 
-export async function listarDividas(
-  req: Request,
-  res: Response
-) {
-  return res.status(200).json([]);
+export async function listarDividas(id_Usuario: number) {
+  return prisma.divida.findMany({
+    where: { id_Usuario },
+    orderBy: { data_vencimento: "asc" },
+  });
 }
 
 export async function buscarDivida(
-  req: Request,
-  res: Response
+  id_Divida: number,
+  id_Usuario: number,
 ) {
-  const id = req.params.id;
-
-  return res.status(200).json({
-    id
+  return prisma.divida.findFirst({
+    where: { id_Divida, id_Usuario },
   });
 }
 
 export async function atualizarDivida(
-  req: Request,
-  res: Response
+  id_Divida: number,
+  id_Usuario: number,
+  dados: {
+    id_Categoria?: number | null;
+    id_CategoriaPersonalizada?: number | null;
+    nome?: string;
+    valor_total?: number;
+    valor_parcela?: number;
+    quantidade_parcelas?: number;
+    parcelas_restantes?: number;
+    data_vencimento?: string;
+    taxa_juros?: number | null;
+    status?: "ATIVA" | "QUITADA" | "ATRASADA";
+  },
 ) {
-  const id = req.params.id;
-  const dados = req.body;
+  const existente = await buscarDivida(id_Divida, id_Usuario);
 
-  return res.status(200).json({
-    id,
-    dados
+  if (!existente) return null;
+
+  return prisma.divida.update({
+    where: { id_Divida },
+    data: {
+      id_Categoria: dados.id_Categoria,
+      id_CategoriaPersonalizada:
+        dados.id_CategoriaPersonalizada,
+      nome: dados.nome,
+      valor_total: dados.valor_total,
+      valor_parcela: dados.valor_parcela,
+      quantidade_parcelas: dados.quantidade_parcelas,
+      parcelas_restantes: dados.parcelas_restantes,
+      data_vencimento: dados.data_vencimento
+        ? new Date(dados.data_vencimento)
+        : undefined,
+      taxa_juros: dados.taxa_juros,
+      status: dados.status,
+    },
   });
 }
 
 export async function excluirDivida(
-  req: Request,
-  res: Response
+  id_Divida: number,
+  id_Usuario: number,
 ) {
-  const id = req.params.id;
+  const existente = await buscarDivida(id_Divida, id_Usuario);
 
-  return res.status(200).json({
-    mensagem: "Dívida excluída",
-    id
+  if (!existente) return null;
+
+  return prisma.divida.delete({
+    where: { id_Divida },
   });
 }
-
-//req = requisicao res = resposta
