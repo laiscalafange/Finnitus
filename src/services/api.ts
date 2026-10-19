@@ -53,6 +53,13 @@ api.interceptors.response.use(
   (response) => response,
 
   (error) => {
+    console.error("ERRO NA API:", {
+  metodo: error.config?.method,
+  rota: error.config?.url,
+  status: error.response?.status,
+  resposta: error.response?.data,
+  mensagem: error.message,
+});
     const sent = error.config?.headers?.Authorization;
 
     // Uma resposta antiga não encerra uma sessão mais recente.

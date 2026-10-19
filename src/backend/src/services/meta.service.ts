@@ -7,6 +7,7 @@ export async function criarMeta(dados: {
   Mvalor_atual: number;
   Mvalor_periodo?: number;
   Mprazo: string;
+  Mtipo: "LONGO_PRAZO" | "MENSAL";
   Mprioridade: "BAIXA" | "MEDIA" | "ALTA";
   Mstatus: "EM_ANDAMENTO" | "CONCLUIDA" | "CANCELADA";        
 }) {
@@ -18,6 +19,7 @@ export async function criarMeta(dados: {
       Mvalor_atual: dados.Mvalor_atual,
       Mvalor_periodo: dados.Mvalor_periodo,
       Mprazo: new Date(dados.Mprazo),
+      Mtipo: dados.Mtipo,
       Mprioridade: dados.Mprioridade,
       Mstatus: dados.Mstatus,
     },
