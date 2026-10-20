@@ -1,4 +1,6 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useEffect, useState, type ReactNode } from 'react'
+
+import { useAuth } from "./authContext"; 
 
 import {
   criarMetaApi,
@@ -282,24 +284,25 @@ function converterMetaApi(
 }
 
 export function FinanceiroProvider({ children }: { children: ReactNode }) {
+  // Usuário que está autenticado no aplicativo
+  const { user } = useAuth();
+
   const [salario, setSalario] = useState<number | undefined>()
   const [despesas, setDespesas] = useState<number | undefined>()
   const [economiaFutura, setEconomiaFutura] = useState<number | undefined>()
   const [tempoEconomia, setTempoEconomia] = useState<number | undefined>()
   const [metasSelecionadas, setMetasSelecionadas] = useState<string[]>([])
 
-  // Metas vêm do backend. O estado local serve apenas para manter a UI sincronizada
-  // com os dados persistidos no banco.
+  // Metas carregadas do banco Neon
   const [metas, setMetas] = useState<Meta[]>([])
-  // TODO (backend): ainda não existe endpoint de transações. Por enquanto a
-  // lista fica só em memória (some ao fechar o app); quando existir, carregar
-  // da API aqui e enviar cada nova transação na ação abaixo.
+
+  // Transações
   const [transacoes, setTransacoes] = useState<Transacao[]>([])
 
-  // TODO (backend): idem, os pagamentos/recebimentos confirmados e as
-  // notificações lidas ainda ficam só em memória.
+  // Pagamentos e notificações
   const [baixas, setBaixas] = useState<Baixa[]>([])
   const [notificacoesLidas, setNotificacoesLidas] = useState<string[]>([])
+
 
   // Guarda a transação do Novo gasto (a mais recente fica no começo da lista)
   const adicionarTransacao = useCallback((dados: NovaTransacao): Transacao => {
@@ -482,6 +485,20 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
 
     setMetas(todas)
   }, [])
+
+  useEffect(() => {
+  if (!user?.id) {
+    setMetas([]);
+    return;
+  }
+
+  void carregarMetas().catch((error) => {
+    console.error(
+      "Erro ao recuperar metas do Neon:",
+      error
+    );
+  });
+}, [user?.id, carregarMetas]);
 
   // Cria a meta no backend e só depois adiciona o registro retornado à UI.
   const criarMeta = useCallback(async (dados: NovaMeta): Promise<Meta> => {
