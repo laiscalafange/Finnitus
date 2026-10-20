@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ScrollView, Text, View, Image, TouchableOpacity } from "react-native";
+import { Alert, ScrollView, Text, View, Image, TouchableOpacity } from "react-native";
+import { errorMessage } from "@/services/api";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Minus, Plus } from "lucide-react-native";
@@ -71,17 +72,31 @@ export default function MetasDetalhes() {
     : meta.movimentacoes.slice(0, MOVIMENTACOES_VISIVEIS);
 
   // Trata a confirmação de cada card
-  function confirmarModal(valor: number) {
-    if (!meta) {
-      return;
-    }
+  
+async function confirmarModal(valor: number) {
+  if (!meta) {
+    return;
+  }
 
+  try {
+    // Depositar dinheiro na meta
     if (modal === "depositar") {
-      const resultado = movimentarMeta(meta.id, "deposito", valor);
+      const resultado = await movimentarMeta(
+        meta.id,
+        "deposito",
+        valor
+      );
+
+      if (resultado === "naoEncontrada") {
+        Alert.alert(
+          "Meta não encontrada",
+          "Atualize suas metas e tente novamente."
+        );
+        return;
+      }
 
       setModal(null);
 
-      // O depósito completou o valor da meta
       if (resultado === "concluida") {
         setAlcancada(true);
       }
@@ -89,12 +104,24 @@ export default function MetasDetalhes() {
       return;
     }
 
+    // Retirar dinheiro da meta
     if (modal === "retirar") {
-      const resultado = movimentarMeta(meta.id, "retirada", valor);
+      const resultado = await movimentarMeta(
+        meta.id,
+        "retirada",
+        valor
+      );
 
-      // Tentou retirar mais do que tem guardado na meta
       if (resultado === "saldoInsuficiente") {
         setModal("saldoInsuficiente");
+        return;
+      }
+
+      if (resultado === "naoEncontrada") {
+        Alert.alert(
+          "Meta não encontrada",
+          "Atualize suas metas e tente novamente."
+        );
         return;
       }
 
@@ -102,15 +129,23 @@ export default function MetasDetalhes() {
       return;
     }
 
+    // Cancelar meta
     if (modal === "cancelar") {
-      cancelarMeta(meta.id);
+      await cancelarMeta(meta.id);
+
       setModal(null);
       router.navigate("/metas");
       return;
     }
 
     setModal(null);
+  } catch (error) {
+    Alert.alert(
+      "Erro ao atualizar meta",
+      errorMessage(error)
+    );
   }
+}
 
   return (
     <LinearGradient

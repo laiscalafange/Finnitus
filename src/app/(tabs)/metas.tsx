@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, ScrollView, Text, TouchableOpacity, Pressable, Image } from 'react-native'
+import { Alert, View, ScrollView, Text, TouchableOpacity, Pressable, Image } from 'react-native'
+import { errorMessage } from "@/services/api";
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import { Trash2 } from 'lucide-react-native'
@@ -67,48 +68,79 @@ export default function Metas() {
   }
 
   // Trata a confirmação de cada card
-  function confirmarModal(valor: number, acao?: 'depositar' | 'retirar') {
-    if (!metaAtiva) {
-      setModal(null)
-      return
+  
+async function confirmarModal(
+  valor: number,
+  acao?: "depositar" | "retirar"
+) {
+  if (!metaAtiva) {
+    setModal(null);
+    return;
+  }
+
+  // Cancelar meta
+  if (modal === "excluir") {
+    try {
+      await excluirMeta(metaAtiva.id);
+
+      setModal(null);
+      setMetaAtivaId(null);
+    } catch (error) {
+      Alert.alert(
+        "Erro ao cancelar meta",
+        errorMessage(error)
+      );
     }
 
-    if (modal === 'excluir') {
-      excluirMeta(metaAtiva.id)
-      setModal(null)
-      setMetaAtivaId(null)
-      return
-    }
+    return;
+  }
 
-    if (modal === 'movimentar' && acao) {
-      const resultado = movimentarMeta(
+  // Depositar ou retirar
+  if (modal === "movimentar" && acao) {
+    try {
+      const resultado = await movimentarMeta(
         metaAtiva.id,
-        acao === 'depositar' ? 'deposito' : 'retirada',
-        valor,
-      )
+        acao === "depositar" ? "deposito" : "retirada",
+        valor
+      );
 
-      // Retirou mais do que tem guardado
-      if (resultado === 'saldoInsuficiente') {
-        setModal('saldoInsuficiente')
-        return
+      if (resultado === "saldoInsuficiente") {
+        setModal("saldoInsuficiente");
+        return;
       }
 
-      setModal(null)
+      if (resultado === "naoEncontrada") {
+        Alert.alert(
+          "Meta não encontrada",
+          "Atualize suas metas e tente novamente."
+        );
+        return;
+      }
 
-      // O depósito completou o valor da meta
-      if (resultado === 'concluida') {
+      setModal(null);
+
+      if (resultado === "concluida") {
         setAlcancada({
           nome: metaAtiva.nome,
-          valor: (Math.round(metaAtiva.valorAtual * 100) + Math.round(valor * 100)) / 100,
-        })
+          valor:
+            (
+              Math.round(metaAtiva.valorAtual * 100) +
+              Math.round(valor * 100)
+            ) / 100,
+        });
       }
-
-      return
+    } catch (error) {
+      Alert.alert(
+        "Erro na movimentação",
+        errorMessage(error)
+      );
     }
 
-    // "Entendi" do aviso de saldo insuficiente
-    setModal(null)
+    return;
   }
+
+  setModal(null);
+}
 
   return (
     <View style={styles.container}>

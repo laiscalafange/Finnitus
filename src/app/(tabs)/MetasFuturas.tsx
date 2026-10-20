@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Text,
@@ -16,6 +17,7 @@ import { Input } from "../../shared/components/Input";
 import MetasFrame from "./MetasFrame";
 
 import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
+
 import {
   dataEhPassada,
   dataValida,
@@ -23,82 +25,126 @@ import {
   mascararMoeda,
   moedaParaNumero,
 } from "@/features/menuMais/utils";
+
 import { useFinanceiro } from "@/features/financeiroContext";
 import type { Meta, TipoMeta } from "@/features/metasData";
+import { errorMessage } from "@/services/api";
 import { styles } from "@/styles/metasfuturas";
 
-// Opções do tipo da meta (reaproveita o alternador do Novo gasto)
 const TIPOS: { id: TipoMeta; rotulo: string }[] = [
   { id: "longoPrazo", rotulo: "Longo prazo" },
   { id: "mes", rotulo: "Meta do mês" },
 ];
 
-// Tela "Metas > Criação": nome, tipo (longo prazo ou do mês), valor objetivo,
-// valor já guardado e data limite. A meta criada vai pro estado de metas
-// (FinanceiroProvider), então aparece na tela Metas, em Detalhes, nas
-// Análises e na Home.
 export default function MetasFuturas() {
   const { criarMeta } = useFinanceiro();
 
+  // Dados do formulário
   const [nome, setNome] = useState("");
   const [tipo, setTipo] = useState<TipoMeta>("longoPrazo");
+
   const [valorObjetivo, setValorObjetivo] = useState("");
   const [valorInicial, setValorInicial] = useState("");
   const [dataLimite, setDataLimite] = useState("");
 
+  // Estados de erro e carregamento
   const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
 
-  // Meta que acabou de ser criada (mostrada no card "Meta criada!")
-  const [metaCriada, setMetaCriada] = useState<Meta | null>(null);
+  // Meta criada e confirmada pelo backend
+  const [metaCriada, setMetaCriada] = useState<Meta | null>(
+    null
+  );
 
-  function validarECriar() {
+  // =========================================
+  // VALIDAR E CRIAR META NO BANCO NEON
+  // =========================================
+  async function validarECriar() {
+    // Impede criação duplicada por vários cliques
+    if (salvando) {
+      return;
+    }
+
     const objetivo = moedaParaNumero(valorObjetivo);
     const inicial = moedaParaNumero(valorInicial);
 
+    // Valida o nome
     if (!nome.trim()) {
       setErro("Informe o nome da meta.");
       return;
     }
 
-    if (objetivo <= 0) {
+    // Valida o valor objetivo
+    if (!Number.isFinite(objetivo) || objetivo <= 0) {
       setErro("Informe o valor objetivo.");
       return;
     }
 
-    if (inicial >= objetivo) {
-      setErro("O valor inicial deve ser menor que o valor objetivo.");
+    // Valida o valor inicial
+    if (!Number.isFinite(inicial) || inicial < 0) {
+      setErro("Informe um valor inicial válido.");
       return;
     }
 
+    if (inicial >= objetivo) {
+      setErro(
+        "O valor inicial deve ser menor que o valor objetivo."
+      );
+      return;
+    }
+
+    // Valida a data limite, caso informada
     if (dataLimite) {
       if (!dataValida(dataLimite)) {
-        setErro("Informe uma data limite válida (DD/MM/AAAA).");
+        setErro(
+          "Informe uma data limite válida (DD/MM/AAAA)."
+        );
         return;
       }
 
       if (dataEhPassada(dataLimite)) {
-        setErro("A data limite não pode estar no passado.");
+        setErro(
+          "A data limite não pode estar no passado."
+        );
         return;
       }
     }
 
     setErro("");
+    setSalvando(true);
 
-    // TODO (backend): não existe endpoint pra criar metas ainda. Quando
-    // existir, enviar { nome, tipo, valorTotal: objetivo, valorInicial:
-    // inicial, dataLimite } pra API aqui.
-    const meta = criarMeta({
-      nome,
-      tipo,
-      valorTotal: objetivo,
-      valorInicial: inicial,
-      dataLimite: dataLimite || undefined,
-    });
+    try {
+      // Aguarda o backend confirmar a criação
+      const meta = await criarMeta({
+        nome: nome.trim(),
+        tipo,
+        valorTotal: objetivo,
+        valorInicial: inicial,
+        dataLimite: dataLimite || undefined,
+      });
 
-    setMetaCriada(meta);
+      // Garante que o pop-up tenha nome e objetivo
+      setMetaCriada({
+        ...meta,
+        nome: meta.nome?.trim() || nome.trim(),
+        valorTotal: meta.valorTotal ?? objetivo,
+      });
+
+    } catch (error) {
+      console.error("Erro ao criar meta:", error);
+
+      setErro(
+        errorMessage(error)
+      );
+
+    } finally {
+      setSalvando(false);
+    }
   }
 
-  // Fecha o card e limpa os campos pra uma nova meta
+  // =========================================
+  // LIMPAR FORMULÁRIO PARA CRIAR OUTRA META
+  // =========================================
   function novaMeta() {
     setMetaCriada(null);
     setNome("");
@@ -106,45 +152,44 @@ export default function MetasFuturas() {
     setValorObjetivo("");
     setValorInicial("");
     setDataLimite("");
+    setErro("");
   }
 
   return (
     <LinearGradient
-      // Gradiente próprio dessa tela (não usa mais o GRADIENTS.background
-      // compartilhado, pra não afetar outras telas como Premium)
       colors={["#3f1e69", "#08070A", "#291444"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
     >
-      {/* Empurra o formulário pra cima quando o teclado abre */}
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* ScrollView: se o conteúdo passar da altura da tela (ex.: quando
-          aparece a mensagem de erro), dá pra rolar até o botão */}
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.conteudo}
         >
-
-          {/* Cabeçalho (título "Metas" + subtítulo "Criação") */}
           <HeaderInterno
             titulo="Metas"
             subtitulo="Criação"
           />
 
-          {/* Conteúdo principal, posicionado por cima do header
-          (marginTop negativo no style "conteudoSobreHeader") */}
           <View style={styles.conteudoSobreHeader}>
 
+            {/* TIPO DA META */}
+            <Text style={styles.rotuloTipo}>
+              Tipo de meta
+            </Text>
 
-            {/* Longo prazo ou Meta do mês */}
-            <Text style={styles.rotuloTipo}>Tipo de meta</Text>
-            <AlternadorTipo valor={tipo} aoMudar={setTipo} opcoes={TIPOS} />
+            <AlternadorTipo
+              valor={tipo}
+              aoMudar={setTipo}
+              opcoes={TIPOS}
+            />
 
+            {/* NOME */}
             <Input
               label="Nome da meta"
               placeholder="Ex: Viagem para Europa"
@@ -152,46 +197,68 @@ export default function MetasFuturas() {
               onChangeText={setNome}
             />
 
-
-            {/* Os valores têm máscara de moeda: "150050" vira "1.500,50" */}
+            {/* OBJETIVO */}
             <Input
               label="Valor do objetivo"
               placeholder="0,00"
               keyboardType="numeric"
               value={valorObjetivo}
-              onChangeText={(texto) => setValorObjetivo(mascararMoeda(texto))}
-              icone={<Text style={styles.prefixoMoeda}>R$</Text>}
+              onChangeText={(texto) =>
+                setValorObjetivo(mascararMoeda(texto))
+              }
+              icone={
+                <Text style={styles.prefixoMoeda}>
+                  R$
+                </Text>
+              }
             />
 
+            {/* VALOR INICIAL */}
             <Input
               label="Valor inicial já guardado"
               placeholder="0,00"
               keyboardType="numeric"
               value={valorInicial}
-              onChangeText={(texto) => setValorInicial(mascararMoeda(texto))}
-              icone={<Text style={styles.prefixoMoeda}>R$</Text>}
+              onChangeText={(texto) =>
+                setValorInicial(mascararMoeda(texto))
+              }
+              icone={
+                <Text style={styles.prefixoMoeda}>
+                  R$
+                </Text>
+              }
             />
 
-            {/* A barra "/" entra sozinha enquanto digita: DD/MM/AAAA */}
+            {/* DATA LIMITE */}
             <Input
               label="Data limite (opcional)"
               placeholder="DD/MM/AAAA"
               keyboardType="numeric"
               maxLength={10}
               value={dataLimite}
-              onChangeText={(texto) => setDataLimite(mascararData(texto))}
+              onChangeText={(texto) =>
+                setDataLimite(mascararData(texto))
+              }
             />
 
+            {/* MENSAGEM DE ERRO */}
             {erro ? (
-              <Text style={styles.erro} accessibilityRole="alert">
+              <Text
+                style={styles.erro}
+                accessibilityRole="alert"
+              >
                 {erro}
               </Text>
             ) : null}
 
-            {/* Botão de confirmação */}
+            {/* BOTÃO DE CRIAÇÃO */}
             <View style={styles.botaoContainer}>
               <Button
-                titulo="Criar meta"
+                titulo={
+                  salvando
+                    ? "Criando meta..."
+                    : "Criar meta"
+                }
                 onPress={validarECriar}
               />
             </View>
@@ -200,6 +267,7 @@ export default function MetasFuturas() {
         </ScrollView>
       </KeyboardAvoidingView>
 
+      {/* POP-UP DE META CRIADA */}
       <MetasFrame
         visible={metaCriada !== null}
         tipo="criada"
@@ -207,6 +275,7 @@ export default function MetasFuturas() {
         valor={metaCriada?.valorTotal}
         onClose={novaMeta}
       />
+
     </LinearGradient>
   );
 }
