@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Trash2 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
 import { Cores } from "../../shared/constants/Cores";
 import { Rotas } from "../../shared/constants/Rotas";
@@ -34,6 +34,7 @@ import {
   SeletorMes,
   textoDiferenca,
 } from "@/features/contas/components/ContaUI";
+import { ConfirmarContaConteudo } from "@/features/contas/components/ConfirmarConta";
 import { styles } from "@/features/contas/styles";
 
 type Filtro = "todas" | "entrada" | "gasto";
@@ -75,6 +76,8 @@ export default function Movimentacoes() {
   // Registro aberto no modal e se o modal está na etapa de excluir
   const [selecionada, setSelecionada] = useState<ContaDoMes | null>(null);
   const [excluindo, setExcluindo] = useState(false);
+  // Etapa "Confirmar pagamento/recebimento" dentro do mesmo modal
+  const [confirmando, setConfirmando] = useState(false);
 
   const todas = useMemo(
     () => contasDoMes(transacoes, baixas, competencia),
@@ -98,6 +101,7 @@ export default function Movimentacoes() {
   function fechar() {
     setSelecionada(null);
     setExcluindo(false);
+    setConfirmando(false);
   }
 
   // Fecha o modal e abre outra tela (nunca dois modais ao mesmo tempo)
@@ -114,6 +118,11 @@ export default function Movimentacoes() {
   function renderModal(conta: ContaDoMes) {
     const entrada = conta.tipo === "entrada";
     const Icone = conta.icone;
+
+    // Confirmar pagamento/recebimento: troca o conteúdo do mesmo modal
+    if (confirmando) {
+      return <ConfirmarContaConteudo conta={conta} aoFechar={fechar} />;
+    }
 
     if (excluindo) {
       return (
@@ -169,7 +178,7 @@ export default function Movimentacoes() {
             <>
               <Button
                 titulo={entrada ? "Marcar como recebida" : "Marcar como paga"}
-                onPress={() => ir(Rotas.confirmarConta, conta)}
+                onPress={() => setConfirmando(true)}
               />
               <View style={styles.espaco} />
             </>
@@ -193,14 +202,10 @@ export default function Movimentacoes() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={form.container}
-    >
+    <View style={form.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={form.conteudo}>
-        <HeaderInterno titulo="Movimentações" subtitulo="Receitas e despesas" />
+        <HeaderInterno titulo="Movimentações" />
 
         <View style={form.formulario}>
           <AlternadorTipo<Filtro> valor={filtro} aoMudar={setFiltro} opcoes={OPCOES} />
@@ -254,6 +259,6 @@ export default function Movimentacoes() {
       <ModalCartao visible={selecionada !== null} aoFechar={fechar}>
         {selecionada ? renderModal(selecionada) : null}
       </ModalCartao>
-    </LinearGradient>
+    </View>
   );
 }

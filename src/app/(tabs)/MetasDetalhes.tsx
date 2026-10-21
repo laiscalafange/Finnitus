@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Alert, ScrollView, Text, View, Image, TouchableOpacity } from "react-native";
-import { errorMessage } from "@/services/api";
+import { ScrollView, Text, View, Image, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Minus, Plus } from "lucide-react-native";
-import { HeaderInterno } from "../../shared/components/Header";
+import { HeaderMP } from "../../shared/components/Header";
 import { Card } from "../../shared/components/Cards";
 import { Button } from "../../shared/components/Button";
 import { Progress } from "../../shared/components/Progress";
@@ -54,7 +53,7 @@ export default function MetasDetalhes() {
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
-        <HeaderInterno titulo="Metas" subtitulo="Detalhes" />
+        <HeaderMP titulo="Metas" subtitulo="Detalhes" />
 
         <View style={styles.conteudoSobreHeader}>
           <Text style={styles.nomeMeta}>Meta não encontrada</Text>
@@ -72,31 +71,17 @@ export default function MetasDetalhes() {
     : meta.movimentacoes.slice(0, MOVIMENTACOES_VISIVEIS);
 
   // Trata a confirmação de cada card
-  
-async function confirmarModal(valor: number) {
-  if (!meta) {
-    return;
-  }
+  async function confirmarModal(valor: number) {
+    if (!meta) {
+      return;
+    }
 
-  try {
-    // Depositar dinheiro na meta
     if (modal === "depositar") {
-      const resultado = await movimentarMeta(
-        meta.id,
-        "deposito",
-        valor
-      );
-
-      if (resultado === "naoEncontrada") {
-        Alert.alert(
-          "Meta não encontrada",
-          "Atualize suas metas e tente novamente."
-        );
-        return;
-      }
+      const resultado = await movimentarMeta(meta.id, "deposito", valor);
 
       setModal(null);
 
+      // O depósito completou o valor da meta
       if (resultado === "concluida") {
         setAlcancada(true);
       }
@@ -104,24 +89,12 @@ async function confirmarModal(valor: number) {
       return;
     }
 
-    // Retirar dinheiro da meta
     if (modal === "retirar") {
-      const resultado = await movimentarMeta(
-        meta.id,
-        "retirada",
-        valor
-      );
+      const resultado = await movimentarMeta(meta.id, "retirada", valor);
 
+      // Tentou retirar mais do que tem guardado na meta
       if (resultado === "saldoInsuficiente") {
         setModal("saldoInsuficiente");
-        return;
-      }
-
-      if (resultado === "naoEncontrada") {
-        Alert.alert(
-          "Meta não encontrada",
-          "Atualize suas metas e tente novamente."
-        );
         return;
       }
 
@@ -129,23 +102,15 @@ async function confirmarModal(valor: number) {
       return;
     }
 
-    // Cancelar meta
     if (modal === "cancelar") {
       await cancelarMeta(meta.id);
-
       setModal(null);
       router.navigate("/metas");
       return;
     }
 
     setModal(null);
-  } catch (error) {
-    Alert.alert(
-      "Erro ao atualizar meta",
-      errorMessage(error)
-    );
   }
-}
 
   return (
     <LinearGradient
@@ -161,7 +126,7 @@ async function confirmarModal(valor: number) {
         contentContainerStyle={styles.conteudo}
       >
         {/* Cabeçalho fixo do topo */}
-        <HeaderInterno
+        <HeaderMP
           titulo="Metas"
           subtitulo="Detalhes"
         />

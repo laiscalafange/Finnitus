@@ -11,7 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { QrCode } from "lucide-react-native";
 
-import { HeaderInterno } from "../../shared/components/Header";
+import { HeaderMP } from "../../shared/components/Header";
 import { Card } from "../../shared/components/Cards";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
@@ -128,7 +128,7 @@ export default function Pagamento() {
           contentContainerStyle={styles.conteudo}
         >
           {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
-          <HeaderInterno
+          <HeaderMP
             titulo="Pagamento"
             subtitulo="Premium"
             mostrarPremium={false}

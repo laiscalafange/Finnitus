@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Cores } from "../../shared/constants/Cores";
 import { Rotas } from "../../shared/constants/Rotas";
 
@@ -56,14 +56,10 @@ export default function ContasFixas() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={form.container}
-    >
+    <View style={form.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={form.conteudo}>
-        <HeaderInterno titulo="Contas fixas" subtitulo="Despesas e receitas" />
+        <HeaderInterno titulo="Contas fixas" />
 
         <View style={form.formulario}>
           <AlternadorTipo<Filtro> valor={filtro} aoMudar={setFiltro} opcoes={OPCOES} />
@@ -104,6 +100,6 @@ export default function ContasFixas() {
           ) : null}
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }

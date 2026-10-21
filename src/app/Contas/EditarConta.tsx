@@ -6,10 +6,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams } from "expo-router";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 
@@ -70,18 +70,14 @@ export default function EditarConta() {
 
   if (!transacao || !conta) {
     return (
-      <LinearGradient
-        colors={["#160B24", "#08070A", "#160B24"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={form.container}
-      >
-        <HeaderInterno titulo="Editar" subtitulo="Conta" mostrarPremium={false} mostrarNotificacao={false} />
+      <View style={form.container}>
+        <BackgroundGradient variante="funcional" />
+        <HeaderInterno titulo="Editar conta" />
         <View style={form.formulario}>
           <Text style={styles.vazio}>Não encontramos essa conta. Ela pode ter sido excluída.</Text>
           <Button titulo="Voltar" variante="outline" onPress={voltar} />
         </View>
-      </LinearGradient>
+      </View>
     );
   }
 
@@ -135,12 +131,8 @@ export default function EditarConta() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={form.container}
-    >
+    <View style={form.container}>
+      <BackgroundGradient variante="funcional" />
       <KeyboardAvoidingView
         style={form.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -150,12 +142,7 @@ export default function EditarConta() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={form.conteudo}
         >
-          <HeaderInterno
-            titulo={entrada ? "Editar receita" : "Editar despesa"}
-            subtitulo={fixa ? "Conta fixa" : "Registro"}
-            mostrarPremium={false}
-            mostrarNotificacao={false}
-          />
+          <HeaderInterno titulo={entrada ? "Editar receita" : "Editar despesa"} />
 
           <View style={form.formulario}>
             {fixa ? (
@@ -242,6 +229,6 @@ export default function EditarConta() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }

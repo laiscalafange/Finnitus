@@ -15,7 +15,7 @@ export const styles = StyleSheet.create({
   },
 
   // Área do conteúdo. O marginTop negativo faz tudo "subir" por cima
-  // da faixa roxa do HeaderInterno (mesmo padrão das outras telas internas)
+  // da faixa roxa do HeaderMP (cabeçalho das telas Premium e Metas)
   formulario: {
     paddingHorizontal: 16,
     paddingTop: 40,

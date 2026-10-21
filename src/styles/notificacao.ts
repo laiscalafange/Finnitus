@@ -13,8 +13,7 @@ export const styles = StyleSheet.create({
 
   conteudoLista: {
     paddingHorizontal: 16,
-    paddingTop: 18,
-    marginTop: -300,
+    paddingTop: 8,
   },
 
   linhaMarcarTodas: {

@@ -1,10 +1,10 @@
 import { ScrollView, Text, View, useWindowDimensions } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 import { Lightbulb } from "lucide-react-native";
 import { VictoryAxis, VictoryBar, VictoryChart } from "victory-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 import { Progress } from "../../shared/components/Progress";
 import { Cores } from "../../shared/constants/Cores";
@@ -16,12 +16,6 @@ import { useFinanceiro } from "@/features/financeiroContext";
 import { habitoGuardar, percentualMeta } from "@/features/metasData";
 import { styles } from "../../styles/Metasanalises";
 
-// Gradientes iguais aos das outras telas de Metas
-const GRADIENTE_FUNDO: [string, string, string] = [
-  "#3f1e69",
-  "#08070A",
-  "#291444",
-];
 // Mesmo roxo dos cards da tela Metas (mês e longo prazo)
 const GRADIENTE_CARD: [string, string] = [Cores.fundo.destaque, "#5a2dc7"];
 
@@ -71,25 +65,16 @@ export default function MetasAnalises() {
     anterior > 0 ? Math.round(((atual - anterior) / anterior) * 100) : null;
 
   return (
-    <LinearGradient
-      colors={GRADIENTE_FUNDO}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
         {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
-        <HeaderInterno
-          titulo="Análises"
-          subtitulo="Metas"
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        <HeaderInterno titulo="Análises" />
 
-        {/* Conteúdo (sobe por cima da faixa roxa do header) */}
+        {/* Conteúdo (logo abaixo do cabeçalho) */}
         <View style={styles.conteudoSobreHeader}>
           {/* Resumo: total guardado | em andamento | concluídas */}
           <View style={styles.linhaResumo}>
@@ -245,6 +230,6 @@ export default function MetasAnalises() {
           )}
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }

@@ -6,7 +6,6 @@ import {
 } from "react-native";
 
 import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import {
   SlidersHorizontal,
   Bell,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 
 import { Cores } from "../../shared/constants/Cores";
@@ -48,24 +48,15 @@ export default function Configuracoes() {
   const router = useRouter();
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
         {/* Cabeçalho: só a seta de voltar e o título, igual às outras
             telas de Perfil */}
-        <HeaderInterno
-          titulo="Configurações"
-          subtitulo="Perfil"
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        <HeaderInterno titulo="Configurações" />
 
         <View style={styles.lista}>
           {ITENS.map(({ id, label, icon: Icone, rota }) => (
@@ -92,6 +83,6 @@ export default function Configuracoes() {
           ))}
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }

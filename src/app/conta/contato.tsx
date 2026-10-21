@@ -7,9 +7,9 @@ import {
   Platform,
 } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 
@@ -43,12 +43,8 @@ export default function Contato() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       {/* Empurra o formulário pra cima quando o teclado abre */}
       <KeyboardAvoidingView
         style={styles.container}
@@ -64,14 +60,9 @@ export default function Contato() {
           contentContainerStyle={styles.conteudo}
         >
           {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
-          <HeaderInterno
-            titulo="Contate-nos"
-            subtitulo="Suporte"
-            mostrarPremium={false}
-            mostrarNotificacao={false}
-          />
+          <HeaderInterno titulo="Contate-nos" />
 
-          {/* Formulário (sobe por cima da faixa roxa do header) */}
+          {/* Formulário (logo abaixo do cabeçalho) */}
           <View style={styles.formulario}>
             <Input
               label="Assunto"
@@ -114,6 +105,6 @@ export default function Contato() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }

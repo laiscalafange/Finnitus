@@ -8,8 +8,7 @@ export const styles = StyleSheet.create({
 
   lista: {
     paddingHorizontal: 16,
-    paddingTop: 40,
-    marginTop: -300,
+    paddingTop: 8,
   },
 
   card: {

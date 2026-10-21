@@ -6,7 +6,6 @@ import {
   Switch,
 } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 import {
   Receipt,
   PiggyBank,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 
 import { Cores } from "../../shared/constants/Cores";
@@ -76,22 +76,13 @@ export default function AlertasNotificacoes() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno
-          titulo="Alertas e notificações"
-          subtitulo="Configurações"
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        <HeaderInterno titulo="Alertas e notificações" />
 
         <View style={styles.lista}>
           <Card
@@ -119,6 +110,6 @@ export default function AlertasNotificacoes() {
           </Card>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }

@@ -6,10 +6,10 @@ import {
   Pressable,
 } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 import { Minus, PiggyBank, Plus, Trash2 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
 import { Card } from "../../shared/components/Cards";
 import { Progress } from "../../shared/components/Progress";
@@ -138,27 +138,16 @@ export default function ReservaEmergencia() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={base.container}
-    >
+    <View style={base.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={base.conteudo}
       >
-        {/* Cabeçalho: só a seta de voltar e o título. O título vai em duas
-            linhas (título + subtítulo) porque "Reserva de emergência" não
-            cabe numa linha só ao lado da seta */}
-        <HeaderInterno
-          titulo="Reserva"
-          subtitulo="de emergência"
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        {/* Cabeçalho discreto: seta de voltar e título */}
+        <HeaderInterno titulo="Reserva de emergência" />
 
-        {/* Conteúdo (sobe por cima da faixa roxa do header). Só aparece
+        {/* Conteúdo (logo abaixo do cabeçalho). Só aparece
             depois que a reserva foi criada */}
         {reserva ? (
           <View style={base.formulario}>
@@ -300,6 +289,6 @@ export default function ReservaEmergencia() {
         aoFechar={fecharModal}
         aoConfirmar={confirmarModal}
       />
-    </LinearGradient>
+    </View>
   );
 }

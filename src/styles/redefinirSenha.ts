@@ -7,8 +7,7 @@ export const styles = StyleSheet.create({
 
   formulario: {
     paddingHorizontal: 16,
-    paddingTop: 40,
-    marginTop: -300,
+    paddingTop: 8,
   },
 
   erro: {
