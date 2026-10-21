@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
 import { useLocalSearchParams } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import {
   ArrowRight,
   Lightbulb,
@@ -12,6 +11,7 @@ import {
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 import { Progress } from "../../shared/components/Progress";
 import { Cores } from "../../shared/constants/Cores";
@@ -28,12 +28,6 @@ import {
 } from "@/features/rotasDatas";
 import { styles } from "../../styles/rotasGastos";
 
-// Gradientes iguais aos das outras telas internas (Sumário detalhado)
-const GRADIENTE_FUNDO: [string, string, string] = [
-  "#160B24",
-  "#08070A",
-  "#160B24",
-];
 const GRADIENTE_CARD: [string, string] = [
   Cores.fundo.cardAlt,
   Cores.fundo.navBarra,
@@ -84,12 +78,8 @@ export default function RotasGastos() {
   const dados = calcularRotas(transacoes, salario);
 
   return (
-    <LinearGradient
-      colors={GRADIENTE_FUNDO}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
@@ -98,11 +88,9 @@ export default function RotasGastos() {
         <HeaderInterno
           titulo="Rotas de gastos"
           subtitulo={`${dados.nomeMes} ${dados.ano}`}
-          mostrarPremium={false}
-          mostrarNotificacao={false}
         />
 
-        {/* Conteúdo (sobe por cima da faixa roxa do header) */}
+        {/* Conteúdo (logo abaixo do cabeçalho) */}
         <View style={styles.conteudoSobreHeader}>
           <AlternadorTipo
             valor={versao}
@@ -132,7 +120,7 @@ export default function RotasGastos() {
           ) : null}
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 

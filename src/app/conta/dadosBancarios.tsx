@@ -8,7 +8,6 @@ import {
 } from "react-native";
 
 import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import {
   Landmark,
   PiggyBank,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { SelectCard } from "../../shared/components/SelectCard";
 import { Button } from "../../shared/components/Button";
@@ -76,12 +76,8 @@ export default function DadosBancarios() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       {/* Empurra o formulário pra cima quando o teclado abre */}
       <KeyboardAvoidingView
         style={styles.container}
@@ -97,14 +93,9 @@ export default function DadosBancarios() {
           contentContainerStyle={styles.conteudo}
         >
           {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
-          <HeaderInterno
-            titulo="Dados bancários"
-            subtitulo="Perfil"
-            mostrarPremium={false}
-            mostrarNotificacao={false}
-          />
+          <HeaderInterno titulo="Dados bancários" />
 
-          {/* Formulário (sobe por cima da faixa roxa do header) */}
+          {/* Formulário (logo abaixo do cabeçalho) */}
           <View style={styles.formulario}>
             <Input
               label="Banco"
@@ -178,6 +169,6 @@ export default function DadosBancarios() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }

@@ -14,9 +14,9 @@ import {
   useRouter,
 } from "expo-router";
 
-import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { FourInput } from "../../shared/components/Four";
 import { Button } from "../../shared/components/Button";
 
@@ -78,22 +78,13 @@ export default function TrocarSenhaCodigo() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno
-          titulo="Trocar senha"
-          subtitulo="Segurança"
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        <HeaderInterno titulo="Trocar senha" />
 
         <View style={styles.formulario}>
           <Text style={styles.texto}>
@@ -148,6 +139,6 @@ export default function TrocarSenhaCodigo() {
           </View>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }

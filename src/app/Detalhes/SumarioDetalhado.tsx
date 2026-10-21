@@ -1,9 +1,9 @@
 import { ScrollView, Text, View, useWindowDimensions } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 import { VictoryArea, VictoryAxis, VictoryChart } from "victory-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 import { Cores } from "../../shared/constants/Cores";
 import { FONTS } from "../../shared/constants/Tipografia";
@@ -15,12 +15,6 @@ import { calcularRotas } from "@/features/rotasDatas";
 import { calcularSumario } from "@/features/sumarioData";
 import { styles } from "../../styles/sumarioDetalhado";
 
-// Gradientes iguais aos das outras telas internas
-const GRADIENTE_FUNDO: [string, string, string] = [
-  "#160B24",
-  "#08070A",
-  "#160B24",
-];
 const GRADIENTE_CARD: [string, string] = [
   Cores.fundo.cardAlt,
   Cores.fundo.navBarra,
@@ -60,12 +54,8 @@ export default function SumarioDetalhado() {
   const temHistorico = ultimosMeses.some((item) => item.valor > 0);
 
   return (
-    <LinearGradient
-      colors={GRADIENTE_FUNDO}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
@@ -74,11 +64,9 @@ export default function SumarioDetalhado() {
         <HeaderInterno
           titulo="Sumário detalhado"
           subtitulo={`${nomeMes} ${ano}`}
-          mostrarPremium={false}
-          mostrarNotificacao={false}
         />
 
-        {/* Conteúdo (sobe por cima da faixa roxa do header) */}
+        {/* Conteúdo (logo abaixo do cabeçalho) */}
         <View style={styles.conteudoSobreHeader}>
           {/* Gastos | Economias */}
           <View style={styles.linhaTotais}>
@@ -196,6 +184,6 @@ export default function SumarioDetalhado() {
           </Card>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }

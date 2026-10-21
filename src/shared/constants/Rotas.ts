@@ -14,7 +14,6 @@ export const Rotas = {
   rotasGastos: '/Detalhes/RotasGastos',
   contasFixas: '/Contas/ContasFixas',
   detalhesConta: '/Contas/DetalhesConta',
-  confirmarConta: '/Contas/ConfirmarConta',
   editarConta: '/Contas/EditarConta',
   movimentacoes: '/Contas/Movimentacoes',
 } as const;

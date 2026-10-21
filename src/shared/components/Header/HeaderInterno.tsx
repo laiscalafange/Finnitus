@@ -1,133 +1,76 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { View, Text, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FONTS } from "../../constants/Tipografia";
-import { Rotas } from "../../constants/Rotas";
+import { Cores } from "../../constants/Cores";
 import { BotaoVoltar } from "../BotaoVoltar";
 
 export interface HeaderInternoProps {
   titulo: string;
-  subtitulo: string;
+  // Linha pequena opcional abaixo do título (ex.: "Outubro 2026").
+  // Só use quando ela traz uma informação que a tela não mostra em outro lugar
+  subtitulo?: string;
   // Mostra a seta de voltar à esquerda do título (padrão: true)
   mostrarVoltar?: boolean;
-  // Mostra o ícone da coroa (Premium) — esconder na própria tela Premium
-  mostrarPremium?: boolean;
-  // Mostra o ícone do sino (Notificação) — esconder na própria tela de Notificação
-  mostrarNotificacao?: boolean;
 }
 
+// Cabeçalho discreto das telas funcionais (formulários, listas, detalhes...):
+// só o botão de voltar e o título, sem faixa roxa nem curva decorativa.
+// O fundo da tela vem do BackgroundGradient (variante="funcional").
+// As telas Premium e Metas continuam usando o HeaderMP.
 export function HeaderInterno({
   titulo,
   subtitulo,
   mostrarVoltar = true,
-  mostrarPremium = true,
-  mostrarNotificacao = true,
 }: HeaderInternoProps) {
-  // Hook de navegação do Expo Router
-  const router = useRouter();
+  // Respeita a área do topo (notch / barra de status) em cada aparelho
+  const insets = useSafeAreaInsets();
 
   return (
-    <LinearGradient
-      colors={['#7c4dff', '#49269b', '#090312']}
-      locations={[0, 0.50, 1]}
-      start={{ x: 1.0, y: 0 }}
-      end={{ x: 1.0, y: 1 }}
-      style={styles.header}
-    >
-      {/* Lado esquerdo: seta de voltar (roxo escuro) + título e subtítulo.
-          Título e subtítulo são recebidos por props e mudam de acordo
-          com a tela que usa esse header (ex: "Metas" / "Detalhes") */}
-      <View style={styles.esquerda}>
-        {mostrarVoltar && <BotaoVoltar />}
+    <View style={[styles.header, { paddingTop: insets.top + 14 }]}>
+      {/* Seta de voltar em verde-limão pra ter contraste no fundo escuro */}
+      {mostrarVoltar && <BotaoVoltar cor={Cores.destaque.limao} />}
 
-        <View>
-          <Text style={styles.titulo}>{titulo}</Text>
-          <Text style={styles.subtitulo}>{subtitulo}</Text>
-        </View>
+      <View style={styles.textos}>
+        <Text style={styles.titulo} numberOfLines={1}>
+          {titulo}
+        </Text>
+
+        {subtitulo ? (
+          <Text style={styles.subtitulo} numberOfLines={1}>
+            {subtitulo}
+          </Text>
+        ) : null}
       </View>
-
-      {/* Ícones do canto superior direito */}
-      <View style={styles.icones}>
-
-        {/* Coroa — leva pra tela de assinatura Premium
-            (não aparece na própria tela Premium) */}
-        {mostrarPremium && (
-          <TouchableOpacity onPress={() => router.push(Rotas.premium)}>
-            <Image
-              source={require("../../../../assets/icones/coroa.png")}
-              style={styles.icone}
-            />
-          </TouchableOpacity>
-        )}
-
-        {/* Sino — leva pra tela de notificações
-            (não aparece na própria tela de Notificação) */}
-        {mostrarNotificacao && (
-          <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
-            <Image
-              source={require("../../../../assets/icones/sino.png")}
-              style={styles.icone}
-            />
-          </TouchableOpacity>
-        )}
-
-      </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Faixa roxa do topo, com cantos bem arredondados embaixo
-  // (mais alta que o HeaderPerfil, pra dar espaço ao conteúdo
-  // que "sobe" por cima dela nas telas internas)
+  // Faixa simples no topo, transparente (aparece o fundo da tela)
   header: {
-    height: 400,
-
-    paddingTop: 62,
-    paddingHorizontal: 20,
-
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-
-    borderBottomLeftRadius: 140,
-    borderBottomRightRadius: 140,
-
-    overflow: "hidden",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 14,
   },
 
-  // Seta de voltar + bloco de título/subtítulo, lado a lado
-  esquerda: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+  // minWidth 0 deixa o título encolher em vez de empurrar a tela pro lado
+  textos: {
+    flex: 1,
+    minWidth: 0,
   },
 
   titulo: {
-    color: "#B7FF00",
-    fontSize: 28,
-    lineHeight: 30,
+    color: Cores.base.branco,
+    fontSize: 22,
+    lineHeight: 28,
     fontFamily: FONTS.raleway.bold,
   },
 
   subtitulo: {
-    color: "#B7FF00",
-    fontSize: 20,
-    lineHeight: 22,
-    fontFamily: FONTS.raleway.regular,
-    marginTop: 2,
-  },
-
-  // Container dos 2 ícones (coroa + sino)
-  icones: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 15,
-    marginTop: 3,
-  },
-
-  icone: {
-    width: 24,
-    height: 24,
-    resizeMode: "contain",
+    color: Cores.texto.claro,
+    fontSize: 13,
+    lineHeight: 18,
+    fontFamily: FONTS.quicksand.medium,
   },
 });

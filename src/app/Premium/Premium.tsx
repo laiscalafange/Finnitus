@@ -3,7 +3,7 @@ import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, TouchableOpa
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { HeaderInterno } from "../../shared/components/Header";
+import { HeaderMP } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
 import { Rotas } from "../../shared/constants/Rotas";
 import { PLANOS } from "@/features/planosData";
@@ -74,7 +74,7 @@ export default function Premium() {
       style={styles.fundo}
     >
       {/* Cabeçalho da tela, com título e subtítulo */}
-      <HeaderInterno
+      <HeaderMP
         titulo="Seja Premium!"
         subtitulo="Detalhes"
         mostrarPremium={false}

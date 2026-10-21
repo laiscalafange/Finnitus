@@ -13,12 +13,10 @@ export const styles = StyleSheet.create({
     paddingBottom: 30,
   },
 
-  // Área dos campos. O marginTop negativo faz o formulário "subir" por cima
-  // da faixa roxa do HeaderInterno (mesmo padrão das outras telas de conta)
+  // Área do conteúdo, logo abaixo do cabeçalho discreto (HeaderInterno)
   formulario: {
     paddingHorizontal: 16,
-    paddingTop: 40,
-    marginTop: -300,
+    paddingTop: 8,
   },
 
   // Mensagem de erro acima do botão

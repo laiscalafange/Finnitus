@@ -4,7 +4,7 @@ import { Cores } from "@/shared/constants/Cores";
 import { FONTS } from "@/shared/constants/Tipografia";
 
 // Estilos da tela Reserva de emergência. O container, o conteúdo do scroll e
-// a área que sobe por cima do header vêm de styles/formulario.ts (mesmo padrão).
+// a área do conteúdo (logo abaixo do header) vêm de styles/formulario.ts (mesmo padrão).
 export const styles = StyleSheet.create({
   // Bordas dos cards no mesmo tom do card flutuante (ModalConfirmarAcao)
   card: {

@@ -6,12 +6,10 @@ export const styles = StyleSheet.create({
   container: { flex: 1 },
   conteudo: { paddingBottom: 30 },
 
-  // Área da lista. O marginTop negativo faz o conteúdo "subir" por cima
-  // da faixa roxa do HeaderInterno (mesmo padrão das outras telas de conta)
+  // Área do conteúdo, logo abaixo do cabeçalho discreto (HeaderInterno)
   lista: {
     paddingHorizontal: 16,
-    paddingTop: 40,
-    marginTop: -300,
+    paddingTop: 8,
   },
 
   // Cada item é um Card, com o mesmo fundo/borda roxos usados no Ajuda

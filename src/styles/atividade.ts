@@ -16,10 +16,9 @@ export const styles = StyleSheet.create({
     paddingBottom: 30,
   },
 
-  // Conteúdo "sobe" por cima da faixa roxa do HeaderInterno
+  // Conteúdo logo abaixo do cabeçalho discreto (HeaderInterno)
   conteudoSobreHeader: {
-    marginTop: -300,
-    paddingTop: 30,
+    paddingTop: 8,
     paddingHorizontal: 16,
   },
 

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 import { Cores } from "../../shared/constants/Cores";
 
@@ -23,12 +23,6 @@ const FILTROS: { id: Filtro; rotulo: string }[] = [
   { id: "cancelada", rotulo: "Canceladas" },
 ];
 
-// Gradientes iguais aos das outras telas de Metas
-const GRADIENTE_FUNDO: [string, string, string] = [
-  "#3f1e69",
-  "#08070A",
-  "#291444",
-];
 // Mesmo roxo dos cards da tela Metas (mês e longo prazo)
 const GRADIENTE_CARD: [string, string] = [Cores.fundo.destaque, "#5a2dc7"];
 
@@ -47,25 +41,16 @@ export default function MetasHistorico() {
     .sort((a, b) => (b.dataFinal ?? "").localeCompare(a.dataFinal ?? ""));
 
   return (
-    <LinearGradient
-      colors={GRADIENTE_FUNDO}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
         {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
-        <HeaderInterno
-          titulo="Histórico"
-          subtitulo="Metas"
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        <HeaderInterno titulo="Histórico" />
 
-        {/* Conteúdo (sobe por cima da faixa roxa do header) */}
+        {/* Conteúdo (logo abaixo do cabeçalho) */}
         <View style={styles.conteudoSobreHeader}>
           <AlternadorTipo
             valor={filtro}
@@ -136,6 +121,6 @@ export default function MetasHistorico() {
           )}
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }

@@ -6,7 +6,6 @@ import {
   Switch,
 } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 import {
   Globe,
   Coins,
@@ -14,6 +13,7 @@ import {
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 import { SelectCard } from "../../shared/components/SelectCard";
 import { Modal } from "../../shared/components/Modal";
@@ -44,22 +44,13 @@ export default function Preferencias() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno
-          titulo="Preferências"
-          subtitulo="Configurações"
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        <HeaderInterno titulo="Preferências" />
 
         <View style={styles.lista}>
           <Card
@@ -139,6 +130,6 @@ export default function Preferencias() {
         onConfirm={recomecarDoZero}
         onCancel={() => setModalVisivel(false)}
       />
-    </LinearGradient>
+    </View>
   );
 }

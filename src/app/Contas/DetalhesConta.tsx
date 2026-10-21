@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
 import { Cores } from "../../shared/constants/Cores";
 import { Rotas } from "../../shared/constants/Rotas";
@@ -32,6 +32,7 @@ import {
   ModalCartao,
   textoDiferenca,
 } from "@/features/contas/components/ContaUI";
+import { ModalConfirmarConta } from "@/features/contas/components/ConfirmarConta";
 import { styles } from "@/features/contas/styles";
 import { styles as modal } from "@/features/menuMais/components/ModalReserva/styles";
 import { Trash2 } from "lucide-react-native";
@@ -62,6 +63,8 @@ export default function DetalhesConta() {
 
   const [aba, setAba] = useState<Aba>("info");
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
+  // "Marcar como paga/recebida" abre um modal (não é mais uma tela separada)
+  const [confirmandoBaixa, setConfirmandoBaixa] = useState(false);
 
   const transacao = transacoes.find((item) => item.id === id);
   const competencia = competenciaParam ?? competenciaAtual();
@@ -72,18 +75,14 @@ export default function DetalhesConta() {
   // Conta não encontrada (ex.: foi excluída)
   if (!transacao || !conta) {
     return (
-      <LinearGradient
-        colors={["#160B24", "#08070A", "#160B24"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={form.container}
-      >
-        <HeaderInterno titulo="Detalhes" subtitulo="Conta" mostrarPremium={false} mostrarNotificacao={false} />
+      <View style={form.container}>
+        <BackgroundGradient variante="funcional" />
+        <HeaderInterno titulo="Detalhes da conta" />
         <View style={form.formulario}>
           <Text style={styles.vazio}>Não encontramos essa conta neste mês. Ela pode ter sido excluída.</Text>
           <Button titulo="Voltar" variante="outline" onPress={voltar} />
         </View>
-      </LinearGradient>
+      </View>
     );
   }
 
@@ -108,10 +107,7 @@ export default function DetalhesConta() {
     .sort((a, b) => b.vigencia.alteradaEm.localeCompare(a.vigencia.alteradaEm));
 
   function abrirConfirmar() {
-    router.push({
-      pathname: Rotas.confirmarConta,
-      params: { id: transacao!.id, competencia },
-    });
+    setConfirmandoBaixa(true);
   }
 
   function abrirEditar() {
@@ -128,19 +124,10 @@ export default function DetalhesConta() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={form.container}
-    >
+    <View style={form.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={form.conteudo}>
-        <HeaderInterno
-          titulo={tituloHeader}
-          subtitulo={conta.recorrente ? "Conta fixa" : "Registro"}
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        <HeaderInterno titulo={tituloHeader} />
 
         <View style={form.formulario}>
           {/* Resumo da conta */}
@@ -269,6 +256,13 @@ export default function DetalhesConta() {
         </View>
       </ScrollView>
 
+      {/* Confirmar pagamento / recebimento (modal) */}
+      <ModalConfirmarConta
+        visible={confirmandoBaixa}
+        conta={conta}
+        aoFechar={() => setConfirmandoBaixa(false)}
+      />
+
       {/* Confirmação de exclusão */}
       <ModalCartao visible={confirmandoExclusao} aoFechar={() => setConfirmandoExclusao(false)}>
         <View style={modal.centralizado}>
@@ -289,7 +283,7 @@ export default function DetalhesConta() {
           </View>
         </View>
       </ModalCartao>
-    </LinearGradient>
+    </View>
   );
 }
 

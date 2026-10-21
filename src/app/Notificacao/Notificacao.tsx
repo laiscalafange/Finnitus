@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { CalendarDays, Target } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { CardNotificacao } from "../../shared/components/CardsNotificacoes";
 import { Button } from "../../shared/components/Button";
 import { Cores } from "../../shared/constants/Cores";
@@ -20,6 +20,7 @@ import {
   type Notificacao,
 } from "@/features/contas/notificacoesData";
 import { ModalCartao } from "@/features/contas/components/ContaUI";
+import { ConfirmarContaConteudo } from "@/features/contas/components/ConfirmarConta";
 import { styles as ui } from "@/features/contas/styles";
 
 type Filtro = "todas" | CategoriaNotificacao;
@@ -40,6 +41,8 @@ export default function Notificacoes() {
 
   const [filtro, setFiltro] = useState<Filtro>("todas");
   const [aberta, setAberta] = useState<Notificacao | null>(null);
+  // Etapa "Confirmar pagamento/recebimento" dentro do mesmo modal
+  const [confirmando, setConfirmando] = useState(false);
 
   const todas = useMemo(
     () => gerarNotificacoes(transacoes, baixas, metas),
@@ -51,7 +54,13 @@ export default function Notificacoes() {
   // Tocar abre o modal e marca como lida
   function abrir(notificacao: Notificacao) {
     marcarNotificacoesLidas([notificacao.id]);
+    setConfirmando(false);
     setAberta(notificacao);
+  }
+
+  function fecharModal() {
+    setAberta(null);
+    setConfirmando(false);
   }
 
   function marcarTodasComoLidas() {
@@ -60,12 +69,18 @@ export default function Notificacoes() {
 
   // Fecha o modal e abre outra tela (nunca dois modais ao mesmo tempo)
   function ir(pathname: string, params?: Record<string, string>) {
-    setAberta(null);
+    fecharModal();
     router.push({ pathname, params } as never);
   }
 
   function renderModal(notificacao: Notificacao) {
     const conta = notificacao.conta;
+
+    // Confirmar pagamento/recebimento: troca o conteúdo do mesmo modal
+    if (confirmando && conta) {
+      return <ConfirmarContaConteudo conta={conta} aoFechar={fecharModal} />;
+    }
+
     const Icone = conta?.icone ?? (notificacao.categoria === "metas" ? Target : CalendarDays);
     const entrada = conta?.tipo === "entrada";
 
@@ -94,7 +109,7 @@ export default function Notificacoes() {
             <>
               <Button
                 titulo={entrada ? "Marcar como recebida" : "Marcar como paga"}
-                onPress={() => ir(Rotas.confirmarConta, paramsConta)}
+                onPress={() => setConfirmando(true)}
               />
               <View style={ui.espaco} />
               <Button
@@ -127,15 +142,11 @@ export default function Notificacoes() {
   }
 
   return (
-    <LinearGradient
-      colors={["#3f1e69", "#08070A", "#291444"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.conteudo}>
         {/* Cabeçalho */}
-        <HeaderInterno titulo="Notificações" subtitulo="Central" mostrarNotificacao={false} />
+        <HeaderInterno titulo="Notificações" />
 
         <View style={styles.conteudoLista}>
           <AlternadorTipo<Filtro> valor={filtro} aoMudar={setFiltro} opcoes={OPCOES} />
@@ -168,9 +179,9 @@ export default function Notificacoes() {
         </View>
       </ScrollView>
 
-      <ModalCartao visible={aberta !== null} aoFechar={() => setAberta(null)}>
+      <ModalCartao visible={aberta !== null} aoFechar={fecharModal}>
         {aberta ? renderModal(aberta) : null}
       </ModalCartao>
-    </LinearGradient>
+    </View>
   );
 }

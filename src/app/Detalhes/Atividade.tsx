@@ -1,8 +1,8 @@
 import { ScrollView, Text, View } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 import { Cores } from "../../shared/constants/Cores";
 import { useFinanceiro } from "@/features/financeiroContext";
@@ -19,11 +19,6 @@ const NIVEIS = NIVEIS_ATIVIDADE;
 
 const LETRAS_SEMANA = ["S", "T", "Q", "Q", "S", "S", "D"];
 
-const GRADIENTE_FUNDO: [string, string, string] = [
-  "#160B24",
-  "#08070A",
-  "#160B24",
-];
 const GRADIENTE_CARD: [string, string] = [
   Cores.fundo.cardAlt,
   Cores.fundo.navBarra,
@@ -83,12 +78,8 @@ export default function Atividade() {
   const semAtividade = dias.every((dia) => dia.nivel === "nenhuma");
 
   return (
-    <LinearGradient
-      colors={GRADIENTE_FUNDO}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
@@ -97,11 +88,9 @@ export default function Atividade() {
         <HeaderInterno
           titulo="Atividade"
           subtitulo={`${mes} ${ano}`}
-          mostrarPremium={false}
-          mostrarNotificacao={false}
         />
 
-        {/* Conteúdo (sobe por cima da faixa roxa do header) */}
+        {/* Conteúdo (logo abaixo do cabeçalho) */}
         <View style={styles.conteudoSobreHeader}>
           {/* Letras dos dias da semana */}
           <View style={styles.linhaSemana}>
@@ -173,6 +162,6 @@ export default function Atividade() {
           </Card>
         </View>
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }

@@ -7,13 +7,13 @@ import {
 } from "react-native";
 
 import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import {
   Smartphone,
   Laptop,
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 import { Button } from "../../shared/components/Button";
 import { ModalConfirmarAcao } from "../../shared/components/Modal/ModalConfirmarAcao";
@@ -52,23 +52,14 @@ export default function Seguranca() {
   const [modalExcluirVisivel, setModalExcluirVisivel] = useState(false);
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
         {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
-        <HeaderInterno
-          titulo="Segurança"
-          subtitulo="Perfil"
-          mostrarPremium={false}
-          mostrarNotificacao={false}
-        />
+        <HeaderInterno titulo="Segurança" />
 
         <View style={styles.lista}>
           {/* Trocar senha: em vez do formulário de senha aparecer direto
@@ -190,6 +181,6 @@ export default function Seguranca() {
         acao="excluir"
         onClose={() => setModalExcluirVisivel(false)}
       />
-    </LinearGradient>
+    </View>
   );
 }

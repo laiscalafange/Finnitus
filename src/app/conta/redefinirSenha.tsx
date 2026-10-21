@@ -12,9 +12,9 @@ import {
   useRouter,
 } from "expo-router";
 
-import { LinearGradient } from "expo-linear-gradient";
 
 import { HeaderInterno } from "../../shared/components/Header";
+import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 
@@ -56,12 +56,8 @@ export default function RedefinirSenha() {
   }
 
   return (
-    <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
       <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -71,12 +67,7 @@ export default function RedefinirSenha() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.conteudo}
         >
-          <HeaderInterno
-            titulo="Redefinir senha"
-            subtitulo="Segurança"
-            mostrarPremium={false}
-            mostrarNotificacao={false}
-          />
+          <HeaderInterno titulo="Redefinir senha" />
 
           <View style={styles.formulario}>
             <Input
@@ -112,6 +103,6 @@ export default function RedefinirSenha() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }
