@@ -16,8 +16,12 @@ import { useFinanceiro } from "@/features/financeiroContext";
 import { habitoGuardar, percentualMeta } from "@/features/metasData";
 import { styles } from "../../styles/Metasanalises";
 
-// Mesmo roxo dos cards da tela Metas (mês e longo prazo)
-const GRADIENTE_CARD: [string, string] = [Cores.fundo.destaque, "#5a2dc7"];
+// Roxo mais suave e translúcido (deixa o fundo da tela aparecer), no mesmo
+// tom dos cards roxos do restante do app em vez do roxo forte de antes
+const GRADIENTE_CARD: [string, string] = [
+  "rgba(72, 34, 135, 0.55)",
+  "rgba(48, 9, 110, 0.40)",
+];
 
 // A meta com maior progresso fica em verde-limão, mas só se passou desse %
 const PERCENTUAL_DESTAQUE = 75;

@@ -14,13 +14,14 @@ function obterIniciais(name: string) {
   ).toUpperCase();
 }
 
-export function Avatar({ image, name, size = 48 }: AvatarProps) {
+export function Avatar({ image, name, size = 48, semBorda = false }: AvatarProps) {
   const dimensoes = {
     width: size,
     height: size,
     borderRadius: size / 2,
-    // Borda proporcional ao tamanho (no Perfil, size 200, continua 10)
-    borderWidth: Math.round(size * 0.05),
+    // Borda proporcional ao tamanho (no Perfil, size 200, continua 10).
+    // Na Home (semBorda) não aparece a borda preta em volta da foto.
+    borderWidth: semBorda ? 0 : Math.round(size * 0.05),
     borderColor: "#0B0B0F",
   };
 

@@ -23,8 +23,12 @@ const FILTROS: { id: Filtro; rotulo: string }[] = [
   { id: "cancelada", rotulo: "Canceladas" },
 ];
 
-// Mesmo roxo dos cards da tela Metas (mês e longo prazo)
-const GRADIENTE_CARD: [string, string] = [Cores.fundo.destaque, "#5a2dc7"];
+// Roxo mais suave e translúcido (deixa o fundo da tela aparecer), no mesmo
+// tom dos cards roxos do restante do app em vez do roxo forte de antes
+const GRADIENTE_CARD: [string, string] = [
+  "rgba(72, 34, 135, 0.55)",
+  "rgba(48, 9, 110, 0.40)",
+];
 
 // Tela "Histórico" de Metas: metas que já foram concluídas ou canceladas,
 // com filtro por situação. Aberta pelo botão "Histórico" da tela Metas.
