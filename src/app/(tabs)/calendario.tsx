@@ -3,18 +3,17 @@ import {
 } from "../../features/calendar/utils/classificarEventoFinanceiro";
 
 import {
-  Image, ScrollView,Text,TouchableOpacity,View,Modal,TextInput,
+  Image, ScrollView, Text, TouchableOpacity, View, Modal, TextInput,
 } from "react-native";
 
 import {
-listarEventosDoDispositivo, type EventoDispositivo,
+  listarEventosDoDispositivo,
+  type EventoDispositivo,
 } from "../../features/calendar/services/deviceCalendarService";
 
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Circle } from "react-native-svg";
-import { Calendar,
-  LocaleConfig,
-} from "react-native-calendars";
+import { Calendar, LocaleConfig } from "react-native-calendars";
 
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -62,8 +61,6 @@ type GaugeCircularProps = {
   segmentos: SegmentoGauge[];
 
 };
-
-
 
 type MarcacaoData = {
   marked?: boolean;
@@ -140,7 +137,7 @@ LocaleConfig.defaultLocale = "pt";
 
 // ─────────────────────────────────────────────
 
-// DATAS MOCK
+// FUNÇÃO AUXILIAR DE DATA
 
 // ─────────────────────────────────────────────
 
@@ -165,10 +162,6 @@ function obterDataCalendario(
   return item.data.slice(0, 10);
 
 }
-
-// ─────────────────────────────────────────────
-
-// GAUGE
 
 // ─────────────────────────────────────────────
 
@@ -260,8 +253,6 @@ function GaugeCircular({
 
 }
 
-// ─────────────────────────────────────────────
-
 // COMPONENTE PRINCIPAL
 
 // ─────────────────────────────────────────────
@@ -276,7 +267,7 @@ const [
 
     dataSelecionada,
     setDataSelecionada,
-  ] = useState<string | null>(null);
+  ] = useState<string | null>(() => chaveDia(new Date()));
 
   // Mês que o calendário mostra. Começa no mês de hoje
 
@@ -357,11 +348,6 @@ const [
   setEventosDispositivo,
 ] = useState<EventoDispositivo[]>([]);
 
-  const [
-    carregandoCalendario,
-    setCarregandoCalendario,
-  ] = useState<boolean>(false);
-
   // ─────────────────────────────────────────
 
   // INFORMAÇÕES DO MÊS
@@ -424,9 +410,15 @@ if (dataSelecionada) {
   // ─────────────────────────────────────────
 
 useEffect(() => {
+  let ativo = true;
+  // Evita deixar eventos de outro mês na tela durante o carregamento.
+  setItensCalendario([]);
+  setEventosDispositivo([]);
+  setDecisoesEventos({});
+
   async function carregarCalendario() {
     try {
-      setCarregandoCalendario(true);
+
 
       const [ano, mes] = mesAtual
         .split("-")
@@ -519,8 +511,13 @@ eventosAindaVisiveis.forEach(
   }
 );
 
-// 6. ATUALIZA OS ESTADOS
-
+// 6. ATUALIZA OS ESTADOS (somente se ainda for o mês atual)
+if (!ativo) return;
+console.log("Calendário carregado:", {
+  periodo: `${inicio} a ${proximoMes}`,
+  itensFinnitus: itens.length,
+  eventosDispositivo: eventosDoDispositivo.length,
+});
 setItensCalendario(itens);
 
 setEventosDispositivo(
@@ -531,47 +528,15 @@ setDecisoesEventos(
   decisoesPersistidas
 );
 
-      // TESTE DA CLASSIFICAÇÃO
-eventosAindaVisiveis.forEach(
-  (evento) => {
-    const classificacao =
-      classificarEventoFinanceiro(
-        evento.titulo
-      );
-
-    console.log(
-      "ANÁLISE FINANCEIRA:",
-      evento.titulo,
-      classificacao
-    );
-  }
-);
-
-      console.log(
-        "Itens reais do calendário:",
-        itens
-      );
-
-      console.log(
-        "Eventos do dispositivo:",
-        eventosDoDispositivo
-      );
-
-      console.log(
-  "Eventos ainda visíveis:",
-  eventosAindaVisiveis
-);
-    } catch (error) {
-      console.error(
-        "Erro ao carregar calendário:",
-        error
-      );
-    } finally {
-      setCarregandoCalendario(false);
+          } catch (error) {
+      if (ativo) {
+        console.error("Erro ao carregar calendário:", error);
+      }
     }
   }
 
   carregarCalendario();
+  return () => { ativo = false; };
 }, [
   mesAtual,
   recarregarCalendario,
@@ -615,20 +580,7 @@ const movimentacoesDoDia =
     );
   });
 
-const compromissosDoDia =
-  itensCalendario.filter((item) => {
-    return (
-      (item.tipo === "META" ||
-        item.tipo === "DIVIDA") &&
-      dataSelecionada !== null &&
-      obterDataCalendario(item) ===
-        dataSelecionada
-    );
-  });
 
-// ─────────────────────────────────────────
-// RESUMO FINANCEIRO DO MÊS
-// ─────────────────────────────────────────
 
 const despesasDoMes =
   itensCalendario.filter(
@@ -818,6 +770,7 @@ function formatarValorCalendario(
           {/* ───────── CALENDÁRIO ───────── */}
           {calendarioAberto && (
             <Calendar
+              key={mesAtual.slice(0, 7)}
               current={mesAtual}
               // O Calendar só troca de mês sozinho quando o initialDate muda
 
@@ -835,10 +788,11 @@ function formatarValorCalendario(
               }}
 
               onMonthChange={(month) => {
-                setMesAtual(
-                  month.dateString
-                );
-
+                const novoMes = month.dateString.slice(0, 7);
+                if (novoMes !== mesAtual.slice(0, 7)) {
+                  setMesAtual(`${novoMes}-01`);
+                  setDataSelecionada(`${novoMes}-01`);
+                }
               }}
 
               // Título do calendário também abre o card de mês/ano
@@ -1588,80 +1542,8 @@ const ehSuspeito =
 )}
 
 
-<Text style={styles.secaoTitulo}>
-  Compromissos financeiros
-</Text>
 
-{compromissosDoDia.length > 0 ? (
-  compromissosDoDia.map((item) => {
-    const ehMeta = item.tipo === "META";
-    return (
-      <LinearGradient
-        key={`${item.tipo}-${item.id}`}
-        colors={[
-          "#30096e",
-          "#30096e",
-        ]}
-
-        style={styles.gastoCard}
-      >
-
-        <View
-
-          style={[
-            styles.gastoIconeContainer,
-            {
-              backgroundColor: "#5f33a77a",
-              borderWidth: 1,
-              borderColor: "#7F3BED",
-              borderRadius: 100,
-            },
-          ]}
-
-        >
-          <Text
-            style={{
-              color: Cores.base.branco,
-              fontSize: 16,
-            }}
-          >
-            {ehMeta ? "M" : "D"}
-          </Text>
-
-        </View>
-        <View style={styles.gastoInfo}>
-          <Text style={styles.gastoNome}>
-            {item.titulo}
-          </Text>
-
-          <Text style={styles.gastoHora}>
-            {ehMeta
-              ? "Prazo da meta"
-              : "Vencimento da dívida"}
-          </Text>
-        </View>
-
-        <Text style={styles.gastoValor}>
-          R${" "}
-          {(item.valor ?? 0)
-            .toFixed(2)
-            .replace(".", ",")}
-        </Text>
-
-      </LinearGradient>
-    );
-  })
-) : (
-  <Text style={styles.eventoDescricao}>
-    {dataSelecionada
-      ? "Nenhum compromisso financeiro nesta data."
-      : "Selecione uma data."}
-
-  </Text>
-
-)}
-
-         {/* ───────── GASTOS DO MÊS ───────── */}
+{/* ───────── GASTOS DO MÊS ───────── */}
 
 <Text style={styles.secaoTitulo}>
   Gastos do mês
@@ -1810,7 +1692,6 @@ const ehSuspeito =
         </View>
 
       </ScrollView>
-
 
 
       <Modal
@@ -2162,18 +2043,9 @@ const ehSuspeito =
 
           // Sempre dia 01, pra nunca cair num dia que não existe no mês
 
-          setMesAtual(
-
-            `${ano}-${String(
-
-              mes + 1
-
-            ).padStart(2, "0")}-01`
-
-          );
-
-
-
+          const novoMes = `${ano}-${String(mes + 1).padStart(2, "0")}`;
+          setMesAtual(`${novoMes}-01`);
+          setDataSelecionada(`${novoMes}-01`);
           setModalMesAno(false);
 
         }}
