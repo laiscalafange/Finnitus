@@ -113,6 +113,8 @@ model Usuario {
   Udata_nasc     DateTime? @db.Date
   Udata_cadastro DateTime
   UTipo          String
+  fotoPerfilUrl      String?
+  fotoPerfilPublicId String?
 
   CategoriaPersonalizada CategoriaPersonalizada[]
   Despesa                Despesa[]
