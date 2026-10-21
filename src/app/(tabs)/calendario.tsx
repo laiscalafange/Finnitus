@@ -121,13 +121,13 @@ LocaleConfig.locales["pt"] = {
   ],
 
   dayNamesShort: [
+    "dom",
     "seg",
     "ter",
     "qua",
     "qui",
     "sex",
     "sáb",
-    "dom",
   ],
 
   today: "Hoje",
@@ -141,26 +141,11 @@ LocaleConfig.defaultLocale = "pt";
 
 // ─────────────────────────────────────────────
 
-function obterDataCalendario(
-  item: ItemCalendario
-): string {
-  if (item.tipo === "EVENTO") {
-    const data = new Date(item.data);
-    const ano = data.getFullYear();
-    const mes = String(
-      data.getMonth() + 1
-    ).padStart(2, "0");
-
-    const dia = String(
-      data.getDate()
-    ).padStart(2, "0");
-
-    return `${ano}-${mes}-${dia}`;
-
-  }
-
+function obterDataCalendario(item: ItemCalendario): string {
+  // O backend serializa as datas para ISO (AAAA-MM-DDTHH:mm:ss.sssZ).
+  // Usamos o dia gravado para evitar deslocar eventos à véspera
+  // quando o navegador está no fuso horário de Brasília.
   return item.data.slice(0, 10);
-
 }
 
 // ─────────────────────────────────────────────
@@ -542,20 +527,35 @@ setDecisoesEventos(
   recarregarCalendario,
 ]);
 
-  const eventosDoDia =
-  itensCalendario.filter((item) => {
-    const eventoDoDispositivo =
-      item.tipo === "EVENTO" &&
-      item.origem ===
-        "DISPOSITIVO";
+  // Evita duplicar eventos disponíveis no calendário do aparelho.
+  // Porém, se o navegador não consegue ler o calendário nativo,
+  // eventos importados que já estão salvos no backend continuam visíveis.
+  const idsEventosLidosDoDispositivo = new Set(
+    eventosDispositivo.map((evento) => evento.id)
+  );
 
-    return (
-      item.tipo === "EVENTO" &&
-      !eventoDoDispositivo &&
-      dataSelecionada !== null &&
-      obterDataCalendario(item) ===
-        dataSelecionada
-    );
+  const eventosDoDia = itensCalendario.filter((item) => {
+    if (
+      item.tipo !== "EVENTO" ||
+      !dataSelecionada ||
+      obterDataCalendario(item) !== dataSelecionada
+    ) {
+      return false;
+    }
+
+    if (item.origem === "DISPOSITIVO") {
+      // Confirmados passam a constar como receitas/despesas
+      // caso a rota de confirmação tenha criado essa movimentação.
+      if (item.statusFinanceiro === "CONFIRMADO") return false;
+      if (
+        item.idEventoExterno &&
+        idsEventosLidosDoDispositivo.has(item.idEventoExterno)
+      ) {
+        return false;
+      }
+    }
+
+    return true;
   });
 
 const eventosDispositivoDoDia =
@@ -1062,7 +1062,9 @@ eventosDispositivoDoDia.length > 0 ? (
           <Text
             style={styles.eventoDescricao}
           >
-            Finnitus
+            {evento.origem === "DISPOSITIVO"
+              ? "Importado do calendário do celular"
+              : "Finnitus"}
           </Text>
 
           {!evento.diaInteiro && (

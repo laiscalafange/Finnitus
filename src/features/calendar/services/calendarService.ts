@@ -1,15 +1,13 @@
+
 import { api } from "../../../services/api";
+
 export type ConfirmarEventoFinanceiroPayload = {
   idEventoExterno: string;
   tituloEvento: string;
   dataInicio: string;
   dataFim?: string;
   diaInteiro?: boolean;
-
-  tipoMovimentacao:
-    | "RECEITA"
-    | "DESPESA";
-
+  tipoMovimentacao: "RECEITA" | "DESPESA";
   descricao: string;
   valor: number;
   data: string;
@@ -66,8 +64,8 @@ export type ItemCalendario = {
   diaInteiro?: boolean;
 
   origem?: "FINNITUS" | "DISPOSITIVO";
-idEventoExterno?: string;
-statusFinanceiro?: string;
+  idEventoExterno?: string;
+  statusFinanceiro?: string;
 };
 
 export async function listarItensCalendario(
@@ -84,5 +82,35 @@ export async function listarItensCalendario(
     }
   );
 
-  return response.data;
+  if (!Array.isArray(response.data)) {
+    console.error(
+      "Resposta inesperada do calendário:",
+      response.data
+    );
+
+    throw new Error(
+      "O backend não retornou uma lista de eventos."
+    );
+  }
+
+  const itens = response.data;
+
+  const porTipo = itens.reduce<Record<string, number>>(
+    (resultado, item) => {
+      resultado[item.tipo] =
+        (resultado[item.tipo] ?? 0) + 1;
+
+      return resultado;
+    },
+    {}
+  );
+
+  console.log("CALENDÁRIO API:", {
+    inicio,
+    fim,
+    total: itens.length,
+    porTipo,
+  });
+
+  return itens;
 }
