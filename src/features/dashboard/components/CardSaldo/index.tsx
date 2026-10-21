@@ -9,10 +9,9 @@ type Props = {
   onPress?: () => void
 }
 
+// Sem saldo preenchido, mostra R$ 0,00 (nunca traços). Saldo real não é alterado.
 const moeda = (valor?: number) =>
-  valor === undefined
-    ? 'R$ —'
-    : valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  (valor ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 // Saldo atual (fica dentro do header roxo da Home, centralizado)
 export function CardSaldo({ saldoAtual, onPress }: Props) {

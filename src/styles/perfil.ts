@@ -14,10 +14,12 @@ export const styles = StyleSheet.create({
   },
 
   // Área do avatar + nome + username, centralizada
-  // marginTop negativo pra "subir" e sobrepor o header (efeito visual pretendido)
+  // marginTop negativo pra "subir" e sobrepor só a curva de baixo do header.
+  // O valor (-60) deixa o topo da foto abaixo do título "Perfil" e do
+  // subtítulo "Pessoal" (que terminam por volta de 115px do topo).
   profile: {
     alignItems: "center",
-    marginTop: -90,
+    marginTop: -60,
   },
 
   nome: {

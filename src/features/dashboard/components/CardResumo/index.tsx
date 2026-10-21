@@ -11,10 +11,9 @@ type Props = {
   onPressDespesas?: () => void
 }
 
+// Sem valor preenchido, mostra R$ 0,00 (nunca traços). Valor real não é alterado.
 const moeda = (valor?: number) =>
-  valor === undefined
-    ? 'R$ —'
-    : valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  (valor ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
 // Receitas e Despesas lado a lado (ficam dentro do header roxo da Home)
 export function CardResumo({ receitas, despesas, onPressReceitas, onPressDespesas }: Props) {

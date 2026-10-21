@@ -21,7 +21,7 @@ export function DashboardHeader({ nome, mes, aoPressMes, onPremium, onNotificaca
     <View style={styles.container}>
       <View style={styles.avatarArea}>
         <TouchableOpacity onPress={onPerfil} activeOpacity={0.8} accessibilityRole="button" accessibilityLabel="Abrir perfil">
-          <Avatar name={nome} size={50} />
+          <Avatar name={nome} size={50} semBorda />
         </TouchableOpacity>
       </View>
 

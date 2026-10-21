@@ -27,7 +27,12 @@ import {
   type VigenciaConta,
 } from './contas/contasData'
 
+// Tipo de renda informado na configuração inicial
+export type TipoRenda = 'fixa' | 'variavel' | 'nenhuma'
+
 export type FinanceiroState = {
+  // Se a pessoa tem renda fixa, variável ou não tem renda
+  tipoRenda?: TipoRenda
   salario?: number
   despesas?: number
   economiaFutura?: number
@@ -96,6 +101,7 @@ export type NovaBaixa = {
 export type ResultadoMovimento = 'ok' | 'concluida' | 'saldoInsuficiente' | 'naoEncontrada'
 
 type FinanceiroContextValue = FinanceiroState & {
+  setTipoRenda: (tipo?: TipoRenda) => void
   setSalario: (valor?: number) => void
   setDespesas: (valor?: number) => void
   setEconomiaFutura: (valor?: number) => void
@@ -287,6 +293,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   // Usuário que está autenticado no aplicativo
   const { user } = useAuth();
 
+  const [tipoRenda, setTipoRenda] = useState<TipoRenda | undefined>()
   const [salario, setSalario] = useState<number | undefined>()
   const [despesas, setDespesas] = useState<number | undefined>()
   const [economiaFutura, setEconomiaFutura] = useState<number | undefined>()
@@ -578,11 +585,13 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
+      tipoRenda,
       salario,
       despesas,
       economiaFutura,
       tempoEconomia,
       metasSelecionadas,
+      setTipoRenda,
       setSalario,
       setDespesas,
       setEconomiaFutura,
@@ -604,6 +613,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       marcarNotificacoesLidas,
     }),
     [
+      tipoRenda,
       salario,
       despesas,
       economiaFutura,

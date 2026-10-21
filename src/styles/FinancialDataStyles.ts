@@ -45,6 +45,23 @@ export const styles = StyleSheet.create({
     marginBottom: 32,
     lineHeight: 30,
   },
+  // Rótulo de grupo (ex.: "Sua renda"), igual ao rótulo dos campos
+  rotulo: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 16,
+    color: Cores.destaque.limao,
+    marginBottom: 8,
+  },
+
+  // Texto de apoio curto abaixo do alternador (ex.: sem renda)
+  aviso: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    lineHeight: 20,
+    color: Cores.texto.claro,
+    marginBottom: 16,
+  },
+
   iconeInput: {
   width: 35,
   height: 35,

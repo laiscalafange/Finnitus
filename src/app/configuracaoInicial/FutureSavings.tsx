@@ -25,6 +25,11 @@ export default function DadosFinanceiros() {
     roteador.push("/configuracaoInicial/FutureGoals");
   }
 
+  // "Deixar para depois": segue o fluxo sem preencher nem alterar nada
+  function deixarParaDepois() {
+    roteador.push("/configuracaoInicial/FutureGoals");
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <BackgroundGradient />
@@ -32,14 +37,14 @@ export default function DadosFinanceiros() {
         <View style={styles.content}>
           <ProgressDots total={4} atual={2} />
           <Text style={styles.titulo}>
-            <Text style={styles.tituloDestaque}>Economia</Text> futura
+            <Text style={styles.tituloDestaque}>Reserva</Text> de emergência
           </Text>
           <Text style={styles.subtitulo}>
             Vamos calcular quanto você precisa economizar para ter uma reserva financeira adequada.
           </Text>
           <Input
-            label="Economia futura"
-            placeholder="Quanto quer economizar?"
+            label="Reserva de emergência"
+            placeholder="Quanto quer guardar na reserva?"
             icone={<Image source={require("../../../assets/icones/economia.png")} style={styles.iconeInput} />}
             value={economiaFutura}
             onChangeText={setEconomiaFuturaLocal}
@@ -55,6 +60,7 @@ export default function DadosFinanceiros() {
           />
         </View>
         <Button variante="primario" titulo="Confirmar" onPress={confirmar} />
+        <Button variante="botaotexto" titulo="Deixar para depois" onPress={deixarParaDepois} />
       </View>
     </View>
   );
