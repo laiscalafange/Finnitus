@@ -1,8 +1,4 @@
-import {
-  View,
-  Text,
-  Image,
-} from "react-native";
+import { View, Text, Image, ScrollView } from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -15,6 +11,9 @@ import { styles } from "../../styles/voltandoStyles";
 import { useAuth } from "../../features/authContext";
 import { googleIdToken } from "../../services/google";
 import { useAction } from "../../shared/hooks/useAction";
+
+// Limite do aumento de fonte do sistema (evita o texto estourar a tela)
+const LIMITE_FONTE = 1.1;
 
 export default function Voltando() {
   const roteador = useRouter();
@@ -38,25 +37,28 @@ export default function Voltando() {
 
       <BotaoVoltarAuth absoluto />
 
-      <View style={styles.content}>
-        <Text style={styles.title}>
+      {/* O texto rola se não couber; os botões ficam sempre livres embaixo */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
           Seja{" "}
-          <Text style={styles.title2}>
+          <Text style={styles.title2} maxFontSizeMultiplier={LIMITE_FONTE}>
             bem-
           </Text>
         </Text>
-
-        <Text style={styles.title2}>
+        <Text style={styles.title2} maxFontSizeMultiplier={LIMITE_FONTE}>
           vindo{" "}
-          <Text style={styles.title}>
+          <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
             de volta!
           </Text>
         </Text>
-
-        <Text style={styles.subtitle}>
+        <Text style={styles.subtitle} maxFontSizeMultiplier={LIMITE_FONTE}>
           Continue com o email ou outros serviços.
         </Text>
-      </View>
+      </ScrollView>
 
       <View style={styles.conteiner}>
         {error ? (
@@ -78,9 +80,7 @@ export default function Voltando() {
           onPress={() => roteador.push("/login")}
           icone={
             <Image
-              source={require(
-                "../../../assets/icones/email2.png"
-              )}
+              source={require("../../../assets/icones/email2.png")}
               style={{
                 width: 20,
                 height: 20,
@@ -98,9 +98,7 @@ export default function Voltando() {
           disabled={busy}
           icone={
             <Image
-              source={require(
-                "../../../assets/icones/google.png"
-              )}
+              source={require("../../../assets/icones/google.png")}
               style={{
                 width: 20,
                 height: 20,

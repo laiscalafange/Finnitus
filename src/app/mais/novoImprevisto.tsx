@@ -123,7 +123,7 @@ export default function NovoImprevisto() {
 
             <Input
               label="Descrição (opcional)"
-              placeholder="Ex: Troca da tela do celular"
+              placeholder="Ex: Troca da tela"
               value={descricao}
               onChangeText={setDescricao}
               autoCapitalize="sentences"

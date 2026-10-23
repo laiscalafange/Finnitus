@@ -27,22 +27,22 @@ export const styles = StyleSheet.create({
   },
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 40,
+    fontSize: 34,
     color: Cores.base.branco,
     marginBottom: 8,
     textAlign: 'center',
   },
   tituloDestaque: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 40,
+    fontSize: 34,
     color: Cores.destaque.limao,
   },
   subtitulo: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 25,
+    fontSize: 19,
     color: Cores.texto.principal,
     marginBottom: 32,
-    lineHeight: 25,
+    lineHeight: 26,
     textAlign: 'center',
   },
   iconeInput: {

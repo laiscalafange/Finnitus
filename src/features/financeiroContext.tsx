@@ -27,12 +27,12 @@ import {
   type VigenciaConta,
 } from './contas/contasData'
 
-// Tipo de renda informado na configuração inicial
-export type TipoRenda = 'fixa' | 'variavel' | 'nenhuma'
-
 export type FinanceiroState = {
-  // Se a pessoa tem renda fixa, variável ou não tem renda
-  tipoRenda?: TipoRenda
+  // Renda fixa e renda variável (média mensal) da configuração inicial.
+  // O "salario" abaixo continua sendo o TOTAL (fixa + variável): é ele que
+  // o resto do app usa nos cálculos.
+  rendaFixa?: number
+  rendaVariavel?: number
   salario?: number
   despesas?: number
   economiaFutura?: number
@@ -101,7 +101,8 @@ export type NovaBaixa = {
 export type ResultadoMovimento = 'ok' | 'concluida' | 'saldoInsuficiente' | 'naoEncontrada'
 
 type FinanceiroContextValue = FinanceiroState & {
-  setTipoRenda: (tipo?: TipoRenda) => void
+  setRendaFixa: (valor?: number) => void
+  setRendaVariavel: (valor?: number) => void
   setSalario: (valor?: number) => void
   setDespesas: (valor?: number) => void
   setEconomiaFutura: (valor?: number) => void
@@ -293,7 +294,8 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   // Usuário que está autenticado no aplicativo
   const { user } = useAuth();
 
-  const [tipoRenda, setTipoRenda] = useState<TipoRenda | undefined>()
+  const [rendaFixa, setRendaFixa] = useState<number | undefined>()
+  const [rendaVariavel, setRendaVariavel] = useState<number | undefined>()
   const [salario, setSalario] = useState<number | undefined>()
   const [despesas, setDespesas] = useState<number | undefined>()
   const [economiaFutura, setEconomiaFutura] = useState<number | undefined>()
@@ -585,13 +587,15 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(
     () => ({
-      tipoRenda,
+      rendaFixa,
+      rendaVariavel,
       salario,
       despesas,
       economiaFutura,
       tempoEconomia,
       metasSelecionadas,
-      setTipoRenda,
+      setRendaFixa,
+      setRendaVariavel,
       setSalario,
       setDespesas,
       setEconomiaFutura,
@@ -613,7 +617,8 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       marcarNotificacoesLidas,
     }),
     [
-      tipoRenda,
+      rendaFixa,
+      rendaVariavel,
       salario,
       despesas,
       economiaFutura,

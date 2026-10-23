@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
 
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: RFValue(40),
+    fontSize: RFValue(34),
     color: Cores.base.branco,
     marginBottom: 8,
   },
@@ -33,17 +33,17 @@ export const styles = StyleSheet.create({
   
   tituloDestaque: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: RFValue(42),
+    fontSize: RFValue(34),
     color: Cores.destaque.limao,
     textDecorationColor: Cores.roxo.claro,
   },
   
   subtitulo: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: RFValue(23),
+    fontSize: RFValue(19),
     color: Cores.texto.principal,
-    marginBottom: 32,
-    lineHeight: 30,
+    marginBottom: 24,
+    lineHeight: 26,
   },
   // Rótulo de grupo (ex.: "Sua renda"), igual ao rótulo dos campos
   rotulo: {
@@ -62,11 +62,33 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
+  // Card "Quanto dinheiro você recebe em média?" (tela sem renda)
+  cardRenda: {
+    padding: 16,
+    paddingBottom: 6,
+    marginBottom: 16,
+  },
+
+  cardTitulo: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 17,
+    color: Cores.destaque.limao,
+    marginBottom: 4,
+  },
+
+  cardAjuda: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 13,
+    lineHeight: 18,
+    color: Cores.texto.claro,
+    marginBottom: 14,
+  },
+
   iconeInput: {
-  width: 35,
-  height: 35,
+  width: 28,
+  height: 28,
   resizeMode: "contain",
-  marginLeft: 12,
-  marginRight: 12,
+  marginLeft: 8,
+  marginRight: 8,
 },
 });

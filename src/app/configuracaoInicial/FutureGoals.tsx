@@ -51,10 +51,10 @@ export default function MetasFuturas() {
       <View style={styles.header}>
         <ProgressDots total={4} atual={3} />
 
-  <Text style={styles.titulo}>
+  <Text style={styles.titulo} maxFontSizeMultiplier={1.1}>
     <Text style={styles.tituloDestaque}>Metas</Text> futuras
   </Text>
-        <Text style={styles.subtitulo}>
+        <Text style={styles.subtitulo} maxFontSizeMultiplier={1.1}>
           O que pretende alcançar
         </Text>
       </View>

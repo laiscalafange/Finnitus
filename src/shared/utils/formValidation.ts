@@ -30,6 +30,30 @@ export function validatePassword(
   }
 }
 
+// Máscara de telefone brasileiro: (11) 91234-5678 ou (11) 1234-5678.
+// Os parênteses, o espaço e o hífen entram sozinhos enquanto digita.
+export function mascararTelefone(texto: string) {
+  const digitos = texto.replace(/\D/g, "").slice(0, 11);
+
+  if (digitos.length === 0) {
+    return "";
+  }
+
+  if (digitos.length <= 2) {
+    return `(${digitos}`;
+  }
+
+  if (digitos.length <= 6) {
+    return `(${digitos.slice(0, 2)}) ${digitos.slice(2)}`;
+  }
+
+  if (digitos.length <= 10) {
+    return `(${digitos.slice(0, 2)}) ${digitos.slice(2, 6)}-${digitos.slice(6)}`;
+  }
+
+  return `(${digitos.slice(0, 2)}) ${digitos.slice(2, 7)}-${digitos.slice(7)}`;
+}
+
 export function normalizePhone(value: string) {
   return value.replace(/[()\s-]/g, "");
 }
@@ -67,7 +91,7 @@ export function validateProfile(
     date > new Date()
   ) {
     throw new Error(
-      "Informe uma data de nascimento válida em AAAA-MM-DD."
+      "Informe uma data de nascimento válida (DD/MM/AAAA), que não seja no futuro."
     );
   }
 }

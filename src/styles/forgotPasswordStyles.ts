@@ -26,7 +26,7 @@ export const styles = StyleSheet.create({
 
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: RFValue(40),
+    fontSize: RFValue(34),
     color: Cores.base.branco,
     marginBottom: 8,
   },
@@ -40,17 +40,17 @@ export const styles = StyleSheet.create({
   
   tituloDestaque: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: RFValue(42),
+    fontSize: RFValue(34),
     color: Cores.destaque.limao,
     textDecorationColor: Cores.roxo.claro,
   },
   
   subtitulo: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: RFValue(23),
+    fontSize: RFValue(19),
     color: Cores.texto.principal,
     marginBottom: 32,
-    lineHeight: 30,
+    lineHeight: 26,
   },
   iconeInput: {
   width: 35,
