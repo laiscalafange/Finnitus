@@ -28,13 +28,15 @@ export function Input({
   autoComplete,
   editable = true,
   maxLength,
+  multiline = false,
+  numberOfLines,
 }: InputProps) {
   const [senhaVisivel, setSenhaVisivel] = useState(false);
 
   return (
     <View style={styles.wrapper}>
       {label ? (
-        <Text style={styles.label}>
+        <Text style={styles.label} maxFontSizeMultiplier={1.15}>
           {label}
         </Text>
       ) : null}
@@ -42,6 +44,7 @@ export function Input({
       <View
         style={[
           styles.campo,
+          multiline ? styles.campoMultilinha : null,
           erro ? styles.campoErro : null,
         ]}
       >
@@ -52,7 +55,14 @@ export function Input({
         ) : null}
 
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            multiline ? styles.inputMultilinha : null,
+          ]}
+          // Limita o aumento da fonte do sistema para o texto não passar do campo
+          maxFontSizeMultiplier={1.15}
+          multiline={multiline}
+          numberOfLines={numberOfLines}
           accessibilityLabel={label}
           placeholder={placeholder}
           placeholderTextColor={Cores.texto.desabilitado}
@@ -103,7 +113,7 @@ export function Input({
       </View>
 
       {erro ? (
-        <Text style={styles.erro}>
+        <Text style={styles.erro} maxFontSizeMultiplier={1.15}>
           {erro}
         </Text>
       ) : null}

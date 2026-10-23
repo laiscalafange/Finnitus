@@ -1,8 +1,4 @@
-import {
-  View,
-  Text,
-  Image,
-} from "react-native";
+import { View, Text, Image, ScrollView } from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -10,12 +6,14 @@ import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
 import { BotaoVoltarAuth } from "../../shared/components/BotaoVoltar";
 import { Underline } from "../../shared/components/underline";
-
 import { styles } from "../../styles/escolhaStyles";
 
 import { useAuth } from "../../features/authContext";
 import { googleIdToken } from "../../services/google";
 import { useAction } from "../../shared/hooks/useAction";
+
+// Limite do aumento de fonte do sistema (evita o texto estourar a tela)
+const LIMITE_FONTE = 1.1;
 
 export default function Escolha() {
   const roteador = useRouter();
@@ -39,32 +37,30 @@ export default function Escolha() {
 
       <BotaoVoltarAuth absoluto />
 
-      <View style={styles.content}>
+      {/* O texto rola se não couber; os botões ficam sempre livres embaixo */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.linha}>
           <View>
-            <Text style={styles.title2}>
+            <Text style={styles.title2} maxFontSizeMultiplier={LIMITE_FONTE}>
               Escolha
             </Text>
-
-            <Underline
-              width={120}
-              marginLeft={10}
-            />
+            <Underline width={106} marginLeft={9} />
           </View>
         </View>
-
-        <Text style={styles.title}>
+        <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
           uma opção
         </Text>
-
-        <Text style={styles.title}>
+        <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
           para continuar
         </Text>
-
-        <Text style={styles.subtitle}>
+        <Text style={styles.subtitle} maxFontSizeMultiplier={LIMITE_FONTE}>
           Continue com o email ou outros serviços.
         </Text>
-      </View>
+      </ScrollView>
 
       <View style={styles.conteiner}>
         {error ? (
@@ -86,9 +82,7 @@ export default function Escolha() {
           onPress={() => roteador.push("/cadastro")}
           icone={
             <Image
-              source={require(
-                "../../../assets/icones/email2.png"
-              )}
+              source={require("../../../assets/icones/email2.png")}
               style={{
                 width: 20,
                 height: 20,
@@ -106,9 +100,7 @@ export default function Escolha() {
           disabled={busy}
           icone={
             <Image
-              source={require(
-                "../../../assets/icones/google.png"
-              )}
+              source={require("../../../assets/icones/google.png")}
               style={{
                 width: 20,
                 height: 20,

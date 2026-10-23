@@ -3,7 +3,7 @@ import {
 } from "../../features/calendar/utils/classificarEventoFinanceiro";
 
 import {
-  Image, ScrollView, Text, TouchableOpacity, View, Modal, TextInput,
+  Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, TextInput,
 } from "react-native";
 
 import {
@@ -31,6 +31,17 @@ import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Rotas } from "../../shared/constants/Rotas";
 import { FONTS } from "../../shared/constants/Tipografia";
 import { styles } from "../../styles/calendariostyle";
+
+// Máscaras e conversões de valor/data (mesmas das telas do botão "+")
+import {
+  brParaIso,
+  dataValida,
+  formatarCentavos,
+  isoParaBr,
+  mascararData,
+  mascararMoeda,
+  moedaParaNumero,
+} from "../../features/menuMais/utils";
 
 // Seletor de mês/ano e a função que gera "AAAA-MM-DD" na data local (a mesma
 // usada no calendário da semana de Metas)
@@ -120,6 +131,8 @@ LocaleConfig.locales["pt"] = {
     "Sábado",
   ],
 
+  // IMPORTANTE: a lista precisa começar no DOMINGO (índice 0 = domingo).
+  // A semana começar na segunda é controlado pelo firstDay={1} do <Calendar>.
   dayNamesShort: [
     "dom",
     "seg",
@@ -134,6 +147,106 @@ LocaleConfig.locales["pt"] = {
 };
 
 LocaleConfig.defaultLocale = "pt";
+
+// ─────────────────────────────────────────────
+
+// ESTILOS DO CARD "EVENTOS" (Visão geral)
+// Mesmo raio e espaçamento dos cards do Dashboard e do Plano B
+
+// ─────────────────────────────────────────────
+
+const estilosEvento = StyleSheet.create({
+  cardEvento: {
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 12,
+  },
+
+  // Caixa "Possível movimentação financeira" dentro do card
+  eventoMovimentacao: {
+    marginTop: 10,
+    padding: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: Cores.overlay.medio,
+    backgroundColor: "rgba(12, 10, 20, 0.35)",
+  },
+
+  eventoMovTitulo: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: Cores.destaque.limao,
+  },
+
+  eventoMovDetalhe: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    color: Cores.base.branco,
+    marginTop: 4,
+  },
+
+  eventoMovConfirmado: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 14,
+    color: Cores.destaque.limao,
+    marginTop: 10,
+  },
+
+  eventoMovBotoes: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 12,
+  },
+
+  // Botão principal (limão) e secundário (contorno) lado a lado
+  eventoBotaoPrimario: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: Cores.destaque.limao,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  eventoBotaoPrimarioTexto: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 14,
+    color: Cores.texto.contraste,
+  },
+
+  eventoBotaoSecundario: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: Cores.overlay.intenso,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  eventoBotaoSecundarioTexto: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 14,
+    color: Cores.base.branco,
+  },
+
+  // Botão de contorno limão ("Tornar financeiro" / "Marcar como financeiro")
+  eventoBotaoContorno: {
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: Cores.destaque.limao,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  eventoBotaoContornoTexto: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 14,
+    color: Cores.destaque.limao,
+  },
+});
 
 // ─────────────────────────────────────────────
 
@@ -664,12 +777,15 @@ function formatarValorCalendario(
         "DESPESA"
     );
 
+    // O valor aparece já com a máscara de dinheiro (ex.: 100,00)
     setValorRevisao(
       classificacao.valorDetectado !==
         undefined
-        ? classificacao.valorDetectado
-            .toFixed(2)
-            .replace(".", ",")
+        ? formatarCentavos(
+            Math.round(
+              classificacao.valorDetectado * 100
+            )
+          )
         : ""
     );
 
@@ -677,8 +793,11 @@ function formatarValorCalendario(
       evento.titulo
     );
 
+    // A tela mostra DD/MM/AAAA; a API continua recebendo AAAA-MM-DD
     setDataRevisao(
-      evento.dataInicio.slice(0, 10)
+      isoParaBr(
+        evento.dataInicio.slice(0, 10)
+      )
     );
   }
 
@@ -1001,7 +1120,7 @@ function formatarValorCalendario(
               "#3c1e75",
               "#30096e",
             ]}
-            style={styles.card}
+            style={estilosEvento.cardEvento}
           >
             <View style={styles.eventoHeader}>
               <Text
@@ -1126,35 +1245,16 @@ const ehSuspeito =
 
             {ehSuspeito && (
               <View
-                style={{
-                  marginTop: 10,
-                  padding: 10,
-                  borderRadius: 10,
-                  borderWidth: 1,
-                  borderColor:
-                    Cores.destaque.limao,
-                  backgroundColor:
-                    "#231044",
-                }}
+                style={estilosEvento.eventoMovimentacao}
               >
                 <Text
-                  style={{
-                    color:
-                      Cores.destaque.limao,
-                    fontFamily:
-                      FONTS.raleway.bold,
-                    fontSize: 14,
-                  }}
+                  style={estilosEvento.eventoMovTitulo}
                 >
                   Possível movimentação financeira
                 </Text>
 
                 <Text
-                  style={{
-                    color:
-                      Cores.base.branco,
-                    marginTop: 4,
-                  }}
+                  style={estilosEvento.eventoMovDetalhe}
                 >
                   {classificacao.tipoProvavel ===
                   "DESPESA"
@@ -1174,11 +1274,7 @@ const ehSuspeito =
 
                 {!decisao && (
                   <View
-                    style={{
-                      flexDirection: "row",
-                      gap: 10,
-                      marginTop: 12,
-                    }}
+                    style={estilosEvento.eventoMovBotoes}
                   >
                     <TouchableOpacity
                       activeOpacity={0.8}
@@ -1187,22 +1283,10 @@ const ehSuspeito =
                           evento
                         )
                       }
-                      style={{
-                        flex: 1,
-                        paddingVertical: 10,
-                        borderRadius: 8,
-                        backgroundColor:
-                          Cores.destaque.limao,
-                        alignItems: "center",
-                      }}
+                      style={estilosEvento.eventoBotaoPrimario}
                     >
                       <Text
-                        style={{
-                          color:
-                            Cores.roxo.escuro,
-                          fontFamily:
-                            FONTS.raleway.bold,
-                        }}
+                        style={estilosEvento.eventoBotaoPrimarioTexto}
                       >
                         Confirmar
                       </Text>
@@ -1248,23 +1332,10 @@ const ehSuspeito =
     );
   }
 }}
-  style={{
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor:
-      Cores.base.branco,
-    alignItems: "center",
-  }}
+  style={estilosEvento.eventoBotaoSecundario}
 >
   <Text
-    style={{
-      color:
-        Cores.base.branco,
-      fontFamily:
-        FONTS.raleway.bold,
-    }}
+    style={estilosEvento.eventoBotaoSecundarioTexto}
   >
     Não é financeiro
   </Text>
@@ -1281,13 +1352,7 @@ const ehSuspeito =
 
 {decisao === "CONFIRMADO" && (
   <Text
-    style={{
-      color:
-        Cores.destaque.limao,
-      marginTop: 10,
-      fontFamily:
-        FONTS.raleway.bold,
-    }}
+    style={estilosEvento.eventoMovConfirmado}
   >
     ✓ Movimentação confirmada
   </Text>
@@ -1305,11 +1370,7 @@ const ehSuspeito =
     }}
   >
     <Text
-      style={{
-        color:
-          Cores.base.branco,
-        marginBottom: 10,
-      }}
+      style={estilosEvento.eventoMovDetalhe}
     >
       Evento marcado como não financeiro.
     </Text>
@@ -1321,23 +1382,13 @@ const ehSuspeito =
           evento
         )
       }
-      style={{
-        paddingVertical: 9,
-        paddingHorizontal: 12,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor:
-          Cores.destaque.limao,
-        alignItems: "center",
-      }}
+      style={[
+        estilosEvento.eventoBotaoContorno,
+        { marginTop: 10 },
+      ]}
     >
       <Text
-        style={{
-          color:
-            Cores.destaque.limao,
-          fontFamily:
-            FONTS.raleway.bold,
-        }}
+        style={estilosEvento.eventoBotaoContornoTexto}
       >
         Tornar financeiro
       </Text>
@@ -1364,24 +1415,13 @@ const ehSuspeito =
         evento
       )
     }
-    style={{
-      marginTop: 10,
-      paddingVertical: 10,
-      paddingHorizontal: 12,
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor:
-        Cores.destaque.limao,
-      alignItems: "center",
-    }}
+    style={[
+      estilosEvento.eventoBotaoContorno,
+      { marginTop: 10 },
+    ]}
   >
     <Text
-      style={{
-        color:
-          Cores.destaque.limao,
-        fontFamily:
-          FONTS.raleway.bold,
-      }}
+      style={estilosEvento.eventoBotaoContornoTexto}
     >
       Marcar como financeiro
     </Text>
@@ -1832,12 +1872,14 @@ const ehSuspeito =
 
             <TextInput
               value={valorRevisao}
-              onChangeText={
-                setValorRevisao
+              onChangeText={(texto) =>
+                setValorRevisao(
+                  mascararMoeda(texto)
+                )
               }
               placeholder="0,00"
               placeholderTextColor="#9E8CBF"
-              keyboardType="decimal-pad"
+              keyboardType="numeric"
               style={{
                 backgroundColor: "#1D0C39",
                 color: Cores.base.branco,
@@ -1881,11 +1923,15 @@ const ehSuspeito =
 
             <TextInput
               value={dataRevisao}
-              onChangeText={
-                setDataRevisao
+              onChangeText={(texto) =>
+                setDataRevisao(
+                  mascararData(texto)
+                )
               }
-              placeholder="AAAA-MM-DD"
+              placeholder="DD/MM/AAAA"
               placeholderTextColor="#9E8CBF"
+              keyboardType="numeric"
+              maxLength={10}
               style={{
                 backgroundColor: "#1D0C39",
                 color: Cores.base.branco,
@@ -1901,11 +1947,8 @@ const ehSuspeito =
       return;
     }
 
-    const valorNumerico = Number(
-      valorRevisao
-        .replace(/\./g, "")
-        .replace(",", ".")
-    );
+    const valorNumerico =
+      moedaParaNumero(valorRevisao);
 
     if (
       !valorNumerico ||
@@ -1913,6 +1956,15 @@ const ehSuspeito =
     ) {
       console.log(
         "Valor inválido."
+      );
+
+      return;
+    }
+
+    // A data digitada precisa ser uma data real (ex.: 31/02 não vale)
+    if (!dataValida(dataRevisao)) {
+      console.log(
+        "Data inválida."
       );
 
       return;
@@ -1945,8 +1997,9 @@ const ehSuspeito =
           valor:
             valorNumerico,
 
+          // A API continua recebendo AAAA-MM-DD
           data:
-            dataRevisao,
+            brParaIso(dataRevisao),
         });
 
       console.log(

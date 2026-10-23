@@ -15,22 +15,22 @@ export const styles = StyleSheet.create({
 
   titulo: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: RFValue(42),
+    fontSize: RFValue(34),
     color: Cores.base.branco,
     marginBottom: 8,
   },
 
   subtitulo: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: RFValue(24),
+    fontSize: RFValue(19),
     color: Cores.texto.principal,
     marginBottom: 10,
-    lineHeight: 30,
+    lineHeight: 26,
   },
 
   tituloDestaque: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: RFValue(42),
+    fontSize: RFValue(34),
     color: Cores.destaque.limao,
     textDecorationColor: Cores.roxo.claro,
   },

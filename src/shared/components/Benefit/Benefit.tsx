@@ -11,8 +11,8 @@ export function Benefit({ icon, title, description }: BenefitProps) {
         <Image source={icon} style={styles.iconImage} />
       )}
       <View style={styles.texts}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.description}>{description}</Text>
+        <Text style={styles.title} maxFontSizeMultiplier={1.15}>{title}</Text>
+        <Text style={styles.description} maxFontSizeMultiplier={1.15}>{description}</Text>
       </View>
     </View>
   );

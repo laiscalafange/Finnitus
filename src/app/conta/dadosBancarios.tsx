@@ -109,7 +109,8 @@ export default function DadosBancarios() {
               label="Agência"
               placeholder="0001"
               value={agencia}
-              onChangeText={setAgencia}
+              onChangeText={(texto) => setAgencia(texto.replace(/\D/g, ""))}
+              maxLength={5}
               keyboardType="numeric"
             />
 
@@ -147,7 +148,7 @@ export default function DadosBancarios() {
 
             <Input
               label="Chave Pix"
-              placeholder="E-mail, telefone, CPF ou chave aleatória"
+              placeholder="Sua chave Pix"
               value={chavePix}
               onChangeText={setChavePix}
             />

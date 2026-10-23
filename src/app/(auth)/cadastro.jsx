@@ -154,7 +154,7 @@ export default function Cadastro() {
 
       <Input
         label="Confirme a senha"
-        placeholder="Digite sua senha novamente"
+        placeholder="Repita sua senha"
         secureTextEntry
         value={confirmarSenha}
         onChangeText={setConfirmarSenha}

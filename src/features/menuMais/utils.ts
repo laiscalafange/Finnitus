@@ -83,6 +83,20 @@ export function dataEhPassada(texto: string): boolean {
   return data < hoje;
 }
 
+// "2026-10-18" (API) -> "18/10/2026" (tela). Texto fora do padrão vira "".
+export function isoParaBr(iso: string): string {
+  const partes = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+
+  return partes ? `${partes[3]}/${partes[2]}/${partes[1]}` : "";
+}
+
+// "18/10/2026" (tela) -> "2026-10-18" (API)
+export function brParaIso(br: string): string {
+  const [dia, mes, ano] = br.split("/");
+
+  return `${ano}-${mes}-${dia}`;
+}
+
 // Data de hoje no formato DD/MM/AAAA
 export function hojeFormatado(): string {
   const hoje = new Date();

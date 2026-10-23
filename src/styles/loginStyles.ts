@@ -33,20 +33,20 @@ texto: {
     
   title: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: RFValue(35),
+    fontSize: RFValue(34),
     color: Cores.base.branco,
-    marginBottom: -15,
+    marginBottom: -8,
   },
   title2: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: RFValue(35),
+    fontSize: RFValue(34),
     color: Cores.destaque.limao,
-    marginBottom: -15,
+    marginBottom: -8,
   },
 
   subtitle: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: RFValue(25),
+    fontSize: RFValue(19),
     color: Cores.base.branco,
     marginTop: 15,
     marginBottom: 15,

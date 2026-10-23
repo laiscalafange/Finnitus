@@ -3,71 +3,52 @@ import { Cores } from '../shared/constants/Cores';
 import { FONTS } from '../shared/constants/Tipografia';
 import { RFValue } from "react-native-responsive-fontsize";
 
-
 export const styles = StyleSheet.create({
+  // Área do texto: rola se a tela for pequena ou a fonte do celular for grande
+  scroll: {
+    flex: 1,
+  },
 
-    
+  // paddingTop maior: deixa a seta de voltar livre no topo
   content: {
-  flex: 1,
-  zIndex: 1,
-  padding: 24,
-  position: "absolute",
-  left: 10,
-  right: 10,
-  top: 100,
-},
+    paddingHorizontal: 24,
+    paddingTop: 110,
+    paddingBottom: 16,
+  },
 
-botaoComIcone: {
-  position: "relative",
-},
+  // Botões fora da área do texto: nunca ficam cobertos
+  conteiner: {
+    width: "90%",
+    alignSelf: "center",
+    paddingTop: 8,
+    paddingBottom: 30,
+  },
 
-icone: {
-  position: "absolute",
-  left: 15,
-  top: "50%",
-  width: 16,
-  height: 16,
-  transform: [{ translateY: -8 }],
-},
+  linha: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "flex-end",
+    gap: 8,
+  },
 
-linha: {
-  flexDirection: "row",
-  alignItems: "flex-end",
-  gap: 8,
-},
-
- conteiner: {
-  position: "absolute",
-  bottom: 50,
-  width: "90%",
-  alignSelf: "center",
-},
-    
   title: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: RFValue(45),
+    fontSize: RFValue(40),
     color: Cores.base.branco,
-    marginBottom: -15,
+    marginBottom: -10,
   },
   title2: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: RFValue(45),
+    fontSize: RFValue(40),
     color: Cores.destaque.limao,
-    marginBottom: -15,
+    marginBottom: -10,
   },
 
   subtitle: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: RFValue(25),
+    fontSize: RFValue(22),
     color: Cores.base.branco,
-    marginBottom: -5,
-    marginTop: 15,
+    marginTop: 18,
+    marginBottom: -2,
   },
-  subtitle2: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: RFValue(25),
-    color: Cores.roxo.principal,
-    marginBottom: -5,
-  },
-
 });
