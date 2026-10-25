@@ -9,7 +9,7 @@ import eventosRoutes from "./eventos.routes.js";
 import calendarioRoutes from "./calendario.routes.js";
 import imprevistoRoutes from "./imprevisto.routes.js";
 import dividaRoutes from "./divida.routes.js";
-import reservaFinanceiraRoutes from "./reservaFinanceira.routes.js";
+import reservaFinanceiraRoutes from "./reserva.routes.js";
 import categoriaPersonalizadaRoutes from "./categoriaPersonalizada.routes.js";
 import planoBRoutes from "./planoB.routes.js";
 
@@ -31,7 +31,7 @@ routes.use("/imprevistos", imprevistoRoutes);
 routes.use("/metas", metasRoutes);
 
 routes.use("/dividas", dividaRoutes);
-routes.use("/reserva-financeira", reservaFinanceiraRoutes);
+routes.use("/reserva", reservaFinanceiraRoutes);
 routes.use("/categorias-personalizadas", categoriaPersonalizadaRoutes);
 routes.use("/plano-b", planoBRoutes);
 

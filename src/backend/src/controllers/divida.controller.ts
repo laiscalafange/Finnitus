@@ -47,7 +47,10 @@ export async function buscarDivida(req: Request, res: Response) {
     });
   }
 
-  if (!idValido(req.params.id)) {
+  if (
+  typeof req.params.id !== "string" ||
+  !idValido(req.params.id)
+) {
     return res.status(400).json({
       mensagem: "ID de dívida inválido",
     });
@@ -77,7 +80,10 @@ export async function atualizarDivida(
     });
   }
 
-  if (!idValido(req.params.id)) {
+  if (
+    typeof req.params.id !== "string" ||
+    !idValido(req.params.id)
+  ) {
     return res.status(400).json({
       mensagem: "ID de dívida inválido",
     });
@@ -108,7 +114,10 @@ export async function excluirDivida(
     });
   }
 
-  if (!idValido(req.params.id)) {
+  if (
+  typeof req.params.id !== "string" ||
+  !idValido(req.params.id)
+) {
     return res.status(400).json({
       mensagem: "ID de dívida inválido",
     });

@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -41,6 +42,8 @@ type Props = {
   titulo?: string;
   // Se vier, o card "movimentar" mostra o botão "Ver detalhes"
   aoVerDetalhes?: () => void;
+    erroServidor?: string;
+  processando?: boolean;
 };
 
 // Textos que mudam entre a reserva de emergência e as metas
@@ -81,6 +84,8 @@ export function ModalReserva({
   alvo = "reserva",
   titulo,
   aoVerDetalhes,
+    erroServidor = "",
+  processando = false,
 }: Props) {
   const textos = TEXTOS[alvo];
 
@@ -342,6 +347,28 @@ export function ModalReserva({
           </Pressable>
 
           {renderConteudo()}
+
+{/* Exibe os erros enviados pelo backend */}
+{erroServidor ? (
+  <Text
+    style={{
+      color: "#FFB4B4",
+      textAlign: "center",
+      marginTop: 12,
+    }}
+  >
+    {erroServidor}
+  </Text>
+) : null}
+
+{/* Mostra o carregamento enquanto a API processa */}
+{processando ? (
+  <ActivityIndicator
+    color={Cores.destaque.limao}
+    style={{ marginTop: 12 }}
+  />
+) : null}
+
         </Card>
       </KeyboardAvoidingView>
     </Modal>
