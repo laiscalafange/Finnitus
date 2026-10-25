@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
+  ActivityIndicator,
   Pressable,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
-
+import axios from "axios";
 import { Minus, PiggyBank, Plus, Trash2 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
@@ -14,51 +15,85 @@ import { Button } from "../../shared/components/Button";
 import { Card } from "../../shared/components/Cards";
 import { Progress } from "../../shared/components/Progress";
 import { Cores } from "../../shared/constants/Cores";
-
 import { ModalReserva } from "@/features/menuMais/components/ModalReserva";
 import { useVoltar } from "@/features/menuMais/useVoltar";
-import { formatarMoeda, hojeFormatado } from "@/features/menuMais/utils";
-import type {
-  Reserva,
-  TipoModalReserva,
-} from "@/features/menuMais/types";
+import { formatarMoeda } from "@/features/menuMais/utils";
+import type { Reserva, TipoModalReserva } from "@/features/menuMais/types";
 import { styles as base } from "@/features/menuMais/styles/formulario";
 import { styles } from "@/features/menuMais/styles/reserva";
+import { reservaApi } from "@/services/reserva";
 
-// Quantas movimentações aparecem em "Últimas movimentações"
 const MAX_MOVIMENTACOES = 5;
-
-// Gradiente dos cards (mesma família de roxos do resto do app)
 const GRADIENTE_CARD: [string, string] = [
   Cores.fundo.cardAlt,
   Cores.fundo.navBarra,
 ];
 
-// Tela "Reserva de emergência": é a única reserva do usuário. Mostra o valor
-// disponível, a meta e o progresso, e permite depositar ou retirar dinheiro.
+function mensagemErro(erro: unknown): string {
+  if (axios.isAxiosError(erro)) {
+    const dados: unknown = erro.response?.data;
+    if (
+      dados !== null &&
+      typeof dados === "object" &&
+      "mensagem" in dados &&
+      typeof dados.mensagem === "string"
+    ) {
+      return dados.mensagem;
+    }
+
+    if (!erro.response) {
+      return "Não foi possível conectar ao servidor. Verifique sua internet e a API.";
+    }
+  }
+
+  return "Não foi possível concluir a operação. Tente novamente.";
+}
+
 export default function ReservaEmergencia() {
   const voltar = useVoltar();
-
-  // null = o usuário ainda não criou a reserva.
-  // TODO (backend): não existe endpoint de reserva ainda. Hoje os dados ficam
-  // só na memória da tela; quando existir, carregar a reserva da API aqui e
-  // chamar a API em cada ação (criar, depositar, retirar, definir meta, excluir).
   const [reserva, setReserva] = useState<Reserva | null>(null);
+  const [modal, setModal] = useState<TipoModalReserva | null>(null);
+  const [carregando, setCarregando] = useState(true);
+  const [processando, setProcessando] = useState(false);
+  const [erroCarregamento, setErroCarregamento] = useState("");
+  const [erroModal, setErroModal] = useState("");
+  const bloqueioEnvio = useRef(false);
 
-  // Card flutuante aberto. Começa em "criar" porque ainda não há reserva
-  const [modal, setModal] = useState<TipoModalReserva | null>("criar");
+  const carregarReserva = useCallback(async () => {
+    setCarregando(true);
+    setErroCarregamento("");
+
+    try {
+      const dados = await reservaApi.buscar();
+      setReserva(dados);
+      setModal(dados ? null : "criar");
+    } catch (erro) {
+      setErroCarregamento(mensagemErro(erro));
+      setModal(null);
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void carregarReserva();
+  }, [carregarReserva]);
 
   const saldo = reserva?.saldo ?? 0;
   const meta = reserva?.meta;
-
-  // Progresso em % (0 se não há meta), limitado a 100
-  const percentual = meta
+  const percentual = meta && meta > 0
     ? Math.min(100, Math.round((saldo / meta) * 100))
     : 0;
 
-  // Fecha o card. Sem reserva criada, fechar o convite de criação
-  // ("Agora não" ou X) equivale a sair da tela
+  function abrirModal(tipo: TipoModalReserva) {
+    setErroModal("");
+    setModal(tipo);
+  }
+
   function fecharModal() {
+    if (processando) return;
+    setErroModal("");
+
     if (!reserva) {
       voltar();
       return;
@@ -67,73 +102,77 @@ export default function ReservaEmergencia() {
     setModal(null);
   }
 
-  // Trata a confirmação de cada card
-  function confirmarModal(valor: number) {
-    if (modal === "criar") {
-      setReserva({ saldo: 0, movimentacoes: [] });
+  async function confirmarModal(valor: number) {
+    const acao = modal;
+    if (!acao || bloqueioEnvio.current) return;
+
+    if (acao === "saldoInsuficiente") {
       setModal(null);
       return;
     }
 
-    if (!reserva) {
+    if (acao !== "criar" && !reserva) return;
+
+    if (
+      acao === "retirar" &&
+      Math.round(valor * 100) > Math.round(saldo * 100)
+    ) {
+      abrirModal("saldoInsuficiente");
       return;
     }
 
-    switch (modal) {
-      case "depositar":
-        setReserva({
-          ...reserva,
-          saldo: Math.round((reserva.saldo + valor) * 100) / 100,
-          movimentacoes: [
-            {
-              id: String(Date.now()),
-              tipo: "deposito",
-              valor,
-              data: hojeFormatado(),
-            },
-            ...reserva.movimentacoes,
-          ],
-        });
-        setModal(null);
-        break;
+    bloqueioEnvio.current = true;
+    setProcessando(true);
+    setErroModal("");
 
-      case "retirar":
-        // Compara em centavos pra não errar por arredondamento
-        if (Math.round(valor * 100) > Math.round(reserva.saldo * 100)) {
-          setModal("saldoInsuficiente");
+    try {
+      let novaReserva: Reserva;
+
+      switch (acao) {
+        case "criar":
+          novaReserva = await reservaApi.criar();
           break;
-        }
+        case "depositar":
+          novaReserva = await reservaApi.depositar(valor);
+          break;
+        case "retirar":
+          novaReserva = await reservaApi.retirar(valor);
+          break;
+        case "meta":
+          novaReserva = await reservaApi.definirMeta(valor);
+          break;
+        case "excluir":
+          await reservaApi.excluir();
+          setReserva(null);
+          setModal(null);
+          voltar();
+          return;
+        default:
+          return;
+      }
 
-        setReserva({
-          ...reserva,
-          saldo: Math.round((reserva.saldo - valor) * 100) / 100,
-          movimentacoes: [
-            {
-              id: String(Date.now()),
-              tipo: "retirada",
-              valor,
-              data: hojeFormatado(),
-            },
-            ...reserva.movimentacoes,
-          ],
-        });
-        setModal(null);
-        break;
-
-      case "meta":
-        setReserva({ ...reserva, meta: valor });
-        setModal(null);
-        break;
-
-      case "excluir":
-        setReserva(null);
-        setModal(null);
-        voltar();
-        break;
-
-      // "Entendi" no aviso de saldo insuficiente
-      default:
-        setModal(null);
+      setReserva(novaReserva);
+      setModal(null);
+    } catch (erro) {
+      if (
+        acao === "retirar" &&
+        axios.isAxiosError(erro) &&
+        erro.response?.status === 409
+      ) {
+        abrirModal("saldoInsuficiente");
+      } else if (
+        acao === "criar" &&
+        axios.isAxiosError(erro) &&
+        erro.response?.status === 409
+      ) {
+        // Ex.: a reserva já foi criada em outro aparelho.
+        await carregarReserva();
+      } else {
+        setErroModal(mensagemErro(erro));
+      }
+    } finally {
+      bloqueioEnvio.current = false;
+      setProcessando(false);
     }
   }
 
@@ -144,35 +183,42 @@ export default function ReservaEmergencia() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={base.conteudo}
       >
-        {/* Cabeçalho discreto: seta de voltar e título */}
         <HeaderInterno titulo="Reserva de emergência" />
 
-        {/* Conteúdo (logo abaixo do cabeçalho). Só aparece
-            depois que a reserva foi criada */}
-        {reserva ? (
+        {carregando ? (
+          <ActivityIndicator
+            style={{ marginTop: 32 }}
+            size="large"
+            color={Cores.destaque.limao}
+          />
+        ) : erroCarregamento ? (
+          <View style={{ padding: 24, gap: 16 }}>
+            <Text style={{ color: Cores.texto.claro }}>
+              {erroCarregamento}
+            </Text>
+            <Button
+              titulo="Tentar novamente"
+              onPress={() => void carregarReserva()}
+            />
+          </View>
+        ) : reserva ? (
           <View style={base.formulario}>
-            {/* Reserva disponível */}
             <Card gradiente={GRADIENTE_CARD} style={styles.card}>
               <View style={styles.linhaSaldo}>
                 <PiggyBank size={40} color={Cores.destaque.limao} />
-
                 <View>
                   <Text style={styles.rotuloPequeno}>Reserva disponível</Text>
-                  <Text style={styles.valorSaldo}>
-                    {formatarMoeda(saldo)}
-                  </Text>
+                  <Text style={styles.valorSaldo}>{formatarMoeda(saldo)}</Text>
                 </View>
               </View>
             </Card>
 
-            {/* Meta e progresso */}
             <Card gradiente={GRADIENTE_CARD} style={styles.card}>
               <View style={styles.linhaMeta}>
                 <Text style={styles.rotuloPequeno}>Meta da reserva</Text>
-
                 <Pressable
                   style={styles.chipMeta}
-                  onPress={() => setModal("meta")}
+                  onPress={() => abrirModal("meta")}
                   accessibilityRole="button"
                 >
                   <Text style={styles.textoChipMeta}>Definir meta</Text>
@@ -182,7 +228,6 @@ export default function ReservaEmergencia() {
               <Text style={styles.valorMeta}>
                 {meta ? formatarMoeda(meta) : "Sem meta definida"}
               </Text>
-
               <View style={styles.linhaProgresso}>
                 <View style={styles.barraProgresso}>
                   <Progress
@@ -192,29 +237,19 @@ export default function ReservaEmergencia() {
                     color={Cores.destaque.limao}
                   />
                 </View>
-
                 <Text style={styles.percentual}>{percentual}%</Text>
               </View>
             </Card>
 
-            {/* Depositar | Retirar */}
             <View style={styles.linhaBotoes}>
               <View style={styles.colunaBotao}>
-                <Button
-                  titulo="Depositar"
-                  onPress={() => setModal("depositar")}
-                />
+                <Button titulo="Depositar" onPress={() => abrirModal("depositar")} />
               </View>
-
               <View style={styles.colunaBotao}>
-                <Button
-                  titulo="Retirar"
-                  onPress={() => setModal("retirar")}
-                />
+                <Button titulo="Retirar" onPress={() => abrirModal("retirar")} />
               </View>
             </View>
 
-            {/* Últimas movimentações */}
             <Text style={styles.tituloSecao}>Últimas movimentações</Text>
 
             {reserva.movimentacoes.length === 0 ? (
@@ -226,7 +261,6 @@ export default function ReservaEmergencia() {
                 .slice(0, MAX_MOVIMENTACOES)
                 .map((mov) => {
                   const deposito = mov.tipo === "deposito";
-
                   return (
                     <Card
                       key={mov.id}
@@ -258,12 +292,10 @@ export default function ReservaEmergencia() {
                           >
                             {deposito ? "+" : "-"} {formatarMoeda(mov.valor)}
                           </Text>
-
                           <Text style={styles.tipoMovimentacao}>
                             {deposito ? "Depósito" : "Retirada"}
                           </Text>
                         </View>
-
                         <Text style={styles.dataMovimentacao}>{mov.data}</Text>
                       </View>
                     </Card>
@@ -271,23 +303,23 @@ export default function ReservaEmergencia() {
                 })
             )}
 
-            {/* Excluir reserva */}
             <Button
               titulo="Excluir reserva"
               variante="botaotexto"
               icone={<Trash2 size={16} color="#A357FF" />}
-              onPress={() => setModal("excluir")}
+              onPress={() => abrirModal("excluir")}
             />
           </View>
         ) : null}
       </ScrollView>
 
-      {/* Cards flutuantes (criar, depositar, retirar, meta, aviso, excluir) */}
       <ModalReserva
         tipo={modal}
         saldo={saldo}
         aoFechar={fecharModal}
         aoConfirmar={confirmarModal}
+        erroServidor={erroModal}
+        processando={processando}
       />
     </View>
   );
