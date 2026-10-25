@@ -1,11 +1,5 @@
+
 import { useEffect } from "react";
-
-import {
-  ActivityIndicator,
-  View,
-  Text,
-} from "react-native";
-
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
@@ -25,41 +19,100 @@ import {
   Quicksand_700Bold,
 } from "@expo-google-fonts/quicksand";
 
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import {
+  SafeAreaProvider,
+} from "react-native-safe-area-context";
 
-import { FinanceiroProvider } from "../features/financeiroContext";
+import {
+  ActivityIndicator,
+  View,
+  Text,
+} from "react-native";
+
+import {
+  FinanceiroProvider,
+} from "../features/financeiroContext";
 
 import {
   AuthProvider,
   useAuth,
 } from "../features/authContext";
 
-import { Button } from "../shared/components/Button";
+import {
+  Button,
+} from "../shared/components/Button";
 
-SplashScreen.preventAutoHideAsync();
+import {
+  inicializarNotificacoesEventos,
+} from "../features/calendar/services/notificacoesEventos";
+
+// Mantém a splash screen enquanto as fontes carregam.
+SplashScreen.preventAutoHideAsync().catch(
+  (error) => {
+    console.warn(
+      "Erro ao configurar splash screen:",
+      error
+    );
+  }
+);
+
+// =====================================================
+// LAYOUT PRINCIPAL DO FINNITUS
+// =====================================================
 
 export default function RootLayout() {
+
+  // 1. CARREGAMENTO DAS FONTES
+
   const [fontsLoaded, fontError] = useFonts({
     Raleway_400Regular,
     Raleway_500Medium,
     Raleway_600SemiBold,
     Raleway_700Bold,
     Raleway_800ExtraBold,
+
     Quicksand_400Regular,
     Quicksand_500Medium,
     Quicksand_600SemiBold,
     Quicksand_700Bold,
   });
 
+  // 2. CONTROLE DA SPLASH SCREEN
+
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync().catch(
+        (error) => {
+          console.warn(
+            "Erro ao esconder splash screen:",
+            error
+          );
+        }
+      );
     }
   }, [fontsLoaded, fontError]);
+
+  // 3. INICIALIZAÇÃO DAS NOTIFICAÇÕES
+  // Este Hook fica antes de qualquer return.
+
+  useEffect(() => {
+    inicializarNotificacoesEventos().catch(
+      (error) => {
+        console.warn(
+          "Falha ao inicializar notificações:",
+          error
+        );
+      }
+    );
+  }, []);
+
+  // 4. AGUARDA O CARREGAMENTO DAS FONTES
 
   if (!fontsLoaded && !fontError) {
     return null;
   }
+
+  // 5. PROVIDERS DO APLICATIVO
 
   return (
     <SafeAreaProvider>
@@ -70,6 +123,10 @@ export default function RootLayout() {
   );
 }
 
+// =====================================================
+// NAVEGAÇÃO E AUTENTICAÇÃO
+// =====================================================
+
 function SessionNavigator() {
   const {
     user,
@@ -79,6 +136,8 @@ function SessionNavigator() {
     clearSession,
   } = useAuth();
 
+  // AGUARDANDO AUTENTICAÇÃO
+
   if (loading) {
     return (
       <View
@@ -86,6 +145,7 @@ function SessionNavigator() {
           flex: 1,
           backgroundColor: "#160B24",
           justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <ActivityIndicator
@@ -95,6 +155,8 @@ function SessionNavigator() {
       </View>
     );
   }
+
+  // ERRO AO RECUPERAR SESSÃO
 
   if (startupError) {
     return (
@@ -107,7 +169,7 @@ function SessionNavigator() {
           gap: 20,
         }}
       >
-        <Text style={{ color: "white" }}>
+        <Text style={{ color: "#FFFFFF" }}>
           {startupError}
         </Text>
 
@@ -125,31 +187,38 @@ function SessionNavigator() {
     );
   }
 
+  // NAVEGAÇÃO PROTEGIDA
+  // O contexto financeiro reinicia ao trocar de conta.
+
   return (
     <FinanceiroProvider key={user?.id ?? "guest"}>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
         <Stack.Screen name="index" />
+
+        {/* Rotas sem autenticação */}
 
         <Stack.Protected guard={!user}>
           <Stack.Screen name="(auth)" />
         </Stack.Protected>
 
+        {/* Rotas autenticadas */}
+
         <Stack.Protected guard={Boolean(user)}>
           <Stack.Screen name="(tabs)" />
+
           <Stack.Screen name="onboarding" />
+
           <Stack.Screen name="configuracaoInicial" />
+
           <Stack.Screen name="conta" />
-          <Stack.Screen name="mais" />
 
           <Stack.Screen name="Premium/Premium" />
+
           <Stack.Screen name="Notificacao/Notificacao" />
-
-          <Stack.Screen name="Premium/Pagamento" />
-          <Stack.Screen name="Premium/PremiumAtivo" />
-
-          <Stack.Screen
-            name="Notifica#U00e7#U00e3o/Notificacao"
-          />
         </Stack.Protected>
       </Stack>
     </FinanceiroProvider>

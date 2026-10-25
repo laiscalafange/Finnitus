@@ -3,7 +3,11 @@ import {
 } from "../../features/calendar/utils/classificarEventoFinanceiro";
 
 import {
-  Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, TextInput,
+  Image,
+  Modal,
+  ScrollView, StyleSheet, Text,
+  TextInput,
+  TouchableOpacity, View,
 } from "react-native";
 
 import {
@@ -12,15 +16,15 @@ import {
 } from "../../features/calendar/services/deviceCalendarService";
 
 import { LinearGradient } from "expo-linear-gradient";
-import Svg, { Circle } from "react-native-svg";
 import { Calendar, LocaleConfig } from "react-native-calendars";
+import Svg, { Circle } from "react-native-svg";
 
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
-  listarItensCalendario,
   confirmarEventoFinanceiro,
+  listarItensCalendario,
   marcarEventoNaoFinanceiro,
   type ItemCalendario,
 } from "../../features/calendar/services/calendarService";
@@ -46,10 +50,10 @@ import {
 // Seletor de mês/ano e a função que gera "AAAA-MM-DD" na data local (a mesma
 // usada no calendário da semana de Metas)
 
-import { ModalMesAno } from "../../features/calendar/components/ModalMesAno";
-import { chaveDia } from "../../shared/components/CalendarioSemana/CalendarioSemana";
 import coroaIcon from "../../../assets/icones/coroa.png";
 import sinoIcon from "../../../assets/icones/sino.png";
+import { ModalMesAno } from "../../features/calendar/components/ModalMesAno";
+import { chaveDia } from "../../shared/components/CalendarioSemana/CalendarioSemana";
 
 // ─────────────────────────────────────────────
 
@@ -62,8 +66,6 @@ type SegmentoGauge = {
   pct: number;
 
 };
-
-
 
 type GaugeCircularProps = {
   tamanho?: number;
@@ -254,12 +256,23 @@ const estilosEvento = StyleSheet.create({
 
 // ─────────────────────────────────────────────
 
-function obterDataCalendario(item: ItemCalendario): string {
-  // O backend serializa as datas para ISO (AAAA-MM-DDTHH:mm:ss.sssZ).
-  // Usamos o dia gravado para evitar deslocar eventos à véspera
-  // quando o navegador está no fuso horário de Brasília.
+
+function obterDataCalendario(
+  item: ItemCalendario
+): string {
+  if (item.tipo === "EVENTO") {
+    const data = new Date(item.data);
+
+    if (Number.isNaN(data.getTime())) {
+      return item.data.slice(0, 10);
+    }
+
+    return chaveDia(data);
+  }
+
   return item.data.slice(0, 10);
 }
+
 
 // ─────────────────────────────────────────────
 
@@ -479,6 +492,12 @@ itensCalendario.forEach((item) => {
   };
 
 });
+
+useFocusEffect(
+  useCallback(() => {
+    setRecarregarCalendario((atual) => atual + 1);
+  }, [])
+);
 
 eventosDispositivo.forEach((evento) => {
   const dataEvento =
@@ -2111,4 +2130,10 @@ const ehSuspeito =
 
   );
 
+}
+
+function useFocusEffect(effect: () => void) {
+  useEffect(() => {
+    effect();
+  }, [effect]);
 }

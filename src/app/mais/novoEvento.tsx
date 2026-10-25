@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   View,
@@ -5,6 +6,8 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Switch,
+  Alert,
 } from "react-native";
 
 import { useRouter } from "expo-router";
@@ -15,85 +18,217 @@ import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 
 import {
-  dataEhPassada,
   dataValida,
   mascararData,
   mascararMoeda,
   moedaParaNumero,
 } from "@/features/menuMais/utils";
+
 import { styles } from "@/features/menuMais/styles/formulario";
 
-// Tela "Novo evento": registra um compromisso ou gasto planejado pro futuro
-// (viagem, aniversário, consulta, compra planejada). Alimenta o Calendário
-// Financeiro.
+import {
+  cadastrarEvento,
+} from "@/features/calendar/services/eventosService";
+
+import {
+  agendarLembreteEvento,
+} from "@/features/calendar/services/notificacoesEventos";
+
+function mascararHorario(texto: string): string {
+  const numeros = texto.replace(/\D/g, "").slice(0, 4);
+
+  if (numeros.length <= 2) {
+    return numeros;
+  }
+
+  return `${numeros.slice(0, 2)}:${numeros.slice(2)}`;
+}
+
+function criarDataLocal(
+  data: string,
+  horario: string
+): Date | null {
+  const [dia, mes, ano] = data.split("/").map(Number);
+  const [hora, minuto] = horario.split(":").map(Number);
+
+  if (
+    !Number.isInteger(dia) ||
+    !Number.isInteger(mes) ||
+    !Number.isInteger(ano) ||
+    !Number.isInteger(hora) ||
+    !Number.isInteger(minuto) ||
+    hora < 0 ||
+    hora > 23 ||
+    minuto < 0 ||
+    minuto > 59
+  ) {
+    return null;
+  }
+
+  const resultado = new Date(
+    ano,
+    mes - 1,
+    dia,
+    hora,
+    minuto,
+    0
+  );
+
+  if (
+    resultado.getFullYear() !== ano ||
+    resultado.getMonth() !== mes - 1 ||
+    resultado.getDate() !== dia ||
+    resultado.getHours() !== hora ||
+    resultado.getMinutes() !== minuto
+  ) {
+    return null;
+  }
+
+  return resultado;
+}
+
 export default function NovoEvento() {
   const router = useRouter();
 
-  // Campos do formulário
   const [nome, setNome] = useState("");
-  const [valorDesejado, setValorDesejado] = useState("");
-  const [valorInicial, setValorInicial] = useState("");
-  const [dataLimite, setDataLimite] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [valor, setValor] = useState("");
+  const [dataEvento, setDataEvento] = useState("");
+  const [horario, setHorario] = useState("09:00");
+  const [diaInteiro, setDiaInteiro] = useState(false);
 
-  // Mensagem de erro de validação
   const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
 
-  function criar() {
-    const desejado = moedaParaNumero(valorDesejado);
-    const inicial = moedaParaNumero(valorInicial);
+  async function criar() {
+    if (salvando) return;
+
+    setErro("");
 
     if (!nome.trim()) {
       setErro("Informe o nome do evento.");
       return;
     }
 
-    if (desejado <= 0) {
-      setErro("Informe o valor desejado.");
+    if (!dataValida(dataEvento)) {
+      setErro("Informe uma data válida (DD/MM/AAAA).");
       return;
     }
 
-    if (inicial > desejado) {
-      setErro("O valor inicial não pode ser maior que o valor desejado.");
+    const dataInicio = criarDataLocal(
+      dataEvento,
+      diaInteiro ? "00:00" : horario
+    );
+
+    if (!dataInicio) {
+      setErro("Informe uma data e um horário válidos.");
       return;
     }
 
-    if (!dataValida(dataLimite)) {
-      setErro("Informe uma data limite válida (DD/MM/AAAA).");
+    const agora = new Date();
+
+    if (diaInteiro) {
+      const hoje = new Date(
+        agora.getFullYear(),
+        agora.getMonth(),
+        agora.getDate()
+      );
+
+      if (dataInicio < hoje) {
+        setErro("A data do evento não pode estar no passado.");
+        return;
+      }
+    } else if (dataInicio <= agora) {
+      setErro("A data e o horário devem estar no futuro.");
       return;
     }
 
-    if (dataEhPassada(dataLimite)) {
-      setErro("A data limite não pode estar no passado.");
+    const valorNumerico = valor.trim()
+      ? moedaParaNumero(valor)
+      : undefined;
+
+    if (
+      valorNumerico !== undefined &&
+      (!Number.isFinite(valorNumerico) ||
+        valorNumerico < 0)
+    ) {
+      setErro("Informe um valor válido.");
       return;
     }
 
-    setErro("");
+    // Eventos com horário duram uma hora por padrão.
+    // Eventos de dia inteiro terminam no início
+    // do dia seguinte.
+    const dataFim = new Date(
+      dataInicio.getTime() +
+        (diaInteiro ? 24 : 1) * 60 * 60 * 1000
+    );
 
-    // TODO (backend): ainda não existe endpoint de eventos. Quando existir,
-    // enviar { nome, valorDesejado: desejado, valorInicial: inicial,
-    // dataLimite } pra API aqui.
+    setSalvando(true);
 
-    // Leva pro Calendário Financeiro, onde o evento vai aparecer
-    router.dismissTo("/calendario");
+    try {
+      // 1. Salva no banco do Finnitus.
+      const evento = await cadastrarEvento({
+        Enome: nome.trim(),
+        Edescricao: descricao.trim() || undefined,
+        data_inicio: dataInicio.toISOString(),
+        data_fim: dataFim.toISOString(),
+        dia_inteiro: diaInteiro,
+        tipo: "OUTRO",
+        valor_relacionado: valorNumerico,
+      });
+
+      // 2. Agenda uma notificação no dispositivo.
+      // Uma falha no alerta não desfaz o cadastro.
+      try {
+        await agendarLembreteEvento({
+          eventoId: evento.id_Evento,
+          nome: nome.trim(),
+          dataInicio,
+          diaInteiro,
+        });
+      } catch (erroNotificacao) {
+        console.warn(
+          "Evento salvo, mas o lembrete não foi agendado:",
+          erroNotificacao
+        );
+      }
+
+      // 3. Volta ao calendário.
+      router.dismissTo("/calendario");
+    } catch (error: any) {
+      console.error("Erro ao cadastrar evento:", error);
+
+      const mensagem =
+        typeof error?.response?.data?.mensagem === "string"
+          ? error.response.data.mensagem
+          : "Não foi possível salvar o evento. Verifique a conexão e tente novamente.";
+
+      setErro(mensagem);
+
+      Alert.alert("Erro ao criar evento", mensagem);
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
     <View style={styles.container}>
       <BackgroundGradient variante="funcional" />
-      {/* Empurra o formulário pra cima quando o teclado abre */}
+
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={
+          Platform.OS === "ios" ? "padding" : "height"
+        }
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.conteudo}
         >
-          {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
           <HeaderInterno titulo="Novo evento" />
 
-          {/* Formulário (logo abaixo do cabeçalho) */}
           <View style={styles.formulario}>
             <Input
               label="Nome do evento"
@@ -105,40 +240,112 @@ export default function NovoEvento() {
             />
 
             <Input
-              label="Valor desejado"
+              label="Descrição (opcional)"
+              placeholder="Detalhes do evento"
+              value={descricao}
+              onChangeText={setDescricao}
+              autoCapitalize="sentences"
+              maxLength={200}
+            />
+
+            <Input
+              label="Valor relacionado (opcional)"
               placeholder="0,00"
               keyboardType="numeric"
-              value={valorDesejado}
-              onChangeText={(texto) => setValorDesejado(mascararMoeda(texto))}
-              icone={<Text style={styles.prefixoMoeda}>R$</Text>}
+              value={valor}
+              onChangeText={(texto) =>
+                setValor(mascararMoeda(texto))
+              }
+              icone={
+                <Text style={styles.prefixoMoeda}>
+                  R$
+                </Text>
+              }
             />
 
             <Input
-              label="Valor inicial (opcional)"
-              placeholder="0"
-              keyboardType="numeric"
-              value={valorInicial}
-              onChangeText={(texto) => setValorInicial(mascararMoeda(texto))}
-              icone={<Text style={styles.prefixoMoeda}>R$</Text>}
-            />
-
-            <Input
-              label="Data limite"
+              label="Data do evento"
               placeholder="DD/MM/AAAA"
               keyboardType="numeric"
               maxLength={10}
-              value={dataLimite}
-              onChangeText={(texto) => setDataLimite(mascararData(texto))}
+              value={dataEvento}
+              onChangeText={(texto) =>
+                setDataEvento(mascararData(texto))
+              }
             />
 
-            {/* Mensagem de erro de validação */}
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginVertical: 12,
+              }}
+            >
+              <Text
+                style={{
+                  color: "#B9FF00",
+                  fontSize: 17,
+                  fontWeight: "600",
+                }}
+              >
+                Evento de dia inteiro
+              </Text>
+
+              <Switch
+                value={diaInteiro}
+                onValueChange={setDiaInteiro}
+                trackColor={{
+                  false: "#5E467E",
+                  true: "#7F3BED",
+                }}
+                thumbColor={
+                  diaInteiro ? "#B9FF00" : "#FFFFFF"
+                }
+              />
+            </View>
+
+            {!diaInteiro && (
+              <Input
+                label="Horário do evento"
+                placeholder="HH:MM"
+                keyboardType="numeric"
+                maxLength={5}
+                value={horario}
+                onChangeText={(texto) =>
+                  setHorario(mascararHorario(texto))
+                }
+              />
+            )}
+
+            <Text
+              style={{
+                color: "#BDA1E9",
+                fontSize: 13,
+                marginVertical: 12,
+              }}
+            >
+              O Finnitus tentará enviar um lembrete
+              antes do evento.
+            </Text>
+
             {erro ? (
-              <Text style={styles.erro} accessibilityRole="alert">
+              <Text
+                style={styles.erro}
+                accessibilityRole="alert"
+              >
                 {erro}
               </Text>
             ) : null}
 
-            <Button titulo="Criar evento" onPress={criar} />
+            <Button
+              titulo={
+                salvando
+                  ? "Salvando evento..."
+                  : "Criar evento"
+              }
+              onPress={criar}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
