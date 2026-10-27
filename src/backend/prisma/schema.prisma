@@ -43,8 +43,8 @@ enum CategoriaTipo {
 }
 
 enum StatusReceita {
-  ATIVA
-  INATIVA
+  RECEBIDA
+  PENDENTE
 }
 
 enum DespesaTipo {
@@ -156,7 +156,7 @@ model Receita {
   data_recebimento DateTime      @db.Date
   tipo             ReceitaTipo
   frequencia       Frequencia
-  status           StatusReceita @default(ATIVA)
+  status           StatusReceita @default(PENDENTE)
   observacao       String?       @db.VarChar(255)
   createdAt        DateTime      @default(now())
 
