@@ -9,6 +9,7 @@ export async function criarReceita(dados: {
   valor: number;
   data_recebimento: string;
   tipo: "FIXA" | "VARIAVEL";
+  status: "RECEBIDA" | "PENDENTE";
   frequencia: "UNICA" | "SEMANAL" | "QUINZENAL" | "MENSAL" | "ANUAL";
   observacao?: string;
 }) {
@@ -21,6 +22,7 @@ export async function criarReceita(dados: {
       valor: dados.valor,
       data_recebimento: new Date(dados.data_recebimento),
       tipo: dados.tipo,
+      status: dados.status,
       frequencia: dados.frequencia,
       observacao: dados.observacao,
     },
