@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
+import { Button } from "../../shared/components/Button";
 import { Cores } from "../../shared/constants/Cores";
 
 import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
+import { errorMessage } from "@/services/api";
 import { useFinanceiro } from "@/features/financeiroContext";
 import { formatarDataCurta } from "@/features/metasData";
 import { styles } from "../../styles/Metashistorico";
@@ -37,7 +39,24 @@ export default function MetasHistorico() {
 
   // As mesmas metas das outras telas de Metas (FinanceiroProvider): aqui só
   // as concluídas e canceladas, da mais recente pra mais antiga
-  const { metas } = useFinanceiro();
+  const { metas, reabrirMeta } = useFinanceiro();
+
+  // id da meta que está sendo reaberta (evita toque duplo no botão)
+  const [reabrindoId, setReabrindoId] = useState<string | null>(null);
+
+  // "Desfazer": a meta volta para "em andamento" (sai do Histórico e
+  // reaparece na tela Metas). Serve pra cancelar ou concluir sem querer.
+  async function desfazer(id: string) {
+    setReabrindoId(id);
+
+    try {
+      await reabrirMeta(id);
+    } catch (error) {
+      Alert.alert("Não foi possível desfazer", errorMessage(error));
+    } finally {
+      setReabrindoId(null);
+    }
+  }
 
   const lista = metas
     .filter((meta) => meta.status !== "andamento")
@@ -118,6 +137,18 @@ export default function MetasHistorico() {
                         {meta.dataFinal ? ` · ${formatarDataCurta(meta.dataFinal)}` : ""}
                       </Text>
                     </View>
+                  </View>
+
+                  {/* Desfazer o cancelamento / a conclusão */}
+                  <View style={styles.botaoDesfazer}>
+                    <Button
+                      titulo={
+                        concluida ? "Desfazer conclusão" : "Desfazer cancelamento"
+                      }
+                      variante="outline"
+                      disabled={reabrindoId === meta.id}
+                      onPress={() => desfazer(meta.id)}
+                    />
                   </View>
                 </Card>
               );

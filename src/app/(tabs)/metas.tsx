@@ -217,7 +217,13 @@ async function confirmarModal(
             {metasDoMes.length === 0 ? (
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => router.push('/MetasFuturas')}
+                // Abre a criação já com "Meta do mês" marcado
+                onPress={() =>
+                  router.push({
+                    pathname: '/MetasFuturas',
+                    params: { tipo: 'mes' },
+                  })
+                }
               >
                 <LinearGradient
                   colors={COR_LONGO_PRAZO}
@@ -361,7 +367,13 @@ async function confirmarModal(
             <TouchableOpacity
               style={styles.longoPrazoCard}
               activeOpacity={0.8}
-              onPress={() => router.push('/MetasFuturas')}
+              // Abre a criação já com "Longo prazo" marcado
+              onPress={() =>
+                router.push({
+                  pathname: '/MetasFuturas',
+                  params: { tipo: 'longoPrazo' },
+                })
+              }
             >
               <View style={styles.adicionarCard}>
                 <Text style={styles.adicionarTexto}>+</Text>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Text,
   View,
@@ -8,6 +8,7 @@ import {
 } from "react-native";
 
 import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 
 import { HeaderMP } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
@@ -40,13 +41,27 @@ const TIPOS: { id: TipoMeta; rotulo: string }[] = [
 export default function MetasFuturas() {
   const { criarMeta } = useFinanceiro();
 
+  // Tipo escolhido na tela Metas (card "Metas do mês" -> "mes", card "+" de
+  // longo prazo -> "longoPrazo"). Sem parâmetro, o padrão é longo prazo.
+  const { tipo: tipoParam } = useLocalSearchParams<{ tipo?: string }>();
+  const tipoInicial: TipoMeta = tipoParam === "mes" ? "mes" : "longoPrazo";
+
   const [nome, setNome] = useState("");
-  const [tipo, setTipo] = useState<TipoMeta>("longoPrazo");
+  const [tipo, setTipo] = useState<TipoMeta>(tipoInicial);
   const [valorObjetivo, setValorObjetivo] = useState("");
   const [valorInicial, setValorInicial] = useState("");
   const [dataLimite, setDataLimite] = useState("");
 
   const [erro, setErro] = useState("");
+
+  // As telas das abas continuam montadas depois que a pessoa sai delas. Por
+  // isso o alternador guardava a escolha da última vez. A cada vez que a
+  // tela ganha foco, ele volta para o tipo de quem abriu a criação.
+  useFocusEffect(
+    useCallback(() => {
+      setTipo(tipoInicial);
+    }, [tipoInicial]),
+  );
 
   // Meta que acabou de ser criada (mostrada no card "Meta criada!")
   const [metaCriada, setMetaCriada] = useState<Meta | null>(null);
@@ -102,7 +117,7 @@ export default function MetasFuturas() {
   function novaMeta() {
     setMetaCriada(null);
     setNome("");
-    setTipo("longoPrazo");
+    setTipo(tipoInicial);
     setValorObjetivo("");
     setValorInicial("");
     setDataLimite("");

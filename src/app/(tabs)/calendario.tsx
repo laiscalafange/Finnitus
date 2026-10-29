@@ -3,11 +3,16 @@ import {
 } from "../../features/calendar/utils/classificarEventoFinanceiro";
 
 import {
+<<<<<<< Updated upstream
   Image,
   Modal,
   ScrollView, StyleSheet, Text,
   TextInput,
   TouchableOpacity, View,
+=======
+  Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
+  Text, TouchableOpacity, View, Modal,
+>>>>>>> Stashed changes
 } from "react-native";
 
 import {
@@ -30,6 +35,11 @@ import {
 } from "../../features/calendar/services/calendarService";
 
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
+// Mesmos componentes do modal "Alterar foto de perfil" e das telas de cadastro
+import { Card } from "../../shared/components/Cards";
+import { Button } from "../../shared/components/Button";
+import { Input } from "../../shared/components/Input";
+import { AlternadorTipo } from "../../features/menuMais/components/AlternadorTipo";
 import { Cores } from "../../shared/constants/Cores";
 import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Rotas } from "../../shared/constants/Rotas";
@@ -158,20 +168,29 @@ LocaleConfig.defaultLocale = "pt";
 // ─────────────────────────────────────────────
 
 const estilosEvento = StyleSheet.create({
+  // Card "Eventos": mesmo card roxo translúcido do modal de foto de perfil
   cardEvento: {
-    borderRadius: 18,
-    padding: 16,
+    padding: 18,
     marginBottom: 12,
   },
 
-  // Caixa "Possível movimentação financeira" dentro do card
+  // Data do card (sem itálico: a fonte do app não tem versão itálica e o
+  // Android trocava pela fonte cursiva do sistema)
+  eventoData: {
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 16,
+    color: Cores.texto.claro,
+  },
+
+  // Caixa "Possível movimentação financeira": mesmo estilo das opções do
+  // modal de foto de perfil (translúcida, com borda e cantos arredondados)
   eventoMovimentacao: {
     marginTop: 10,
     padding: 14,
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: Cores.overlay.medio,
-    backgroundColor: "rgba(12, 10, 20, 0.35)",
+    backgroundColor: Cores.overlay.suave,
   },
 
   eventoMovTitulo: {
@@ -181,7 +200,7 @@ const estilosEvento = StyleSheet.create({
   },
 
   eventoMovDetalhe: {
-    fontFamily: FONTS.quicksand.regular,
+    fontFamily: FONTS.quicksand.semibold,
     fontSize: 14,
     color: Cores.base.branco,
     marginTop: 4,
@@ -200,12 +219,17 @@ const estilosEvento = StyleSheet.create({
     marginTop: 12,
   },
 
-  // Botão principal (limão) e secundário (contorno) lado a lado
+  // Botão principal: mesmo gradiente roxo + texto limão do <Button>
   eventoBotaoPrimario: {
     flex: 1,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: Cores.destaque.limao,
+    height: 46,
+    borderRadius: 14,
+    overflow: "hidden",
+  },
+
+  eventoBotaoPrimarioFundo: {
+    flex: 1,
+    paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -213,40 +237,101 @@ const estilosEvento = StyleSheet.create({
   eventoBotaoPrimarioTexto: {
     fontFamily: FONTS.raleway.bold,
     fontSize: 14,
-    color: Cores.texto.contraste,
+    color: Cores.destaque.limao,
   },
 
+  // Botão secundário: mesmo visual das opções do modal de foto de perfil
   eventoBotaoSecundario: {
     flex: 1,
-    height: 44,
-    borderRadius: 12,
-    borderWidth: 1.5,
+    height: 46,
+    borderRadius: 14,
+    borderWidth: 1,
     borderColor: Cores.overlay.intenso,
+    backgroundColor: Cores.overlay.suave,
+    paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
   },
 
   eventoBotaoSecundarioTexto: {
-    fontFamily: FONTS.raleway.bold,
+    fontFamily: FONTS.quicksand.bold,
     fontSize: 14,
     color: Cores.base.branco,
   },
 
-  // Botão de contorno limão ("Tornar financeiro" / "Marcar como financeiro")
+  // "Tornar financeiro" / "Marcar como financeiro": mesmo visual do secundário
   eventoBotaoContorno: {
-    height: 44,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Cores.destaque.limao,
+    height: 46,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: Cores.overlay.intenso,
+    backgroundColor: Cores.overlay.suave,
     paddingHorizontal: 12,
     alignItems: "center",
     justifyContent: "center",
   },
 
   eventoBotaoContornoTexto: {
-    fontFamily: FONTS.raleway.bold,
+    fontFamily: FONTS.quicksand.bold,
     fontSize: 14,
+    color: Cores.base.branco,
+  },
+
+  // ── Modal "Confirmar movimentação" centralizado na tela ──
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 24,
+  },
+
+  modalFundo: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
+  },
+
+  // Card com os quatro cantos arredondados e largura responsiva
+  modalCard: {
+    width: "100%",
+    maxWidth: 480,
+    maxHeight: "90%",
+    alignSelf: "center",
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: "rgba(168, 79, 255, 0.45)",
+    paddingHorizontal: 22,
+    paddingTop: 24,
+    paddingBottom: 20,
+    overflow: "hidden",
+  },
+
+  modalTitulo: {
+    fontFamily: FONTS.raleway.bold,
+    color: Cores.base.branco,
+    fontSize: 21,
+    textAlign: "center",
+    marginBottom: 8,
+  },
+
+  modalSubtitulo: {
+    fontFamily: FONTS.quicksand.regular,
+    color: Cores.texto.claro,
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 22,
+  },
+
+  // Rótulo "Tipo" (mesmo do rótulo dos <Input>)
+  modalRotulo: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 16,
     color: Cores.destaque.limao,
+    marginBottom: 8,
+  },
+
+  modalTipo: {
+    marginBottom: 16,
   },
 });
 
@@ -1134,10 +1219,10 @@ function formatarValorCalendario(
 
           {/* ───────── EVENTOS ───────── */}
 
-          <LinearGradient
-            colors={[
-              "#3c1e75",
-              "#30096e",
+          <Card
+            gradiente={[
+              "rgba(73, 38, 155, 0.97)",
+              "rgba(45, 17, 108, 0.97)",
             ]}
             style={estilosEvento.cardEvento}
           >
@@ -1148,7 +1233,7 @@ function formatarValorCalendario(
                 Eventos
               </Text>
               <Text
-                style={styles.eventoData}
+                style={estilosEvento.eventoData}
               >
                 {dataSelecionada
   ? dataSelecionada
@@ -1304,11 +1389,20 @@ const ehSuspeito =
                       }
                       style={estilosEvento.eventoBotaoPrimario}
                     >
-                      <Text
-                        style={estilosEvento.eventoBotaoPrimarioTexto}
+                      <LinearGradient
+                        colors={["#482287", "#7E3BED"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={estilosEvento.eventoBotaoPrimarioFundo}
                       >
-                        Confirmar
-                      </Text>
+                        <Text
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          style={estilosEvento.eventoBotaoPrimarioTexto}
+                        >
+                          Confirmar
+                        </Text>
+                      </LinearGradient>
                     </TouchableOpacity>
 <TouchableOpacity
   activeOpacity={0.8}
@@ -1354,6 +1448,8 @@ const ehSuspeito =
   style={estilosEvento.eventoBotaoSecundario}
 >
   <Text
+    numberOfLines={1}
+    adjustsFontSizeToFit
     style={estilosEvento.eventoBotaoSecundarioTexto}
   >
     Não é financeiro
@@ -1471,7 +1567,7 @@ const ehSuspeito =
 
 )}
 
-</LinearGradient>
+</Card>
 
 
 {/* ───────────────────────────────────── */}
@@ -1759,334 +1855,174 @@ const ehSuspeito =
         visible={eventoEmRevisao !== null}
         transparent
         animationType="fade"
-        onRequestClose={() =>
-          setEventoEmRevisao(null)
-        }
+        onRequestClose={() => setEventoEmRevisao(null)}
+        statusBarTranslucent
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor:
-              "rgba(0,0,0,0.75)",
-            justifyContent: "center",
-            padding: 20,
-          }}
+        <KeyboardAvoidingView
+          style={estilosEvento.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <View
-            style={{
-              backgroundColor: "#2C1257",
-              borderRadius: 18,
-              padding: 20,
-              borderWidth: 1,
-              borderColor:
-                Cores.destaque.limao,
-            }}
+          <Pressable
+            style={estilosEvento.modalFundo}
+            onPress={() => setEventoEmRevisao(null)}
+          />
+
+          <Card
+            gradiente={[
+              "rgba(73, 38, 155, 0.97)",
+              "rgba(45, 17, 108, 0.97)",
+            ]}
+            style={estilosEvento.modalCard}
           >
-            <Text
-              style={{
-                color:
-                  Cores.destaque.limao,
-                fontFamily:
-                  FONTS.raleway.bold,
-                fontSize: 20,
-                marginBottom: 18,
-              }}
+            {/* Rolagem: se o teclado abrir, ainda dá pra chegar nos botões */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingBottom: 4 }}
             >
-              Confirmar movimentação
-            </Text>
+              <Text style={estilosEvento.modalTitulo}>
+                Confirmar movimentação
+              </Text>
 
-            <Text
-              style={{
-                color: Cores.base.branco,
-                marginBottom: 6,
-              }}
-            >
-              Tipo
-            </Text>
+              <Text style={estilosEvento.modalSubtitulo}>
+                Revise os dados antes de salvar.
+              </Text>
 
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 10,
-                marginBottom: 15,
-              }}
-            >
-              <TouchableOpacity
-                onPress={() =>
-                  setTipoRevisao(
-                    "DESPESA"
-                  )
+              <Text style={estilosEvento.modalRotulo}>Tipo</Text>
+
+              <View style={estilosEvento.modalTipo}>
+                <AlternadorTipo
+                  valor={tipoRevisao}
+                  aoMudar={setTipoRevisao}
+                  opcoes={[
+                    { id: "DESPESA", rotulo: "Despesa" },
+                    { id: "RECEITA", rotulo: "Receita" },
+                  ]}
+                />
+              </View>
+
+              <Input
+                label="Valor"
+                placeholder="0,00"
+                keyboardType="numeric"
+                value={valorRevisao}
+                onChangeText={(texto) => setValorRevisao(mascararMoeda(texto))}
+              />
+
+              <Input
+                label="Descrição"
+                autoCapitalize="sentences"
+                value={descricaoRevisao}
+                onChangeText={setDescricaoRevisao}
+              />
+
+              <Input
+                label="Data"
+                placeholder="DD/MM/AAAA"
+                keyboardType="numeric"
+                maxLength={10}
+                value={dataRevisao}
+                onChangeText={(texto) => setDataRevisao(mascararData(texto))}
+              />
+
+              <Button
+                titulo="Confirmar movimentação"
+                onPress={async () => {
+                if (!eventoEmRevisao) {
+                  return;
                 }
-                style={{
-                  flex: 1,
-                  padding: 10,
-                  borderRadius: 8,
-                  alignItems: "center",
-                  backgroundColor:
-                    tipoRevisao ===
-                    "DESPESA"
-                      ? Cores.destaque
-                          .limao
-                      : "#452078",
-                }}
-              >
-                <Text
-                  style={{
-                    color:
-                      tipoRevisao ===
-                      "DESPESA"
-                        ? Cores.roxo
-                            .escuro
-                        : Cores.base
-                            .branco,
-                  }}
-                >
-                  Despesa
-                </Text>
-              </TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() =>
-                  setTipoRevisao(
-                    "RECEITA"
-                  )
+                const valorNumerico =
+                  moedaParaNumero(valorRevisao);
+
+                if (
+                  !valorNumerico ||
+                  valorNumerico <= 0
+                ) {
+                  console.log(
+                    "Valor inválido."
+                  );
+
+                  return;
                 }
-                style={{
-                  flex: 1,
-                  padding: 10,
-                  borderRadius: 8,
-                  alignItems: "center",
-                  backgroundColor:
-                    tipoRevisao ===
-                    "RECEITA"
-                      ? Cores.destaque
-                          .limao
-                      : "#452078",
-                }}
-              >
-                <Text
-                  style={{
-                    color:
-                      tipoRevisao ===
-                      "RECEITA"
-                        ? Cores.roxo
-                            .escuro
-                        : Cores.base
-                            .branco,
-                  }}
-                >
-                  Receita
-                </Text>
-              </TouchableOpacity>
-            </View>
 
-            <Text
-              style={{
-                color: Cores.base.branco,
-                marginBottom: 6,
+                // A data digitada precisa ser uma data real (ex.: 31/02 não vale)
+                if (!dataValida(dataRevisao)) {
+                  console.log(
+                    "Data inválida."
+                  );
+
+                  return;
+                }
+
+                try {
+                  const resultado =
+                    await confirmarEventoFinanceiro({
+                      idEventoExterno:
+                        eventoEmRevisao.id,
+
+                      tituloEvento:
+                        eventoEmRevisao.titulo,
+
+                      dataInicio:
+                        eventoEmRevisao.dataInicio,
+
+                      dataFim:
+                        eventoEmRevisao.dataFim,
+
+                      diaInteiro:
+                        eventoEmRevisao.diaInteiro,
+
+                      tipoMovimentacao:
+                        tipoRevisao,
+
+                      descricao:
+                        descricaoRevisao,
+
+                      valor:
+                        valorNumerico,
+
+                      // A API continua recebendo AAAA-MM-DD
+                      data:
+                        brParaIso(dataRevisao),
+                    });
+
+                  console.log(
+                    "Movimentação salva:",
+                    resultado
+                  );
+
+                  setDecisoesEventos(
+                    (atual) => ({
+                      ...atual,
+                      [eventoEmRevisao.id]:
+                        "CONFIRMADO",
+                    })
+                  );
+
+                  setEventoEmRevisao(null);
+
+                  setRecarregarCalendario(
+                    (atual) => atual + 1
+                  );
+                } catch (error) {
+                  console.error(
+                    "Erro ao salvar movimentação:",
+                    error
+                  );
+                }
               }}
-            >
-              Valor
-            </Text>
+              />
 
-            <TextInput
-              value={valorRevisao}
-              onChangeText={(texto) =>
-                setValorRevisao(
-                  mascararMoeda(texto)
-                )
-              }
-              placeholder="0,00"
-              placeholderTextColor="#9E8CBF"
-              keyboardType="numeric"
-              style={{
-                backgroundColor: "#1D0C39",
-                color: Cores.base.branco,
-                padding: 12,
-                borderRadius: 8,
-                marginBottom: 15,
-              }}
-            />
-
-            <Text
-              style={{
-                color: Cores.base.branco,
-                marginBottom: 6,
-              }}
-            >
-              Descrição
-            </Text>
-
-            <TextInput
-              value={descricaoRevisao}
-              onChangeText={
-                setDescricaoRevisao
-              }
-              style={{
-                backgroundColor: "#1D0C39",
-                color: Cores.base.branco,
-                padding: 12,
-                borderRadius: 8,
-                marginBottom: 15,
-              }}
-            />
-
-            <Text
-              style={{
-                color: Cores.base.branco,
-                marginBottom: 6,
-              }}
-            >
-              Data
-            </Text>
-
-            <TextInput
-              value={dataRevisao}
-              onChangeText={(texto) =>
-                setDataRevisao(
-                  mascararData(texto)
-                )
-              }
-              placeholder="DD/MM/AAAA"
-              placeholderTextColor="#9E8CBF"
-              keyboardType="numeric"
-              maxLength={10}
-              style={{
-                backgroundColor: "#1D0C39",
-                color: Cores.base.branco,
-                padding: 12,
-                borderRadius: 8,
-                marginBottom: 20,
-              }}
-            />
-
-            <TouchableOpacity
-  onPress={async () => {
-    if (!eventoEmRevisao) {
-      return;
-    }
-
-    const valorNumerico =
-      moedaParaNumero(valorRevisao);
-
-    if (
-      !valorNumerico ||
-      valorNumerico <= 0
-    ) {
-      console.log(
-        "Valor inválido."
-      );
-
-      return;
-    }
-
-    // A data digitada precisa ser uma data real (ex.: 31/02 não vale)
-    if (!dataValida(dataRevisao)) {
-      console.log(
-        "Data inválida."
-      );
-
-      return;
-    }
-
-    try {
-      const resultado =
-        await confirmarEventoFinanceiro({
-          idEventoExterno:
-            eventoEmRevisao.id,
-
-          tituloEvento:
-            eventoEmRevisao.titulo,
-
-          dataInicio:
-            eventoEmRevisao.dataInicio,
-
-          dataFim:
-            eventoEmRevisao.dataFim,
-
-          diaInteiro:
-            eventoEmRevisao.diaInteiro,
-
-          tipoMovimentacao:
-            tipoRevisao,
-
-          descricao:
-            descricaoRevisao,
-
-          valor:
-            valorNumerico,
-
-          // A API continua recebendo AAAA-MM-DD
-          data:
-            brParaIso(dataRevisao),
-        });
-
-      console.log(
-        "Movimentação salva:",
-        resultado
-      );
-
-      setDecisoesEventos(
-        (atual) => ({
-          ...atual,
-          [eventoEmRevisao.id]:
-            "CONFIRMADO",
-        })
-      );
-
-      setEventoEmRevisao(null);
-
-      setRecarregarCalendario(
-        (atual) => atual + 1
-      );
-    } catch (error) {
-      console.error(
-        "Erro ao salvar movimentação:",
-        error
-      );
-    }
-  }}
-  style={{
-    backgroundColor:
-      Cores.destaque.limao,
-    padding: 13,
-    borderRadius: 9,
-    alignItems: "center",
-    marginBottom: 10,
-  }}
->
-  <Text
-    style={{
-      color:
-        Cores.roxo.escuro,
-      fontFamily:
-        FONTS.raleway.bold,
-    }}
-  >
-    Confirmar movimentação
-  </Text>
-</TouchableOpacity>
-
-<TouchableOpacity
-  onPress={() =>
-    setEventoEmRevisao(null)
-  }
-  style={{
-    padding: 10,
-    alignItems: "center",
-  }}
->
-  <Text
-    style={{
-      color:
-        Cores.base.branco,
-    }}
-  >
-    Cancelar
-  </Text>
-</TouchableOpacity>
-          </View>
-        </View>
+              {/* Mesmo botão "Cancelar" (contorno) do modal de foto de perfil */}
+              <Button
+                titulo="Cancelar"
+                variante="outline"
+                onPress={() => setEventoEmRevisao(null)}
+              />
+            </ScrollView>
+          </Card>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Escolher mês e ano do calendário */}
