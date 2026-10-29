@@ -16,24 +16,26 @@ export const styles = StyleSheet.create({
   // Conteúdo logo abaixo do cabeçalho discreto (HeaderInterno)
   conteudoSobreHeader: {
     paddingTop: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 19,
   },
 
   // Card de cada meta (o Card já traz borda e raio)
-  card: {
-    padding: 14,
-  },
+card: {
+  paddingTop: 10,
+  paddingHorizontal: 12,
+  paddingBottom: -10,
+},
 
   // Espaço entre a linha do card e o botão "Desfazer"
   botaoDesfazer: {
-    marginTop: 12,
+    marginTop: 10,
   },
 
   linhaCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 10,
+},
 
   // Quadradinho escuro em volta do ícone
   caixaIcone: {
@@ -47,7 +49,7 @@ export const styles = StyleSheet.create({
 
   textos: {
     flex: 1,
-    gap: 6,
+    gap: 1,
   },
 
   // Nome + selo de status, lado a lado
