@@ -3,16 +3,8 @@ import {
 } from "../../features/calendar/utils/classificarEventoFinanceiro";
 
 import {
-<<<<<<< Updated upstream
-  Image,
-  Modal,
-  ScrollView, StyleSheet, Text,
-  TextInput,
-  TouchableOpacity, View,
-=======
   Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
   Text, TouchableOpacity, View, Modal,
->>>>>>> Stashed changes
 } from "react-native";
 
 import {
@@ -21,15 +13,15 @@ import {
 } from "../../features/calendar/services/deviceCalendarService";
 
 import { LinearGradient } from "expo-linear-gradient";
-import { Calendar, LocaleConfig } from "react-native-calendars";
 import Svg, { Circle } from "react-native-svg";
+import { Calendar, LocaleConfig } from "react-native-calendars";
 
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
-  confirmarEventoFinanceiro,
   listarItensCalendario,
+  confirmarEventoFinanceiro,
   marcarEventoNaoFinanceiro,
   type ItemCalendario,
 } from "../../features/calendar/services/calendarService";
@@ -60,10 +52,10 @@ import {
 // Seletor de mês/ano e a função que gera "AAAA-MM-DD" na data local (a mesma
 // usada no calendário da semana de Metas)
 
-import coroaIcon from "../../../assets/icones/coroa.png";
-import sinoIcon from "../../../assets/icones/sino.png";
 import { ModalMesAno } from "../../features/calendar/components/ModalMesAno";
 import { chaveDia } from "../../shared/components/CalendarioSemana/CalendarioSemana";
+import coroaIcon from "../../../assets/icones/coroa.png";
+import sinoIcon from "../../../assets/icones/sino.png";
 
 // ─────────────────────────────────────────────
 
@@ -76,6 +68,8 @@ type SegmentoGauge = {
   pct: number;
 
 };
+
+
 
 type GaugeCircularProps = {
   tamanho?: number;
@@ -277,33 +271,27 @@ const estilosEvento = StyleSheet.create({
     color: Cores.base.branco,
   },
 
-  // ── Modal "Confirmar movimentação" centralizado na tela ──
+  // ── Modal "Confirmar movimentação" (mesmo padrão do ModalFotoPerfil) ──
+  // Card flutuando no meio da tela
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
     paddingHorizontal: 20,
-    paddingVertical: 24,
   },
 
   modalFundo: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
 
-  // Card com os quatro cantos arredondados e largura responsiva
   modalCard: {
-    width: "100%",
-    maxWidth: 480,
     maxHeight: "90%",
-    alignSelf: "center",
     borderRadius: 28,
-    borderWidth: 1,
-    borderColor: "rgba(168, 79, 255, 0.45)",
-    paddingHorizontal: 22,
-    paddingTop: 24,
-    paddingBottom: 20,
-    overflow: "hidden",
+    borderColor: "rgba(168, 79, 255, 0.35)",
+    paddingHorizontal: 24,
+    paddingTop: 26,
+    paddingBottom: 6,
+    marginBottom: 0,
   },
 
   modalTitulo: {
@@ -341,23 +329,12 @@ const estilosEvento = StyleSheet.create({
 
 // ─────────────────────────────────────────────
 
-
-function obterDataCalendario(
-  item: ItemCalendario
-): string {
-  if (item.tipo === "EVENTO") {
-    const data = new Date(item.data);
-
-    if (Number.isNaN(data.getTime())) {
-      return item.data.slice(0, 10);
-    }
-
-    return chaveDia(data);
-  }
-
+function obterDataCalendario(item: ItemCalendario): string {
+  // O backend serializa as datas para ISO (AAAA-MM-DDTHH:mm:ss.sssZ).
+  // Usamos o dia gravado para evitar deslocar eventos à véspera
+  // quando o navegador está no fuso horário de Brasília.
   return item.data.slice(0, 10);
 }
-
 
 // ─────────────────────────────────────────────
 
@@ -577,12 +554,6 @@ itensCalendario.forEach((item) => {
   };
 
 });
-
-useFocusEffect(
-  useCallback(() => {
-    setRecarregarCalendario((atual) => atual + 1);
-  }, [])
-);
 
 eventosDispositivo.forEach((evento) => {
   const dataEvento =
@@ -1005,7 +976,7 @@ function formatarValorCalendario(
               markedDates={markedDates}
               enableSwipeMonths
               hideExtraDays={false}
-              firstDay={1}
+              firstDay={0}
               style={{
                 marginTop: 10,
               }}
@@ -1851,12 +1822,14 @@ const ehSuspeito =
       </ScrollView>
 
 
+      {/* Confirmar movimentação: card roxo flutuando no meio da tela, com o
+          mesmo visual do modal "Alterar foto de perfil" (fundo escurecido,
+          tocar fora fecha) */}
       <Modal
         visible={eventoEmRevisao !== null}
         transparent
         animationType="fade"
         onRequestClose={() => setEventoEmRevisao(null)}
-        statusBarTranslucent
       >
         <KeyboardAvoidingView
           style={estilosEvento.modalOverlay}
@@ -1878,7 +1851,6 @@ const ehSuspeito =
             <ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{ paddingBottom: 4 }}
             >
               <Text style={estilosEvento.modalTitulo}>
                 Confirmar movimentação
@@ -2066,10 +2038,4 @@ const ehSuspeito =
 
   );
 
-}
-
-function useFocusEffect(effect: () => void) {
-  useEffect(() => {
-    effect();
-  }, [effect]);
 }
