@@ -145,7 +145,7 @@ export default function MetasHistorico() {
                       titulo={
                         concluida ? "Desfazer conclusão" : "Desfazer cancelamento"
                       }
-                      variante="outline"
+                      variante="botaotexto"
                       disabled={reabrindoId === meta.id}
                       onPress={() => desfazer(meta.id)}
                     />
