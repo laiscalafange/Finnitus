@@ -24,6 +24,11 @@ export const styles = StyleSheet.create({
     padding: 14,
   },
 
+  // Espaço entre a linha do card e o botão "Desfazer"
+  botaoDesfazer: {
+    marginTop: 12,
+  },
+
   linhaCard: {
     flexDirection: "row",
     alignItems: "center",

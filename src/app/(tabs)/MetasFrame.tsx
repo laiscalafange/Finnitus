@@ -93,7 +93,10 @@ export default function MetasFrame({
                     titulo="Definir nova meta"
                     onPress={() => {
                       onClose();
-                      router.navigate("/MetasFuturas");
+                      router.navigate({
+                        pathname: "/MetasFuturas",
+                        params: { tipo: "longoPrazo" },
+                      });
                     }}
                   />
 

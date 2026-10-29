@@ -11,6 +11,7 @@ import {
   adicionarAporte as adicionarAporteService,
   retirarDaMeta as retirarDaMetaService,
   cancelarMeta as cancelarMetaService,
+  reabrirMeta as reabrirMetaService,
   listarHistorico as listarHistoricoService,
   obterAnalises as obterAnalisesService,
 } from "../services/metas.service.js";
@@ -271,6 +272,36 @@ export async function cancelarMeta(
     .json({
       mensagem:
         "Meta cancelada com sucesso.",
+
+      meta,
+    });
+}
+
+export async function reabrirMeta(
+  req: Request,
+  res: Response,
+) {
+  if (!req.userId) {
+    throw new HttpError(
+      401,
+      "Usuário não autenticado.",
+    );
+  }
+
+  const id_Meta =
+    obterId(req.params.id);
+
+  const meta =
+    await reabrirMetaService(
+      req.userId,
+      id_Meta,
+    );
+
+  return res
+    .status(200)
+    .json({
+      mensagem:
+        "Meta reaberta com sucesso.",
 
       meta,
     });

@@ -130,6 +130,17 @@ export async function cancelarMetaApi(
   return response.data;
 }
 
+// Desfaz um cancelamento ou uma conclusão: a meta volta para "em andamento"
+export async function reabrirMetaApi(
+  id: number,
+) {
+  const response = await api.patch(
+    `/metas/${id}/reabrir`,
+  );
+
+  return response.data;
+}
+
 export async function listarHistoricoApi(): Promise<
   MetaApi[]
 > {

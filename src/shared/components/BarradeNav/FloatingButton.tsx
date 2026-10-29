@@ -14,7 +14,7 @@ const BAR_H = 80
 const ABAS = [
   {
     chave: 'home',
-    icone: require("../../../../assets/icones/estrela.png"),
+    icone: require("../../../../assets/icones/casa.png"),
   },
   {
     chave: 'dashboard',
