@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import {
-  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Modal,
@@ -42,8 +41,6 @@ type Props = {
   titulo?: string;
   // Se vier, o card "movimentar" mostra o botão "Ver detalhes"
   aoVerDetalhes?: () => void;
-    erroServidor?: string;
-  processando?: boolean;
 };
 
 // Textos que mudam entre a reserva de emergência e as metas
@@ -84,10 +81,13 @@ export function ModalReserva({
   alvo = "reserva",
   titulo,
   aoVerDetalhes,
-    erroServidor = "",
-  processando = false,
 }: Props) {
   const textos = TEXTOS[alvo];
+
+  // Nas metas os botões do card são compactos (a Reserva de emergência segue
+  // com os botões de sempre)
+  const compacto = alvo === "meta";
+  const tamanho = compacto ? "compacto" : "padrao";
 
   const [valorTexto, setValorTexto] = useState("");
   const [erro, setErro] = useState("");
@@ -160,10 +160,15 @@ export function ModalReserva({
           </Text>
         ) : null}
 
-        <View style={styles.botoes}>
-          <Button titulo="Confirmar" onPress={() => confirmarValor()} />
+        <View style={[styles.botoes, compacto && styles.botoesCompactos]}>
+          <Button
+            tamanho={tamanho}
+            titulo="Confirmar"
+            onPress={() => confirmarValor()}
+          />
 
           <Button
+            tamanho={tamanho}
             titulo="Cancelar"
             variante="botaotexto"
             onPress={aoFechar}
@@ -187,20 +192,30 @@ export function ModalReserva({
           {textos.dicaDepositar}: {formatarMoeda(saldo)}
         </Text>
 
-        <View style={styles.botoes}>
-          <Button
-            titulo="Depositar"
-            onPress={() => confirmarValor("depositar")}
-          />
+        <View style={[styles.botoes, compacto && styles.botoesCompactos]}>
+          {/* Depositar | Retirar, lado a lado */}
+          <View style={styles.linhaBotoes}>
+            <View style={styles.colunaBotao}>
+              <Button
+                tamanho={tamanho}
+                titulo="Depositar"
+                onPress={() => confirmarValor("depositar")}
+              />
+            </View>
 
-          <Button
-            titulo="Retirar"
-            variante="outline"
-            onPress={() => confirmarValor("retirar")}
-          />
+            <View style={styles.colunaBotao}>
+              <Button
+                tamanho={tamanho}
+                titulo="Retirar"
+                variante="outline"
+                onPress={() => confirmarValor("retirar")}
+              />
+            </View>
+          </View>
 
           {aoVerDetalhes ? (
             <Button
+            tamanho={tamanho}
               titulo="Ver detalhes"
               variante="botaotexto"
               onPress={aoVerDetalhes}
@@ -225,7 +240,7 @@ export function ModalReserva({
         <Text style={[styles.titulo, styles.tituloCentro]}>{tituloCard}</Text>
         <Text style={styles.texto}>{texto}</Text>
 
-        <View style={styles.botoes}>{botoes}</View>
+        <View style={[styles.botoes, compacto && styles.botoesCompactos]}>{botoes}</View>
       </View>
     );
   }
@@ -251,11 +266,13 @@ export function ModalReserva({
           "Guarde um valor para lidar com imprevistos sem comprometer seu orçamento.",
           <>
             <Button
+            tamanho={tamanho}
               titulo="Criar reserva"
               onPress={() => aoConfirmar(0)}
             />
 
             <Button
+            tamanho={tamanho}
               titulo="Agora não"
               variante="botaotexto"
               onPress={aoFechar}
@@ -268,7 +285,11 @@ export function ModalReserva({
           <TriangleAlert size={44} color={Cores.roxo.claro} />,
           textos.insuficienteTitulo,
           textos.insuficienteTexto,
-          <Button titulo="Entendi" onPress={() => aoConfirmar(0)} />
+          <Button
+            tamanho={tamanho}
+            titulo="Entendi"
+            onPress={() => aoConfirmar(0)}
+          />
         );
 
       case "excluir":
@@ -278,12 +299,14 @@ export function ModalReserva({
           textos.excluirTexto,
           <>
             <Button
+            tamanho={tamanho}
               titulo="Excluir"
               variante="perigo"
               onPress={() => aoConfirmar(0)}
             />
 
             <Button
+            tamanho={tamanho}
               titulo="Cancelar"
               variante="botaotexto"
               onPress={aoFechar}
@@ -298,12 +321,14 @@ export function ModalReserva({
           "A meta vai para o Histórico como cancelada. O valor guardado não é apagado.",
           <>
             <Button
+            tamanho={tamanho}
               titulo="Cancelar meta"
               variante="perigo"
               onPress={() => aoConfirmar(0)}
             />
 
             <Button
+            tamanho={tamanho}
               titulo="Voltar"
               variante="botaotexto"
               onPress={aoFechar}
@@ -347,28 +372,6 @@ export function ModalReserva({
           </Pressable>
 
           {renderConteudo()}
-
-{/* Exibe os erros enviados pelo backend */}
-{erroServidor ? (
-  <Text
-    style={{
-      color: "#FFB4B4",
-      textAlign: "center",
-      marginTop: 12,
-    }}
-  >
-    {erroServidor}
-  </Text>
-) : null}
-
-{/* Mostra o carregamento enquanto a API processa */}
-{processando ? (
-  <ActivityIndicator
-    color={Cores.destaque.limao}
-    style={{ marginTop: 12 }}
-  />
-) : null}
-
         </Card>
       </KeyboardAvoidingView>
     </Modal>

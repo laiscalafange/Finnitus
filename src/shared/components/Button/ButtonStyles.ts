@@ -97,4 +97,32 @@ export const styles = StyleSheet.create({
   icone: {
     marginRight: 10,
   },
+
+  // ---- Tamanho "compacto" (prop tamanho do <Button>) ----
+  // Vem depois do estilo da variante, então ganha dele (largura, altura, margem)
+  compacto: {
+    width: "100%",
+    alignSelf: "stretch",
+    height: 44,
+    padding: 0,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    marginBottom: 0,
+  },
+
+  // "outline" e "secundario" compactos: fundo roxo transparente com borda roxa
+  compactoTranslucido: {
+    backgroundColor: "rgba(126, 59, 237, 0.20)",
+    borderWidth: 1.5,
+    borderColor: "#7E3BED",
+  },
+
+  textoCompacto: {
+    fontSize: 15,
+  },
+
+  textoCompactoTranslucido: {
+    fontFamily: FONTS.raleway.bold,
+    color: "#D8CDF7",
+  },
 });
