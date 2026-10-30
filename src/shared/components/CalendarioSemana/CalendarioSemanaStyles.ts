@@ -86,14 +86,13 @@ export const styles = StyleSheet.create({
         marginHorizontal: -3,
     },
 
-    // Dia comum (sem prazo de meta): fundo verde
     diaContainer: {
         flex: 1,
         alignItems: 'center',
         marginTop: 6,
         paddingVertical: 13,
         borderRadius: 40,
-        backgroundColor: Cores.destaque.limao,
+        backgroundColor: '#53269D',
         minHeight: 100,
         // Borda transparente: o dia selecionado ganha contorno sem mudar de tamanho
         borderWidth: 2,
@@ -105,27 +104,43 @@ export const styles = StyleSheet.create({
         borderColor: Cores.base.branco,
     },
 
-    // Dia com prazo de meta: fundo roxo
-    diaContainerMarcado: {
-        backgroundColor: '#53269D',
+    // Dia de hoje: fundo verde
+    diaContainerHoje: {
+        backgroundColor: Cores.destaque.limao,
     },
 
-    // (o contorno do dia marcado e selecionado vem do diaContainerAtivo)
-    diaContainerMarcadoAtivo: {
-        borderColor: Cores.base.branco,
+    diaLetraHoje: {
+        color: Cores.texto.contraste,
+    },
+
+    diaNumeroHoje: {
+        color: Cores.texto.contraste,
+    },
+
+    diaPontoHoje: {
+        backgroundColor: Cores.texto.contraste,
+    },
+
+    // Dia em que uma meta está prevista para terminar: roxo escuro
+    diaContainerMarcado: {
+        backgroundColor: '#3A1D6C',
+    },
+
+    diaPontoMarcado: {
+        backgroundColor: Cores.destaque.limao,
     },
 
     diaLetra: {
         fontFamily: FONTS.quicksand.bold,
         fontSize: 15,
-        color: Cores.texto.contraste,
+        color: '#D8CDF7',
         marginBottom: 5,
     },
 
     diaNumero: {
         fontFamily: FONTS.raleway.bold,
         fontSize: 18,
-        color: Cores.texto.contraste,
+        color: '#B18AEF',
         marginBottom: 7,
     },
 
@@ -133,23 +148,11 @@ export const styles = StyleSheet.create({
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: 'rgba(59, 23, 107, 0.35)',
+        backgroundColor: '#ffffff35',
     },
 
     diaPontoAtivo: {
-        backgroundColor: Cores.texto.contraste,
-    },
-
-    diaLetraMarcado: {
-        color: '#D8CDF7',
-    },
-
-    diaNumeroMarcado: {
-        color: '#B18AEF',
-    },
-
-    diaPontoMarcado: {
-        backgroundColor: '#ffffff35',
+        backgroundColor: Cores.destaque.limao,
     },
 
     setaContainer: {

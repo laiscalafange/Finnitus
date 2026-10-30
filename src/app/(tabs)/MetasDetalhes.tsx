@@ -311,8 +311,9 @@ const estilosEditar = StyleSheet.create({
   linhaAcoes: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: -10,
-    marginBottom: 16,
+    paddingHorizontal: 4,
+    marginTop: 16,
+    marginBottom: 20,
   },
 
   overlay: {
@@ -668,14 +669,15 @@ export default function MetasDetalhes() {
               <View style={styles.linhaBotoes}>
                 <View style={styles.colunaBotao}>
                   <Button
+                    tamanho="compacto"
                     titulo="Depositar"
-                    variante="secundario"
                     onPress={() => setModal("depositar")}
                   />
                 </View>
 
                 <View style={styles.colunaBotao}>
                   <Button
+                    tamanho="compacto"
                     titulo="Retirar"
                     variante="secundario"
                     onPress={() => setModal("retirar")}

@@ -96,4 +96,19 @@ export const styles = StyleSheet.create({
   botoes: {
     alignSelf: "stretch",
   },
+
+  // Nas metas os botões não trazem margem: o espaço entre eles vem daqui
+  botoesCompactos: {
+    gap: 10,
+  },
+
+  // Depositar | Retirar lado a lado (card "movimentar")
+  linhaBotoes: {
+    flexDirection: "row",
+    gap: 10,
+  },
+
+  colunaBotao: {
+    flex: 1,
+  },
 });
