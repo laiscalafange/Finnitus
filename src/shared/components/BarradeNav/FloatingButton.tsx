@@ -252,15 +252,26 @@ export function FloatingButton({
 
               {aba.chave === 'maisOpcoes' ? (
 
-                <Text
+                // Os três pontinhos são desenhados com Views (e não com o
+                // caractere ⋮) para ficarem na mesma altura dos outros ícones
+                <View
                   style={[
                     styles.maisOpcoes,
                     abaAtiva === aba.chave &&
                       styles.maisOpcoesAtivo,
                   ]}
                 >
-                  ⋮
-                </Text>
+                  {[0, 1, 2].map((ponto) => (
+                    <View
+                      key={ponto}
+                      style={[
+                        styles.maisOpcoesPonto,
+                        abaAtiva === aba.chave &&
+                          styles.maisOpcoesPontoAtivo,
+                      ]}
+                    />
+                  ))}
+                </View>
 
               ) : (
 
@@ -268,6 +279,9 @@ export function FloatingButton({
                   source={aba.icone}
                   style={[
                     styles.icone,
+                    // O B.png é de um roxo mais escuro: pinta com o mesmo
+                    // roxo dos outros ícones
+                    aba.chave === 'planoB' && styles.iconePlanoB,
                     abaAtiva === aba.chave &&
                       styles.iconeAtivo,
                   ]}
