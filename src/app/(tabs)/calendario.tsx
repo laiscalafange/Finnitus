@@ -4,7 +4,7 @@ import {
 
 import {
   Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
-  Text, TouchableOpacity, View, Modal,
+  Text, TextInput, TouchableOpacity, View, Modal,
 } from "react-native";
 
 import {
@@ -29,9 +29,6 @@ import {
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 // Mesmos componentes do modal "Alterar foto de perfil" e das telas de cadastro
 import { Card } from "../../shared/components/Cards";
-import { Button } from "../../shared/components/Button";
-import { Input } from "../../shared/components/Input";
-import { AlternadorTipo } from "../../features/menuMais/components/AlternadorTipo";
 import { Cores } from "../../shared/constants/Cores";
 import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Rotas } from "../../shared/constants/Rotas";
@@ -138,7 +135,7 @@ LocaleConfig.locales["pt"] = {
   ],
 
   // IMPORTANTE: a lista precisa começar no DOMINGO (índice 0 = domingo).
-  // A semana começar na segunda é controlado pelo firstDay={1} do <Calendar>.
+  // Quem define o primeiro dia da semana (domingo) é o firstDay={0} do <Calendar>.
   dayNamesShort: [
     "dom",
     "seg",
@@ -164,8 +161,22 @@ LocaleConfig.defaultLocale = "pt";
 const estilosEvento = StyleSheet.create({
   // Card "Eventos": mesmo card roxo translúcido do modal de foto de perfil
   cardEvento: {
-    padding: 18,
+    padding: 16,
     marginBottom: 12,
+  },
+
+  // Cada evento do card: só espaço entre eles (sem a linha roxa embaixo)
+  eventoItem: {
+    marginTop: 10,
+  },
+
+  // "Calendário do celular" à esquerda e "Dia inteiro" / hora à direita,
+  // na mesma linha (antes eram duas linhas separadas)
+  eventoLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
   },
 
   // Data do card (sem itálico: a fonte do app não tem versão itálica e o
@@ -179,8 +190,8 @@ const estilosEvento = StyleSheet.create({
   // Caixa "Possível movimentação financeira": mesmo estilo das opções do
   // modal de foto de perfil (translúcida, com borda e cantos arredondados)
   eventoMovimentacao: {
-    marginTop: 10,
-    padding: 14,
+    marginTop: 8,
+    padding: 12,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: Cores.overlay.medio,
@@ -209,15 +220,15 @@ const estilosEvento = StyleSheet.create({
 
   eventoMovBotoes: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 12,
+    gap: 8,
+    marginTop: 10,
   },
 
   // Botão principal: mesmo gradiente roxo + texto limão do <Button>
   eventoBotaoPrimario: {
     flex: 1,
-    height: 46,
-    borderRadius: 14,
+    height: 40,
+    borderRadius: 12,
     overflow: "hidden",
   },
 
@@ -230,15 +241,15 @@ const estilosEvento = StyleSheet.create({
 
   eventoBotaoPrimarioTexto: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 14,
+    fontSize: 13,
     color: Cores.destaque.limao,
   },
 
   // Botão secundário: mesmo visual das opções do modal de foto de perfil
   eventoBotaoSecundario: {
     flex: 1,
-    height: 46,
-    borderRadius: 14,
+    height: 40,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: Cores.overlay.intenso,
     backgroundColor: Cores.overlay.suave,
@@ -249,25 +260,27 @@ const estilosEvento = StyleSheet.create({
 
   eventoBotaoSecundarioTexto: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 14,
+    fontSize: 13,
     color: Cores.base.branco,
   },
 
   // "Tornar financeiro" / "Marcar como financeiro": mesmo visual do secundário
+  // Botão pequeno, só do tamanho do texto (não ocupa a largura toda)
   eventoBotaoContorno: {
-    height: 46,
-    borderRadius: 14,
+    alignSelf: "flex-start",
+    height: 36,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: Cores.overlay.intenso,
     backgroundColor: Cores.overlay.suave,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
   },
 
   eventoBotaoContornoTexto: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 14,
+    fontSize: 13,
     color: Cores.base.branco,
   },
 
@@ -288,40 +301,138 @@ const estilosEvento = StyleSheet.create({
     maxHeight: "90%",
     borderRadius: 28,
     borderColor: "rgba(168, 79, 255, 0.35)",
-    paddingHorizontal: 24,
-    paddingTop: 26,
-    paddingBottom: 6,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 18,
     marginBottom: 0,
   },
 
   modalTitulo: {
     fontFamily: FONTS.raleway.bold,
     color: Cores.base.branco,
-    fontSize: 21,
+    fontSize: 19,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 4,
   },
 
   modalSubtitulo: {
     fontFamily: FONTS.quicksand.regular,
     color: Cores.texto.claro,
-    fontSize: 14,
+    fontSize: 13,
     textAlign: "center",
-    marginBottom: 22,
+    marginBottom: 14,
   },
 
-  // Rótulo "Tipo" (mesmo do rótulo dos <Input>)
+  // Rótulo dos campos do modal (menor que o do <Input> padrão)
   modalRotulo: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 16,
+    fontSize: 14,
     color: Cores.destaque.limao,
-    marginBottom: 8,
+    marginBottom: 6,
   },
 
+  // Alternador Despesa | Receita (versão compacta do <AlternadorTipo>)
   modalTipo: {
-    marginBottom: 16,
+    flexDirection: "row",
+    padding: 3,
+    marginBottom: 12,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: Cores.roxo.claro,
+    backgroundColor: Cores.overlay.cardForte,
+  },
+
+  modalTipoOpcao: {
+    flex: 1,
+    height: 32,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  modalTipoTexto: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 13,
+    color: Cores.texto.claro,
+  },
+
+  // Texto da opção marcada (roxo escuro sobre o limão)
+  modalTipoTextoAtivo: {
+    color: Cores.texto.contraste,
+  },
+
+  modalCampoBloco: {
+    marginBottom: 12,
+  },
+
+  modalCampo: {
+    height: 46,
+    justifyContent: "center",
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: Cores.roxo.claro,
+    backgroundColor: Cores.fundo.principal,
+  },
+
+  modalCampoTexto: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 15,
+    color: Cores.base.branco,
+    paddingVertical: 0,
+  },
+
+  // Cancelar e Confirmar lado a lado
+  modalBotoes: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 6,
   },
 });
+
+// Campo do modal "Confirmar movimentação": mesmas cores e fontes do <Input>
+// padrão, só que mais baixo e com menos espaço entre os campos
+function CampoModal({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  keyboardType,
+  maxLength,
+  autoCapitalize = "none",
+}: {
+  label: string;
+  value: string;
+  onChangeText: (texto: string) => void;
+  placeholder?: string;
+  keyboardType?: "numeric";
+  maxLength?: number;
+  autoCapitalize?: "none" | "sentences";
+}) {
+  return (
+    <View style={estilosEvento.modalCampoBloco}>
+      <Text style={estilosEvento.modalRotulo} maxFontSizeMultiplier={1.15}>
+        {label}
+      </Text>
+
+      <View style={estilosEvento.modalCampo}>
+        <TextInput
+          style={estilosEvento.modalCampoTexto}
+          maxFontSizeMultiplier={1.15}
+          accessibilityLabel={label}
+          placeholder={placeholder}
+          placeholderTextColor={Cores.texto.desabilitado}
+          keyboardType={keyboardType}
+          maxLength={maxLength}
+          autoCapitalize={autoCapitalize}
+          autoCorrect={false}
+          value={value}
+          onChangeText={onChangeText}
+        />
+      </View>
+    </View>
+  );
+}
 
 // ─────────────────────────────────────────────
 
@@ -1238,7 +1349,7 @@ eventosDispositivoDoDia.length > 0 ? (
       return (
         <View
           key={`${evento.tipo}-${evento.id}`}
-          style={styles.eventoItem}
+          style={estilosEvento.eventoItem}
         >
 
           <Text style={styles.eventoNome}>
@@ -1253,19 +1364,21 @@ eventosDispositivoDoDia.length > 0 ? (
             </Text>
           )}
 
-          <Text
-            style={styles.eventoDescricao}
-          >
-            {evento.origem === "DISPOSITIVO"
-              ? "Importado do calendário do celular"
-              : "Finnitus"}
-          </Text>
-
-          {!evento.diaInteiro && (
-            <Text style={styles.eventoHora}>
-              {hora}
+          <View style={estilosEvento.eventoLinha}>
+            <Text
+              style={styles.eventoDescricao}
+            >
+              {evento.origem === "DISPOSITIVO"
+                ? "Importado do calendário do celular"
+                : "Finnitus"}
             </Text>
-          )}
+
+            {!evento.diaInteiro && (
+              <Text style={styles.eventoHora}>
+                {hora}
+              </Text>
+            )}
+          </View>
         </View>
       );
     })}
@@ -1298,7 +1411,7 @@ const ehSuspeito =
           <View
             key={evento.id}
 
-            style={styles.eventoItem}
+            style={estilosEvento.eventoItem}
           >
 
             <Text style={styles.eventoNome}>
@@ -1306,17 +1419,19 @@ const ehSuspeito =
               • {evento.titulo}
 
             </Text>
-            <Text
-              style={styles.eventoDescricao}
-            >
-              Calendário do celular
-            </Text>
+            <View style={estilosEvento.eventoLinha}>
+              <Text
+                style={styles.eventoDescricao}
+              >
+                Calendário do celular
+              </Text>
 
-            <Text style={styles.eventoHora}>
-              {evento.diaInteiro
-                ? "Dia inteiro"
-                : hora}
-            </Text>
+              <Text style={styles.eventoHora}>
+                {evento.diaInteiro
+                  ? "Dia inteiro"
+                  : hora}
+              </Text>
+            </View>
 
             {ehSuspeito && (
               <View
@@ -1863,17 +1978,34 @@ const ehSuspeito =
               <Text style={estilosEvento.modalRotulo}>Tipo</Text>
 
               <View style={estilosEvento.modalTipo}>
-                <AlternadorTipo
-                  valor={tipoRevisao}
-                  aoMudar={setTipoRevisao}
-                  opcoes={[
-                    { id: "DESPESA", rotulo: "Despesa" },
-                    { id: "RECEITA", rotulo: "Receita" },
-                  ]}
-                />
+                {(["DESPESA", "RECEITA"] as const).map((opcao) => {
+                  const ativo = tipoRevisao === opcao;
+
+                  return (
+                    <Pressable
+                      key={opcao}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: ativo }}
+                      onPress={() => setTipoRevisao(opcao)}
+                      style={[
+                        estilosEvento.modalTipoOpcao,
+                        ativo && { backgroundColor: Cores.destaque.limao },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          estilosEvento.modalTipoTexto,
+                          ativo && estilosEvento.modalTipoTextoAtivo,
+                        ]}
+                      >
+                        {opcao === "DESPESA" ? "Despesa" : "Receita"}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
 
-              <Input
+              <CampoModal
                 label="Valor"
                 placeholder="0,00"
                 keyboardType="numeric"
@@ -1881,14 +2013,14 @@ const ehSuspeito =
                 onChangeText={(texto) => setValorRevisao(mascararMoeda(texto))}
               />
 
-              <Input
+              <CampoModal
                 label="Descrição"
                 autoCapitalize="sentences"
                 value={descricaoRevisao}
                 onChangeText={setDescricaoRevisao}
               />
 
-              <Input
+              <CampoModal
                 label="Data"
                 placeholder="DD/MM/AAAA"
                 keyboardType="numeric"
@@ -1897,9 +2029,22 @@ const ehSuspeito =
                 onChangeText={(texto) => setDataRevisao(mascararData(texto))}
               />
 
-              <Button
-                titulo="Confirmar movimentação"
-                onPress={async () => {
+              {/* Cancelar e Confirmar lado a lado, no mesmo tamanho dos
+                  botões do card de eventos */}
+              <View style={estilosEvento.modalBotoes}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setEventoEmRevisao(null)}
+                  style={estilosEvento.eventoBotaoSecundario}
+                >
+                  <Text style={estilosEvento.eventoBotaoSecundarioTexto}>
+                    Cancelar
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={async () => {
                 if (!eventoEmRevisao) {
                   return;
                 }
@@ -1984,14 +2129,20 @@ const ehSuspeito =
                   );
                 }
               }}
-              />
-
-              {/* Mesmo botão "Cancelar" (contorno) do modal de foto de perfil */}
-              <Button
-                titulo="Cancelar"
-                variante="outline"
-                onPress={() => setEventoEmRevisao(null)}
-              />
+                  style={estilosEvento.eventoBotaoPrimario}
+                >
+                  <LinearGradient
+                    colors={["#482287", "#7E3BED"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={estilosEvento.eventoBotaoPrimarioFundo}
+                  >
+                    <Text style={estilosEvento.eventoBotaoPrimarioTexto}>
+                      Confirmar
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
           </Card>
         </KeyboardAvoidingView>

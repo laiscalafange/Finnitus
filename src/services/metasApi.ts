@@ -141,6 +141,27 @@ export async function reabrirMetaApi(
   return response.data;
 }
 
+export type AtualizarMetaApiDados = {
+  nome?: string;
+  tipo?: TipoMetaApi;
+  valorObjetivo?: number;
+  // Só precisa quando a meta passa a ser "do mês" (AAAA-MM)
+  mesReferencia?: string;
+};
+
+// Edita nome, tipo e/ou valor da meta
+export async function atualizarMetaApi(
+  id: number,
+  dados: AtualizarMetaApiDados,
+): Promise<MetaApi> {
+  const response = await api.put(
+    `/metas/${id}`,
+    dados,
+  );
+
+  return response.data;
+}
+
 export async function listarHistoricoApi(): Promise<
   MetaApi[]
 > {

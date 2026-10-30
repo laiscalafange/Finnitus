@@ -45,7 +45,7 @@ export default function Metas() {
   const metaAtiva = metas.find(meta => meta.id === metaAtivaId)
 
   // Prazo (DD/MM/AAAA -> AAAA-MM-DD) de cada meta em andamento: esses dias
-  // ficam com fundo verde no calendário do cabeçalho
+  // ficam com fundo roxo no calendário do cabeçalho (os outros dias, verde)
   const diasMarcados = metas
     .filter(meta => meta.status === 'andamento' && meta.dataLimite)
     .map(meta => {
@@ -151,7 +151,8 @@ async function confirmarModal(
       <ScrollView style={styles.scroll}>
 
         {/* Cabeçalho com calendário da semana: os prazos das metas ficam em
-            verde e a seta embaixo esconde/mostra o calendário */}
+            roxo (os outros dias em verde) e a seta embaixo esconde/mostra o
+            calendário */}
         <CalendarioSemana
           titulo="Metas"
           subtitulo="Financeiras"

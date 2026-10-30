@@ -86,54 +86,46 @@ export const styles = StyleSheet.create({
         marginHorizontal: -3,
     },
 
+    // Dia comum (sem prazo de meta): fundo verde
     diaContainer: {
         flex: 1,
         alignItems: 'center',
         marginTop: 6,
         paddingVertical: 13,
         borderRadius: 40,
-        backgroundColor: '#53269D',
-        minHeight: 100,
-    },
-
-    diaContainerAtivo: {
-        backgroundColor: '#3A1D6C',
-    },
-
-    // Dia com prazo de meta: fundo verde
-    diaContainerMarcado: {
         backgroundColor: Cores.destaque.limao,
+        minHeight: 100,
+        // Borda transparente: o dia selecionado ganha contorno sem mudar de tamanho
+        borderWidth: 2,
+        borderColor: 'transparent',
     },
 
-    // Dia marcado que também está selecionado: contorno branco
-    diaContainerMarcadoAtivo: {
-        borderWidth: 2,
+    // Dia selecionado: contorno branco
+    diaContainerAtivo: {
         borderColor: Cores.base.branco,
     },
 
-    diaLetraMarcado: {
-        color: Cores.texto.contraste,
+    // Dia com prazo de meta: fundo roxo
+    diaContainerMarcado: {
+        backgroundColor: '#53269D',
     },
 
-    diaNumeroMarcado: {
-        color: Cores.texto.contraste,
-    },
-
-    diaPontoMarcado: {
-        backgroundColor: Cores.texto.contraste,
+    // (o contorno do dia marcado e selecionado vem do diaContainerAtivo)
+    diaContainerMarcadoAtivo: {
+        borderColor: Cores.base.branco,
     },
 
     diaLetra: {
         fontFamily: FONTS.quicksand.bold,
         fontSize: 15,
-        color: '#D8CDF7',
+        color: Cores.texto.contraste,
         marginBottom: 5,
     },
 
     diaNumero: {
         fontFamily: FONTS.raleway.bold,
         fontSize: 18,
-        color: '#B18AEF',
+        color: Cores.texto.contraste,
         marginBottom: 7,
     },
 
@@ -141,11 +133,23 @@ export const styles = StyleSheet.create({
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: '#ffffff35',
+        backgroundColor: 'rgba(59, 23, 107, 0.35)',
     },
 
     diaPontoAtivo: {
-        backgroundColor: Cores.destaque.limao,
+        backgroundColor: Cores.texto.contraste,
+    },
+
+    diaLetraMarcado: {
+        color: '#D8CDF7',
+    },
+
+    diaNumeroMarcado: {
+        color: '#B18AEF',
+    },
+
+    diaPontoMarcado: {
+        backgroundColor: '#ffffff35',
     },
 
     setaContainer: {
