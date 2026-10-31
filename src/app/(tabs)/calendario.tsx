@@ -3,7 +3,7 @@ import {
 } from "../../features/calendar/utils/classificarEventoFinanceiro";
 
 import {
-  Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
+  Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
   Text, TextInput, TouchableOpacity, View, Modal,
 } from "react-native";
 
@@ -24,8 +24,8 @@ import {
   confirmarEventoFinanceiro,
   marcarEventoNaoFinanceiro,
   type ItemCalendario,
+  atualizarMovimentacaoCalendario,
 } from "../../features/calendar/services/calendarService";
-
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 // Mesmos componentes do modal "Alterar foto de perfil" e das telas de cadastro
 import { Card } from "../../shared/components/Cards";
@@ -543,6 +543,14 @@ function GaugeCircular({
 
 export default function Calendario() {
   const router = useRouter();
+
+  // Edição de receitas e despesas já cadastradas (não interfere no modal
+  // existente que confirma eventos importados do calendário do celular).
+  const [movimentacaoEmEdicao, setMovimentacaoEmEdicao] = useState<ItemCalendario | null>(null);
+  const [descricaoEdicao, setDescricaoEdicao] = useState("");
+  const [valorEdicao, setValorEdicao] = useState("");
+  const [dataEdicao, setDataEdicao] = useState("");
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [
   recarregarCalendario,
   setRecarregarCalendario,
@@ -985,6 +993,79 @@ function formatarValorCalendario(
         evento.dataInicio.slice(0, 10)
       )
     );
+  }
+
+  // Abre o formulário já preenchido com os dados da movimentação tocada.
+  function abrirEdicaoMovimentacao(item: ItemCalendario) {
+    if (item.tipo !== "DESPESA" && item.tipo !== "RECEITA") return;
+
+    setMovimentacaoEmEdicao(item);
+    setDescricaoEdicao(item.titulo ?? "");
+    setValorEdicao(formatarCentavos(Math.round(Number(item.valor ?? 0) * 100)));
+    setDataEdicao(isoParaBr(obterDataCalendario(item)));
+  }
+
+  async function salvarEdicaoMovimentacao() {
+    if (!movimentacaoEmEdicao || salvandoEdicao) return;
+
+    const descricao = descricaoEdicao.trim();
+    const valor = moedaParaNumero(valorEdicao);
+
+    if (!descricao) {
+      Alert.alert("Descrição obrigatória", "Informe uma descrição para a movimentação.");
+      return;
+    }
+    if (!Number.isFinite(valor) || valor <= 0) {
+      Alert.alert("Valor inválido", "Informe um valor maior que zero.");
+      return;
+    }
+    if (!dataValida(dataEdicao)) {
+      Alert.alert("Data inválida", "Informe uma data válida no formato DD/MM/AAAA.");
+      return;
+    }
+
+    // O backend do calendário deve enviar o ID REAL da Receita/Despesa,
+    // nunca somente o ID do Evento.
+    const idOrigem = movimentacaoEmEdicao.movimentacaoId;
+    if (!Number.isSafeInteger(idOrigem) || !idOrigem || idOrigem <= 0) {
+      Alert.alert(
+        "Edição indisponível",
+        "O calendário ainda não enviou o ID da receita/despesa original. " +
+          "Inclua 'movimentacaoId' na resposta GET /calendario para editar com segurança."
+      );
+      return;
+    }
+
+    const novaData = brParaIso(dataEdicao);
+    setSalvandoEdicao(true);
+    try {
+      await atualizarMovimentacaoCalendario({
+        tipo: movimentacaoEmEdicao.tipo as "RECEITA" | "DESPESA",
+        movimentacaoId: idOrigem,
+        descricao,
+        valor,
+        data: novaData,
+      });
+
+      setMovimentacaoEmEdicao(null);
+      // Se mudar de mês, mostramos o mês onde a movimentação foi salva.
+      const novoMes = `${novaData.slice(0, 7)}-01`;
+      if (novoMes !== mesAtual) setMesAtual(novoMes);
+      setDataSelecionada(novaData);
+      setRecarregarCalendario((anterior) => anterior + 1);
+      Alert.alert("Alteração salva", "A movimentação foi atualizada no banco.");
+    } catch (error: any) {
+      console.error("Falha ao atualizar movimentação no backend:", error);
+      const detalhe = error?.response?.data?.erro ?? error?.message;
+      Alert.alert(
+        "Não foi possível salvar",
+        typeof detalhe === "string" && detalhe.length <= 250
+          ? detalhe
+          : "Não foi possível atualizar a movimentação no servidor."
+      );
+    } finally {
+      setSalvandoEdicao(false);
+    }
   }
 
   // ─────────────────────────────────────────
@@ -1674,16 +1755,18 @@ const ehSuspeito =
         "RECEITA";
 
       return (
-        <LinearGradient
+        <TouchableOpacity
           key={`${item.tipo}-${item.id}`}
-          colors={[
-            "#30096e",
-            "#30096e",
-          ]}
-          style={
-            styles.gastoCard
-          }
+          activeOpacity={0.75}
+          onPress={() => abrirEdicaoMovimentacao(item)}
+          accessibilityRole="button"
+          accessibilityLabel={`Editar ${ehReceita ? "receita" : "despesa"}: ${item.titulo}`}
+          accessibilityHint="Abre os campos de descrição, valor e data para edição"
         >
+          <LinearGradient
+            colors={["#30096e", "#30096e"]}
+            style={styles.gastoCard}
+          >
           <View
             style={[
               styles.gastoIconeContainer,
@@ -1768,7 +1851,8 @@ const ehSuspeito =
                 ","
               )}
           </Text>
-        </LinearGradient>
+          </LinearGradient>
+        </TouchableOpacity>
       );
     }
   )
@@ -1936,6 +2020,91 @@ const ehSuspeito =
 
       </ScrollView>
 
+
+      {/* Editar uma receita ou despesa existente a partir de "Movimentações do dia". */}
+      <Modal
+        visible={movimentacaoEmEdicao !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => { if (!salvandoEdicao) setMovimentacaoEmEdicao(null); }}
+      >
+        <KeyboardAvoidingView
+          style={estilosEvento.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <Pressable
+            style={estilosEvento.modalFundo}
+            onPress={() => { if (!salvandoEdicao) setMovimentacaoEmEdicao(null); }}
+          />
+          <Card
+            gradiente={["rgba(73, 38, 155, 0.97)", "rgba(45, 17, 108, 0.97)"]}
+            style={estilosEvento.modalCard}
+          >
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <Text style={estilosEvento.modalTitulo}>
+                {movimentacaoEmEdicao?.tipo === "RECEITA" ? "Editar receita" : "Editar despesa"}
+              </Text>
+              <Text style={estilosEvento.modalSubtitulo}>
+                Altere os dados e salve para atualizar suas finanças.
+              </Text>
+
+              <CampoModal
+                label="Descrição"
+                autoCapitalize="sentences"
+                placeholder="Descrição da movimentação"
+                value={descricaoEdicao}
+                onChangeText={setDescricaoEdicao}
+              />
+              <CampoModal
+                label="Valor"
+                placeholder="0,00"
+                keyboardType="numeric"
+                value={valorEdicao}
+                onChangeText={(texto) => setValorEdicao(mascararMoeda(texto))}
+              />
+              <CampoModal
+                label="Data"
+                placeholder="DD/MM/AAAA"
+                keyboardType="numeric"
+                maxLength={10}
+                value={dataEdicao}
+                onChangeText={(texto) => setDataEdicao(mascararData(texto))}
+              />
+
+              <View style={estilosEvento.modalBotoes}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  disabled={salvandoEdicao}
+                  onPress={() => setMovimentacaoEmEdicao(null)}
+                  style={[estilosEvento.eventoBotaoSecundario, { opacity: salvandoEdicao ? 0.6 : 1 }]}
+                >
+                  <Text style={estilosEvento.eventoBotaoSecundarioTexto}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  disabled={salvandoEdicao}
+                  onPress={salvarEdicaoMovimentacao}
+                  style={[estilosEvento.eventoBotaoPrimario, { opacity: salvandoEdicao ? 0.6 : 1 }]}
+                >
+                  <LinearGradient
+                    colors={["#482287", "#7E3BED"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={estilosEvento.eventoBotaoPrimarioFundo}
+                  >
+                    <Text style={estilosEvento.eventoBotaoPrimarioTexto}>
+                      {salvandoEdicao ? "Salvando..." : "Salvar alterações"}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </Card>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* Confirmar movimentação: card roxo flutuando no meio da tela, com o
           mesmo visual do modal "Alterar foto de perfil" (fundo escurecido,
