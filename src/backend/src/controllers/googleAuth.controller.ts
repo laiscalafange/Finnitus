@@ -26,7 +26,10 @@ export async function googleLogin(
     10000,
   );
 
-  const result = await loginWithGoogle(idToken);
+  const result = await loginWithGoogle(
+    idToken,
+    body.maiorDeIdade === true && body.leuTermos === true,
+  );
 
   res.status(200).json(result);
 }

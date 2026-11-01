@@ -41,6 +41,8 @@ type Props = {
   titulo?: string;
   // Se vier, o card "movimentar" mostra o botão "Ver detalhes"
   aoVerDetalhes?: () => void;
+  erroServidor?: string;
+  processando?: boolean;
 };
 
 // Textos que mudam entre a reserva de emergência e as metas
@@ -81,6 +83,8 @@ export function ModalReserva({
   alvo = "reserva",
   titulo,
   aoVerDetalhes,
+  erroServidor,
+  processando = false,
 }: Props) {
   const textos = TEXTOS[alvo];
 
@@ -372,6 +376,12 @@ export function ModalReserva({
           </Pressable>
 
           {renderConteudo()}
+          {erroServidor ? (
+            <Text accessibilityRole="alert" style={{ color: '#FFDFDF', paddingTop: 8 }}>
+              {erroServidor}
+            </Text>
+          ) : null}
+          {processando ? <Text style={{ color: '#FFFFFF' }}>Processando...</Text> : null}
         </Card>
       </KeyboardAvoidingView>
     </Modal>

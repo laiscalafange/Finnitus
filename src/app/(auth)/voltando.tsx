@@ -1,4 +1,6 @@
-import { View, Text, Image, ScrollView } from "react-native";
+import { useState } from "react";
+import { AceiteCadastroGoogle } from "../../shared/components/AceiteCadastroGoogle";
+import { View, Text, Image, ScrollView, StyleSheet } from "react-native";
 
 import { useRouter } from "expo-router";
 
@@ -19,6 +21,7 @@ export default function Voltando() {
   const roteador = useRouter();
 
   const { googleLogin } = useAuth();
+  const [aceiteGoogle, setAceiteGoogle] = useState(false);
   const { busy, error, run } = useAction();
 
   function entrarGoogle() {
@@ -26,14 +29,22 @@ export default function Voltando() {
       const token = await googleIdToken();
 
       if (token) {
-        await googleLogin(token);
+        await googleLogin(token, aceiteGoogle);
       }
     });
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <BackgroundGradient />
+    <View style={{ flex: 1, backgroundColor: "#09090B" }}>
+      {/* Fundo radial original; a camada não bloqueia botões nem rolagem. */}
+      <View
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+        accessible={false}
+        importantForAccessibility="no-hide-descendants"
+      >
+        <BackgroundGradient variante="padrao" />
+      </View>
 
       <BotaoVoltarAuth absoluto />
 
@@ -73,6 +84,7 @@ export default function Voltando() {
           </Text>
         ) : null}
 
+        <AceiteCadastroGoogle aceito={aceiteGoogle} onChange={setAceiteGoogle} />
         <Button
           variante="primario"
           titulo="Email"

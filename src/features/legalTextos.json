@@ -1,0 +1,126 @@
+{
+  "politica-de-privacidade": {
+    "titulo": "Política de Privacidade",
+    "secoes": [
+      [
+        "Quem somos",
+        "O Finnitus é um protótipo acadêmico de organização financeira pessoal desenvolvido por estudantes, sem empresa formalmente constituída e sem serviços pagos. O projeto não possui CNPJ. O contato sobre privacidade e atendimento é finnitus.contato@gmail.com. A equipe desenvolvedora deve definir e documentar formalmente a pessoa responsável pelo tratamento antes de disponibilizar a plataforma para usuários externos; a instituição de ensino não deve ser apresentada como controladora sem confirmação."
+      ],
+      [
+        "Dados utilizados",
+        "Para criar a conta: nome de identificação, e-mail e senha armazenada como hash; o provedor de autenticação Google pode compartilhar nome, e-mail e identificador, se escolhido. Para usar o app: receitas, despesas, categorias, metas, dívidas, reserva, imprevistos e eventos adicionados pelo próprio usuário. Opcionalmente: fotografia de perfil, telefone e data de nascimento. Dados técnicos mínimos necessários para autenticação e proteção do serviço podem ser tratados. Não pedimos CPF, número de cartão, senha bancária, conta bancária ou chave Pix."
+      ],
+      [
+        "Finalidades e bases legais",
+        "O cadastro e as movimentações são utilizados para oferecer as funcionalidades solicitadas, com fundamento legal aplicável conforme a finalidade (por exemplo, execução de contrato/termos de uso). Informações de segurança podem ser processadas para prevenção de abuso e proteção dos usuários mediante base legal adequada. Consentimentos específicos são solicitados quando necessários, como para análises opcionais e cookies não essenciais. Consentir com análise por IA não é condição para registrar gastos."
+      ],
+      [
+        "Calendário e permissões do aparelho",
+        "O calendário pode exigir uma permissão separada concedida pelo sistema. O usuário pode revogá-la nas configurações do dispositivo. Eventos importados/confirmados podem ser associados às movimentações no Finnitus. Apenas dados necessários para a funcionalidade devem ser lidos; não autorizamos o uso para publicidade."
+      ],
+      [
+        "Compartilhamento e serviços externos",
+        "A infraestrutura pode envolver PostgreSQL/Neon (armazenamento de dados), Cloudinary (fotos de perfil), Google (login opcional) e provedor de IA Google Gemini (análise opcional do Plano B). Quando a análise por IA for usada, os valores agregados de receitas, despesas, dívidas, reserva e os detalhes do imprevisto podem ser enviados ao provedor, somente após autorização específica. Avalie os contratos, a localização do processamento, transferências internacionais e a política de retenção de cada fornecedor antes da publicação."
+      ],
+      [
+        "Cookies e métricas",
+        "No site institucional, cookies não essenciais de análise permanecem desativados até a escolha do visitante. No código do aplicativo recebido para auditoria não foi encontrado Google Analytics incorporado. A versão do site público, que não estava no arquivo fornecido, precisa ser verificada separadamente. Consulte a Política de Cookies para ver e alterar a escolha."
+      ],
+      [
+        "Proteção e período de guarda",
+        "Adotamos controles de autenticação e separação dos registros por conta. Nenhuma medida oferece segurança absoluta. Os dados são mantidos enquanto necessários para as funcionalidades do projeto e obrigações legais aplicáveis, com revisão de retenção e backups antes da publicação. Não anunciamos um prazo definitivo de exclusão de backups sem validar a política do provedor. Evite inserir dados reais sensíveis durante testes acadêmicos."
+      ],
+      [
+        "Seus direitos",
+        "Você pode solicitar confirmação do tratamento, acesso, correção, informação sobre compartilhamento, portabilidade quando aplicável, anonimização, bloqueio ou eliminação nas hipóteses legais, e revogação de consentimento. Escreva para finnitus.contato@gmail.com. Poderemos solicitar informações mínimas para confirmar que a solicitação pertence ao titular, sem pedir senha. A exclusão da conta pelo aplicativo deve ser testada antes da disponibilização pública."
+      ],
+      [
+        "Menores de idade",
+        "Esta versão pública experimental destina-se a pessoas com 18 anos ou mais. Não se deve coletar dados de crianças por formulários públicos ou criar contas para menores enquanto não existir um fluxo apropriado e análise específica da LGPD."
+      ],
+      [
+        "Atualizações e contato",
+        "Esta política foi preparada em 31/10/2026 para a versão acadêmica. Mudanças relevantes serão publicadas nesta página. Contato: finnitus.contato@gmail.com."
+      ]
+    ]
+  },
+  "termos-de-uso": {
+    "titulo": "Termos de Uso",
+    "secoes": [
+      [
+        "Natureza do projeto",
+        "O Finnitus é um protótipo acadêmico, sem empresa constituída e sem oferta comercial. Recursos podem ser incompletos, modificados ou temporariamente indisponíveis. O projeto é apresentado como teste e demonstração."
+      ],
+      [
+        "Requisitos para utilização",
+        "O acesso à versão pública experimental é destinado a maiores de 18 anos. Cada pessoa deve usar apenas a própria conta, manter sua senha sob sigilo e não tentar acessar informações de outros usuários. É proibido enviar material ilegal, dados de terceiros sem autorização ou tentar contornar mecanismos de segurança."
+      ],
+      [
+        "Dados financeiros e responsabilidade",
+        "Os números cadastrados são fornecidos pelo usuário para sua própria organização. O aplicativo não é instituição financeira, não movimenta dinheiro, não realiza operações bancárias nem garante resultados. Simulações e sugestões automáticas não constituem assessoria financeira personalizada e devem ser analisadas criticamente."
+      ],
+      [
+        "Planos de demonstração",
+        "Básico, Mega Finn e Infinitos são apresentações conceituais do TCC. Não há assinatura ativa, compra, teste gratuito que gere cobrança, desbloqueio pago, processamento de cartão, boleto ou Pix. Preços futuros, funcionalidades e disponibilidade não estão definidos. Nenhum dado de pagamento deve ser inserido no protótipo."
+      ],
+      [
+        "Inteligência artificial",
+        "A funcionalidade opcional Plano B pode consultar um serviço externo de IA, mediante autorização específica. O conteúdo pode conter erros e não substitui decisão profissional. Não envie senhas, CPF, documentos, dados bancários ou informações de terceiros."
+      ],
+      [
+        "Disponibilidade e atualizações",
+        "Por ser projeto de pesquisa e ensino, podemos corrigir erros, interromper funcionalidades ou encerrar o ambiente, respeitando as normas legais, a transparência e os direitos dos titulares dos dados."
+      ],
+      [
+        "Direitos e propriedade intelectual",
+        "Textos originais, código próprio, identidade visual e mascote pertencem aos respectivos criadores, sujeitos às licenças de bibliotecas e recursos de terceiros. O uso do aplicativo não transfere direitos sobre esses materiais. Material de terceiros exige licença ou permissão compatível."
+      ],
+      [
+        "Privacidade e contato",
+        "A Política de Privacidade explica o tratamento de dados. Dúvidas, pedidos de exclusão e relatos de segurança devem ser dirigidos a finnitus.contato@gmail.com."
+      ]
+    ]
+  },
+  "politica-de-reembolso": {
+    "titulo": "Política de Reembolso e Cancelamento",
+    "secoes": [
+      [
+        "Nenhuma cobrança no projeto acadêmico",
+        "O Finnitus não comercializa assinaturas, não recebe pagamentos e não solicita cartões de crédito ou transferências para acesso aos planos demonstrativos. Portanto não existe compra ou cobrança efetuada pelo aplicativo a ser reembolsada."
+      ],
+      [
+        "Planos e cancelamento",
+        "Os nomes dos planos são exclusivamente demonstrativos. Selecionar um deles não cria uma assinatura, contrato pago, período de teste com cobrança posterior nem obrigação financeira. Nenhum cancelamento de cobrança é necessário."
+      ],
+      [
+        "Caso alguém cobre em nome do Finnitus",
+        "Não faça pagamentos, não compartilhe senhas ou dados de cartão. Comunique uma cobrança suspeita a finnitus.contato@gmail.com e ao meio de pagamento usado. A equipe deve investigar eventuais usos indevidos do nome do projeto."
+      ],
+      [
+        "Futuro lançamento comercial",
+        "Caso o Finnitus venha a ser oferecido comercialmente, deverão ser publicados novos termos, informações de fornecedor, preços, condições de contratação, direito de arrependimento e regras de reembolso aplicáveis antes de qualquer transação."
+      ]
+    ]
+  },
+  "politica-de-cookies": {
+    "titulo": "Política de Cookies",
+    "secoes": [
+      [
+        "O que são cookies",
+        "Cookies e armazenamento local podem memorizar preferências. O site usa armazenamento local estritamente necessário para registrar a escolha de privacidade. Cookies de métricas não são essenciais e ficam desativados por padrão."
+      ],
+      [
+        "Categorias",
+        "Necessários: preferência de consentimento (armazenamento local, sem publicidade). Estatísticos: somente se ativados, possíveis cookies do Google Analytics para entender visitas ao site sem prometer anonimato absoluto. Publicidade e personalização: não incluídos no kit recebido."
+      ],
+      [
+        "Escolhas e revogação",
+        "Você pode aceitar, rejeitar ou ajustar apenas os cookies estatísticos. A opção fica acessível a qualquer momento por “Configurar cookies”. A revogação impede novas ativações e tenta apagar cookies próprios de métricas; não desfaz informações já transmitidas, sujeitas às regras do fornecedor e aos seus direitos."
+      ],
+      [
+        "Importante",
+        "O código do site original não foi enviado nesta auditoria. O módulo de consentimento fornecido somente controla scripts integrados por ele; quaisquer scripts de rastreamento antigos precisam ser removidos ou submetidos ao mesmo bloqueio."
+      ]
+    ]
+  }
+}

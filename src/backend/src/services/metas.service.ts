@@ -470,6 +470,7 @@ export async function atualizarMeta(
     await prisma.meta.update({
       where: {
         id_Meta,
+        id_Usuario,
       },
 
       data: {
@@ -581,6 +582,7 @@ export async function adicionarAporte(
         await tx.meta.update({
           where: {
             id_Meta,
+            id_Usuario,
           },
 
           data: {
@@ -612,6 +614,7 @@ export async function adicionarAporte(
           await tx.meta.update({
             where: {
               id_Meta,
+              id_Usuario,
             },
 
             data: {
@@ -720,6 +723,7 @@ export async function retirarDaMeta(
         await tx.meta.update({
           where: {
             id_Meta,
+            id_Usuario,
           },
 
           data: {
@@ -786,6 +790,7 @@ export async function cancelarMeta(
     await prisma.meta.update({
       where: {
         id_Meta,
+        id_Usuario,
       },
 
       data: {
@@ -860,6 +865,7 @@ export async function reabrirMeta(
     await prisma.meta.update({
       where: {
         id_Meta,
+        id_Usuario,
       },
 
       data: {

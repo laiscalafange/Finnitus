@@ -37,7 +37,8 @@ type Auth = {
   ) => Promise<void>;
 
   googleLogin: (
-    idToken: string
+    idToken: string,
+    aceite?: boolean
   ) => Promise<void>;
 
   logout: () => Promise<void>;
@@ -191,10 +192,10 @@ export function AuthProvider({
     await establish(session, current);
   }
 
-  async function googleLogin(idToken: string) {
+  async function googleLogin(idToken: string, aceite = false) {
   const current = ++revision.current;
 
-  const session = await authService.google(idToken);
+  const session = await authService.google(idToken, aceite);
 
   await establish(session, current);
 }

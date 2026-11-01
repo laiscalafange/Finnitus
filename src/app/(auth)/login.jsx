@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AceiteCadastroGoogle } from "../../shared/components/AceiteCadastroGoogle";
 
 import {
   Text,
@@ -55,6 +56,7 @@ export default function Login() {
   );
 
   const [senha, setSenha] = useState("");
+  const [aceiteGoogle, setAceiteGoogle] = useState(false);
 
   const { login, googleLogin } = useAuth();
   const { busy, error, run } = useAction();
@@ -76,7 +78,7 @@ export default function Login() {
     const idToken = await googleIdToken();
 
     if (idToken) {
-      await googleLogin(idToken);
+      await googleLogin(idToken, aceiteGoogle);
     }
   });
 }
@@ -109,6 +111,7 @@ export default function Login() {
             disabled={busy}
           />
 
+          <AceiteCadastroGoogle aceito={aceiteGoogle} onChange={setAceiteGoogle} />
           <Button
             titulo="Entrar com Google"
             variante="primario"

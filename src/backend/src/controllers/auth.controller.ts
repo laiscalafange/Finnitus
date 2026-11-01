@@ -28,6 +28,10 @@ import { HttpError } from "../utils/errors.js";
 export async function register(req: Request, res: Response) {
   const body = objectBody(req.body);
 
+  if (body.maiorDeIdade !== true || body.leuTermos !== true) {
+    throw new HttpError(400, "Confirme que tem 18 anos ou mais e que leu os Termos e a Política de Privacidade.");
+  }
+
   const user = await createUser({
     name: text(body.name, "name", 2, 100),
     email: emailValue(body.email),

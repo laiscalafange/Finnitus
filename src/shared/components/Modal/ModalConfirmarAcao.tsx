@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
 
   // Mesmo escurecimento do fundo do menu do + na barra de navegação
   fundo: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
 

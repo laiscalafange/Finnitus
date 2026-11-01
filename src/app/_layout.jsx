@@ -198,6 +198,7 @@ function SessionNavigator() {
         }}
       >
         <Stack.Screen name="index" />
+        <Stack.Screen name="legal/[doc]" />
 
         {/* Rotas sem autenticação */}
 

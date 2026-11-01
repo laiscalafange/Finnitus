@@ -10,6 +10,8 @@ import {
 
 import {
   loginLimiter,
+  loginAccountLimiter,
+  registerLimiter,
   recoveryLimiter,
   sensitiveLimiter,
 } from "../middlewares/rateLimit.middleware.js";
@@ -20,8 +22,8 @@ import {
 
 const router = Router();
 
-router.post("/register", recoveryLimiter, register);
-router.post("/login", loginLimiter, login);
+router.post("/register", registerLimiter, register);
+router.post("/login", loginLimiter, loginAccountLimiter, login);
 
 router.post(
   "/forgot-password",
@@ -40,6 +42,8 @@ router.post(
 router.post(
   "/google",
   loginLimiter,
+  loginAccountLimiter,
+  registerLimiter,
   googleLogin,
 );
 

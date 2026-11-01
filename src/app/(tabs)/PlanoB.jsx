@@ -90,6 +90,9 @@ export default function PlanoBScreen() {
           </View>
 
           <View style={styles.headerSaldoCard}>
+            <Text style={{ color: '#FFF081', fontWeight: '700', fontSize: 14, marginBottom: 8 }}>
+              EXEMPLO ILUSTRATIVO — dados fictícios
+            </Text>
             <View style={styles.headerSaldoTopo}>
               <Text style={styles.headerSaldoLabel}>
                 Gasto atual

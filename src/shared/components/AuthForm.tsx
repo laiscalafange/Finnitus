@@ -72,8 +72,16 @@ export function AuthForm({
   );
 
   return (
-    <View style={styles.screen}>
-      <BackgroundGradient />
+    <View style={styles.screenBase}>
+      {/* Usa o gradiente RADIAL original do Finnitus; não interfere nos toques. */}
+      <View
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+        accessible={false}
+        importantForAccessibility="no-hide-descendants"
+      >
+        <BackgroundGradient variante="padrao" />
+      </View>
 
       <SafeAreaView style={styles.screen}>
         {mostrarVoltar ? <BotaoVoltarAuth /> : null}
@@ -147,6 +155,11 @@ export const formStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
+  screenBase: {
+    flex: 1,
+    backgroundColor: "#09090B",
+  },
+
   screen: {
     flex: 1,
   },

@@ -119,7 +119,7 @@ export async function depositarReserva(idUsuario: number, valor: unknown) {
     }
 
     await tx.reservaFinanceira.update({
-      where: { id_Reserva: reserva.id_Reserva },
+      where: { id_Reserva: reserva.id_Reserva, id_Usuario: idUsuario },
       data: { valor_atual: { increment: valorDecimal } },
     });
 
