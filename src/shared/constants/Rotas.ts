@@ -4,7 +4,6 @@
 
 export const Rotas = {
   premium: '/Premium/Premium',
-  planoB: '/PlanoB',
   pagamento: '/Premium/Pagamento',
   premiumAtivo: '/Premium/PremiumAtivo',
   notificacao: '/Notificacao/Notificacao',
@@ -13,6 +12,8 @@ export const Rotas = {
   sumarioDetalhado: '/Detalhes/SumarioDetalhado',
   atividade: '/Detalhes/Atividade',
   rotasGastos: '/Detalhes/RotasGastos',
+  detalheImprevisto: '/Detalhes/DetalheImprevisto',
+  planoB: '/PlanoB',
   contasFixas: '/Contas/ContasFixas',
   detalhesConta: '/Contas/DetalhesConta',
   editarConta: '/Contas/EditarConta',

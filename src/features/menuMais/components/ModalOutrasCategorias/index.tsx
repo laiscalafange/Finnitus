@@ -22,6 +22,30 @@ import type { CategoriaItem } from "../../types";
 import { styles as modalBase } from "../ModalReserva/styles";
 import { styles } from "./styles";
 
+// Textos do modal. O padrão é o de categorias; outras telas (ex.: tipos de
+// imprevisto) passam os próprios textos.
+export type TextosCategoria = {
+  titulo: string;
+  criar: string;
+  rotuloCampo: string;
+  placeholder: string;
+  botaoCriar: string;
+  semNome: string;
+  jaExiste: string;
+  falhou: string;
+};
+
+export const TEXTOS_CATEGORIA: TextosCategoria = {
+  titulo: "Outras categorias",
+  criar: "+ Criar categoria",
+  rotuloCampo: "Nova categoria",
+  placeholder: "Ex: Assinaturas",
+  botaoCriar: "Criar categoria",
+  semNome: "Digite o nome da categoria.",
+  jaExiste: "Essa categoria já existe.",
+  falhou: "Não foi possível criar a categoria.",
+};
+
 type Props = {
   visivel: boolean;
   // Categorias da lista (extras + as criadas pela pessoa)
@@ -33,6 +57,7 @@ type Props = {
   // Cria a categoria. Retorna a mensagem de erro ou null se deu certo
   // (nesse caso quem chamou já fecha o modal)
   aoCriar: (nome: string) => string | null;
+  textos?: TextosCategoria;
 };
 
 // Modal do card "Outros": lista de categorias com caixinha de marcar (escolhe
@@ -45,6 +70,7 @@ export function ModalOutrasCategorias({
   aoFechar,
   aoSelecionar,
   aoCriar,
+  textos = TEXTOS_CATEGORIA,
 }: Props) {
   const [criando, setCriando] = useState(false);
   const [nome, setNome] = useState("");
@@ -96,7 +122,7 @@ export function ModalOutrasCategorias({
             <X size={22} color={Cores.texto.claro} />
           </Pressable>
 
-          <Text style={modalBase.titulo}>Outras categorias</Text>
+          <Text style={modalBase.titulo}>{textos.titulo}</Text>
 
           {/* Lista de categorias (rola se for grande) */}
           <ScrollView
@@ -138,7 +164,7 @@ export function ModalOutrasCategorias({
 
           {/* Botão simples no final da lista */}
           <Button
-            titulo="+ Criar categoria"
+            titulo={textos.criar}
             variante="botaotexto"
             onPress={() => setCriando(true)}
           />
@@ -147,8 +173,8 @@ export function ModalOutrasCategorias({
           {criando ? (
             <View style={styles.areaCriar}>
               <Input
-                label="Nova categoria"
-                placeholder="Ex: Assinaturas"
+                label={textos.rotuloCampo}
+                placeholder={textos.placeholder}
                 value={nome}
                 onChangeText={(texto) => {
                   setNome(texto);
@@ -159,7 +185,7 @@ export function ModalOutrasCategorias({
                 erro={erro}
               />
 
-              <Button titulo="Criar categoria" onPress={criar} />
+              <Button titulo={textos.botaoCriar} onPress={criar} />
             </View>
           ) : null}
         </Card>

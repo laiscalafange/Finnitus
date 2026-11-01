@@ -7,7 +7,11 @@ import { Tag } from "lucide-react-native";
 import { Cores } from "@/shared/constants/Cores";
 
 import type { CategoriaItem } from "../../types";
-import { ModalOutrasCategorias } from "../ModalOutrasCategorias";
+import {
+  ModalOutrasCategorias,
+  TEXTOS_CATEGORIA,
+  type TextosCategoria,
+} from "../ModalOutrasCategorias";
 import { styles } from "./styles";
 
 type Props = {
@@ -16,7 +20,16 @@ type Props = {
   categorias: CategoriaItem[];
   // id da categoria marcada (null = nenhuma)
   selecionada: string | null;
-  aoSelecionar: (id: string) => void;
+  // Recebe também o item escolhido (útil pra guardar o nome de uma
+  // categoria criada). Quem só usa o id pode ignorar o 2º parâmetro.
+  aoSelecionar: (id: string, categoria: CategoriaItem) => void;
+  // Textos do modal "Outros" (padrão: textos de categoria)
+  textos?: TextosCategoria;
+  // Opcional: quem usa guarda as categorias criadas (ex.: pra não perder ao
+  // fechar a tela). Passe as já criadas em "criadas" e receba cada nova em
+  // "aoCriar". Sem "aoCriar", o seletor guarda as criadas sozinho.
+  criadas?: CategoriaItem[];
+  aoCriar?: (nova: CategoriaItem) => void;
 };
 
 const TAMANHO_ICONE = 22;
@@ -38,6 +51,9 @@ export function SeletorCategoria({
   categorias,
   selecionada,
   aoSelecionar,
+  textos = TEXTOS_CATEGORIA,
+  criadas: criadasDeFora,
+  aoCriar,
 }: Props) {
   const [modalAberto, setModalAberto] = useState(false);
 
@@ -50,7 +66,10 @@ export function SeletorCategoria({
   const itemOutros = categorias.find((c) => c.extras !== undefined);
 
   const opcoesOutros: CategoriaItem[] = itemOutros
-    ? [...(itemOutros.extras ?? []), ...(criadas[itemOutros.id] ?? [])]
+    ? [
+        ...(itemOutros.extras ?? []),
+        ...(aoCriar ? (criadasDeFora ?? []) : (criadas[itemOutros.id] ?? [])),
+      ]
     : [];
 
   // Categoria escolhida dentro do modal (null = nenhuma)
@@ -61,13 +80,13 @@ export function SeletorCategoria({
   // Retorna a mensagem de erro, ou null se deu certo.
   function criarCategoria(nome: string): string | null {
     if (!itemOutros) {
-      return "Não foi possível criar a categoria.";
+      return textos.falhou;
     }
 
     const nomeLimpo = nome.trim();
 
     if (!nomeLimpo) {
-      return "Digite o nome da categoria.";
+      return textos.semNome;
     }
 
     const jaExiste = [...categorias, ...opcoesOutros].some(
@@ -75,7 +94,7 @@ export function SeletorCategoria({
     );
 
     if (jaExiste) {
-      return "Essa categoria já existe.";
+      return textos.jaExiste;
     }
 
     const nova: CategoriaItem = {
@@ -84,12 +103,16 @@ export function SeletorCategoria({
       icone: Tag,
     };
 
-    setCriadas((atual) => ({
-      ...atual,
-      [itemOutros.id]: [...(atual[itemOutros.id] ?? []), nova],
-    }));
+    if (aoCriar) {
+      aoCriar(nova);
+    } else {
+      setCriadas((atual) => ({
+        ...atual,
+        [itemOutros.id]: [...(atual[itemOutros.id] ?? []), nova],
+      }));
+    }
 
-    aoSelecionar(nova.id);
+    aoSelecionar(nova.id, nova);
     setModalAberto(false);
 
     return null;
@@ -120,7 +143,9 @@ export function SeletorCategoria({
               accessibilityRole="button"
               accessibilityState={{ selected: ativa }}
               onPress={() =>
-                ehOutros ? setModalAberto(true) : aoSelecionar(categoria.id)
+                ehOutros
+                  ? setModalAberto(true)
+                  : aoSelecionar(categoria.id, categoria)
               }
               style={[styles.item, ativa && styles.itemAtivo]}
             >
@@ -144,10 +169,16 @@ export function SeletorCategoria({
           selecionada={selecionada}
           aoFechar={() => setModalAberto(false)}
           aoSelecionar={(id) => {
-            aoSelecionar(id);
+            const escolhida = opcoesOutros.find((o) => o.id === id);
+
+            if (escolhida) {
+              aoSelecionar(id, escolhida);
+            }
+
             setModalAberto(false);
           }}
           aoCriar={criarCategoria}
+          textos={textos}
         />
       ) : null}
     </View>

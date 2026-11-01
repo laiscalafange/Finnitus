@@ -13,6 +13,7 @@ import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Button } from "../../shared/components/Button";
 import { Card } from "../../shared/components/Cards";
+import { BotaoPlano } from "../../shared/components/PlanoB/ImprevistoUI";
 import { Progress } from "../../shared/components/Progress";
 import { Cores } from "../../shared/constants/Cores";
 import { ModalReserva } from "@/features/menuMais/components/ModalReserva";
@@ -241,12 +242,21 @@ export default function ReservaEmergencia() {
               </View>
             </Card>
 
-            <View style={styles.linhaBotoes}>
+            <View style={[styles.linhaBotoes, { marginBottom: 20 }]}>
               <View style={styles.colunaBotao}>
-                <Button titulo="Depositar" onPress={() => abrirModal("depositar")} />
+                <BotaoPlano
+                  titulo="Depositar"
+                  icone={Plus}
+                  onPress={() => abrirModal("depositar")}
+                />
               </View>
               <View style={styles.colunaBotao}>
-                <Button titulo="Retirar" onPress={() => abrirModal("retirar")} />
+                <BotaoPlano
+                  titulo="Retirar"
+                  variante="secundario"
+                  icone={Minus}
+                  onPress={() => abrirModal("retirar")}
+                />
               </View>
             </View>
 
