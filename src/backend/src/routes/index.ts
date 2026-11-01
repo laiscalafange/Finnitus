@@ -3,6 +3,7 @@ import { Router } from "express";
 import healthRoutes from "./health.routes.js";
 import authRoutes from "./auth.routes.js";
 import receitaRoutes from "./receita.routes.js";
+import despesaRoutes from "./despesa.routes.js";
 import userRoutes from "./user.routes.js";
 import eventosRoutes from "./eventos.routes.js";
 import calendarioRoutes from "./calendario.routes.js";
@@ -20,9 +21,12 @@ const routes = Router();
 
 routes.use(healthRoutes);
 routes.use(authRoutes);
+// Compatibilidade com clientes que usam /auth/login e /auth/register.
+routes.use("/auth", authRoutes);
 routes.use(userRoutes);
 
 routes.use("/receitas", receitaRoutes);
+routes.use("/despesas", despesaRoutes);
 routes.use("/eventos", eventosRoutes);
 routes.use("/calendario", calendarioRoutes);
 

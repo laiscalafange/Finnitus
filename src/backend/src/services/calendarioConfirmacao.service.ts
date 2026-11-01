@@ -72,6 +72,7 @@ export async function marcarEventoNaoFinanceiro(
       where: {
         id_Evento:
           eventoExistente.id_Evento,
+        id_Usuario: dados.id_Usuario,
       },
 
       data: {
@@ -250,6 +251,7 @@ export async function confirmarEventoFinanceiro(
               where: {
                 id_Evento:
                   eventoExistente.id_Evento,
+                id_Usuario: dados.id_Usuario,
               },
 
               data: {
@@ -381,7 +383,7 @@ export async function confirmarEventoFinanceiro(
               "UNICA",
 
             status:
-              "ATIVA",
+              "RECEBIDA",
           },
         });
 

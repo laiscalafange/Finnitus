@@ -21,6 +21,8 @@ export type RegisterData = {
   name: string;
   email: string;
   password: string;
+  maiorDeIdade: boolean;
+  leuTermos: boolean;
 };
 
 export type UpdateProfileData = {
@@ -54,10 +56,10 @@ export const authService = {
     return response.data;
   },
 
-  google: async (idToken: string) => {
+  google: async (idToken: string, leuTermos = false) => {
     const response = await api.post<Session>(
       "/auth/google",
-      { idToken }
+      { idToken, maiorDeIdade: leuTermos, leuTermos }
     );
 
     return response.data;

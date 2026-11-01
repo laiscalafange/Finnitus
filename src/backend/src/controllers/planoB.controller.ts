@@ -12,6 +12,13 @@ export async function analisarPlanoBController(
     });
   }
 
+  // Os dados consolidados de receitas, despesas, dívidas e reserva serão
+  // compartilhados com o provedor de IA; não executar sem aceite específico.
+  if (req.body?.autorizarEnvioIA !== true) {
+    return res.status(400).json({
+      mensagem: "Para usar a análise com IA, autorize o envio dos dados financeiros resumidos ao provedor externo."
+    });
+  }
   const { imprevisto } = req.body ?? {};
 
   if (

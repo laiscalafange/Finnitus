@@ -1,4 +1,6 @@
+import { assertOwnedLinks } from "./ownership.service.js";
 import { prisma } from "../lib/prisma.js";
+import { HttpError } from "../utils/errors.js";
 
 type CriarEventoDados = {
   id_Usuario: number;
@@ -26,6 +28,7 @@ type CriarEventoDados = {
 };
 
 export async function criarEvento(dados: CriarEventoDados) {
+  await assertOwnedLinks(dados.id_Usuario, dados.id_Receita, dados.id_Despesa);
   const evento = await prisma.evento.create({
     data: {
       id_Usuario: dados.id_Usuario,
@@ -82,4 +85,39 @@ export async function listarEventos(
   });
 
   return eventos;
+}
+export async function buscarEvento(idEvento: number, idUsuario: number) {
+  return prisma.evento.findFirst({ where: { id_Evento: idEvento, id_Usuario: idUsuario } });
+}
+
+export async function atualizarEvento(idEvento: number, idUsuario: number, dados: Record<string, unknown>) {
+  const allowed = ["Enome", "Edescricao", "data_inicio", "data_fim", "dia_inteiro", "tipo"];
+  const campos = Object.keys(dados);
+  if (!campos.length || campos.some(key => !allowed.includes(key))) {
+    throw new HttpError(400, "Informe apenas os campos editáveis do evento.");
+  }
+  const data: Record<string, unknown> = {};
+  for (const chave of campos) data[chave] = dados[chave];
+  if (typeof data.Enome === "string") {
+    const nome = data.Enome.trim();
+    if (!nome || nome.length > 100) throw new HttpError(400, "Nome do evento inválido.");
+    data.Enome = nome;
+  }
+  for (const key of ["data_inicio", "data_fim"]) {
+    if (data[key] != null) {
+      if (typeof data[key] !== "string" || Number.isNaN(Date.parse(data[key] as string))) {
+        throw new HttpError(400, "Data inválida.");
+      }
+      data[key] = new Date(data[key] as string);
+    }
+  }
+  if (data.dia_inteiro !== undefined && typeof data.dia_inteiro !== "boolean") throw new HttpError(400, "Dia inteiro inválido.");
+  if (data.tipo !== undefined && !["RECEBIMENTO", "PAGAMENTO", "META", "OUTRO"].includes(data.tipo as string)) throw new HttpError(400, "Tipo de evento inválido.");
+  const result = await prisma.evento.updateMany({ where: { id_Evento: idEvento, id_Usuario: idUsuario }, data });
+  return result.count ? buscarEvento(idEvento, idUsuario) : null;
+}
+
+export async function excluirEvento(idEvento: number, idUsuario: number) {
+  const result = await prisma.evento.deleteMany({ where: { id_Evento: idEvento, id_Usuario: idUsuario } });
+  return result.count > 0;
 }

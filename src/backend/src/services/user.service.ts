@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma.js";
+import { cloudinary } from "../config/cloudinary.js";
 import { HttpError } from "../utils/errors.js";
 
 export const safeSelect = {
@@ -245,6 +246,10 @@ export async function deleteUser(
     };
 
     await tx.redefinicaoSenha.deleteMany({ where });
+    // Remover os registros filhos antes da conta evita falhas de FK e resíduos.
+    await tx.evento.deleteMany({ where });
+    await tx.divida.deleteMany({ where });
+    await tx.reservaFinanceira.deleteMany({ where });
 
 // Receitas e despesas precisam ser removidas antes das categorias.
 await tx.receita.deleteMany({ where });
@@ -259,6 +264,15 @@ await tx.categoriaPersonalizada.deleteMany({ where });
 // O usuário é removido por último.
 await tx.usuario.delete({ where });
   });
+  // Limpeza externa após confirmação da transação no banco.
+  if (user.fotoPerfilPublicId) {
+    try {
+      await cloudinary.uploader.destroy(user.fotoPerfilPublicId, { invalidate: true });
+    } catch {
+      // Requer conciliação operacional se o provedor estiver indisponível.
+      console.warn("Foto remota pendente de exclusão após remover conta.");
+    }
+  }
 }
 
 export async function logoutUser(id: number) {

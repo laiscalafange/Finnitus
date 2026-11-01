@@ -57,7 +57,7 @@ function calcularIntervalo(
    * Separa o ano, o mês e o dia para validar
    * se a data realmente existe no calendário.
    */
-  const [ano, mes, dia] = dataReferencia.split("-").map(Number);
+  const [ano = 0, mes = 0, dia = 0] = dataReferencia.split("-").map(Number);
 
   const inicio = new Date(Date.UTC(ano, mes - 1, dia));
 

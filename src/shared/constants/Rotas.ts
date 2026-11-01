@@ -4,6 +4,7 @@
 
 export const Rotas = {
   premium: '/Premium/Premium',
+  planoB: '/PlanoB',
   pagamento: '/Premium/Pagamento',
   premiumAtivo: '/Premium/PremiumAtivo',
   notificacao: '/Notificacao/Notificacao',

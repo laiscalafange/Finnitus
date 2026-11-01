@@ -65,7 +65,7 @@ export async function analisarPlanoB(
     prisma.receita.findMany({
       where: {
         id_Usuario,
-        status: "ATIVA",
+        status: "RECEBIDA",
       },
       select: {
         valor: true,
