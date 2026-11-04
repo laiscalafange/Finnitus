@@ -1,27 +1,43 @@
+
 import { StyleSheet } from "react-native";
 
 import { Cores } from "@/shared/constants/Cores";
 import { FONTS } from "@/shared/constants/Tipografia";
 
-// Overlay, card, X e título vêm de ModalReserva/styles.ts
 export const styles = StyleSheet.create({
-  // Altura máxima da lista: passando disso, ela rola dentro do modal
+  card: {
+    width: "94%",
+    alignSelf: "center",
+    paddingHorizontal: 18,
+    paddingTop: 20,
+    paddingBottom: 14,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.25)",
+    borderRadius: 22,
+  },
+
+  titulo: {
+    fontSize: 21,
+    marginBottom: 14,
+  },
+
   lista: {
-    maxHeight: 260,
-    marginBottom: 8,
+    maxHeight: 250,
+    flexGrow: 0,
+    marginBottom: 6,
   },
 
   linha: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 12,
     marginBottom: 8,
-    borderWidth: 1.5,
-    borderColor: Cores.roxo.claro,
-    borderRadius: 12,
-    backgroundColor: Cores.fundo.principal,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.35)",
+    borderRadius: 13,
+    backgroundColor: "rgba(13, 17, 18, 0.65)",
   },
 
   linhaMarcada: {
@@ -29,13 +45,12 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(183, 255, 0, 0.08)",
   },
 
-  // Caixinha do checklist
   caixa: {
     width: 22,
     height: 22,
     borderRadius: 6,
     borderWidth: 1.5,
-    borderColor: Cores.roxo.claro,
+    borderColor: "rgba(163, 87, 255, 0.65)",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -49,7 +64,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     fontFamily: FONTS.quicksand.bold,
     fontSize: 14,
-    color: Cores.texto.claro,
+    color: "#C7A9F5",
   },
 
   nomeMarcado: {

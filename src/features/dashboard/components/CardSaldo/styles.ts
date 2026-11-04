@@ -5,8 +5,8 @@ import { FONTS } from '@/shared/constants/Tipografia'
 export const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: 14,
+    paddingHorizontal: 10,
+    marginTop: 5,
   },
   label: {
     fontFamily: FONTS.quicksand.bold,
@@ -17,17 +17,17 @@ export const styles = StyleSheet.create({
   saldo: {
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 42,
-    lineHeight: 50,
-    color: Cores.base.branco,
+    lineHeight: 40,
+    color: Cores.destaque.limao,
     maxWidth: '100%',
   },
   descricao: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 13,
+    fontSize: 15,
     color: Cores.texto.claro,
   },
   olho: {
-    marginTop: 10,
-    padding: 4,
+    marginTop: 5,
+    padding: 2,
   },
 })

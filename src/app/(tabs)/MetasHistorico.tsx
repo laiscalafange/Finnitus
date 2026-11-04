@@ -1,11 +1,19 @@
-import { useState } from "react";
-import { Alert, ScrollView, Text, View } from "react-native";
 
+import { useState } from "react";
+import {
+  Alert,
+  ScrollView,
+  Text,
+  View,
+  Pressable,
+} from "react-native";
+
+import { RotateCcw } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
-import { Button } from "../../shared/components/Button";
+import { Progress } from "../../shared/components/Progress";
 import { Cores } from "../../shared/constants/Cores";
 
 import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
@@ -13,85 +21,129 @@ import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
 import { errorMessage } from "@/services/api";
 import { useFinanceiro } from "@/features/financeiroContext";
-import { formatarDataCurta } from "@/features/metasData";
+import {
+  formatarDataCurta,
+  percentualMeta,
+} from "@/features/metasData";
+
 import { styles } from "../../styles/Metashistorico";
 
 type Filtro = "todas" | "concluida" | "cancelada";
 
-// Opções do filtro (reaproveita o alternador do Novo gasto)
 const FILTROS: { id: Filtro; rotulo: string }[] = [
   { id: "todas", rotulo: "Todas" },
   { id: "concluida", rotulo: "Concluídas" },
   { id: "cancelada", rotulo: "Canceladas" },
 ];
 
-// Roxo mais suave e translúcido (deixa o fundo da tela aparecer), no mesmo
-// tom dos cards roxos do restante do app em vez do roxo forte de antes
 const GRADIENTE_CARD: [string, string] = [
-  "rgba(72, 34, 135, 0.55)",
-  "rgba(48, 9, 110, 0.40)",
+  "rgba(44, 27, 67, 0.94)",
+  "rgba(44, 27, 67, 0.90)",
 ];
 
-// Tela "Histórico" de Metas: metas que já foram concluídas ou canceladas,
-// com filtro por situação. Aberta pelo botão "Histórico" da tela Metas.
+const VERDE = Cores.destaque.limao;
+const ROXO = "#A357FF";
+
+function obterObjetivo(meta: unknown): number | null {
+  const dados = meta as Record<string, unknown>;
+
+  const bruto =
+    dados.valorObjetivo ??
+    dados.valorMeta ??
+    dados.valorAlvo ??
+    dados.valorDesejado;
+
+  if (bruto == null) return null;
+
+  const numero = Number(bruto);
+
+  return Number.isFinite(numero) ? numero : null;
+}
+
 export default function MetasHistorico() {
   const [filtro, setFiltro] = useState<Filtro>("todas");
+  const [reabrindoId, setReabrindoId] = useState<string | null>(
+    null
+  );
 
-  // As mesmas metas das outras telas de Metas (FinanceiroProvider): aqui só
-  // as concluídas e canceladas, da mais recente pra mais antiga
   const { metas, reabrirMeta } = useFinanceiro();
 
-  // id da meta que está sendo reaberta (evita toque duplo no botão)
-  const [reabrindoId, setReabrindoId] = useState<string | null>(null);
-
-  // "Desfazer": a meta volta para "em andamento" (sai do Histórico e
-  // reaparece na tela Metas). Serve pra cancelar ou concluir sem querer.
   async function desfazer(id: string) {
+    if (reabrindoId !== null) return;
+
     setReabrindoId(id);
 
     try {
       await reabrirMeta(id);
     } catch (error) {
-      Alert.alert("Não foi possível desfazer", errorMessage(error));
+      Alert.alert(
+        "Não foi possível desfazer",
+        errorMessage(error)
+      );
     } finally {
       setReabrindoId(null);
     }
   }
 
   const lista = metas
-    .filter((meta) => meta.status !== "andamento")
-    .filter((meta) => filtro === "todas" || meta.status === filtro)
-    .sort((a, b) => (b.dataFinal ?? "").localeCompare(a.dataFinal ?? ""));
+    .filter(
+      (meta) =>
+        meta.status === "concluida" ||
+        meta.status === "cancelada"
+    )
+    .filter(
+      (meta) =>
+        filtro === "todas" || meta.status === filtro
+    )
+    .sort((a, b) =>
+      (b.dataFinal ?? "").localeCompare(a.dataFinal ?? "")
+    );
 
   return (
     <View style={styles.container}>
       <BackgroundGradient variante="funcional" />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
         <HeaderInterno titulo="Histórico" />
 
-        {/* Conteúdo (logo abaixo do cabeçalho) */}
         <View style={styles.conteudoSobreHeader}>
-          <AlternadorTipo
-            valor={filtro}
-            aoMudar={setFiltro}
-            opcoes={FILTROS}
-          />
+          {/* FILTROS */}
+          <View style={styles.areaFiltros}>
+            <AlternadorTipo
+              valor={filtro}
+              aoMudar={setFiltro}
+              opcoes={FILTROS}
+            />
+          </View>
 
+          {/* LISTA DE METAS */}
           {lista.length === 0 ? (
-            <Text style={styles.vazio}>Nenhuma meta encontrada.</Text>
+            <Text style={styles.vazio}>
+              Nenhuma meta encontrada.
+            </Text>
           ) : (
             lista.map((meta) => {
               const concluida = meta.status === "concluida";
 
-              // Mesmo ícone da categoria usado no Novo gasto
-              const Icone = (
-                CATEGORIAS_POR_ID[meta.categoriaId ?? "outros"] ??
-                CATEGORIAS_POR_ID.outros
-              ).icone;
+              const categoria =
+                CATEGORIAS_POR_ID[
+                  meta.categoriaId ?? "outros"
+                ] ?? CATEGORIAS_POR_ID.outros;
+
+              const Icone = categoria.icone;
+
+              const valorAtual = Number(meta.valorAtual) || 0;
+              const valorObjetivo = obterObjetivo(meta);
+
+              const percentual = Math.min(
+                100,
+                Math.max(0, percentualMeta(meta))
+              );
+
+              const reabrindo = reabrindoId === meta.id;
 
               return (
                 <Card
@@ -99,57 +151,143 @@ export default function MetasHistorico() {
                   gradiente={GRADIENTE_CARD}
                   style={styles.card}
                 >
+                  {/* NOME, ÍCONE E STATUS */}
                   <View style={styles.linhaCard}>
                     <View style={styles.caixaIcone}>
-                      <Icone size={24} color={Cores.destaque.limao} />
+                      <Icone
+                        size={21}
+                        color={VERDE}
+                      />
                     </View>
 
                     <View style={styles.textos}>
-                      <View style={styles.linhaTopo}>
-                        <Text numberOfLines={1} style={styles.nome}>
-                          {meta.nome}
+                      <Text
+                        numberOfLines={2}
+                        style={styles.nome}
+                      >
+                        {meta.nome}
+                      </Text>
+
+                      {meta.dataFinal ? (
+                        <Text style={styles.data}>
+                          {concluida
+                            ? "Concluída em "
+                            : "Cancelada em "}
+                          {formatarDataCurta(meta.dataFinal)}
                         </Text>
+                      ) : (
+                        <Text style={styles.data}>
+                          {concluida
+                            ? "Meta concluída"
+                            : "Meta cancelada"}
+                        </Text>
+                      )}
+                    </View>
 
-                        {/* Selo de status */}
-                        <View
-                          style={[
-                            styles.selo,
-                            concluida
-                              ? styles.seloConcluida
-                              : styles.seloCancelada,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.seloTexto,
-                              concluida
-                                ? styles.seloTextoConcluida
-                                : styles.seloTextoCancelada,
-                            ]}
-                          >
-                            {concluida ? "Concluída" : "Cancelada"}
-                          </Text>
-                        </View>
-                      </View>
-
-                      <Text style={styles.detalhe}>
-                        {formatarMoeda(meta.valorAtual)}
-                        {meta.dataFinal ? ` · ${formatarDataCurta(meta.dataFinal)}` : ""}
+                    <View
+                      style={[
+                        styles.selo,
+                        concluida
+                          ? styles.seloConcluida
+                          : styles.seloCancelada,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.seloTexto,
+                          concluida
+                            ? styles.seloTextoConcluida
+                            : styles.seloTextoCancelada,
+                        ]}
+                      >
+                        {concluida
+                          ? "Concluída"
+                          : "Cancelada"}
                       </Text>
                     </View>
                   </View>
 
-                  {/* Desfazer o cancelamento / a conclusão */}
-                  <View style={styles.botaoDesfazer}>
-                    <Button
-                      titulo={
-                        concluida ? "Desfazer conclusão" : "Desfazer cancelamento"
-                      }
-                      variante="botaotexto"
-                      disabled={reabrindoId === meta.id}
-                      onPress={() => desfazer(meta.id)}
+                  {/* VALORES */}
+                  <View style={styles.linhaValores}>
+                    <View style={styles.blocoValor}>
+                      <Text style={styles.rotuloValor}>
+                        Guardado
+                      </Text>
+
+                      <Text style={styles.valorGuardado}>
+                        {formatarMoeda(valorAtual)}
+                      </Text>
+                    </View>
+
+                    <View style={styles.blocoValorDireita}>
+                      <Text style={styles.rotuloValor}>
+                        Objetivo
+                      </Text>
+
+                      <Text style={styles.valorObjetivo}>
+                        {valorObjetivo !== null
+                          ? formatarMoeda(valorObjetivo)
+                          : "Não informado"}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* PROGRESSO */}
+                  <View style={styles.areaProgresso}>
+                    <View style={styles.linhaProgresso}>
+                      <Text style={styles.rotuloProgresso}>
+                        Progresso alcançado
+                      </Text>
+
+                      <Text
+                        style={[
+                          styles.percentual,
+                          concluida &&
+                            styles.percentualConcluida,
+                        ]}
+                      >
+                        {percentual}%
+                      </Text>
+                    </View>
+
+                    <Progress
+                      value={percentual}
+                      height={6}
+                      color={concluida ? VERDE : ROXO}
+                      backgroundColor="#160B29"
                     />
                   </View>
+
+                  {/* DESFAZER */}
+                  <Pressable
+                    onPress={() => desfazer(meta.id)}
+                    disabled={reabrindoId !== null}
+                    style={({ pressed }) => [
+                      styles.botaoDesfazer,
+                      pressed && styles.botaoPressionado,
+                      reabrindoId !== null &&
+                        styles.botaoDesabilitado,
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      concluida
+                        ? "Desfazer conclusão"
+                        : "Desfazer cancelamento"
+                    }
+                  >
+                    <RotateCcw
+                      size={15}
+                      color="#C7A9F5"
+                    />
+
+                    <Text style={styles.textoDesfazer}>
+                      {reabrindo
+                        ? "Reabrindo..."
+                        : concluida
+                          ? "Desfazer conclusão"
+                          : "Desfazer cancelamento"}
+                    </Text>
+                  </Pressable>
                 </Card>
               );
             })

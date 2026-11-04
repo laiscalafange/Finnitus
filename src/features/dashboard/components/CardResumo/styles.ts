@@ -1,3 +1,4 @@
+
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
@@ -5,46 +6,68 @@ import { FONTS } from '@/shared/constants/Tipografia'
 export const styles = StyleSheet.create({
   linha: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 7,
     paddingHorizontal: 20,
-    marginTop: 18,
+    marginTop: 2,
   },
+
   item: {
     flex: 1,
     minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
+
+    paddingHorizontal: 35,
+    paddingVertical: 5,
+
   },
+
   bolha: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bolhaReceita: { backgroundColor: Cores.destaque.limao },
-  bolhaDespesa: { backgroundColor: Cores.estado.erro },
+
+  bolhaReceita: {
+    backgroundColor: Cores.destaque.limao,
+  },
+
+  bolhaDespesa: {
+    backgroundColor: 'rgba(187, 19, 19, 0.9)',
+  },
+
   textos: {
     flex: 1,
     minWidth: 0,
   },
+
   rotuloLinha: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
   },
+
   label: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 16,
-    lineHeight: 20,
-    color: Cores.texto.claro,
+    fontSize: 13,
+    lineHeight: 18,
+    color: '#E4D2FF',
   },
+
   valor: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 20,
-    lineHeight: 26,
+    fontSize: 17,
+    lineHeight: 23,
   },
-  valorReceita: { color: Cores.destaque.limao },
-  valorDespesa: { color: Cores.base.branco },
+
+  valorReceita: {
+    color: Cores.base.branco,
+  },
+
+  valorDespesa: {
+    color: Cores.base.branco,
+  },
 })

@@ -1,3 +1,4 @@
+
 import { StyleSheet } from "react-native";
 import { Cores } from "@/shared/constants/Cores";
 import { FONTS } from "@/shared/constants/Tipografia";
@@ -8,7 +9,7 @@ export const styles = StyleSheet.create({
   },
 
   conteudo: {
-    paddingBottom: 30,
+    paddingBottom: 120,
   },
 
   conteudoSobreHeader: {
@@ -16,7 +17,6 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
 
-  // Ícone principal da meta
   iconeMeta: {
     alignSelf: "center",
     width: 120,
@@ -34,29 +34,30 @@ export const styles = StyleSheet.create({
   nomeMeta: {
     textAlign: "center",
     fontFamily: FONTS.raleway.bold,
-    fontSize: 20,
+    fontSize: 26,
+    lineHeight: 32,
     color: Cores.texto.principal,
-    marginTop: 5,
+    marginTop: 8,
+    marginBottom: 5,
   },
 
   valor: {
     textAlign: "center",
     fontFamily: FONTS.raleway.bold,
-    fontSize: 32,
+    fontSize: 34,
     color: Cores.destaque.limao,
   },
 
   metaTotal: {
     textAlign: "center",
     fontFamily: FONTS.quicksand.semibold,
-    fontSize: 14,
+    fontSize: 15,
     marginTop: 5,
     color: Cores.texto.principal,
   },
 
-  // Barra de progresso + percentual ao lado (igual à Reserva de emergência)
   linhaProgresso: {
-    marginTop: 12,
+    marginTop: 15,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
@@ -68,20 +69,19 @@ export const styles = StyleSheet.create({
 
   percentual: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 14,
+    fontSize: 15,
     color: Cores.texto.principal,
   },
 
   faltam: {
     textAlign: "center",
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 14,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 19,
     color: Cores.texto.principal,
-    marginTop: 5,
-    marginBottom: 15,
+    marginTop: 12,
+    marginBottom: 18,
   },
 
-  // Depositar | Retirar lado a lado
   linhaBotoes: {
     flexDirection: "row",
     gap: 12,
@@ -91,7 +91,68 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // "Cancelar meta": botão discreto, no lado direito, abaixo do Depositar
+  botaoPrincipal: {
+    minHeight: 46,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.45)",
+    backgroundColor: "#38205B",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+
+  botaoSecundario: {
+    minHeight: 46,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.3)",
+    backgroundColor: "rgba(163, 87, 255, 0.06)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+
+  textoBotaoPrincipal: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: Cores.destaque.limao,
+  },
+
+  textoBotaoSecundario: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: "#C7A9F5",
+  },
+
+  botaoEditar: {
+    marginBottom: 12,
+  },
+
+  botaoCancelar: {
+    minHeight: 46,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 90, 110, 0.55)",
+    backgroundColor: "rgba(190, 45, 65, 0.13)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    marginTop: 12,
+    marginBottom: 18,
+  },
+
+  textoBotaoCancelar: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: "#FF8795",
+  },
+
+  botaoPressionado: {
+    opacity: 0.75,
+  },
+
+  // Mantidos para compatibilidade
   linhaCancelar: {
     alignItems: "flex-end",
     marginTop: -10,
@@ -101,33 +162,35 @@ export const styles = StyleSheet.create({
   cancelarMeta: {
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 13,
-    color: Cores.texto.secundario,
+    color: "#C7A9F5",
     textDecorationLine: "underline",
   },
 
-  // Histórico
   historico: {
-    marginTop: 5,
+    marginTop: 10,
   },
 
   tituloHistorico: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 20,
-    color: Cores.texto.principal,
+    fontSize: 25,
+    color: Cores.destaque.limao,
+    marginBottom: 8,
   },
 
   data: {
     fontFamily: FONTS.quicksand.semibold,
-    fontSize: 13,
-    color: Cores.texto.principal,
-    marginTop: 8,
-    marginBottom: 5,
+    fontSize: 14,
+    color: "#C7A9F5",
+    marginTop: 10,
+    marginBottom: 7,
   },
 
   cardHistorico: {
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 5,
+    padding: 15,
+    borderRadius: 14,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.25)",
   },
 
   linhaHistorico: {
@@ -135,43 +198,43 @@ export const styles = StyleSheet.create({
     alignItems: "center",
   },
 
-  // Espaço entre o círculo (+ / −) e os textos do card
   circuloHistorico: {
     marginRight: 12,
   },
 
   vazio: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 13,
+    fontSize: 15,
     color: Cores.texto.principal,
     marginTop: 8,
     marginBottom: 8,
   },
 
   tipoDeposito: {
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 12,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 15,
     color: Cores.texto.principal,
   },
 
   horario: {
     fontFamily: FONTS.quicksand.regular,
-    fontSize: 10,
-    color: Cores.texto.principal,
+    fontSize: 12,
+    color: "#C7A9F5",
+    marginTop: 3,
   },
 
   valorDeposito: {
     marginLeft: "auto",
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 11,
-    color: Cores.texto.secundario,
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 16,
+    color: Cores.destaque.limao,
   },
 
   verMais: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 13,
-    color: Cores.texto.secundario,
-    marginTop: 5,
+    fontSize: 14,
+    color: "#C7A9F5",
+    marginTop: 8,
     marginBottom: 10,
   },
 });

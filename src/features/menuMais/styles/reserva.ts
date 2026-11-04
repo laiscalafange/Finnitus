@@ -1,58 +1,62 @@
+
 import { StyleSheet } from "react-native";
 
 import { Cores } from "@/shared/constants/Cores";
 import { FONTS } from "@/shared/constants/Tipografia";
 
-// Estilos da tela Reserva de emergência. O container, o conteúdo do scroll e
-// a área do conteúdo (logo abaixo do header) vêm de styles/formulario.ts (mesmo padrão).
 export const styles = StyleSheet.create({
-  // Bordas dos cards no mesmo tom do card flutuante (ModalConfirmarAcao)
   card: {
-    borderColor: "rgba(168, 79, 255, 0.35)",
+    borderColor: "rgba(163, 87, 255, 0.25)",
   },
 
-  // ---- Card "Reserva disponível" ----
+  // Saldo disponível — referência visual da Home
+  cardSaldo: {
+    borderColor: "rgba(163, 87, 255, 0.25)",
+    paddingVertical: 22,
+    paddingHorizontal: 18,
+  },
 
   linhaSaldo: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    justifyContent: "center",
+    gap: 8,
   },
 
   rotuloPequeno: {
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 14,
-    color: Cores.texto.claro,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 17,
+    color: "#C7A9F5",
   },
 
   valorSaldo: {
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 26,
-    color: Cores.base.branco,
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 38,
+    lineHeight: 44,
+    color: Cores.destaque.limao,
+    textAlign: "center",
   },
 
-  // ---- Card "Meta da reserva" ----
-
+  // Meta da reserva
   linhaMeta: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 6,
+    marginBottom: 8,
   },
 
-  // Botãozinho "Definir meta" no canto do card
   chipMeta: {
     borderWidth: 1,
-    borderColor: Cores.roxo.claro,
-    borderRadius: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
+    borderColor: "rgba(163, 87, 255, 0.45)",
+    backgroundColor: "rgba(163, 87, 255, 0.08)",
+    borderRadius: 9,
+    paddingVertical: 5,
+    paddingHorizontal: 11,
   },
 
   textoChipMeta: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 12,
-    color: Cores.roxo.claro,
+    color: "#C7A9F5",
   },
 
   valorMeta: {
@@ -75,29 +79,65 @@ export const styles = StyleSheet.create({
   percentual: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 13,
-    color: Cores.texto.claro,
+    color: "#C7A9F5",
   },
 
-  // ---- Botões Depositar | Retirar ----
-
+  // Depositar e Retirar — sem gradientes
   linhaBotoes: {
     flexDirection: "row",
-    gap: 12,
-    marginTop: 4,
+    gap: 10,
+    marginTop: 2,
+    marginBottom: 8,
   },
 
-  colunaBotao: {
+  botaoDepositar: {
     flex: 1,
+    minHeight: 46,
+    borderRadius: 14,
+    backgroundColor: "rgba(89, 48, 145, 0.78)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
   },
 
-  // ---- Últimas movimentações ----
+  botaoRetirar: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: 14,
+    backgroundColor: "rgba(56, 32, 91, 0.65)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 12,
+  },
 
-  tituloSecao: {
+  textoBotaoDepositar: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 16,
-    color: Cores.texto.claro,
-    marginTop: 8,
-    marginBottom: 12,
+    fontSize: 15,
+    color: Cores.destaque.limao,
+  },
+
+  textoBotaoRetirar: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: "#C7A9F5",
+  },
+
+  botaoPressionado: {
+    opacity: 0.75,
+  },
+
+  // Últimas movimentações — igual à hierarquia da Home
+  tituloSecao: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 22,
+    lineHeight: 27,
+    color: Cores.destaque.limao,
+    marginTop: 12,
+    marginBottom: 10,
   },
 
   semMovimentacoes: {
@@ -113,21 +153,20 @@ export const styles = StyleSheet.create({
     gap: 12,
   },
 
-  // Círculo com o + (depósito) ou − (retirada)
   circuloMovimentacao: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
   },
 
   circuloDeposito: {
-    backgroundColor: "rgba(107, 195, 0, 0.25)",
+    backgroundColor: "rgba(107, 195, 0, 0.20)",
   },
 
   circuloRetirada: {
-    backgroundColor: "rgba(155, 119, 255, 0.25)",
+    backgroundColor: "rgba(163, 87, 255, 0.18)",
   },
 
   textosMovimentacao: {
@@ -141,7 +180,7 @@ export const styles = StyleSheet.create({
   },
 
   valorRetirada: {
-    color: Cores.texto.principal,
+    color: "#C7A9F5",
   },
 
   tipoMovimentacao: {
@@ -154,5 +193,27 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.regular,
     fontSize: 12,
     color: Cores.texto.claro,
+  },
+
+  // Excluir reserva — vermelho transparente
+  botaoExcluir: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 9,
+    minHeight: 46,
+    paddingHorizontal: 14,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255, 95, 95, 0.55)",
+    backgroundColor: "rgba(255, 65, 65, 0.08)",
+  },
+
+  textoExcluir: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 14,
+    color: "#FF7777",
   },
 });

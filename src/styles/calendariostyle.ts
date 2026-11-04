@@ -120,7 +120,7 @@ export const styles = StyleSheet.create({
   eventoItem: {
     marginBottom: 2,
     borderBottomWidth: 1,
-    borderBottomColor: Cores.overlay.suave,
+    borderBottomColor:  Cores.texto.principal,
     paddingBottom: 2,
   },
 
@@ -140,7 +140,7 @@ export const styles = StyleSheet.create({
   eventoHora: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 15,
-    color: Cores.base.branco,
+    color:  Cores.texto.principal,
     textAlign: 'right',
   
   },

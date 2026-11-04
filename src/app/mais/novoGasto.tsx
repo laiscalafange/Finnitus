@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   View,
@@ -7,7 +8,6 @@ import {
   Platform,
   Switch,
 } from "react-native";
-
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
@@ -33,30 +33,24 @@ import {
 import type { TipoTransacao } from "@/features/menuMais/types";
 import { styles } from "@/features/menuMais/styles/formulario";
 
-// Tela "Nova transação" (Novo gasto): registra uma movimentação que já
-// aconteceu — saída (gasto) ou entrada (receita). Alimenta Receitas/Despesas.
 export default function NovoGasto() {
   const voltar = useVoltar();
-
-  // Guarda a transação pra alimentar as Rotas do Plano-B
   const { adicionarTransacao } = useFinanceiro();
 
-  // Gasto ou entrada
   const [tipo, setTipo] = useState<TipoTransacao>("gasto");
-
-  // Campos do formulário (a data já começa com o dia de hoje)
   const [valor, setValor] = useState("");
-  const [categoria, setCategoria] = useState<string | null>(null);
+  const [categoria, setCategoria] = useState<string | null>(
+    null
+  );
   const [data, setData] = useState(hojeFormatado());
   const [descricao, setDescricao] = useState("");
   const [repetir, setRepetir] = useState(false);
-
-  // Mensagem de erro de validação
   const [erro, setErro] = useState("");
 
-  // Gasto e entrada têm categorias diferentes; ao trocar, limpa a escolha
   const categorias =
-    tipo === "gasto" ? CATEGORIAS_GASTO : CATEGORIAS_ENTRADA;
+    tipo === "gasto"
+      ? CATEGORIAS_GASTO
+      : CATEGORIAS_ENTRADA;
 
   function mudarTipo(novo: TipoTransacao) {
     setTipo(novo);
@@ -82,7 +76,6 @@ export default function NovoGasto() {
 
     setErro("");
 
-    // Guarda a transação (por enquanto só em memória)
     adicionarTransacao({
       tipo,
       valor: moedaParaNumero(valor),
@@ -92,40 +85,45 @@ export default function NovoGasto() {
       repetirMensalmente: repetir,
     });
 
-    // TODO (backend): ainda não existe endpoint de transações. Quando existir,
-    // enviar { tipo, valor: moedaParaNumero(valor), categoria, data,
-    // descricao, repetirMensalmente: repetir } pra API aqui.
-
     voltar();
   }
 
   return (
     <View style={styles.container}>
       <BackgroundGradient variante="funcional" />
-      {/* Empurra o formulário pra cima quando o teclado abre */}
+
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={
+          Platform.OS === "ios" ? "padding" : "height"
+        }
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.conteudo}
         >
-          {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
           <HeaderInterno titulo="Nova transação" />
 
-          {/* Formulário (logo abaixo do cabeçalho) */}
           <View style={styles.formulario}>
-            <AlternadorTipo valor={tipo} aoMudar={mudarTipo} />
+            <AlternadorTipo
+              valor={tipo}
+              aoMudar={mudarTipo}
+            />
 
             <Input
               label="Valor"
               placeholder="0,00"
               keyboardType="numeric"
               value={valor}
-              onChangeText={(texto) => setValor(mascararMoeda(texto))}
-              icone={<Text style={styles.prefixoMoeda}>R$</Text>}
+              onChangeText={(texto) =>
+                setValor(mascararMoeda(texto))
+              }
+              icone={
+                <Text style={styles.prefixoMoeda}>
+                  R$
+                </Text>
+              }
             />
 
             <SeletorCategoria
@@ -140,7 +138,9 @@ export default function NovoGasto() {
               keyboardType="numeric"
               maxLength={10}
               value={data}
-              onChangeText={(texto) => setData(mascararData(texto))}
+              onChangeText={(texto) =>
+                setData(mascararData(texto))
+              }
             />
 
             <Input
@@ -152,9 +152,10 @@ export default function NovoGasto() {
               maxLength={120}
             />
 
-            {/* Repetir mensalmente */}
             <View style={styles.linhaSwitch}>
-              <Text style={styles.textoSwitch}>Repetir mensalmente</Text>
+              <Text style={styles.textoSwitch}>
+                Repetir mensalmente
+              </Text>
 
               <Switch
                 value={repetir}
@@ -164,19 +165,22 @@ export default function NovoGasto() {
                   true: Cores.roxo.claro,
                 }}
                 thumbColor={
-                  repetir ? Cores.destaque.limao : Cores.texto.claro
+                  repetir
+                    ? Cores.destaque.limao
+                    : Cores.texto.claro
                 }
               />
             </View>
 
-            {/* Mensagem de erro de validação */}
             {erro ? (
-              <Text style={styles.erro} accessibilityRole="alert">
+              <Text
+                style={styles.erro}
+                accessibilityRole="alert"
+              >
                 {erro}
               </Text>
             ) : null}
 
-            {/* Cancelar | Salvar transação */}
             <View style={styles.linhaBotoes}>
               <View style={styles.colunaBotao}>
                 <Button
@@ -187,7 +191,10 @@ export default function NovoGasto() {
               </View>
 
               <View style={styles.colunaBotao}>
-                <Button titulo="Salvar transação" onPress={salvar} />
+                <Button
+                  titulo="Salvar transação"
+                  onPress={salvar}
+                />
               </View>
             </View>
           </View>

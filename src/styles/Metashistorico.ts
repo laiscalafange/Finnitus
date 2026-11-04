@@ -1,3 +1,4 @@
+
 import { StyleSheet } from "react-native";
 
 import { Cores } from "@/shared/constants/Cores";
@@ -8,89 +9,82 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Espaço no final pra o último card não colar no fim da tela
   conteudo: {
-    paddingBottom: 30,
+    paddingBottom: 35,
   },
 
-  // Conteúdo logo abaixo do cabeçalho discreto (HeaderInterno)
   conteudoSobreHeader: {
     paddingTop: 8,
-    paddingHorizontal: 19,
+    paddingHorizontal: 16,
+    gap: 12,
   },
 
-  // Card de cada meta (o Card já traz borda e raio)
-card: {
-  paddingTop: 10,
-  paddingHorizontal: 12,
-  paddingBottom: -10,
-},
-
-  // Espaço entre a linha do card e o botão "Desfazer"
-  botaoDesfazer: {
-    marginTop: 10,
+  areaFiltros: {
+    marginBottom: 2,
   },
 
+  // CARD PRINCIPAL
+  card: {
+    paddingTop: 14,
+    paddingHorizontal: 14,
+    paddingBottom: 12,
+    marginBottom: 0,
+    borderRadius: 20,
+    borderColor: "rgba(163, 87, 255, 0.25)",
+  },
+
+  // CABEÇALHO DO CARD
   linhaCard: {
-  flexDirection: "row",
-  alignItems: "center",
-  gap: 10,
-},
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
 
-  // Quadradinho escuro em volta do ícone
   caixaIcone: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
+    width: 42,
+    height: 42,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(13, 17, 18, 0.45)",
+    backgroundColor: "rgba(163, 87, 255, 0.12)",
   },
 
   textos: {
     flex: 1,
-    gap: 1,
-  },
-
-  // Nome + selo de status, lado a lado
-  linhaTopo: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 8,
+    gap: 3,
   },
 
   nome: {
-    flex: 1,
     fontFamily: FONTS.raleway.bold,
-    fontSize: 16,
+    fontSize: 15,
     color: Cores.base.branco,
   },
 
-  detalhe: {
+  data: {
     fontFamily: FONTS.quicksand.semibold,
-    fontSize: 13,
-    color: Cores.texto.claro,
+    fontSize: 11,
+    color: "#C7A9F5",
   },
 
-  // Selo "Concluída" / "Cancelada"
+  // STATUS
   selo: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    alignSelf: "flex-start",
   },
 
   seloConcluida: {
-    backgroundColor: "rgba(183, 255, 0, 0.18)",
+    backgroundColor: "rgba(183, 255, 0, 0.12)",
   },
 
   seloCancelada: {
-    backgroundColor: Cores.overlay.medio,
+    backgroundColor: "rgba(163, 87, 255, 0.14)",
   },
 
   seloTexto: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 11,
+    fontSize: 10,
   },
 
   seloTextoConcluida: {
@@ -98,14 +92,109 @@ card: {
   },
 
   seloTextoCancelada: {
-    color: Cores.texto.claro,
+    color: "#C7A9F5",
   },
 
+  // VALORES
+  linhaValores: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginTop: 13,
+    gap: 10,
+  },
+
+  blocoValor: {
+    flex: 1,
+  },
+
+  blocoValorDireita: {
+    flex: 1,
+    alignItems: "flex-end",
+  },
+
+  rotuloValor: {
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 11,
+    color: "#C7A9F5",
+    marginBottom: 3,
+  },
+
+  valorGuardado: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 14,
+    color: "#FFFFFF",
+  },
+
+  valorObjetivo: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 14,
+    color: "#FFFFFF",
+    textAlign: "right",
+  },
+
+  // PROGRESSO
+  areaProgresso: {
+    marginTop: 13,
+  },
+
+  linhaProgresso: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 7,
+  },
+
+  rotuloProgresso: {
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 11,
+    color: "#C7A9F5",
+  },
+
+  percentual: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 12,
+    color: "#C7A9F5",
+  },
+
+  percentualConcluida: {
+    color: Cores.destaque.limao,
+  },
+
+  // BOTÃO DESFAZER
+  botaoDesfazer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+    marginTop: 13,
+    minHeight: 36,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    backgroundColor: "rgba(163, 87, 255, 0.08)",
+  },
+
+  textoDesfazer: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 12,
+    color: "#C7A9F5",
+  },
+
+  botaoPressionado: {
+    opacity: 0.7,
+  },
+
+  botaoDesabilitado: {
+    opacity: 0.45,
+  },
+
+  // ESTADO VAZIO
   vazio: {
     marginTop: 24,
     textAlign: "center",
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 14,
-    color: Cores.texto.claro,
+    color: "#C7A9F5",
   },
 });

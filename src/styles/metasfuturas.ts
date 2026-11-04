@@ -1,29 +1,33 @@
+
 import { StyleSheet } from "react-native";
+
 import { Cores } from "@/shared/constants/Cores";
 import { FONTS } from "@/shared/constants/Tipografia";
 
 export const styles = StyleSheet.create({
-  // Container principal, ocupa a tela toda (fundo do gradiente)
   container: {
     flex: 1,
   },
 
-  // Conteúdo do ScrollView: ocupa pelo menos a tela toda (flexGrow),
-  // o que deixa o botão "Criar meta" no final da tela; se o conteúdo
-  // ficar maior que a tela, a tela rola normalmente
+  // Conteúdo rolável, sem forçar o botão ao fim da tela
   conteudo: {
     flexGrow: 1,
-    paddingBottom: 24,
+    paddingBottom: 32,
   },
 
-  // Bloco de conteúdo que "sobe" por cima do header (marginTop negativo)
+  // Mantém o formulário próximo ao cabeçalho
   conteudoSobreHeader: {
     marginTop: -235,
     paddingHorizontal: 16,
-    flexGrow: 1,
+    paddingBottom: 16,
+    gap: 12,
   },
 
-  // Rótulo "Tipo de meta" (mesmo visual do label dos Inputs)
+  // Agrupa o seletor de tipo de meta
+  blocoTipo: {
+    marginBottom: 4,
+  },
+
   rotuloTipo: {
     fontFamily: FONTS.raleway.bold,
     fontSize: 16,
@@ -31,25 +35,23 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  // Prefixo "R$" nos campos de valor (Valor objetivo / Valor inicial)
   prefixoMoeda: {
     fontFamily: FONTS.raleway.bold,
     fontSize: 16,
     color: Cores.destaque.limao,
   },
 
-  // Mensagem de erro de validação, acima do botão "Criar meta"
   erro: {
-    color: "#ffb4b4",
-    fontSize: 14,
+    color: "#FFB4B4",
+    fontSize: 13,
     fontFamily: FONTS.quicksand.semibold,
-    marginBottom: 12,
+    marginTop: 2,
+    marginBottom: 4,
   },
 
-  // marginTop "auto" empurra o botão pro final da tela; o paddingTop
-  // garante um respiro mínimo entre o último campo e o botão
+  // Botão logo após o último campo
   botaoContainer: {
-    marginTop: "auto",
-    paddingTop: 16,
+    marginTop: 8,
+    paddingBottom: 8,
   },
 });

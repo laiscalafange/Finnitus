@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   Image,
@@ -15,9 +16,9 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Minus, Plus } from "lucide-react-native";
+
 import { HeaderMP } from "../../shared/components/Header";
 import { Card } from "../../shared/components/Cards";
-import { Button } from "../../shared/components/Button";
 import { Progress } from "../../shared/components/Progress";
 import { Cores } from "../../shared/constants/Cores";
 import { FONTS } from "../../shared/constants/Tipografia";
@@ -31,7 +32,6 @@ import {
 } from "@/features/menuMais/utils";
 import { errorMessage } from "@/services/api";
 import type { TipoModalReserva } from "@/features/menuMais/types";
-// Círculos de + e − do histórico (os mesmos da Reserva de emergência)
 import { styles as reserva } from "@/features/menuMais/styles/reserva";
 import { useFinanceiro } from "@/features/financeiroContext";
 import {
@@ -43,18 +43,14 @@ import {
 
 import MetasFrame from "./MetasFrame";
 
-// Quantas movimentações aparecem antes de tocar em "Ver mais"
 const MOVIMENTACOES_VISIVEIS = 4;
 
+// Cores originais do background preservadas
 const GRADIENTE_FUNDO: [string, string, string] = [
   "#3f1e69",
   "#08070A",
   "#291444",
 ];
-
-// ─────────────────────────────────────────────────────────────
-// Modal "Editar meta" (mesmo visual do modal de movimentação do Calendário)
-// ─────────────────────────────────────────────────────────────
 
 type DadosEdicao = {
   nome: string;
@@ -66,9 +62,7 @@ type ModalEditarMetaProps = {
   visivel: boolean;
   meta: Meta;
   aoFechar: () => void;
-  // Salva nome, tipo e valor (quem chama fecha o modal se der certo)
   aoSalvar: (dados: DadosEdicao) => Promise<void>;
-  // Zera o valor guardado na meta (quem chama fecha o modal se der certo)
   aoReiniciar: () => Promise<void>;
 };
 
@@ -88,19 +82,18 @@ function ModalEditarMeta({
   const [tipo, setTipo] = useState<TipoMeta>("longoPrazo");
   const [valor, setValor] = useState("");
   const [erro, setErro] = useState("");
-  // Reiniciar apaga o valor guardado: pede um segundo toque pra confirmar
-  const [confirmandoReinicio, setConfirmandoReinicio] = useState(false);
+  const [confirmandoReinicio, setConfirmandoReinicio] =
+    useState(false);
   const [ocupado, setOcupado] = useState(false);
 
-  // Sempre que o modal abre, os campos começam com os dados atuais da meta
   useEffect(() => {
-    if (!visivel) {
-      return;
-    }
+    if (!visivel) return;
 
     setNome(meta.nome);
     setTipo(meta.tipo);
-    setValor(mascararMoeda(String(Math.round(meta.valorTotal * 100))));
+    setValor(
+      mascararMoeda(String(Math.round(meta.valorTotal * 100)))
+    );
     setErro("");
     setConfirmandoReinicio(false);
     setOcupado(false);
@@ -123,7 +116,11 @@ function ModalEditarMeta({
     setOcupado(true);
 
     try {
-      await aoSalvar({ nome: nome.trim(), tipo, valorTotal });
+      await aoSalvar({
+        nome: nome.trim(),
+        tipo,
+        valorTotal,
+      });
     } catch (error) {
       setErro(errorMessage(error));
     } finally {
@@ -162,34 +159,49 @@ function ModalEditarMeta({
         style={estilosEditar.overlay}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <Pressable style={estilosEditar.fundo} onPress={aoFechar} />
+        <Pressable
+          style={estilosEditar.fundo}
+          onPress={aoFechar}
+        />
 
         <Card
-          gradiente={["rgba(73, 38, 155, 0.97)", "rgba(45, 17, 108, 0.97)"]}
+          gradiente={[
+            "rgba(44, 27, 67, 0.96)",
+            "rgba(44, 27, 67, 0.96)",
+          ]}
           style={estilosEditar.card}
         >
           <ScrollView
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            <Text style={estilosEditar.titulo}>Editar meta</Text>
+            <Text style={estilosEditar.titulo}>
+              Editar meta
+            </Text>
 
-            <Text style={estilosEditar.rotulo}>Nome</Text>
+            <Text style={estilosEditar.rotulo}>
+              Nome
+            </Text>
+
             <View style={estilosEditar.campo}>
               <TextInput
                 style={estilosEditar.campoTexto}
                 maxFontSizeMultiplier={1.15}
                 accessibilityLabel="Nome da meta"
-                placeholderTextColor={Cores.texto.desabilitado}
+                placeholderTextColor="#8E7BA8"
                 autoCapitalize="sentences"
                 autoCorrect={false}
                 maxLength={60}
                 value={nome}
                 onChangeText={setNome}
+                editable={!ocupado}
               />
             </View>
 
-            <Text style={estilosEditar.rotulo}>Tipo</Text>
+            <Text style={estilosEditar.rotulo}>
+              Tipo
+            </Text>
+
             <View style={estilosEditar.tipo}>
               {OPCOES_TIPO.map((opcao) => {
                 const ativo = tipo === opcao.id;
@@ -200,9 +212,10 @@ function ModalEditarMeta({
                     accessibilityRole="button"
                     accessibilityState={{ selected: ativo }}
                     onPress={() => setTipo(opcao.id)}
+                    disabled={ocupado}
                     style={[
                       estilosEditar.tipoOpcao,
-                      ativo && { backgroundColor: Cores.destaque.limao },
+                      ativo && estilosEditar.tipoOpcaoAtiva,
                     ]}
                   >
                     <Text
@@ -218,24 +231,44 @@ function ModalEditarMeta({
               })}
             </View>
 
-            <Text style={estilosEditar.rotulo}>Valor da meta</Text>
-            <View style={[estilosEditar.campo, estilosEditar.campoLinha]}>
-              <Text style={estilosEditar.prefixoMoeda}>R$</Text>
+            <Text style={estilosEditar.rotulo}>
+              Valor da meta
+            </Text>
+
+            <View
+              style={[
+                estilosEditar.campo,
+                estilosEditar.campoLinha,
+              ]}
+            >
+              <Text style={estilosEditar.prefixoMoeda}>
+                R$
+              </Text>
+
               <TextInput
-                style={[estilosEditar.campoTexto, estilosEditar.campoValor]}
+                style={[
+                  estilosEditar.campoTexto,
+                  estilosEditar.campoValor,
+                ]}
                 maxFontSizeMultiplier={1.15}
                 accessibilityLabel="Valor da meta"
                 placeholder="0,00"
-                placeholderTextColor={Cores.texto.desabilitado}
+                placeholderTextColor="#8E7BA8"
                 keyboardType="numeric"
                 value={valor}
-                onChangeText={(texto) => setValor(mascararMoeda(texto))}
+                onChangeText={(texto) =>
+                  setValor(mascararMoeda(texto))
+                }
+                editable={!ocupado}
               />
             </View>
 
-            {erro ? <Text style={estilosEditar.erro}>{erro}</Text> : null}
+            {erro ? (
+              <Text style={estilosEditar.erro}>
+                {erro}
+              </Text>
+            ) : null}
 
-            {/* Reiniciar meta: zera o valor guardado (2 toques pra confirmar) */}
             <TouchableOpacity
               activeOpacity={0.8}
               disabled={ocupado || semValorGuardado}
@@ -243,7 +276,8 @@ function ModalEditarMeta({
               style={[
                 estilosEditar.botaoSecundario,
                 estilosEditar.botaoReiniciar,
-                semValorGuardado && estilosEditar.botaoDesabilitado,
+                semValorGuardado &&
+                  estilosEditar.botaoDesabilitado,
               ]}
             >
               <Text
@@ -259,12 +293,11 @@ function ModalEditarMeta({
 
             {confirmandoReinicio ? (
               <Text style={estilosEditar.aviso}>
-                Os {formatarMoeda(meta.valorAtual)} guardados serão retirados e
-                a meta volta para R$ 0,00.
+                Os {formatarMoeda(meta.valorAtual)} guardados
+                serão retirados e a meta volta para R$ 0,00.
               </Text>
             ) : null}
 
-            {/* Cancelar | Salvar alterações, lado a lado */}
             <View style={estilosEditar.botoes}>
               <TouchableOpacity
                 activeOpacity={0.8}
@@ -283,20 +316,9 @@ function ModalEditarMeta({
                 onPress={salvar}
                 style={estilosEditar.botaoPrimario}
               >
-                <LinearGradient
-                  colors={["#482287", "#7E3BED"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={estilosEditar.botaoPrimarioFundo}
-                >
-                  <Text
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    style={estilosEditar.botaoPrimarioTexto}
-                  >
-                    Salvar alterações
-                  </Text>
-                </LinearGradient>
+                <Text style={estilosEditar.botaoPrimarioTexto}>
+                  Salvar alterações
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -307,15 +329,6 @@ function ModalEditarMeta({
 }
 
 const estilosEditar = StyleSheet.create({
-  // Editar | Cancelar meta, na linha abaixo do Depositar/Retirar
-  linhaAcoes: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 4,
-    marginTop: 16,
-    marginBottom: 20,
-  },
-
   overlay: {
     flex: 1,
     justifyContent: "center",
@@ -329,18 +342,18 @@ const estilosEditar = StyleSheet.create({
 
   card: {
     maxHeight: "90%",
-    borderRadius: 28,
-    borderColor: "rgba(168, 79, 255, 0.35)",
-    paddingHorizontal: 20,
+    borderRadius: 22,
+    borderColor: "rgba(163, 87, 255, 0.25)",
+    paddingHorizontal: 18,
     paddingTop: 20,
-    paddingBottom: 18,
+    paddingBottom: 16,
     marginBottom: 0,
   },
 
   titulo: {
     fontFamily: FONTS.raleway.bold,
-    color: Cores.base.branco,
-    fontSize: 19,
+    color: Cores.destaque.limao,
+    fontSize: 21,
     textAlign: "center",
     marginBottom: 14,
   },
@@ -357,10 +370,10 @@ const estilosEditar = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 14,
     marginBottom: 12,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Cores.roxo.claro,
-    backgroundColor: Cores.fundo.principal,
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.45)",
+    backgroundColor: "#20152F",
   },
 
   campoLinha: {
@@ -372,7 +385,7 @@ const estilosEditar = StyleSheet.create({
   campoTexto: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 15,
-    color: Cores.base.branco,
+    color: "#FFFFFF",
     paddingVertical: 0,
   },
 
@@ -386,33 +399,38 @@ const estilosEditar = StyleSheet.create({
     color: Cores.destaque.limao,
   },
 
-  // Alternador Meta do mês | Longo prazo
   tipo: {
     flexDirection: "row",
     padding: 3,
     marginBottom: 12,
     borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: Cores.roxo.claro,
-    backgroundColor: Cores.overlay.cardForte,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.35)",
+    backgroundColor: "#20152F",
   },
 
   tipoOpcao: {
     flex: 1,
-    height: 32,
+    height: 34,
     borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
   },
 
+  tipoOpcaoAtiva: {
+    backgroundColor: "#38205B",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.45)",
+  },
+
   tipoTexto: {
     fontFamily: FONTS.raleway.bold,
     fontSize: 13,
-    color: Cores.texto.claro,
+    color: "#C7A9F5",
   },
 
   tipoTextoAtivo: {
-    color: Cores.texto.contraste,
+    color: Cores.destaque.limao,
   },
 
   erro: {
@@ -425,18 +443,17 @@ const estilosEditar = StyleSheet.create({
   aviso: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 12,
-    color: Cores.texto.claro,
+    color: "#C7A9F5",
     marginTop: 8,
   },
 
-  // Botões simples, do mesmo tamanho dos do modal do Calendário
   botaoSecundario: {
     flex: 1,
-    height: 40,
-    borderRadius: 12,
+    minHeight: 44,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: Cores.overlay.intenso,
-    backgroundColor: Cores.overlay.suave,
+    borderColor: "rgba(163, 87, 255, 0.3)",
+    backgroundColor: "rgba(163, 87, 255, 0.06)",
     paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -445,7 +462,7 @@ const estilosEditar = StyleSheet.create({
   botaoSecundarioTexto: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 13,
-    color: Cores.base.branco,
+    color: "#C7A9F5",
   },
 
   botaoReiniciar: {
@@ -460,18 +477,16 @@ const estilosEditar = StyleSheet.create({
   botoes: {
     flexDirection: "row",
     gap: 10,
-    marginTop: 10,
+    marginTop: 14,
   },
 
   botaoPrimario: {
     flex: 1,
-    height: 40,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-
-  botaoPrimarioFundo: {
-    flex: 1,
+    minHeight: 44,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.45)",
+    backgroundColor: "#38205B",
     paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -484,24 +499,26 @@ const estilosEditar = StyleSheet.create({
   },
 });
 
-// Tela "Metas > Detalhes". Recebe o id da meta pela rota
-// (/MetasDetalhes?id=...) e mostra exatamente os dados dela.
 export default function MetasDetalhes() {
-  // Hook de navegação do Expo Router
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
-  const { metas, movimentarMeta, cancelarMeta, editarMeta } = useFinanceiro();
+  const {
+    metas,
+    movimentarMeta,
+    cancelarMeta,
+    editarMeta,
+  } = useFinanceiro();
+
   const meta = metas.find((item) => item.id === id);
 
-  // Card flutuante aberto ("depositar", "retirar", "saldoInsuficiente" ou "cancelar")
-  const [modal, setModal] = useState<TipoModalReserva | null>(null);
+  const [modal, setModal] =
+    useState<TipoModalReserva | null>(null);
+
   const [verTodas, setVerTodas] = useState(false);
   const [alcancada, setAlcancada] = useState(false);
-  // Modal "Editar meta"
   const [editando, setEditando] = useState(false);
 
-  // Meta que não existe mais (ex.: foi excluída)
   if (!meta) {
     return (
       <LinearGradient
@@ -510,46 +527,59 @@ export default function MetasDetalhes() {
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
-        <HeaderMP titulo="Metas" subtitulo="Detalhes" />
+        <HeaderMP
+          titulo="Metas"
+          subtitulo="Detalhes"
+        />
 
         <View style={styles.conteudoSobreHeader}>
-          <Text style={styles.nomeMeta}>Meta não encontrada</Text>
+          <Text style={styles.nomeMeta}>
+            Meta não encontrada
+          </Text>
         </View>
       </LinearGradient>
     );
   }
 
   const percentual = percentualMeta(meta);
-  const faltam = Math.max(0, meta.valorTotal - meta.valorAtual);
+  const faltam = Math.max(
+    0,
+    meta.valorTotal - meta.valorAtual
+  );
   const emAndamento = meta.status === "andamento";
 
   const movimentacoes = verTodas
     ? meta.movimentacoes
-    : meta.movimentacoes.slice(0, MOVIMENTACOES_VISIVEIS);
+    : meta.movimentacoes.slice(
+        0,
+        MOVIMENTACOES_VISIVEIS
+      );
 
-  // Trata a confirmação de cada card
   async function confirmarModal(valor: number) {
-    if (!meta) {
-      return;
-    }
+    if (!meta) return;
 
     if (modal === "depositar") {
-      const resultado = await movimentarMeta(meta.id, "deposito", valor);
+      const resultado = await movimentarMeta(
+        meta.id,
+        "deposito",
+        valor
+      );
 
       setModal(null);
 
-      // O depósito completou o valor da meta
       if (resultado === "concluida") {
         setAlcancada(true);
       }
-
       return;
     }
 
     if (modal === "retirar") {
-      const resultado = await movimentarMeta(meta.id, "retirada", valor);
+      const resultado = await movimentarMeta(
+        meta.id,
+        "retirada",
+        valor
+      );
 
-      // Tentou retirar mais do que tem guardado na meta
       if (resultado === "saldoInsuficiente") {
         setModal("saldoInsuficiente");
         return;
@@ -569,37 +599,35 @@ export default function MetasDetalhes() {
     setModal(null);
   }
 
-  // Modal "Editar meta": salva nome, tipo e valor
   async function salvarEdicao(dados: DadosEdicao) {
-    if (!meta) {
-      return;
-    }
+    if (!meta) return;
 
-    const resultado = await editarMeta(meta.id, dados);
+    const resultado = await editarMeta(
+      meta.id,
+      dados
+    );
 
     setEditando(false);
 
-    // O novo valor da meta já foi alcançado pelo que estava guardado
     if (resultado === "concluida") {
       setAlcancada(true);
     }
   }
 
-  // Modal "Editar meta": zera o valor guardado (vira uma retirada no histórico)
   async function reiniciarMeta() {
-    if (!meta) {
-      return;
-    }
+    if (!meta) return;
 
-    await movimentarMeta(meta.id, "retirada", meta.valorAtual);
+    await movimentarMeta(
+      meta.id,
+      "retirada",
+      meta.valorAtual
+    );
 
     setEditando(false);
   }
 
   return (
     <LinearGradient
-      // Gradiente próprio dessa tela (mesmo estilo do Notificações/MetasFuturas),
-      // não usa mais o GRADIENTS.background compartilhado
       colors={GRADIENTE_FUNDO}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
@@ -609,39 +637,34 @@ export default function MetasDetalhes() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        {/* Cabeçalho fixo do topo */}
         <HeaderMP
           titulo="Metas"
           subtitulo="Detalhes"
         />
 
-        {/* Conteúdo posicionado por cima do header (marginTop negativo) */}
         <View style={styles.conteudoSobreHeader}>
-
-          {/* Ícone principal da meta */}
           <View style={styles.iconeMeta}>
             <Image
               source={require("../../../assets/icones/cifrao.png")}
-              style={styles.cifrao}
+              style={[
+                styles.cifrao,
+                { tintColor: "#DCC8FF" },
+              ]}
             />
           </View>
 
-          {/* Nome da meta */}
           <Text style={styles.nomeMeta}>
             {meta.nome}
           </Text>
 
-          {/* Valor já guardado */}
           <Text style={styles.valor}>
             {formatarMoeda(meta.valorAtual)}
           </Text>
 
-          {/* Valor total da meta */}
           <Text style={styles.metaTotal}>
             De {formatarMoeda(meta.valorTotal)}
           </Text>
 
-          {/* Barra de progresso (valor atual / valor total) + percentual */}
           <View style={styles.linhaProgresso}>
             <View style={styles.barraProgresso}>
               <Progress
@@ -649,90 +672,101 @@ export default function MetasDetalhes() {
                 max={meta.valorTotal}
                 height={17}
                 color="#8D49E1"
-                backgroundColor="#482287"
+                backgroundColor="#20112F"
               />
             </View>
 
-            <Text style={styles.percentual}>{percentual}%</Text>
+            <Text style={styles.percentual}>
+              {percentual}%
+            </Text>
           </View>
 
-          {/* Quanto falta pra bater a meta */}
           <Text style={styles.faltam}>
-            {faltam > 0 ? `Faltam ${formatarMoeda(faltam)}` : "Meta alcançada!"}
+            {faltam > 0
+              ? `Faltam ${formatarMoeda(faltam)}`
+              : "Meta alcançada!"}
           </Text>
 
-          {/* Depositar, Retirar e Cancelar meta só aparecem enquanto a meta
-              está em andamento */}
           {emAndamento ? (
             <>
-              {/* Depositar | Retirar, lado a lado */}
+              {/* Depositar e Retirar lado a lado */}
               <View style={styles.linhaBotoes}>
                 <View style={styles.colunaBotao}>
-                  <Button
-                    tamanho="compacto"
-                    titulo="Depositar"
+                  <Pressable
                     onPress={() => setModal("depositar")}
-                  />
+                    accessibilityRole="button"
+                    style={({ pressed }) => [
+                      styles.botaoPrincipal,
+                      pressed && styles.botaoPressionado,
+                    ]}
+                  >
+                    <Text style={styles.textoBotaoPrincipal}>
+                      Depositar
+                    </Text>
+                  </Pressable>
                 </View>
 
                 <View style={styles.colunaBotao}>
-                  <Button
-                    tamanho="compacto"
-                    titulo="Retirar"
-                    variante="secundario"
+                  <Pressable
                     onPress={() => setModal("retirar")}
-                  />
+                    accessibilityRole="button"
+                    style={({ pressed }) => [
+                      styles.botaoSecundario,
+                      pressed && styles.botaoPressionado,
+                    ]}
+                  >
+                    <Text style={styles.textoBotaoSecundario}>
+                      Retirar
+                    </Text>
+                  </Pressable>
                 </View>
               </View>
 
-              {/* Botões discretos abaixo do Depositar/Retirar:
-                  Editar meta (esquerda) e Cancelar meta (direita) */}
-              <View style={estilosEditar.linhaAcoes}>
-                <TouchableOpacity
-                  onPress={() => setEditando(true)}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.cancelarMeta}>Editar meta</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => setModal("cancelar")}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.cancelarMeta}>Cancelar meta</Text>
-                </TouchableOpacity>
-              </View>
+              {/* Editar meta: botão grande abaixo */}
+              <Pressable
+                onPress={() => setEditando(true)}
+                accessibilityRole="button"
+                style={({ pressed }) => [
+                  styles.botaoSecundario,
+                  { marginTop: 12, marginBottom: 14 },
+                  pressed && styles.botaoPressionado,
+                ]}
+              >
+                <Text style={styles.textoBotaoSecundario}>
+                  Editar meta
+                </Text>
+              </Pressable>
             </>
           ) : null}
 
-          {/* HISTÓRICO de movimentações dessa meta */}
+          {/* Histórico */}
           <View style={styles.historico}>
             <Text style={styles.tituloHistorico}>
               Histórico
             </Text>
 
             {meta.movimentacoes.length === 0 ? (
-              <Text style={styles.vazio}>Nenhuma movimentação ainda.</Text>
+              <Text style={styles.vazio}>
+                Nenhuma movimentação ainda.
+              </Text>
             ) : (
               movimentacoes.map((item) => {
                 const deposito = item.tipo === "deposito";
 
                 return (
                   <View key={item.id}>
-
-                    {/* Data da movimentação */}
                     <Text style={styles.data}>
                       {formatarDataCurta(item.data)}
                     </Text>
 
-                    {/* Card com os dados da movimentação */}
                     <Card
-                      gradiente={["#482287", "#281542"]}
+                      gradiente={[
+                        "rgba(44, 27, 67, 0.92)",
+                        "rgba(44, 27, 67, 0.92)",
+                      ]}
                       style={styles.cardHistorico}
                     >
                       <View style={styles.linhaHistorico}>
-
-                        {/* + (depósito) ou − (retirada) */}
                         <View
                           style={[
                             reserva.circuloMovimentacao,
@@ -743,16 +777,23 @@ export default function MetasDetalhes() {
                           ]}
                         >
                           {deposito ? (
-                            <Plus size={16} color={Cores.destaque.limao} />
+                            <Plus
+                              size={18}
+                              color={Cores.destaque.limao}
+                            />
                           ) : (
-                            <Minus size={16} color={Cores.roxo.claro} />
+                            <Minus
+                              size={18}
+                              color={Cores.roxo.claro}
+                            />
                           )}
                         </View>
 
-                        {/* Tipo + horário */}
-                        <View>
+                        <View style={{ flexShrink: 1 }}>
                           <Text style={styles.tipoDeposito}>
-                            {deposito ? "Depósito" : "Retirada"}
+                            {deposito
+                              ? "Depósito"
+                              : "Retirada"}
                           </Text>
 
                           <Text style={styles.horario}>
@@ -760,22 +801,28 @@ export default function MetasDetalhes() {
                           </Text>
                         </View>
 
-                        {/* Valor da movimentação */}
-                        <Text style={styles.valorDeposito}>
-                          {deposito ? "+" : "-"} {formatarMoeda(item.valor)}
+                        <Text
+                          style={styles.valorDeposito}
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                        >
+                          {deposito ? "+" : "-"}{" "}
+                          {formatarMoeda(item.valor)}
                         </Text>
-
                       </View>
                     </Card>
-
                   </View>
                 );
               })
             )}
 
-            {/* "Ver mais" / "Ver menos" — só aparece se tem mais do que cabe */}
-            {meta.movimentacoes.length > MOVIMENTACOES_VISIVEIS ? (
-              <TouchableOpacity onPress={() => setVerTodas((atual) => !atual)}>
+            {meta.movimentacoes.length >
+            MOVIMENTACOES_VISIVEIS ? (
+              <TouchableOpacity
+                onPress={() =>
+                  setVerTodas((atual) => !atual)
+                }
+              >
                 <Text style={styles.verMais}>
                   {verTodas ? "Ver menos" : "Ver mais"}
                 </Text>
@@ -783,10 +830,28 @@ export default function MetasDetalhes() {
             ) : null}
           </View>
 
+          {/* Cancelar meta: depois de todo o Histórico */}
+          {emAndamento && (
+            <Pressable
+              onPress={() => setModal("cancelar")}
+              accessibilityRole="button"
+              style={({ pressed }) => [
+                styles.botaoCancelar,
+                {
+                  marginTop: 24,
+                  marginBottom: 12,
+                },
+                pressed && styles.botaoPressionado,
+              ]}
+            >
+              <Text style={styles.textoBotaoCancelar}>
+                Cancelar meta
+              </Text>
+            </Pressable>
+          )}
         </View>
       </ScrollView>
 
-      {/* Cards flutuantes: depositar, retirar, aviso de saldo e cancelar meta */}
       <ModalReserva
         tipo={modal}
         saldo={meta.valorAtual}
@@ -795,7 +860,6 @@ export default function MetasDetalhes() {
         aoConfirmar={confirmarModal}
       />
 
-      {/* Editar meta: nome, tipo, valor, reiniciar e salvar */}
       <ModalEditarMeta
         visivel={editando}
         meta={meta}
@@ -804,7 +868,6 @@ export default function MetasDetalhes() {
         aoReiniciar={reiniciarMeta}
       />
 
-      {/* "Meta alcançada!" quando o depósito completa o valor */}
       <MetasFrame
         visible={alcancada}
         tipo="alcancada"

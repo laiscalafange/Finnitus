@@ -1,6 +1,10 @@
+
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
+
+const FUNDO_CARD = 'rgba(72, 34, 135, 0.55)'
+const BORDA_CARD = 'rgba(163, 87, 255, 0.3)'
 
 export const styles = StyleSheet.create({
   container: {
@@ -19,7 +23,7 @@ export const styles = StyleSheet.create({
     paddingTop: 8,
   },
 
-  // ── NAV ANÁLISES / HISTÓRICO ───────────────────────────
+  // ANÁLISES / HISTÓRICO
 
   navRow: {
     flexDirection: 'row',
@@ -36,6 +40,9 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: FUNDO_CARD,
+    borderWidth: 1,
+    borderColor: BORDA_CARD,
   },
 
   navIconeS: {
@@ -57,7 +64,7 @@ export const styles = StyleSheet.create({
   navTextoEsquerda: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 14,
-    color: Cores.roxo.principal,
+    color: Cores.texto.claro,
     textAlign: 'left',
     marginTop: 6,
   },
@@ -65,12 +72,12 @@ export const styles = StyleSheet.create({
   navTextoDireita: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 14,
-    color: Cores.roxo.principal,
+    color: Cores.texto.claro,
     textAlign: 'right',
     marginTop: 6,
   },
 
-  // ── SEÇÃO ────────────────────────────────────────────────
+  // TÍTULOS
 
   secaoTitulo: {
     fontFamily: FONTS.raleway.extrabold,
@@ -79,7 +86,7 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  // ── METAS DO MÊS ─────────────────────────────────────────
+  // METAS DO MÊS
 
   metasLista: {
     marginBottom: 28,
@@ -100,16 +107,18 @@ export const styles = StyleSheet.create({
     marginTop: 8,
   },
 
-  // Wrapper novo: o TouchableOpacity precisa de flex: 1 pra
-  // o card continuar ocupando o espaço disponível na linha
   metaCardWrapper: {
     flex: 1,
   },
 
   metaCard: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 14,
+    backgroundColor: FUNDO_CARD,
+    borderWidth: 1,
+    borderColor: BORDA_CARD,
+    overflow: 'hidden',
   },
 
   metaHeader: {
@@ -124,6 +133,8 @@ export const styles = StyleSheet.create({
     height: 32,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(163, 87, 255, 0.18)',
+    borderRadius: 10,
   },
 
   metaIcone: {
@@ -151,7 +162,6 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  // Opção "Excluir meta" que aparece ao tocar no ⋮
   metaMenuOpcao: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -159,7 +169,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 12,
-    backgroundColor: Cores.overlay.medio,
+    backgroundColor: 'rgba(163, 87, 255, 0.20)',
   },
 
   metaMenuTexto: {
@@ -168,17 +178,21 @@ export const styles = StyleSheet.create({
     color: Cores.texto.claro,
   },
 
-  // Card quando não há nenhuma meta do mês
+  // QUANDO NÃO HÁ METAS
+
   semMetaCard: {
     borderRadius: 16,
     padding: 16,
     gap: 4,
+    backgroundColor: FUNDO_CARD,
+    borderWidth: 1,
+    borderColor: BORDA_CARD,
   },
 
   semMetaTitulo: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 15,
-    color: Cores.texto.claro,
+    color: Cores.base.branco,
   },
 
   semMetaTexto: {
@@ -187,10 +201,12 @@ export const styles = StyleSheet.create({
     color: Cores.texto.claro,
   },
 
+  // PROGRESSO
+
   metaBarraFundo: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: Cores.overlay.medio,
+    backgroundColor: 'rgba(163, 87, 255, 0.20)',
     overflow: 'hidden',
     marginBottom: 8,
   },
@@ -218,7 +234,8 @@ export const styles = StyleSheet.create({
     color: Cores.texto.claro,
   },
 
-  // ── METAS LONGO PRAZO ────────────────────────────────────
+  // METAS DE LONGO PRAZO
+
   longoPrazoGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -230,6 +247,9 @@ export const styles = StyleSheet.create({
     width: '31%',
     aspectRatio: 1,
     borderRadius: 20,
+    backgroundColor: FUNDO_CARD,
+    borderWidth: 1,
+    borderColor: BORDA_CARD,
     overflow: 'hidden',
   },
 
@@ -245,17 +265,21 @@ export const styles = StyleSheet.create({
     color: Cores.texto.claro,
   },
 
+  // ADICIONAR META
+
   adicionarCard: {
     flex: 1,
     borderRadius: 20,
-    backgroundColor: Cores.fundo.cardAlt,
+    backgroundColor: FUNDO_CARD,
+    borderWidth: 1,
+    borderColor: BORDA_CARD,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   adicionarTexto: {
     fontSize: 32,
-    color: Cores.texto.secundario,
+    color: Cores.destaque.limao,
     fontFamily: FONTS.quicksand.regular,
   },
 })

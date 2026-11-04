@@ -1,71 +1,89 @@
+
 import { StyleSheet } from "react-native";
 
 import { Cores } from "@/shared/constants/Cores";
 import { FONTS } from "@/shared/constants/Tipografia";
 
-// Estilos compartilhados pelas telas de formulário do botão "+"
-// (Novo imprevisto, Novo gasto e Novo evento). Segue o mesmo padrão das
-// telas de conta (dadosBancarios, editarConta).
 export const styles = StyleSheet.create({
-  // Ocupa a tela toda (gradiente de fundo + área do teclado)
   container: {
     flex: 1,
   },
 
-  // Conteúdo do ScrollView, só um espaço no final pra não colar no fim da tela
+  // Menos espaço desperdiçado no final
   conteudo: {
-    paddingBottom: 30,
+    flexGrow: 1,
+    paddingBottom: 24,
   },
 
-  // Área do conteúdo, logo abaixo do cabeçalho discreto (HeaderInterno)
+  // Formulário mais próximo do cabeçalho
   formulario: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingHorizontal: 18,
+    paddingTop: 2,
+    paddingBottom: 12,
+    gap: 10,
   },
 
-  // Prefixo "R$" dos campos de valor (mesmo estilo da tela de criação de meta)
+  // Prefixo monetário discreto, mantendo o destaque verde
   prefixoMoeda: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 16,
+    fontSize: 15,
     color: Cores.destaque.limao,
   },
 
-  // Mensagem de erro de validação, acima dos botões
+  // Erros legíveis sem ocupar muito espaço
   erro: {
-    color: "#ffb4b4",
-    fontSize: 14,
+    color: "#FFB4B4",
+    fontSize: 13,
     fontFamily: FONTS.quicksand.semibold,
-    marginBottom: 12,
+    marginTop: 2,
+    marginBottom: 4,
   },
 
-  // Linha de "Repetir mensalmente" (texto + switch), com a mesma aparência
-  // dos campos do Input
+  // Caixa mais compacta e com roxo suave
   linhaSwitch: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: Cores.fundo.principal,
-    borderWidth: 1.5,
-    borderColor: Cores.roxo.claro,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    height: 64,
-    marginBottom: 16,
+
+    backgroundColor: "rgba(29, 19, 44, 0.78)",
+
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.30)",
+    borderRadius: 12,
+
+    paddingHorizontal: 14,
+    minHeight: 52,
+
+    marginTop: 2,
+    marginBottom: 6,
   },
 
   textoSwitch: {
     fontFamily: FONTS.quicksand.bold,
-    fontSize: 15,
+    fontSize: 14,
     color: Cores.base.branco,
   },
 
-  // Dois botões lado a lado (Cancelar | Salvar transação)
+  // Texto auxiliar do Novo evento
+  textoAjuda: {
+    fontFamily: FONTS.quicksand.medium,
+    color: "#C7A9F5",
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 0,
+    marginBottom: 6,
+    paddingHorizontal: 2,
+  },
+
+  // Botões mais próximos e equilibrados
   linhaBotoes: {
     flexDirection: "row",
-    gap: 12,
+    gap: 10,
+    marginTop: 4,
   },
 
   colunaBotao: {
     flex: 1,
+    minWidth: 0,
   },
 });
