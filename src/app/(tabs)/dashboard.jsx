@@ -2,7 +2,7 @@ import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { GRADIENTS } from '../../shared/constants/Gradientes'
-import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
+import { VictoryArea, VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
 import Svg, { Circle } from 'react-native-svg'
 import { useState } from 'react'
 import { useRouter } from 'expo-router'
@@ -14,14 +14,23 @@ import {
   DASHBOARD_MOCK,
   ESTATISTICAS_MOCK,
   PLANOB_MOCK,
+  SALDO_MOCK,
+  DADOS_AREA_MOCK,
+  DADOS_AREA_COMPARACAO_MOCK,
+  PERFORMANCE_MOCK,
 } from '../../shared/components/Mocks'
 
 import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
 import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
 import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
+import { PerformanceGauge } from '../../shared/components/PlanoB/PerformanceGauge'
+import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
 import { useFinanceiro } from '../../features/financeiroContext'
+import { calcularRotas, montarCardsRotas } from '../../features/rotasDatas'
 import { calcularSumario, calcularAtividade } from '../../features/sumarioData'
 import { styles } from '../../styles/dashboardstyle'
+// Estilos dos cards que vieram do Plano-B (gráficos, Performance e Rotas)
+import { styles as stylesPlanoB } from '../../styles/Planobstyle'
 
 import coroaIcon from '../../../assets/icones/coroa.png'
 import sinoIcon from '../../../assets/icones/sino.png'
@@ -135,6 +144,9 @@ export default function Dashboard() {
   const { transacoes, salario, metas } = useFinanceiro()
   const sumario = calcularSumario(transacoes, metas, salario)
   const atividade = calcularAtividade(transacoes, metas)
+
+  // Rotas calculadas com o que a pessoa registrou no Novo gasto
+  const cardsRotas = montarCardsRotas(calcularRotas(transacoes, salario))
 
   const [periodo, setPeriodo] = useState('semanal')
   const [diaSelecionado, setDiaSelecionado] = useState(
@@ -556,6 +568,229 @@ export default function Dashboard() {
             restante={PLANOB_MOCK.restante}
             categorias={PLANOB_MOCK.categorias}
           />
+
+          {/* =====================================================
+              COMPONENTES QUE ERAM DA TELA PLANO-B ANTIGA
+              (Sumário, Atividade e o card Plano-B já existiam aqui,
+              por isso não foram repetidos)
+          ===================================================== */}
+
+          {/* MINI GRÁFICOS */}
+
+          <View style={stylesPlanoB.areaRow}>
+            <LinearGradient
+              colors={['#3c1e75bd', '#30096e']}
+              style={stylesPlanoB.areaCard}
+            >
+              <Text style={stylesPlanoB.areaValor}>
+                Restante:                 R${' '}
+                {SALDO_MOCK.maximoDisponivel.toLocaleString('pt-BR', {
+                  minimumFractionDigits: 2,
+                })}
+              </Text>
+
+              <VictoryArea
+                data={DADOS_AREA_MOCK}
+                style={{
+                  data: {
+                    fill: Cores.destaque.limao,
+                    fillOpacity: 0.4,
+                    stroke: Cores.destaque.limao,
+                    strokeWidth: 2,
+                  },
+                }}
+                height={80}
+                width={197}
+                padding={0}
+              />
+            </LinearGradient>
+
+            <LinearGradient
+              colors={['#3c1e75bd', '#30096e']}
+              style={stylesPlanoB.areaCard}
+            >
+              <Text style={stylesPlanoB.areaValor}>
+                Gastos:                      R${' '}
+                {SALDO_MOCK.atual.toLocaleString('pt-BR', {
+                  minimumFractionDigits: 2,
+                })}
+              </Text>
+
+              <VictoryArea
+                data={DADOS_AREA_COMPARACAO_MOCK}
+                style={{
+                  data: {
+                    fill: '#FF8800',
+                    fillOpacity: 0.4,
+                    stroke: '#FF8800',
+                    strokeWidth: 2,
+                  },
+                }}
+                height={80}
+                width={197}
+                padding={0}
+              />
+            </LinearGradient>
+          </View>
+
+          {/* PERFORMANCE */}
+
+          <Text style={styles.secaoTitulo}>Performance</Text>
+
+          <LinearGradient
+            colors={['#3c1e75bd', '#30096e']}
+            style={stylesPlanoB.card}
+          >
+            <View style={stylesPlanoB.performanceHeader}>
+              {/* MÊS ATUAL */}
+              <View style={stylesPlanoB.performanceMes}>
+                <Text style={stylesPlanoB.performanceSub}>
+                  {PERFORMANCE_MOCK.atual.label}
+                </Text>
+
+                <Text style={stylesPlanoB.performanceData}>
+                  {PERFORMANCE_MOCK.atual.periodo}
+                </Text>
+              </View>
+
+              {/* MÊS ANTERIOR */}
+              <View style={stylesPlanoB.performanceMes}>
+                <Text style={stylesPlanoB.performanceSub}>
+                  {PERFORMANCE_MOCK.anterior.label}
+                </Text>
+
+                <Text style={stylesPlanoB.performanceData}>
+                  {PERFORMANCE_MOCK.anterior.periodo}
+                </Text>
+              </View>
+            </View>
+
+            <View style={stylesPlanoB.performanceInfo}>
+              {/* MÊS ATUAL */}
+              <View style={stylesPlanoB.performanceItem}>
+                <PerformanceGauge
+                  label={PERFORMANCE_MOCK.atual.status}
+                  percentual={PERFORMANCE_MOCK.atual.percentualGauge}
+                  cor={PERFORMANCE_MOCK.atual.cor}
+                  variacao={PERFORMANCE_MOCK.atual.variacaoGastos}
+                  styles={stylesPlanoB}
+                />
+
+                <Text
+                  style={[
+                    stylesPlanoB.performanceValor,
+                    { color: PERFORMANCE_MOCK.atual.cor },
+                  ]}
+                >
+                  Gastos{' '}
+                  :{PERFORMANCE_MOCK.atual.gastos > 0 ? '+' : ''}
+                  {PERFORMANCE_MOCK.atual.gastos}%
+                </Text>
+
+                <Text
+                  style={[
+                    stylesPlanoB.performanceValor,
+                    { color: PERFORMANCE_MOCK.atual.cor },
+                  ]}
+                >
+                  Economias{' '}
+                  : {PERFORMANCE_MOCK.atual.economias > 0 ? '+' : ''}
+                  {PERFORMANCE_MOCK.atual.economias}%
+                </Text>
+              </View>
+
+              <View style={stylesPlanoB.divisorVertical} />
+
+              {/* MÊS PASSADO */}
+              <View style={stylesPlanoB.performanceItem}>
+                <PerformanceGauge
+                  label={PERFORMANCE_MOCK.anterior.status}
+                  percentual={PERFORMANCE_MOCK.anterior.percentualGauge}
+                  cor={PERFORMANCE_MOCK.anterior.cor}
+                  variacao={PERFORMANCE_MOCK.anterior.variacaoGastos}
+                  styles={stylesPlanoB}
+                />
+
+                <Text
+                  style={[
+                    stylesPlanoB.performanceValor,
+                    { color: PERFORMANCE_MOCK.anterior.cor },
+                  ]}
+                >
+                  Gastos{' '}
+                  {PERFORMANCE_MOCK.anterior.gastos > 0 ? '+' : ''}
+                  :  {PERFORMANCE_MOCK.anterior.gastos}%
+                </Text>
+
+                <Text
+                  style={[
+                    stylesPlanoB.performanceValor,
+                    { color: PERFORMANCE_MOCK.anterior.cor },
+                  ]}
+                >
+                  Economias{' '}
+                  : {PERFORMANCE_MOCK.anterior.economias > 0 ? '+' : ''}
+                  {PERFORMANCE_MOCK.anterior.economias}%
+                </Text>
+              </View>
+            </View>
+          </LinearGradient>
+
+          {/* ROTAS */}
+
+          <Text style={styles.secaoTitulo}>Rotas</Text>
+
+          <View style={stylesPlanoB.duploRow}>
+            {/* Toque no card Gastos atuais abre a tela Rotas de gastos
+                já na versão "Gastos atuais" */}
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir rotas de gastos atuais"
+              onPress={() =>
+                router.push({
+                  pathname: Rotas.rotasGastos,
+                  params: { versao: 'atuais' },
+                })
+              }
+            >
+              <RotasCard
+                titulo={cardsRotas.atuais.titulo}
+                total={cardsRotas.atuais.total}
+                categorias={cardsRotas.atuais.categorias}
+                sobra={cardsRotas.atuais.sobra}
+                sobraTexto={cardsRotas.atuais.sobraTexto}
+                vazio={cardsRotas.atuais.vazio}
+                styles={stylesPlanoB}
+              />
+            </TouchableOpacity>
+
+            {/* Toque no card Recomendado abre a tela Rotas de gastos
+                já na versão "Recomendado" */}
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Abrir rotas de gastos recomendados"
+              onPress={() =>
+                router.push({
+                  pathname: Rotas.rotasGastos,
+                  params: { versao: 'recomendado' },
+                })
+              }
+            >
+              <RotasCard
+                titulo={cardsRotas.recomendado.titulo}
+                total={cardsRotas.recomendado.total}
+                categorias={cardsRotas.recomendado.categorias}
+                sobra={cardsRotas.recomendado.sobra}
+                sobraTexto={cardsRotas.recomendado.sobraTexto}
+                vazio={cardsRotas.recomendado.vazio}
+                styles={stylesPlanoB}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
   </View>
