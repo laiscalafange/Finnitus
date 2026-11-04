@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 import {
@@ -18,51 +19,18 @@ import { Input } from "@/shared/components/Input";
 import { Cores } from "@/shared/constants/Cores";
 
 import type { CategoriaItem } from "../../types";
-// Overlay, card, X e título iguais aos do ModalReserva (mesmo visual)
 import { styles as modalBase } from "../ModalReserva/styles";
 import { styles } from "./styles";
 
-// Textos do modal. O padrão é o de categorias; outras telas (ex.: tipos de
-// imprevisto) passam os próprios textos.
-export type TextosCategoria = {
-  titulo: string;
-  criar: string;
-  rotuloCampo: string;
-  placeholder: string;
-  botaoCriar: string;
-  semNome: string;
-  jaExiste: string;
-  falhou: string;
-};
-
-export const TEXTOS_CATEGORIA: TextosCategoria = {
-  titulo: "Outras categorias",
-  criar: "+ Criar categoria",
-  rotuloCampo: "Nova categoria",
-  placeholder: "Ex: Assinaturas",
-  botaoCriar: "Criar categoria",
-  semNome: "Digite o nome da categoria.",
-  jaExiste: "Essa categoria já existe.",
-  falhou: "Não foi possível criar a categoria.",
-};
-
 type Props = {
   visivel: boolean;
-  // Categorias da lista (extras + as criadas pela pessoa)
   opcoes: CategoriaItem[];
-  // id da categoria marcada (null = nenhuma)
   selecionada: string | null;
   aoFechar: () => void;
   aoSelecionar: (id: string) => void;
-  // Cria a categoria. Retorna a mensagem de erro ou null se deu certo
-  // (nesse caso quem chamou já fecha o modal)
   aoCriar: (nome: string) => string | null;
-  textos?: TextosCategoria;
 };
 
-// Modal do card "Outros": lista de categorias com caixinha de marcar (escolhe
-// uma) e, no final, o botão "+ Criar categoria", que mostra o campo de texto
-// e o botão pra criar uma nova.
 export function ModalOutrasCategorias({
   visivel,
   opcoes,
@@ -70,13 +38,11 @@ export function ModalOutrasCategorias({
   aoFechar,
   aoSelecionar,
   aoCriar,
-  textos = TEXTOS_CATEGORIA,
 }: Props) {
   const [criando, setCriando] = useState(false);
   const [nome, setNome] = useState("");
   const [erro, setErro] = useState("");
 
-  // Sempre que o modal abre, volta ao estado inicial (sem campo de texto)
   useEffect(() => {
     if (visivel) {
       setCriando(false);
@@ -100,16 +66,20 @@ export function ModalOutrasCategorias({
       animationType="fade"
       onRequestClose={aoFechar}
     >
-      {/* Sobe o card quando o teclado abre (campo de nova categoria) */}
       <KeyboardAvoidingView
         style={modalBase.overlay}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* Fundo escurecido: tocar fora fecha */}
-        <Pressable style={modalBase.fundo} onPress={aoFechar} />
+        <Pressable
+          style={modalBase.fundo}
+          onPress={aoFechar}
+        />
 
         <Card
-          gradiente={["rgba(73, 38, 155, 0.95)", "rgba(45, 17, 108, 0.95)"]}
+          gradiente={[
+            "rgba(67, 31, 114, 0.92)",
+            "rgba(44, 27, 67, 0.92)",
+          ]}
           style={modalBase.card}
         >
           <Pressable
@@ -119,12 +89,13 @@ export function ModalOutrasCategorias({
             accessibilityRole="button"
             accessibilityLabel="Fechar"
           >
-            <X size={22} color={Cores.texto.claro} />
+            <X size={25} color={Cores.texto.claro} />
           </Pressable>
 
-          <Text style={modalBase.titulo}>{textos.titulo}</Text>
+          <Text style={modalBase.titulo}>
+            Outras categorias
+          </Text>
 
-          {/* Lista de categorias (rola se for grande) */}
           <ScrollView
             style={styles.lista}
             showsVerticalScrollIndicator={false}
@@ -140,20 +111,36 @@ export function ModalOutrasCategorias({
                   accessibilityRole="checkbox"
                   accessibilityState={{ checked: marcada }}
                   onPress={() => aoSelecionar(opcao.id)}
-                  style={[styles.linha, marcada && styles.linhaMarcada]}
+                  style={[
+                    styles.linha,
+                    marcada && styles.linhaMarcada,
+                  ]}
                 >
-                  {/* Caixinha de marcar */}
-                  <View style={[styles.caixa, marcada && styles.caixaMarcada]}>
+                  <View
+                    style={[
+                      styles.caixa,
+                      marcada && styles.caixaMarcada,
+                    ]}
+                  >
                     {marcada ? (
-                      <Check size={14} color={Cores.texto.contraste} />
+                      <Check
+                        size={14}
+                        color={Cores.texto.contraste}
+                      />
                     ) : null}
                   </View>
 
-                  <Icone size={20} color={Cores.destaque.limao} />
+                  <Icone
+                    size={20}
+                    color={Cores.destaque.limao}
+                  />
 
                   <Text
                     numberOfLines={1}
-                    style={[styles.nome, marcada && styles.nomeMarcado]}
+                    style={[
+                      styles.nome,
+                      marcada && styles.nomeMarcado,
+                    ]}
                   >
                     {opcao.rotulo}
                   </Text>
@@ -162,19 +149,17 @@ export function ModalOutrasCategorias({
             })}
           </ScrollView>
 
-          {/* Botão simples no final da lista */}
           <Button
-            titulo={textos.criar}
+            titulo="+ Criar categoria"
             variante="botaotexto"
             onPress={() => setCriando(true)}
           />
 
-          {/* Campo de texto + botão, embaixo do "+ Criar categoria" */}
           {criando ? (
             <View style={styles.areaCriar}>
               <Input
-                label={textos.rotuloCampo}
-                placeholder={textos.placeholder}
+                label="Nova categoria"
+                placeholder="Ex: Assinaturas"
                 value={nome}
                 onChangeText={(texto) => {
                   setNome(texto);
@@ -185,7 +170,11 @@ export function ModalOutrasCategorias({
                 erro={erro}
               />
 
-              <Button titulo={textos.botaoCriar} onPress={criar} />
+              <Button
+                titulo="Criar categoria"
+                tamanho="compacto"
+                onPress={criar}
+              />
             </View>
           ) : null}
         </Card>

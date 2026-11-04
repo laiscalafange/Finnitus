@@ -3,7 +3,7 @@ import {
 } from "../../features/calendar/utils/classificarEventoFinanceiro";
 
 import {
-  Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
+  Alert, Animated, Easing, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
   Text, TextInput, TouchableOpacity, View, Modal,
 } from "react-native";
 
@@ -17,7 +17,7 @@ import Svg, { Circle } from "react-native-svg";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   listarItensCalendario,
@@ -163,6 +163,10 @@ const estilosEvento = StyleSheet.create({
   cardEvento: {
     padding: 16,
     marginBottom: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    overflow: "hidden",
   },
 
   // Cada evento do card: só espaço entre eles (sem a linha roxa embaixo)
@@ -194,8 +198,8 @@ const estilosEvento = StyleSheet.create({
     padding: 12,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: Cores.overlay.medio,
-    backgroundColor: Cores.overlay.suave,
+    borderColor: 'rgba(72, 34, 135, 0.55)',
+    backgroundColor:  'rgba(73, 34, 135, 0.32)',
   },
 
   eventoMovTitulo: {
@@ -207,7 +211,7 @@ const estilosEvento = StyleSheet.create({
   eventoMovDetalhe: {
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 14,
-    color: Cores.base.branco,
+    color:Cores.texto.claro,
     marginTop: 4,
   },
 
@@ -229,6 +233,8 @@ const estilosEvento = StyleSheet.create({
     flex: 1,
     height: 40,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(91, 62, 137, 0.55)',
     overflow: "hidden",
   },
 
@@ -251,8 +257,8 @@ const estilosEvento = StyleSheet.create({
     height: 40,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Cores.overlay.intenso,
-    backgroundColor: Cores.overlay.suave,
+    borderColor:'rgba(91, 62, 137, 0.55)',
+    backgroundColor:'rgba(72, 34, 135, 0.55)',
     paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -271,8 +277,8 @@ const estilosEvento = StyleSheet.create({
     height: 36,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Cores.overlay.intenso,
-    backgroundColor: Cores.overlay.suave,
+    borderColor: "rgba(163, 87, 255, 0.25)",
+    backgroundColor: "rgba(72, 34, 135, 0.55)",
     paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
@@ -339,7 +345,17 @@ const estilosEvento = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: Cores.roxo.claro,
-    backgroundColor: Cores.overlay.cardForte,
+    backgroundColor: "#38205B",
+    overflow: "hidden",
+  },
+
+  modalTipoIndicador: {
+    position: "absolute",
+    top: 3,
+    bottom: 3,
+    left: 3,
+    borderRadius: 11,
+    backgroundColor: Cores.destaque.limao,
   },
 
   modalTipoOpcao: {
@@ -348,6 +364,7 @@ const estilosEvento = StyleSheet.create({
     borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 1,
   },
 
   modalTipoTexto: {
@@ -592,6 +609,18 @@ const [
 ] = useState<"RECEITA" | "DESPESA">(
   "DESPESA"
 );
+
+  const deslocamentoTipo = useRef(new Animated.Value(0)).current;
+  const [larguraAlternador, setLarguraAlternador] = useState(0);
+
+  useEffect(() => {
+    Animated.timing(deslocamentoTipo, {
+      toValue: tipoRevisao === "RECEITA" ? 1 : 0,
+      duration: 250,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [tipoRevisao, deslocamentoTipo]);
 
 const [
   valorRevisao,
@@ -1383,10 +1412,7 @@ function formatarValorCalendario(
           {/* ───────── EVENTOS ───────── */}
 
           <Card
-            gradiente={[
-              "rgba(73, 38, 155, 0.97)",
-              "rgba(45, 17, 108, 0.97)",
-            ]}
+            gradiente={["rgba(73, 34, 135, 0.3)", "rgba(72, 34, 135, 0.55)"]}
             style={estilosEvento.cardEvento}
           >
             <View style={styles.eventoHeader}>
@@ -1557,7 +1583,7 @@ const ehSuspeito =
                       style={estilosEvento.eventoBotaoPrimario}
                     >
                       <LinearGradient
-                        colors={["#482287", "#7E3BED"]}
+                        colors={["#482287", "#482287"]}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                         style={estilosEvento.eventoBotaoPrimarioFundo}
@@ -1764,7 +1790,7 @@ const ehSuspeito =
           accessibilityHint="Abre os campos de descrição, valor e data para edição"
         >
           <LinearGradient
-            colors={["#30096e", "#30096e"]}
+            colors={["rgba(72, 34, 135, 0.55)", "rgba(72, 34, 135, 0.55)"]}
             style={styles.gastoCard}
           >
           <View
@@ -1877,10 +1903,7 @@ const ehSuspeito =
 </Text>
 
 <LinearGradient
-  colors={[
-    "#34176b",
-    "#30096e",
-  ]}
+  colors={["rgba(72, 34, 135, 0.55)", "rgba(72, 34, 135, 0.55)"]}
   style={styles.card}
 >
   <View style={styles.gastosMesCorpo}>
@@ -2037,7 +2060,7 @@ const ehSuspeito =
             onPress={() => { if (!salvandoEdicao) setMovimentacaoEmEdicao(null); }}
           />
           <Card
-            gradiente={["rgba(73, 38, 155, 0.97)", "rgba(45, 17, 108, 0.97)"]}
+            gradiente={["#2C1B43", "#2C1B43"]}
             style={estilosEvento.modalCard}
           >
             <ScrollView
@@ -2090,7 +2113,7 @@ const ehSuspeito =
                   style={[estilosEvento.eventoBotaoPrimario, { opacity: salvandoEdicao ? 0.6 : 1 }]}
                 >
                   <LinearGradient
-                    colors={["#482287", "#7E3BED"]}
+                    colors={["rgba(73, 34, 135, 0.26)", "rgba(72, 34, 135, 0.55)"]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={estilosEvento.eventoBotaoPrimarioFundo}
@@ -2125,10 +2148,7 @@ const ehSuspeito =
           />
 
           <Card
-            gradiente={[
-              "rgba(73, 38, 155, 0.97)",
-              "rgba(45, 17, 108, 0.97)",
-            ]}
+            gradiente={["#2c1b43d3", "#2C1B43"]}
             style={estilosEvento.modalCard}
           >
             {/* Rolagem: se o teclado abrir, ainda dá pra chegar nos botões */}
@@ -2146,7 +2166,27 @@ const ehSuspeito =
 
               <Text style={estilosEvento.modalRotulo}>Tipo</Text>
 
-              <View style={estilosEvento.modalTipo}>
+              <View
+                style={estilosEvento.modalTipo}
+                onLayout={(event) => setLarguraAlternador(event.nativeEvent.layout.width)}
+              >
+                {larguraAlternador > 0 && (
+                  <Animated.View
+                    pointerEvents="none"
+                    style={[
+                      estilosEvento.modalTipoIndicador,
+                      {
+                        width: (larguraAlternador - 6) / 2,
+                        transform: [{
+                          translateX: deslocamentoTipo.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, (larguraAlternador - 6) / 2],
+                          }),
+                        }],
+                      },
+                    ]}
+                  />
+                )}
                 {(["DESPESA", "RECEITA"] as const).map((opcao) => {
                   const ativo = tipoRevisao === opcao;
 
@@ -2158,7 +2198,6 @@ const ehSuspeito =
                       onPress={() => setTipoRevisao(opcao)}
                       style={[
                         estilosEvento.modalTipoOpcao,
-                        ativo && { backgroundColor: Cores.destaque.limao },
                       ]}
                     >
                       <Text
@@ -2301,7 +2340,7 @@ const ehSuspeito =
                   style={estilosEvento.eventoBotaoPrimario}
                 >
                   <LinearGradient
-                    colors={["#482287", "#7E3BED"]}
+                    colors={['rgba(72, 34, 135, 0.55)','rgba(72, 34, 135, 0.55)']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={estilosEvento.eventoBotaoPrimarioFundo}

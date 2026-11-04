@@ -1,7 +1,19 @@
-import { ScrollView, Text, View, useWindowDimensions } from "react-native";
 
-import { Lightbulb } from "lucide-react-native";
-import { VictoryAxis, VictoryBar, VictoryChart } from "victory-native";
+import { useMemo } from "react";
+import {
+  ScrollView,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+
+import { Lightbulb, Wallet } from "lucide-react-native";
+import {
+  VictoryAxis,
+  VictoryBar,
+  VictoryChart,
+  VictoryLabel,
+} from "victory-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
@@ -13,221 +25,485 @@ import { FONTS } from "../../shared/constants/Tipografia";
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
 import { useFinanceiro } from "@/features/financeiroContext";
-import { habitoGuardar, percentualMeta } from "@/features/metasData";
+import {
+  habitoGuardar,
+  percentualMeta,
+} from "@/features/metasData";
+
 import { styles } from "../../styles/Metasanalises";
 
-// Roxo mais suave e translúcido (deixa o fundo da tela aparecer), no mesmo
-// tom dos cards roxos do restante do app em vez do roxo forte de antes
 const GRADIENTE_CARD: [string, string] = [
-  "rgba(72, 34, 135, 0.55)",
-  "rgba(48, 9, 110, 0.40)",
+  "rgba(44, 27, 67, 0.94)",
+  "rgba(44, 27, 67, 0.90)",
 ];
 
-// A meta com maior progresso fica em verde-limão, mas só se passou desse %
+const VERDE = Cores.destaque.limao;
+const LILAS = "#C7A9F5";
+const ROXO = "#A357FF";
+
 const PERCENTUAL_DESTAQUE = 75;
 
-// Tela "Análises" de Metas: resumo, progresso de cada meta em andamento,
-// hábito de guardar por mês e uma dica. Aberta pelo botão "Análises" da
-// tela Metas.
+function moedaSegura(valor: unknown): string {
+  const numero = Number(valor);
+
+  if (!Number.isFinite(numero)) {
+    return "—";
+  }
+
+  return formatarMoeda(numero);
+}
+
+function valorCompacto(valor: number): string {
+  if (valor >= 1000000) {
+    return `R$ ${(valor / 1000000)
+      .toFixed(1)
+      .replace(".", ",")} mi`;
+  }
+
+  if (valor >= 1000) {
+    return `R$ ${(valor / 1000)
+      .toFixed(1)
+      .replace(".", ",")} mil`;
+  }
+
+  return `R$ ${Math.round(valor).toLocaleString("pt-BR")}`;
+}
+
 export default function MetasAnalises() {
   const { width: larguraTela } = useWindowDimensions();
-
-  // Mesma largura do gráfico da Home: cabe dentro do card
-  const larguraGrafico = Math.max(280, larguraTela - 70);
-
-  // As mesmas metas das outras telas de Metas (FinanceiroProvider)
   const { metas } = useFinanceiro();
 
-  // Metas em andamento: as do mês + as de longo prazo
-  const emAndamento = metas
-    .filter((meta) => meta.status === "andamento")
-    .map((meta) => ({
-      id: meta.id,
-      nome: meta.nome,
-      categoriaId: meta.categoriaId ?? "outros",
-      valorAtual: meta.valorAtual,
-      pct: percentualMeta(meta),
-    }));
+  const emAndamento = useMemo(
+    () =>
+      metas
+        .filter((meta) => meta.status === "andamento")
+        .map((meta) => {
+          const valorAtual = Number(meta.valorAtual) || 0;
 
-  const totalGuardado = emAndamento.reduce(
-    (soma, meta) => soma + meta.valorAtual,
+          // Usa o valor-alvo cadastrado quando disponível.
+          // Evita exibir NaN caso o campo não exista.
+          const dadosMeta = meta as unknown as Record<
+            string,
+            unknown
+          >;
+
+          const objetivoBruto =
+            dadosMeta.valorObjetivo ??
+            dadosMeta.valorMeta ??
+            dadosMeta.valorAlvo ??
+            dadosMeta.valorDesejado;
+
+          const objetivoNumero = Number(objetivoBruto);
+
+          const valorObjetivo =
+            objetivoBruto != null &&
+            Number.isFinite(objetivoNumero)
+              ? objetivoNumero
+              : null;
+
+          return {
+            id: meta.id,
+            nome: meta.nome,
+            categoriaId: meta.categoriaId ?? "outros",
+            valorAtual,
+            valorObjetivo,
+            pct: percentualMeta(meta),
+          };
+        }),
+    [metas]
+  );
+
+  const concluidas = useMemo(
+    () => metas.filter((meta) => meta.status === "concluida"),
+    [metas]
+  );
+
+  const totalGuardado = useMemo(
+    () =>
+      emAndamento.reduce(
+        (soma, meta) => soma + meta.valorAtual,
+        0
+      ),
+    [emAndamento]
+  );
+
+  const maiorPct = Math.max(
+    ...emAndamento.map((meta) => meta.pct),
     0
   );
 
-  const concluidas = metas.filter((meta) => meta.status === "concluida").length;
+  const habito = useMemo(
+    () => habitoGuardar(metas),
+    [metas]
+  );
 
-  const maiorPct = Math.max(...emAndamento.map((meta) => meta.pct), 0);
+  const temHabito = habito.some((item) => item.valor > 0);
 
-  // Hábito de guardar calculado com os depósitos reais das metas
-  const HABITO_GUARDAR = habitoGuardar(metas);
-  const temHabito = HABITO_GUARDAR.some((item) => item.valor > 0);
+  const totalPeriodo = habito.reduce(
+    (soma, item) => soma + item.valor,
+    0
+  );
 
-  // Variação (%) do último mês em relação ao anterior (null = não dá pra comparar)
-  const anterior = HABITO_GUARDAR[HABITO_GUARDAR.length - 2]?.valor ?? 0;
-  const atual = HABITO_GUARDAR[HABITO_GUARDAR.length - 1]?.valor ?? 0;
+  const anterior = habito[habito.length - 2]?.valor ?? 0;
+  const atual = habito[habito.length - 1]?.valor ?? 0;
+
   const variacao =
-    anterior > 0 ? Math.round(((atual - anterior) / anterior) * 100) : null;
+    anterior > 0
+      ? Math.round(((atual - anterior) / anterior) * 100)
+      : null;
+
+  const larguraGrafico = Math.max(
+    250,
+    larguraTela - 90
+  );
+
+  const dadosGrafico = habito.map((item, indice) => ({
+    x: indice + 1,
+    y: item.valor,
+    mes: item.mes,
+  }));
+
+  const maiorValorGrafico = Math.max(
+    ...habito.map((item) => item.valor),
+    0
+  );
 
   return (
     <View style={styles.container}>
       <BackgroundGradient variante="funcional" />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
         <HeaderInterno titulo="Análises" />
 
-        {/* Conteúdo (logo abaixo do cabeçalho) */}
         <View style={styles.conteudoSobreHeader}>
-          {/* Resumo: total guardado | em andamento | concluídas */}
-          <View style={styles.linhaResumo}>
-            <Card gradiente={GRADIENTE_CARD} style={styles.cardResumo}>
-              <Text
-                style={[styles.valorResumo, { color: Cores.destaque.limao }]}
-              >
-                {formatarMoeda(totalGuardado).replace(",00", "")}
-              </Text>
-              <Text style={styles.rotuloResumo}>Total guardado</Text>
-            </Card>
+          {/* TOTAL GUARDADO */}
+          <Card
+            gradiente={GRADIENTE_CARD}
+            style={styles.cardTotal}
+          >
+            <View style={styles.iconeTotal}>
+              <Wallet size={23} color={VERDE} />
+            </View>
 
-            <Card gradiente={GRADIENTE_CARD} style={styles.cardResumo}>
+            <Text style={styles.rotuloTotal}>
+              Total guardado
+            </Text>
+
+            <Text
+              style={styles.valorTotal}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+            >
+              {formatarMoeda(totalGuardado)}
+            </Text>
+
+            <Text style={styles.descricaoTotal}>
+              Valor guardado nas metas em andamento
+            </Text>
+          </Card>
+
+          {/* EM ANDAMENTO E CONCLUÍDAS */}
+          <View style={styles.linhaResumo}>
+            <Card
+              gradiente={GRADIENTE_CARD}
+              style={styles.cardResumo}
+            >
               <Text
-                style={[styles.valorResumo, { color: Cores.roxo.principal }]}
+                style={[
+                  styles.valorResumo,
+                  { color: ROXO },
+                ]}
               >
                 {emAndamento.length}
               </Text>
-              <Text style={styles.rotuloResumo}>Em andamento</Text>
+
+              <Text style={styles.rotuloResumo}>
+                Em andamento
+              </Text>
             </Card>
 
-            <Card gradiente={GRADIENTE_CARD} style={styles.cardResumo}>
+            <Card
+              gradiente={GRADIENTE_CARD}
+              style={styles.cardResumo}
+            >
               <Text
-                style={[styles.valorResumo, { color: Cores.estado.perigo }]}
+                style={[
+                  styles.valorResumo,
+                  { color: VERDE },
+                ]}
               >
-                {concluidas}
+                {concluidas.length}
               </Text>
-              <Text style={styles.rotuloResumo}>Concluídas</Text>
+
+              <Text style={styles.rotuloResumo}>
+                Concluídas
+              </Text>
             </Card>
           </View>
 
-          {/* Progresso de cada meta em andamento */}
-          <Card gradiente={GRADIENTE_CARD}>
-            <Text style={styles.tituloCard}>Progresso das metas</Text>
+          {/* PROGRESSO DAS METAS */}
+          <Card
+            gradiente={GRADIENTE_CARD}
+            style={styles.cardSecao}
+          >
+            <Text style={styles.tituloCard}>
+              Progresso das metas
+            </Text>
 
             {emAndamento.length === 0 ? (
-              <Text style={styles.vazio}>Nenhuma meta em andamento.</Text>
-            ) : null}
+              <Text style={styles.vazio}>
+                Nenhuma meta em andamento.
+              </Text>
+            ) : (
+              emAndamento.map((meta, indice) => {
+                const destaque =
+                  meta.pct === maiorPct &&
+                  maiorPct >= PERCENTUAL_DESTAQUE;
 
-            {emAndamento.map((meta) => {
-              const destaque =
-                meta.pct === maiorPct && maiorPct >= PERCENTUAL_DESTAQUE;
+                const categoria =
+                  CATEGORIAS_POR_ID[meta.categoriaId] ??
+                  CATEGORIAS_POR_ID.outros;
 
-              // Mesmo ícone da categoria usado no Novo gasto
-              const Icone = (
-                CATEGORIAS_POR_ID[meta.categoriaId] ?? CATEGORIAS_POR_ID.outros
-              ).icone;
+                const Icone = categoria.icone;
 
-              return (
-                <View key={meta.id} style={styles.itemMeta}>
-                  <View style={styles.linhaMeta}>
-                    <View style={styles.nomeMeta}>
-                      <Icone size={18} color={Cores.destaque.limao} />
+                return (
+                  <View
+                    key={meta.id}
+                    style={[
+                      styles.itemMeta,
+                      indice === emAndamento.length - 1 &&
+                        styles.ultimoItemMeta,
+                    ]}
+                  >
+                    <View style={styles.linhaMeta}>
+                      <View style={styles.nomeMeta}>
+                        <Icone
+                          size={19}
+                          color={VERDE}
+                        />
 
-                      <Text numberOfLines={1} style={styles.textoNome}>
-                        {meta.nome}
+                        <Text
+                          numberOfLines={2}
+                          style={styles.textoNome}
+                        >
+                          {meta.nome}
+                        </Text>
+                      </View>
+
+                      <Text
+                        style={[
+                          styles.percentual,
+                          destaque &&
+                            styles.percentualDestaque,
+                        ]}
+                      >
+                        {meta.pct}%
                       </Text>
                     </View>
 
-                    <Text
-                      style={[
-                        styles.percentual,
-                        destaque && styles.percentualDestaque,
-                      ]}
-                    >
-                      {meta.pct}%
-                    </Text>
+                    <Progress
+                      value={Math.min(
+                        100,
+                        Math.max(0, meta.pct)
+                      )}
+                      height={7}
+                      color={destaque ? VERDE : ROXO}
+                      backgroundColor="#160B29"
+                    />
+
+                    <View style={styles.linhaValoresMeta}>
+                      <Text style={styles.valorGuardado}>
+                        {moedaSegura(meta.valorAtual)}
+                      </Text>
+
+                      <Text style={styles.valorObjetivo}>
+                        {meta.valorObjetivo !== null
+                          ? `de ${moedaSegura(meta.valorObjetivo)}`
+                          : "Objetivo indisponível"}
+                      </Text>
+                    </View>
                   </View>
-
-                  <Progress
-                    value={meta.pct}
-                    height={6}
-                    color={
-                      destaque ? Cores.destaque.limao : Cores.texto.principal
-                    }
-                    backgroundColor={Cores.fundo.navBarra}
-                  />
-                </View>
-              );
-            })}
-          </Card>
-
-          {/* Quanto foi guardado em cada mês (mesmo gráfico de barras do Dashboard) */}
-          <Card gradiente={GRADIENTE_CARD}>
-            <Text style={styles.tituloCard}>Hábito de guardar</Text>
-
-            {!temHabito ? (
-              <Text style={styles.vazio}>
-                Ainda não há depósitos para mostrar.
-              </Text>
-            ) : (
-            <VictoryChart
-              width={larguraGrafico}
-              height={160}
-              padding={{ top: 8, bottom: 30, left: 8, right: 8 }}
-              domainPadding={{ x: 24, y: 8 }}
-            >
-              <VictoryAxis
-                tickValues={HABITO_GUARDAR.map((_, indice) => indice + 1)}
-                tickFormat={HABITO_GUARDAR.map((item) => item.mes)}
-                style={{
-                  axis: { stroke: "transparent" },
-                  grid: { stroke: "transparent" },
-                  ticks: { stroke: "transparent" },
-                  tickLabels: {
-                    fill: Cores.texto.claro,
-                    fontSize: 11,
-                    fontFamily: FONTS.quicksand.regular,
-                  },
-                }}
-              />
-
-              {/* Última barra (mês atual) em verde-limão */}
-              <VictoryBar
-                data={HABITO_GUARDAR.map((item, indice) => ({
-                  x: indice + 1,
-                  y: item.valor,
-                }))}
-                cornerRadius={{ top: 6 }}
-                style={{
-                  data: {
-                    width: 28,
-                    fill: ({ index }: { index?: number | string }) =>
-                      Number(index) === HABITO_GUARDAR.length - 1
-                        ? Cores.destaque.limao
-                        : Cores.roxo.principal,
-                  },
-                }}
-              />
-            </VictoryChart>
+                );
+              })
             )}
           </Card>
 
-          {/* Dica final */}
+          {/* HÁBITO DE GUARDAR */}
+          <Card
+            gradiente={GRADIENTE_CARD}
+            style={styles.cardSecao}
+          >
+            <Text style={styles.tituloCard}>
+              Hábito de guardar
+            </Text>
+
+            <Text style={styles.subtituloCard}>
+              Depósitos realizados nos últimos meses
+            </Text>
+
+            {temHabito ? (
+              <>
+                <View style={styles.areaGrafico}>
+                  <VictoryChart
+                    width={larguraGrafico}
+                    height={175}
+                    padding={{
+                      top: 35,
+                      bottom: 28,
+                      left: 10,
+                      right: 10,
+                    }}
+                    domainPadding={{
+                      x: 20,
+                      y: [0, 18],
+                    }}
+                    domain={{
+                      y: [
+                        0,
+                        Math.max(
+                          maiorValorGrafico * 1.3,
+                          1
+                        ),
+                      ],
+                    }}
+                  >
+                    <VictoryAxis
+                      tickValues={dadosGrafico.map(
+                        (item) => item.x
+                      )}
+                      tickFormat={dadosGrafico.map(
+                        (item) => item.mes
+                      )}
+                      style={{
+                        axis: {
+                          stroke: "transparent",
+                        },
+                        grid: {
+                          stroke: "transparent",
+                        },
+                        ticks: {
+                          stroke: "transparent",
+                        },
+                        tickLabels: {
+                          fill: LILAS,
+                          fontSize: 11,
+                          fontFamily:
+                            FONTS.quicksand.regular,
+                          padding: 8,
+                        },
+                      }}
+                    />
+
+                    <VictoryBar
+                      data={dadosGrafico}
+                      barWidth={Math.min(
+                        28,
+                        larguraGrafico /
+                          Math.max(habito.length * 2.2, 1)
+                      )}
+                      cornerRadius={{
+                        top: 6,
+                      }}
+                      labels={({ datum }) =>
+                        datum.y > 0
+                          ? valorCompacto(datum.y)
+                          : ""
+                      }
+                      labelComponent={
+                        <VictoryLabel dy={-7} />
+                      }
+                      style={{
+                        data: {
+                          fill: ({
+                            index,
+                          }: {
+                            index?: number | string;
+                          }) =>
+                            Number(index) ===
+                            habito.length - 1
+                              ? VERDE
+                              : ROXO,
+                        },
+                        labels: {
+                          fill: "#FFFFFF",
+                          fontSize: 9,
+                          fontFamily:
+                            FONTS.quicksand.bold,
+                        },
+                      }}
+                    />
+                  </VictoryChart>
+                </View>
+
+                <View style={styles.resumoHabito}>
+                  <Text style={styles.rotuloHabito}>
+                    Total depositado no período
+                  </Text>
+
+                  <Text style={styles.valorHabito}>
+                    {formatarMoeda(totalPeriodo)}
+                  </Text>
+                </View>
+
+                <View style={styles.listaMeses}>
+                  {habito.map((item, indice) => (
+                    <View
+                      key={`${item.mes}-${indice}`}
+                      style={styles.itemMes}
+                    >
+                      <Text style={styles.nomeMes}>
+                        {item.mes}
+                      </Text>
+
+                      <Text
+                        style={[
+                          styles.valorMes,
+                          indice === habito.length - 1 &&
+                            styles.valorMesAtual,
+                        ]}
+                        adjustsFontSizeToFit
+                        numberOfLines={1}
+                      >
+                        {formatarMoeda(item.valor)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </>
+            ) : (
+              <Text style={styles.vazio}>
+                Ainda não há depósitos para mostrar.
+              </Text>
+            )}
+          </Card>
+
+          {/* COMPARAÇÃO MENSAL */}
           {variacao !== null && (
             <Card
-              gradiente={[Cores.base.cinza, Cores.fundo.principal]}
+              gradiente={GRADIENTE_CARD}
               style={styles.cardDica}
             >
               <View style={styles.linhaDica}>
-                <Lightbulb size={22} color={Cores.estado.alerta} />
+                <Lightbulb
+                  size={23}
+                  color={Cores.estado.alerta}
+                />
 
                 <Text style={styles.textoDica}>
                   Você guardou{" "}
                   <Text style={styles.textoDicaDestaque}>
-                    {Math.abs(variacao)}% {variacao >= 0 ? "mais" : "menos"}
+                    {Math.abs(variacao)}%{" "}
+                    {variacao >= 0
+                      ? "mais"
+                      : "menos"}
                   </Text>{" "}
                   do que no mês passado.{" "}
-                  {variacao >= 0 ? "Continue assim!" : "Vamos retomar o ritmo!"}
+                  {variacao >= 0
+                    ? "Continue assim!"
+                    : "Vamos retomar o ritmo!"}
                 </Text>
               </View>
             </Card>
