@@ -80,7 +80,7 @@ export function ModalOutrasCategorias({
             "rgba(67, 31, 114, 0.92)",
             "rgba(44, 27, 67, 0.92)",
           ]}
-          style={[modalBase.card]}
+          style={modalBase.card}
         >
           <Pressable
             style={modalBase.fechar}
@@ -92,7 +92,7 @@ export function ModalOutrasCategorias({
             <X size={25} color={Cores.texto.claro} />
           </Pressable>
 
-          <Text style={[modalBase.titulo]}>
+          <Text style={modalBase.titulo}>
             Outras categorias
           </Text>
 

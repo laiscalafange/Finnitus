@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import {
   ActivityIndicator,
   Pressable,
@@ -7,6 +8,7 @@ import {
   Text,
   View,
 } from "react-native";
+
 import axios from "axios";
 import { Minus, Plus, Trash2 } from "lucide-react-native";
 
@@ -16,10 +18,16 @@ import { Button } from "../../shared/components/Button";
 import { Card } from "../../shared/components/Cards";
 import { Progress } from "../../shared/components/Progress";
 import { Cores } from "../../shared/constants/Cores";
+
 import { ModalReserva } from "@/features/menuMais/components/ModalReserva";
 import { useVoltar } from "@/features/menuMais/useVoltar";
 import { formatarMoeda } from "@/features/menuMais/utils";
-import type { Reserva, TipoModalReserva } from "@/features/menuMais/types";
+
+import type {
+  Reserva,
+  TipoModalReserva,
+} from "@/features/menuMais/types";
+
 import { styles as base } from "@/features/menuMais/styles/formulario";
 import { styles } from "@/features/menuMais/styles/reserva";
 import { reservaApi } from "@/services/reserva";
@@ -57,8 +65,10 @@ export default function ReservaEmergencia() {
 
   const [reserva, setReserva] = useState<Reserva | null>(null);
   const [modal, setModal] = useState<TipoModalReserva | null>(null);
+
   const [carregando, setCarregando] = useState(true);
   const [processando, setProcessando] = useState(false);
+
   const [erroCarregamento, setErroCarregamento] = useState("");
   const [erroModal, setErroModal] = useState("");
 
@@ -70,6 +80,7 @@ export default function ReservaEmergencia() {
 
     try {
       const dados = await reservaApi.buscar();
+
       setReserva(dados);
       setModal(dados ? null : "criar");
     } catch (erro) {
@@ -218,9 +229,11 @@ export default function ReservaEmergencia() {
           </View>
         ) : reserva ? (
           <View style={base.formulario}>
-
-            {/* Saldo no estilo do cabeçalho da Home */}
-            <Card gradiente={GRADIENTE_CARD} style={styles.cardSaldo}>
+            {/* Saldo da reserva */}
+            <Card
+              gradiente={GRADIENTE_CARD}
+              style={styles.cardSaldo}
+            >
               <View style={styles.linhaSaldo}>
                 <Text style={styles.rotuloPequeno}>
                   Reserva disponível
@@ -237,7 +250,10 @@ export default function ReservaEmergencia() {
             </Card>
 
             {/* Meta da reserva */}
-            <Card gradiente={GRADIENTE_CARD} style={styles.card}>
+            <Card
+              gradiente={GRADIENTE_CARD}
+              style={styles.card}
+            >
               <View style={styles.linhaMeta}>
                 <Text style={styles.rotuloPequeno}>
                   Meta da reserva
@@ -255,7 +271,9 @@ export default function ReservaEmergencia() {
               </View>
 
               <Text style={styles.valorMeta}>
-                {meta ? formatarMoeda(meta) : "Sem meta definida"}
+                {meta
+                  ? formatarMoeda(meta)
+                  : "Sem meta definida"}
               </Text>
 
               <View style={styles.linhaProgresso}>
@@ -275,7 +293,7 @@ export default function ReservaEmergencia() {
               </View>
             </Card>
 
-            {/* Botões sólidos, sem gradiente */}
+            {/* Botões sólidos: Depositar e Retirar */}
             <View style={styles.linhaBotoes}>
               <Pressable
                 style={({ pressed }) => [
@@ -304,7 +322,7 @@ export default function ReservaEmergencia() {
               </Pressable>
             </View>
 
-            {/* Seção no estilo da Home */}
+            {/* Últimas movimentações */}
             <Text style={styles.tituloSecao}>
               Últimas movimentações
             </Text>
@@ -351,7 +369,8 @@ export default function ReservaEmergencia() {
                           <Text
                             style={[
                               styles.valorMovimentacao,
-                              !deposito && styles.valorRetirada,
+                              !deposito &&
+                                styles.valorRetirada,
                             ]}
                           >
                             {deposito ? "+" : "-"}{" "}
@@ -359,7 +378,9 @@ export default function ReservaEmergencia() {
                           </Text>
 
                           <Text style={styles.tipoMovimentacao}>
-                            {deposito ? "Depósito" : "Retirada"}
+                            {deposito
+                              ? "Depósito"
+                              : "Retirada"}
                           </Text>
                         </View>
 
@@ -372,7 +393,7 @@ export default function ReservaEmergencia() {
                 })
             )}
 
-            {/* Exclusão discreta em vermelho */}
+            {/* Excluir reserva */}
             <Pressable
               style={({ pressed }) => [
                 styles.botaoExcluir,
@@ -387,7 +408,6 @@ export default function ReservaEmergencia() {
                 Excluir reserva
               </Text>
             </Pressable>
-
           </View>
         ) : null}
       </ScrollView>
