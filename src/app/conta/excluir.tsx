@@ -11,8 +11,9 @@ import {
 } from "react-native";
 import axios from "axios";
 import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 import { authService } from "../../services/auth";
 import { useAuth } from "../../features/authContext";
@@ -32,34 +33,23 @@ export default function ExcluirConta() {
     confirmacao.trim() === "EXCLUIR" &&
     !excluindo;
 
-  async function confirmarExclusao() {
+  async function excluirConta() {
     if (!podeExcluir) return;
 
-    setErro("");
     setExcluindo(true);
+    setErro("");
 
     try {
-      // Exclui os dados no backend.
       await authService.deleteAccount(senha);
-
-      // Limpa a sessão somente após o sucesso.
       await clearSession();
-
-      // O guard de autenticação deve levar ao login.
     } catch (error) {
-      let mensagem =
-        "Não foi possível excluir sua conta. Tente novamente.";
-
-      if (axios.isAxiosError(error)) {
-        const dados = error.response?.data;
-
-        mensagem =
-          dados?.error ??
-          dados?.message ??
-          mensagem;
-      } else if (error instanceof Error) {
-        mensagem = error.message;
-      }
+      const mensagem = axios.isAxiosError(error)
+        ? error.response?.data?.error ??
+          error.response?.data?.message ??
+          "Não foi possível excluir sua conta."
+        : error instanceof Error
+          ? error.message
+          : "Não foi possível concluir a operação.";
 
       setErro(mensagem);
     } finally {
@@ -74,105 +64,124 @@ export default function ExcluirConta() {
     >
       <ScrollView
         contentContainerStyle={[
-          styles.conteudo,
+          styles.scroll,
           {
             paddingTop: insets.top + 24,
-            paddingBottom: insets.bottom + 40,
+            paddingBottom: insets.bottom + 32,
           },
         ]}
         keyboardShouldPersistTaps="handled"
       >
         <TouchableOpacity
+          style={styles.voltar}
           onPress={() => router.back()}
           disabled={excluindo}
         >
-          <Text style={styles.voltar}>‹ Voltar</Text>
+          <Ionicons
+            name="chevron-back"
+            size={19}
+            color="#B6FF00"
+          />
+          <Text style={styles.voltarTexto}>Voltar</Text>
         </TouchableOpacity>
 
-        <Text style={styles.titulo}>Excluir conta</Text>
+        <View style={styles.centralizar}>
+          <LinearGradient
+            colors={["#46238F", "#32166F"]}
+            style={styles.card}
+          >
+            <View style={styles.iconeFundo}>
+              <Ionicons
+                name="trash-outline"
+                size={34}
+                color="#B6FF00"
+              />
+            </View>
 
-        <Text style={styles.descricao}>
-          Sentiremos sua falta! Antes de continuar,
-          leia atentamente as informações abaixo.
-        </Text>
-
-        <View style={styles.aviso}>
-          <Text style={styles.avisoTitulo}>
-            Atenção: ação permanente
-          </Text>
-
-          <Text style={styles.avisoTexto}>
-            Ao excluir sua conta, seus dados financeiros,
-            receitas, despesas, metas, reserva, dívidas
-            e eventos armazenados no Finnitus serão
-            apagados permanentemente.
-          </Text>
-
-          <Text style={styles.avisoTexto}>
-            Esta ação não pode ser desfeita.
-          </Text>
-        </View>
-
-        <Text style={styles.label}>
-          Senha atual
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Digite sua senha"
-          placeholderTextColor="#8B8298"
-          secureTextEntry
-          value={senha}
-          onChangeText={setSenha}
-          editable={!excluindo}
-          autoCapitalize="none"
-        />
-
-        <Text style={styles.label}>
-          Digite EXCLUIR para confirmar
-        </Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="EXCLUIR"
-          placeholderTextColor="#8B8298"
-          autoCapitalize="characters"
-          autoCorrect={false}
-          value={confirmacao}
-          onChangeText={setConfirmacao}
-          editable={!excluindo}
-        />
-
-        {erro ? (
-          <Text style={styles.erro}>{erro}</Text>
-        ) : null}
-
-        <TouchableOpacity
-          style={[
-            styles.botaoExcluir,
-            !podeExcluir && styles.desabilitado,
-          ]}
-          onPress={confirmarExclusao}
-          disabled={!podeExcluir}
-        >
-          {excluindo ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.textoExcluir}>
-              Excluir minha conta
+            <Text style={styles.titulo}>
+              Excluir sua conta?
             </Text>
-          )}
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.botaoCancelar}
-          onPress={() => router.back()}
-          disabled={excluindo}
-        >
-          <Text style={styles.textoCancelar}>
-            Cancelar
-          </Text>
-        </TouchableOpacity>
+            <Text style={styles.descricao}>
+              Tem certeza de que deseja excluir
+              sua conta do Finnitus?
+            </Text>
+
+            <Text style={styles.alerta}>
+              Todos os seus dados financeiros,
+              metas, reservas e movimentações
+              serão apagados permanentemente.
+              Esta ação não pode ser desfeita.
+            </Text>
+
+            <View style={styles.formulario}>
+              <Text style={styles.label}>
+                Senha atual
+              </Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Digite sua senha"
+                placeholderTextColor="#A998C4"
+                value={senha}
+                onChangeText={setSenha}
+                secureTextEntry
+                autoCapitalize="none"
+                editable={!excluindo}
+              />
+
+              <Text style={styles.label}>
+                Digite EXCLUIR para confirmar
+              </Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="EXCLUIR"
+                placeholderTextColor="#A998C4"
+                value={confirmacao}
+                onChangeText={setConfirmacao}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                editable={!excluindo}
+              />
+            </View>
+
+            {erro ? (
+              <Text style={styles.erro}>
+                {erro}
+              </Text>
+            ) : null}
+
+            <TouchableOpacity
+              style={[
+                styles.botaoExcluir,
+                !podeExcluir && styles.desabilitado,
+              ]}
+              disabled={!podeExcluir}
+              onPress={excluirConta}
+              activeOpacity={0.8}
+            >
+              {excluindo ? (
+                <ActivityIndicator color="#B6FF00" />
+              ) : (
+                <Text style={styles.textoExcluir}>
+                  Excluir minha conta
+                </Text>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.botaoCancelar}
+              onPress={() => router.back()}
+              disabled={excluindo}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.textoCancelar}>
+                Cancelar
+              </Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
       </ScrollView>
     </LinearGradient>
   );
@@ -182,90 +191,123 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  conteudo: {
+  scroll: {
     flexGrow: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
   },
   voltar: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    marginBottom: 20,
+  },
+  voltarTexto: {
     color: "#B6FF00",
     fontSize: 16,
-    marginBottom: 32,
+  },
+  centralizar: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  card: {
+    width: "100%",
+    maxWidth: 490,
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 30,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#6435AB",
+  },
+  iconeFundo: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: "#5533A0",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 18,
   },
   titulo: {
     color: "#FFFFFF",
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 12,
+    textAlign: "center",
+    marginBottom: 10,
   },
   descricao: {
-    color: "#C8C0D4",
+    color: "#D4C5EB",
     fontSize: 15,
-    lineHeight: 23,
-    marginBottom: 28,
-  },
-  aviso: {
-    backgroundColor: "#2D1421",
-    borderWidth: 1,
-    borderColor: "#B54255",
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 30,
-  },
-  avisoTitulo: {
-    color: "#FF838F",
-    fontSize: 17,
-    fontWeight: "bold",
-    marginBottom: 12,
-  },
-  avisoTexto: {
-    color: "#E9DAE2",
-    fontSize: 14,
+    textAlign: "center",
     lineHeight: 22,
+    marginBottom: 10,
+  },
+  alerta: {
+    color: "#E5D7F4",
+    fontSize: 13,
+    lineHeight: 20,
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  formulario: {
+    width: "100%",
     marginBottom: 10,
   },
   label: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "600",
-    marginBottom: 10,
+    marginBottom: 8,
   },
   input: {
-    backgroundColor: "#21152F",
+    backgroundColor: "#251347",
+    borderColor: "#7351AD",
     borderWidth: 1,
-    borderColor: "#50415F",
-    borderRadius: 12,
+    borderRadius: 10,
+    padding: 14,
+    fontSize: 15,
     color: "#FFFFFF",
-    fontSize: 16,
-    padding: 16,
-    marginBottom: 22,
+    marginBottom: 17,
+    width: "100%",
   },
   erro: {
-    color: "#FF838F",
+    color: "#FF9DAA",
     textAlign: "center",
-    marginBottom: 18,
+    marginBottom: 14,
+    fontSize: 13,
   },
   botaoExcluir: {
-    backgroundColor: "#B9364C",
-    padding: 18,
-    borderRadius: 12,
+    width: "100%",
+    minHeight: 54,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: "#B6FF00",
+    backgroundColor: "#3D2085",
     alignItems: "center",
-    marginTop: 10,
+    justifyContent: "center",
+    marginBottom: 12,
   },
   desabilitado: {
     opacity: 0.45,
   },
   textoExcluir: {
-    color: "#FFFFFF",
-    fontSize: 16,
+    color: "#B6FF00",
+    fontSize: 17,
     fontWeight: "bold",
   },
   botaoCancelar: {
-    padding: 18,
+    width: "100%",
+    minHeight: 54,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: "#9853ED",
     alignItems: "center",
-    marginTop: 12,
+    justifyContent: "center",
   },
   textoCancelar: {
-    color: "#C8C0D4",
-    fontSize: 16,
+    color: "#B96AFF",
+    fontSize: 17,
+    fontWeight: "bold",
   },
 });

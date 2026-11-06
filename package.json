@@ -6,6 +6,7 @@
     "@expo-google-fonts/quicksand": "^0.4.1",
     "@expo-google-fonts/raleway": "^0.4.2",
     "@expo/ui": "~57.0.26",
+    "@expo/vector-icons": "^15.0.2",
     "@react-native-google-signin/google-signin": "^16.1.5",
     "axios": "^1.20.0",
     "expo": "~57.0.31",
