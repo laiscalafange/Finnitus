@@ -114,6 +114,17 @@ export const authService = {
     });
   },
 
+  
+deleteAccount: async (currentPassword: string) => {
+  await api.delete("/me", {
+    data: {
+      confirm: true,
+      currentPassword,
+    },
+  });
+},
+
+
   logout: async () => {
     return api.post("/logout");
   },

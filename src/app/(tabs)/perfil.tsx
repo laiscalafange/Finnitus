@@ -355,6 +355,14 @@ export default function Perfil() {
               variante="terciario"
               onPress={() => setModalSairVisible(true)}
             />
+
+            
+<Button
+  titulo="Excluir conta"
+  variante="terciario"
+  onPress={() => router.push("/conta/excluir")}
+/>
+
           </View>
         </View>
 

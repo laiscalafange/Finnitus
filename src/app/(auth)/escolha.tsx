@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { AceiteCadastroGoogle } from "../../shared/components/AceiteCadastroGoogle";
-import { View, Text, Image, ScrollView, StyleSheet } from "react-native";
+import { View, Text, Image, ScrollView } from "react-native";
 
 import { useRouter } from "expo-router";
 
-import { BackgroundGradient } from "../../shared/components/backgroundGradient";
+import { AuthBackground } from "../../shared/components/AuthBackground";
 import { Button } from "../../shared/components/Button";
 import { BotaoVoltarAuth } from "../../shared/components/BotaoVoltar";
 import { Underline } from "../../shared/components/underline";
@@ -36,15 +36,7 @@ export default function Escolha() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#09090B" }}>
-      {/* Fundo radial original; a camada não bloqueia botões nem rolagem. */}
-      <View
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-        accessible={false}
-        importantForAccessibility="no-hide-descendants"
-      >
-        <BackgroundGradient variante="padrao" />
-      </View>
+      <AuthBackground />
 
       <BotaoVoltarAuth absoluto />
 

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BackgroundGradient } from "./backgroundGradient";
+import { AuthBackground } from "./AuthBackground";
 import { BotaoVoltarAuth } from "./BotaoVoltar";
 
 type AuthFormProps = {
@@ -73,15 +73,7 @@ export function AuthForm({
 
   return (
     <View style={styles.screenBase}>
-      {/* Usa o gradiente RADIAL original do Finnitus; não interfere nos toques. */}
-      <View
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-        accessible={false}
-        importantForAccessibility="no-hide-descendants"
-      >
-        <BackgroundGradient variante="padrao" />
-      </View>
+      <AuthBackground />
 
       <SafeAreaView style={styles.screen}>
         {mostrarVoltar ? <BotaoVoltarAuth /> : null}
