@@ -2,141 +2,220 @@
 import { prisma } from "../lib/prisma.js";
 
 /*
- * Define os períodos que o dashboard poderá consultar.
+ * Define os períodos disponíveis para consultar os indicadores.
  *
- * DIARIO: consulta um dia específico.
- * MENSAL: consulta um mês inteiro.
- * ANUAL: consulta um ano inteiro.
+ * DIARIO: um dia específico.
+ * MENSAL: um mês completo.
+ * ANUAL: um ano completo.
  */
-type PeriodoFinanceiro = "DIARIO" | "MENSAL" | "ANUAL";
+export type PeriodoFinanceiro = "DIARIO" | "MENSAL" | "ANUAL";
 
 /*
- * Converte os valores Decimal do Prisma para number.
+ * Representa o intervalo de datas utilizado nas consultas.
  *
- * O Prisma utiliza Decimal para valores financeiros.
- * Essa conversão permite realizar as somas e os cálculos
- * necessários para montar os indicadores do dashboard.
+ * inicio: primeiro instante incluído na consulta.
+ * fim: primeiro instante que já não pertence ao período.
+ *
+ * Usar um fim exclusivo evita problemas com horários
+ * no último dia do período.
+ */
+type IntervaloFinanceiro = {
+  inicio: Date;
+  fim: Date;
+};
+
+/*
+ * Obtém a data atual no formato YYYY-MM-DD,
+ * utilizando a data local do servidor.
+ *
+ * Isso evita que o dia de referência mude por causa
+ * da conversão automática para UTC do toISOString().
+ */
+function obterDataLocal(): string {
+  const agora = new Date();
+
+  const ano = agora.getFullYear();
+  const mes = String(agora.getMonth() + 1).padStart(2, "0");
+  const dia = String(agora.getDate()).padStart(2, "0");
+
+  return `${ano}-${mes}-${dia}`;
+}
+
+/*
+ * Converte valores financeiros do Prisma para number.
+ *
+ * Campos Decimal do Prisma não devem ser tratados como
+ * números JavaScript sem conversão explícita.
  */
 function converterParaNumero(valor: unknown): number {
   return Number(valor);
 }
 
 /*
- * Formata os valores financeiros com duas casas decimais.
+ * Arredonda o resultado para duas casas decimais.
  *
- * O resultado é um número, e não uma string.
- * Exemplo: 1250.5 será retornado como 1250.5.
+ * Essa formatação é aplicada aos valores devolvidos pela API.
+ * Para cálculos financeiros que exijam precisão rigorosa,
+ * o ideal é realizar as operações com Decimal até o final.
  */
 function formatarValor(valor: number): number {
   return Number(valor.toFixed(2));
 }
 
 /*
- * Calcula o início e o fim do período consultado.
+ * Valida e converte uma data no formato YYYY-MM-DD.
  *
- * O intervalo utiliza o início inclusivo e o fim exclusivo.
- * Isso evita problemas com horários, como registros
- * que acontecem às 23h59min59s do último dia.
- *
- * A data de referência deve estar no formato YYYY-MM-DD.
+ * Além de verificar o formato, confere se o dia existe.
+ * Por exemplo, uma data como 2026-02-30 será rejeitada.
  */
-function calcularIntervalo(
-  periodo: PeriodoFinanceiro,
-  dataReferencia: string,
-): { inicio: Date; fim: Date } {
-  /*
-   * Confere se a data possui o formato esperado.
-   */
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dataReferencia)) {
-    throw new Error(
-      "Data de referência inválida. Utilize o formato YYYY-MM-DD.",
-    );
+function converterData(data: string): Date {
+  // Verifica se a data está no formato AAAA-MM-DD.
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
+    throw new Error("Data inválida. Use o formato AAAA-MM-DD.");
   }
 
+  // Separa a data em três partes.
+  const partes = data.split("-");
   /*
    * Separa o ano, o mês e o dia para validar
    * se a data realmente existe no calendário.
    */
   const [ano = 0, mes = 0, dia = 0] = dataReferencia.split("-").map(Number);
 
-  const inicio = new Date(Date.UTC(ano, mes - 1, dia));
+  // Converte cada parte para número explicitamente.
+  const ano = Number(partes[0]);
+  const mes = Number(partes[1]);
+  const dia = Number(partes[2]);
 
-  /*
-   * Impede que datas inexistentes sejam normalizadas
-   * automaticamente pelo JavaScript.
-   */
+  // Garante que os componentes sejam números inteiros válidos.
   if (
-    inicio.getUTCFullYear() !== ano ||
-    inicio.getUTCMonth() !== mes - 1 ||
-    inicio.getUTCDate() !== dia
+    !Number.isInteger(ano) ||
+    !Number.isInteger(mes) ||
+    !Number.isInteger(dia)
   ) {
-    throw new Error("A data de referência informada não existe.");
+    throw new Error("A data informada é inválida.");
   }
 
-  /*
-   * Define o fim exclusivo de acordo com o período.
-   */
-  const fim = new Date(inicio);
+  // Cria a data em UTC para evitar problemas de fuso horário.
+  const dataConvertida = new Date(
+    Date.UTC(ano, mes - 1, dia),
+  );
+
+  // Verifica se a data realmente existe no calendário.
+  if (
+    dataConvertida.getUTCFullYear() !== ano ||
+    dataConvertida.getUTCMonth() !== mes - 1 ||
+    dataConvertida.getUTCDate() !== dia
+  ) {
+    throw new Error("A data informada não existe.");
+  }
+
+  // Retorna a data validada.
+  return dataConvertida;
+}
+
+/*
+ * Calcula o intervalo do período solicitado.
+ *
+ * A data de referência pode ser qualquer dia do período.
+ *
+ * Exemplo:
+ * período MENSAL + data 2026-10-15
+ * consulta de 2026-10-01 até antes de 2026-11-01.
+ */
+function calcularIntervalo(
+  periodo: PeriodoFinanceiro,
+  dataReferencia: string,
+): IntervaloFinanceiro {
+  const data = converterData(dataReferencia);
+
+  let inicio: Date;
+  let fim: Date;
 
   switch (periodo) {
-    case "DIARIO":
+    case "DIARIO": {
+      // O período começa à meia-noite do dia informado.
+      inicio = new Date(data);
+
+      // Termina à meia-noite do dia seguinte.
+      fim = new Date(data);
       fim.setUTCDate(fim.getUTCDate() + 1);
-      break;
 
-    case "MENSAL":
-      /*
-       * Ajusta a data para o primeiro dia do mês seguinte.
-       */
-      fim.setUTCDate(1);
-      fim.setUTCMonth(fim.getUTCMonth() + 1);
       break;
+    }
 
-    case "ANUAL":
-      /*
-       * Ajusta a data para o primeiro dia do próximo ano.
-       */
-      fim.setUTCMonth(0, 1);
-      fim.setUTCFullYear(fim.getUTCFullYear() + 1);
+    case "MENSAL": {
+      // O período começa no primeiro dia do mês informado.
+      inicio = new Date(
+        Date.UTC(
+          data.getUTCFullYear(),
+          data.getUTCMonth(),
+          1,
+        ),
+      );
+
+      // O período termina no primeiro dia do mês seguinte.
+      fim = new Date(
+        Date.UTC(
+          data.getUTCFullYear(),
+          data.getUTCMonth() + 1,
+          1,
+        ),
+      );
+
       break;
+    }
+
+    case "ANUAL": {
+      // O período começa no primeiro dia do ano informado.
+      inicio = new Date(
+        Date.UTC(data.getUTCFullYear(), 0, 1),
+      );
+
+      // O período termina no primeiro dia do ano seguinte.
+      fim = new Date(
+        Date.UTC(data.getUTCFullYear() + 1, 0, 1),
+      );
+
+      break;
+    }
 
     default:
+      // Protege também contra valores inválidos recebidos em runtime.
       throw new Error(
         "Período inválido. Utilize DIARIO, MENSAL ou ANUAL.",
       );
   }
 
-  /*
-   * Retorna as duas datas utilizadas nas consultas ao banco.
-   */
   return { inicio, fim };
 }
 
 /*
- * Calcula os indicadores financeiros do dashboard.
+ * Consulta e calcula os indicadores financeiros de um período.
  *
- * Parâmetros:
- * id_Usuario: identifica o usuário autenticado.
- * periodo: define se a consulta será diária, mensal ou anual.
- * dataReferencia: determina o dia, mês ou ano consultado.
+ * IMPORTANTE:
+ * id_Usuario deve vir do usuário autenticado pelo middleware.
+ * Nunca deve ser considerado confiável se vier livremente
+ * do corpo da requisição ou de um parâmetro da URL.
  *
- * Os parâmetros de período e data possuem valores padrão,
- * permitindo consultar o mês atual sem informar uma data.
+ * Esta função é a base reutilizável dos cálculos financeiros
+ * da tela inicial e do dashboard.
  */
 export async function obterResumoFinanceiro(
   id_Usuario: number,
   periodo: PeriodoFinanceiro = "MENSAL",
-  dataReferencia: string = new Date().toISOString().slice(0, 10),
+  dataReferencia: string = obterDataLocal(),
 ) {
   /*
-   * Valida o identificador antes de consultar o banco.
+   * Valida o identificador para impedir consultas
+   * com valores inválidos.
    */
   if (!Number.isInteger(id_Usuario) || id_Usuario <= 0) {
-    throw new Error("O identificador do usuário é inválido.");
+    throw new Error("Identificador do usuário inválido.");
   }
 
   /*
-   * Calcula o intervalo de datas utilizado em todas
-   * as consultas financeiras desta operação.
+   * Calcula as datas inicial e final da consulta.
    */
   const { inicio, fim } = calcularIntervalo(
     periodo,
@@ -144,11 +223,12 @@ export async function obterResumoFinanceiro(
   );
 
   /*
-   * Busca as receitas já recebidas no período.
+   * Consulta as receitas já recebidas no período.
    *
-   * Somente receitas RECEBIDA entram no saldo realizado.
-   * O filtro por usuário impede misturar dados de pessoas
-   * diferentes no dashboard.
+   * O filtro id_Usuario garante que somente as receitas
+   * pertencentes ao usuário autenticado sejam consideradas.
+   *
+   * A data utilizada é data_recebimento.
    */
   const receitasRecebidas = await prisma.receita.findMany({
     where: {
@@ -165,10 +245,13 @@ export async function obterResumoFinanceiro(
   });
 
   /*
-   * Busca as receitas que ainda estão pendentes.
+   * Consulta as receitas que ainda estão pendentes.
    *
-   * Elas são consideradas no saldo projetado,
-   * mas não no saldo realizado.
+   * Elas não entram no saldo realizado, pois o dinheiro
+   * ainda não foi confirmado como recebido.
+   *
+   * A data_recebimento funciona como data prevista
+   * para o recebimento, conforme o modelo atual.
    */
   const receitasPendentes = await prisma.receita.findMany({
     where: {
@@ -185,10 +268,12 @@ export async function obterResumoFinanceiro(
   });
 
   /*
-   * Busca as despesas que já foram pagas no período.
+   * Consulta as despesas que já foram pagas no período.
    *
-   * A data utilizada é data_pagamento, pois ela representa
-   * quando o dinheiro efetivamente saiu.
+   * Utiliza data_pagamento, pois ela representa
+   * quando a despesa foi efetivamente paga.
+   *
+   * Despesas sem data_pagamento não entram nesta consulta.
    */
   const despesasPagas = await prisma.despesa.findMany({
     where: {
@@ -205,10 +290,11 @@ export async function obterResumoFinanceiro(
   });
 
   /*
-   * Busca as despesas pendentes com vencimento no período.
+   * Consulta as despesas pendentes cujo vencimento
+   * pertence ao período solicitado.
    *
-   * Essas despesas ainda não saíram do caixa, mas precisam
-   * ser consideradas para estimar o saldo futuro.
+   * Essas despesas ainda não foram pagas, mas precisam
+   * ser consideradas na projeção financeira.
    */
   const despesasPendentes = await prisma.despesa.findMany({
     where: {
@@ -225,29 +311,32 @@ export async function obterResumoFinanceiro(
   });
 
   /*
-   * Soma os valores das receitas recebidas.
+   * Soma somente as receitas recebidas.
    *
-   * O valor inicial zero garante que a soma também funcione
-   * quando nenhuma receita for encontrada.
+   * O valor inicial zero permite que o cálculo funcione
+   * mesmo quando a consulta não encontrar registros.
    */
   const totalReceitasRecebidas = receitasRecebidas.reduce(
-    (total, receita) => total + converterParaNumero(receita.valor),
+    (total, receita) =>
+      total + converterParaNumero(receita.valor),
     0,
   );
 
   /*
-   * Soma os valores das receitas que ainda serão recebidas.
+   * Soma as receitas que ainda estão pendentes.
    */
   const totalReceitasPendentes = receitasPendentes.reduce(
-    (total, receita) => total + converterParaNumero(receita.valor),
+    (total, receita) =>
+      total + converterParaNumero(receita.valor),
     0,
   );
 
   /*
-   * Soma todas as despesas pagas dentro do período.
+   * Soma as despesas efetivamente pagas no período.
    */
   const totalDespesasPagas = despesasPagas.reduce(
-    (total, despesa) => total + converterParaNumero(despesa.valor),
+    (total, despesa) =>
+      total + converterParaNumero(despesa.valor),
     0,
   );
 
@@ -255,41 +344,59 @@ export async function obterResumoFinanceiro(
    * Soma as despesas que ainda precisam ser pagas.
    */
   const totalDespesasPendentes = despesasPendentes.reduce(
-    (total, despesa) => total + converterParaNumero(despesa.valor),
+    (total, despesa) =>
+      total + converterParaNumero(despesa.valor),
     0,
   );
 
   /*
-   * Calcula o saldo realizado.
+   * Calcula a movimentação líquida realizada no período.
    *
-   * Representa a diferença entre o dinheiro que entrou
-   * e o dinheiro que saiu no período.
+   * Fórmula:
+   * receitas recebidas - despesas pagas.
+   *
+   * ATENÇÃO:
+   * Este resultado não representa necessariamente todo
+   * o dinheiro disponível na conta do usuário.
+   * Ele representa apenas a movimentação líquida
+   * encontrada dentro do período consultado.
    */
   const saldoRealizado =
     totalReceitasRecebidas - totalDespesasPagas;
 
   /*
-   * Calcula o saldo projetado.
+   * Calcula a movimentação líquida projetada do período.
    *
-   * Considera as receitas pendentes e desconta
-   * as despesas que ainda precisam ser pagas.
+   * Fórmula:
+   * receitas recebidas
+   * + receitas pendentes
+   * - despesas pagas
+   * - despesas pendentes.
+   *
+   * É uma projeção baseada nos registros cadastrados.
+   * Não representa uma garantia de recebimento ou pagamento.
    */
   const saldoProjetado =
-    saldoRealizado +
+    totalReceitasRecebidas +
     totalReceitasPendentes -
+    totalDespesasPagas -
     totalDespesasPendentes;
 
   /*
-   * Retorna os indicadores que poderão ser utilizados
-   * pelo controller e enviados ao frontend do dashboard.
+   * Devolve os resultados organizados por assunto.
    *
-   * O início é inclusivo e o fim é exclusivo.
+   * O controller poderá enviar esse objeto como JSON
+   * para o aplicativo.
    */
   return {
     periodo,
+
     dataReferencia,
+
     intervalo: {
       inicio: inicio.toISOString().slice(0, 10),
+
+      // A data final é exclusiva: não está incluída na consulta.
       fimExclusivo: fim.toISOString().slice(0, 10),
     },
 
@@ -304,6 +411,47 @@ export async function obterResumoFinanceiro(
     },
 
     saldoRealizado: formatarValor(saldoRealizado),
+
     saldoProjetado: formatarValor(saldoProjetado),
   };
+}
+
+/*
+ * Prepara os indicadores essenciais para a tela inicial.
+ *
+ * Por enquanto, utiliza o resumo do mês atual.
+ * Depois podemos incluir próximos vencimentos e outros
+ * indicadores específicos sem duplicar os cálculos básicos.
+ */
+export async function obterResumoTelaInicial(
+  id_Usuario: number,
+) {
+  return obterResumoFinanceiro(
+    id_Usuario,
+    "MENSAL",
+    obterDataLocal(),
+  );
+}
+
+/*
+ * Prepara os indicadores financeiros para o dashboard.
+ *
+ * Permite consultar um dia, mês ou ano específico.
+ * O dashboard poderá chamar essa função com filtros
+ * selecionados pelo usuário no aplicativo.
+ *
+ * Os gráficos, categorias, metas e evolução histórica
+ * serão adicionados em funções complementares do mesmo
+ * service, conforme definirmos os indicadores necessários.
+ */
+export async function obterDadosDashboard(
+  id_Usuario: number,
+  periodo: PeriodoFinanceiro = "MENSAL",
+  dataReferencia: string = obterDataLocal(),
+) {
+  return obterResumoFinanceiro(
+    id_Usuario,
+    periodo,
+    dataReferencia,
+  );
 }

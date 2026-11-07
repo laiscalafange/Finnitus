@@ -130,6 +130,32 @@ model Usuario {
   redefinicoes           RedefinicaoSenha[]
   Divida                 Divida[]
   ReservaFinanceira      ReservaFinanceira?
+  PerfilFinanceiro PerfilFinanceiro?
+
+}
+
+// Armazena os dados financeiros iniciais do usuário.
+model PerfilFinanceiro {
+  id_PerfilFinanceiro Int      @id @default(autoincrement())
+  id_Usuario          Int      @unique
+
+  // Dados de renda e despesas mensais.
+  renda_fixa       Decimal? @db.Decimal(10, 2)
+  renda_variavel   Decimal? @db.Decimal(10, 2)
+  despesas_mensais Decimal  @db.Decimal(10, 2)
+
+  // Dados da reserva de emergência.
+  economia_futura Decimal? @db.Decimal(10, 2)
+  tempo_economia  Int?
+
+  // Datas de controle.
+  criado_em     DateTime @default(now())
+  atualizado_em DateTime @updatedAt
+
+  // Relacionamento com o usuário.
+  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+
+  @@index([id_Usuario])
 }
 
 model RedefinicaoSenha {
@@ -280,6 +306,9 @@ model Meta {
   Mdata_criacao      DateTime  @default(now())
   Mdata_conclusao    DateTime?
   Mdata_cancelamento DateTime?
+
+  // Indica se a meta já possui valores e planejamento configurados.
+  Mconfigurada Boolean @default(false)
 
   Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
 
