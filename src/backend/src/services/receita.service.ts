@@ -59,7 +59,7 @@ export async function atualizarReceita(
     data_recebimento?: string;
     tipo?: "FIXA" | "VARIAVEL";
     frequencia?: "UNICA" | "SEMANAL" | "QUINZENAL" | "MENSAL" | "ANUAL";
-    status?: "ATIVA" | "INATIVA";
+    status?: "RECEBIDA" | "PENDENTE";
     observacao?: string | null;
   }
 ) {

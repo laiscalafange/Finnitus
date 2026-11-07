@@ -381,7 +381,7 @@ export async function confirmarEventoFinanceiro(
               "UNICA",
 
             status:
-              "ATIVA",
+              "RECEBIDA",
           },
         });
 

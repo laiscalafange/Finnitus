@@ -15,6 +15,8 @@ import {
   mascararMoeda,
   moedaParaNumero,
 } from "../../features/menuMais/utils";
+import { Alert } from "react-native";
+import { perfilFinanceiroService } from "../../services/perfilFinanceiro";
 
 // Limite do aumento de fonte do sistema (evita o texto passar do campo)
 const LIMITE_FONTE = 1.1;
@@ -56,17 +58,50 @@ export default function DadosFinanceiros() {
   const [dataLimite, setDataLimite] = useState(dataEmMeses(tempoSalvo));
   const [erroData, setErroData] = useState<string | undefined>();
 
-  function confirmar() {
-    // A data é opcional, mas se for preenchida precisa ser válida e futura
-    if (dataLimite.trim() && (!dataValida(dataLimite) || dataEhPassada(dataLimite))) {
-      setErroData("Informe uma data válida, a partir de hoje.");
-      return;
-    }
-
-    setEconomiaFutura(economiaFutura.trim() ? moedaParaNumero(economiaFutura) : undefined);
-    setTempoEconomia(dataLimite.trim() ? mesesAteData(dataLimite) : undefined);
-    roteador.push("/configuracaoInicial/FutureGoals");
+ 
+async function confirmar() {
+  // Verifica se a data foi preenchida e se é válida.
+  if (
+    dataLimite.trim() &&
+    (!dataValida(dataLimite) || dataEhPassada(dataLimite))
+  ) {
+    setErroData("Informe uma data válida, a partir de hoje.");
+    return;
   }
+
+  // Converte o valor da reserva.
+  const valorEconomia = economiaFutura.trim()
+    ? moedaParaNumero(economiaFutura)
+    : null;
+
+  // Converte a data em prazo de meses.
+  const prazoEmMeses = dataLimite.trim()
+    ? mesesAteData(dataLimite)
+    : null;
+
+  try {
+    // Salva a reserva no perfil financeiro do usuário.
+    await perfilFinanceiroService.salvarReserva({
+      economia_futura: valorEconomia,
+      tempo_economia: prazoEmMeses,
+    });
+
+    // Atualiza o contexto financeiro.
+    setEconomiaFutura(valorEconomia ?? undefined);
+    setTempoEconomia(prazoEmMeses ?? undefined);
+
+    // Avança após a confirmação do backend.
+    roteador.push("/configuracaoInicial/FutureGoals");
+  } catch (erro) {
+    console.error("Erro ao salvar reserva:", erro);
+
+    Alert.alert(
+      "Não foi possível salvar",
+      "Verifique sua conexão e tente novamente."
+    );
+  }
+}
+
 
   // "Deixar para depois": segue o fluxo sem preencher nem alterar nada
   function deixarParaDepois() {
