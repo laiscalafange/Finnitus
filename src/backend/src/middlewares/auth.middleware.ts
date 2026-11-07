@@ -28,7 +28,7 @@ export async function authMiddleware(
   if (!match?.[1]) {
     throw new HttpError(
       401,
-      "Informe Authorization: Bearer TOKEN.",
+      "Sessão não identificada. Faça login novamente.",
     );
   }
 

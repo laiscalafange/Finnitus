@@ -470,6 +470,7 @@ export async function atualizarMeta(
     await prisma.meta.update({
       where: {
         id_Meta,
+        id_Usuario,
       },
 
       data: {
@@ -581,6 +582,7 @@ export async function adicionarAporte(
         await tx.meta.update({
           where: {
             id_Meta,
+            id_Usuario,
           },
 
           data: {
@@ -612,6 +614,7 @@ export async function adicionarAporte(
           await tx.meta.update({
             where: {
               id_Meta,
+              id_Usuario,
             },
 
             data: {
@@ -720,6 +723,7 @@ export async function retirarDaMeta(
         await tx.meta.update({
           where: {
             id_Meta,
+            id_Usuario,
           },
 
           data: {
@@ -786,6 +790,7 @@ export async function cancelarMeta(
     await prisma.meta.update({
       where: {
         id_Meta,
+        id_Usuario,
       },
 
       data: {
@@ -794,6 +799,84 @@ export async function cancelarMeta(
 
         Mdata_cancelamento:
           new Date(),
+      },
+    });
+
+  return formatarMeta(atualizada);
+}
+
+// Desfaz um cancelamento ou uma conclusão: a meta volta para "em andamento".
+// O valor guardado não muda (se a meta foi concluída, ela volta com o valor
+// já atingido; a pessoa pode retirar ou depositar normalmente depois).
+export async function reabrirMeta(
+  id_Usuario: number,
+  id_Meta: number,
+) {
+  const meta =
+    await prisma.meta.findFirst({
+      where: {
+        id_Meta,
+        id_Usuario,
+      },
+    });
+
+  if (!meta) {
+    throw new HttpError(
+      404,
+      "Meta não encontrada.",
+    );
+  }
+
+  if (
+    meta.Mstatus ===
+    "EM_ANDAMENTO"
+  ) {
+    throw new HttpError(
+      400,
+      "A meta já está em andamento.",
+    );
+  }
+
+  // Meta do mês só aparece na tela Metas no mês dela: reabrir uma de um
+  // mês que já passou faria a meta sumir de todas as telas.
+  if (
+    meta.Mtipo === "MENSAL" &&
+    meta.Mmes_referencia
+  ) {
+    const mesAtual =
+      criarMesReferencia(
+        new Date()
+          .toISOString()
+          .slice(0, 7),
+      );
+
+    if (
+      meta.Mmes_referencia.getTime() <
+      mesAtual.getTime()
+    ) {
+      throw new HttpError(
+        400,
+        "Metas do mês de meses anteriores não podem ser reabertas.",
+      );
+    }
+  }
+
+  const atualizada =
+    await prisma.meta.update({
+      where: {
+        id_Meta,
+        id_Usuario,
+      },
+
+      data: {
+        Mstatus:
+          "EM_ANDAMENTO",
+
+        Mdata_conclusao:
+          null,
+
+        Mdata_cancelamento:
+          null,
       },
     });
 

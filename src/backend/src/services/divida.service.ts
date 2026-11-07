@@ -1,3 +1,4 @@
+import { assertOwnedCategory } from "./ownership.service.js";
 
 import { prisma } from "../lib/prisma.js";
 
@@ -14,6 +15,7 @@ export async function criarDivida(dados: {
   taxa_juros?: number | null;
   status?: "ATIVA" | "QUITADA" | "ATRASADA";
 }) {
+  await assertOwnedCategory(dados.id_Usuario, dados.id_CategoriaPersonalizada);
   return prisma.divida.create({
     data: {
       id_Usuario: dados.id_Usuario,
@@ -68,8 +70,10 @@ export async function atualizarDivida(
 
   if (!existente) return null;
 
-  return prisma.divida.update({
-    where: { id_Divida },
+  await assertOwnedCategory(id_Usuario, dados.id_CategoriaPersonalizada);
+
+  const atualizado = await prisma.divida.updateMany({
+    where: { id_Divida, id_Usuario },
     data: {
       id_Categoria: dados.id_Categoria,
       id_CategoriaPersonalizada:
@@ -86,6 +90,8 @@ export async function atualizarDivida(
       status: dados.status,
     },
   });
+  if (atualizado.count !== 1) return null;
+  return buscarDivida(id_Divida, id_Usuario);
 }
 
 export async function excluirDivida(
@@ -96,7 +102,8 @@ export async function excluirDivida(
 
   if (!existente) return null;
 
-  return prisma.divida.delete({
-    where: { id_Divida },
+  const removido = await prisma.divida.deleteMany({
+    where: { id_Divida, id_Usuario },
   });
+  return removido.count === 1 ? existente : null;
 }

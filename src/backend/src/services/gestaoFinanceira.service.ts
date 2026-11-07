@@ -76,6 +76,11 @@ function converterData(data: string): Date {
 
   // Separa a data em três partes.
   const partes = data.split("-");
+  /*
+   * Separa o ano, o mês e o dia para validar
+   * se a data realmente existe no calendário.
+   */
+  const [ano = 0, mes = 0, dia = 0] = dataReferencia.split("-").map(Number);
 
   // Converte cada parte para número explicitamente.
   const ano = Number(partes[0]);

@@ -56,10 +56,13 @@ export const getStyles = (insetBottom: number) => StyleSheet.create({
     paddingBottom: 10,
   },
 
+  // Altura fixa: todo ícone fica centralizado na mesma faixa, então todos
+  // ficam na mesma altura (antes o ⋮ deixava o grupo da direita mais alto)
   aba: {
     alignItems: 'center',
     justifyContent: 'center',
     minWidth: 38,
+    height: 30,
   },
 
   icone: {
@@ -73,17 +76,34 @@ export const getStyles = (insetBottom: number) => StyleSheet.create({
     tintColor: Cores.destaque.limao,
   },
 
+  // Plano B: mesmo roxo dos outros ícones da barra
+  iconePlanoB: {
+    tintColor: '#7E3BED',
+  },
+
+  // ⋮ desenhado com 3 pontinhos, numa caixa 26x26 igual à dos outros ícones
   maisOpcoes: {
-    fontSize: 25,
-    lineHeight: 30,
-    color: Cores.roxo.claro,
+    width: 26,
+    height: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3.5,
     opacity: 0.5,
-    fontFamily: FONTS.quicksand.regular,
   },
 
   maisOpcoesAtivo: {
     opacity: 1,
-    color: Cores.destaque.limao,
+  },
+
+  maisOpcoesPonto: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#7E3BED',
+  },
+
+  maisOpcoesPontoAtivo: {
+    backgroundColor: Cores.destaque.limao,
   },
 
   fab: {

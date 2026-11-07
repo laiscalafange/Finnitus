@@ -30,6 +30,8 @@ function getEnvVarBoolean(
 
 export const env = {
   PORT: Number(getEnvVarOptional("PORT", "3333")),
+  // 0 por padrão; configure 1 apenas atrás de proxy reverso confiável.
+  TRUST_PROXY_HOPS: Math.max(0, Math.min(2, Number(getEnvVarOptional("TRUST_PROXY_HOPS", "0")) || 0)),
 
   NODE_ENV: getEnvVarOptional(
     "NODE_ENV",

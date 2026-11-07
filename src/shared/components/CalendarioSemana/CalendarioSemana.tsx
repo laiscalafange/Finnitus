@@ -144,30 +144,34 @@ export function CalendarioSemana({
                     <View style={styles.weekStrip}>
                         {diasSemana.map(dia => {
                             const selecionado = dia.chave === chaveDia(diaSelecionado)
-                            const marcado = diasMarcados.includes(dia.chave)
+                            // Hoje (a data de verdade, não o dia selecionado)
+                            const hoje = dia.chave === chaveDia(new Date())
+                            // Dia com prazo de meta (hoje continua verde)
+                            const marcado = diasMarcados.includes(dia.chave) && !hoje
 
                             return (
                                 <TouchableOpacity
                                     key={dia.chave}
                                     style={[
                                         styles.diaContainer,
-                                        selecionado && styles.diaContainerAtivo,
                                         marcado && styles.diaContainerMarcado,
-                                        marcado && selecionado && styles.diaContainerMarcadoAtivo,
+                                        hoje && styles.diaContainerHoje,
+                                        selecionado && styles.diaContainerAtivo,
                                     ]}
                                     onPress={() => selecionarDia(dia)}
                                     activeOpacity={0.7}
                                 >
-                                    <Text style={[styles.diaLetra, marcado && styles.diaLetraMarcado]}>
+                                    <Text style={[styles.diaLetra, hoje && styles.diaLetraHoje]}>
                                         {dia.letra}
                                     </Text>
-                                    <Text style={[styles.diaNumero, marcado && styles.diaNumeroMarcado]}>
+                                    <Text style={[styles.diaNumero, hoje && styles.diaNumeroHoje]}>
                                         {dia.numero}
                                     </Text>
                                     <View
                                         style={[
                                             styles.diaPonto,
                                             selecionado && styles.diaPontoAtivo,
+                                            hoje && styles.diaPontoHoje,
                                             marcado && styles.diaPontoMarcado,
                                         ]}
                                     />

@@ -67,7 +67,7 @@ export async function atualizarImprevisto(
   }
 
   return await prisma.imprevisto.update({
-    where: { id_Imprevisto: id },
+    where: { id_Imprevisto: id, id_Usuario },
     data: {
       ...(dados.Inome !== undefined && { Inome: dados.Inome }),
       ...(dados.Ivalor !== undefined && { Ivalor: dados.Ivalor }),
@@ -104,6 +104,6 @@ export async function excluirImprevisto(
   }
 
   return await prisma.imprevisto.delete({
-    where: { id_Imprevisto: id },
+    where: { id_Imprevisto: id, id_Usuario },
   });
 }

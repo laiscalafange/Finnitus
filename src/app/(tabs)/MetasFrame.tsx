@@ -1,32 +1,95 @@
-import { Image, Modal, Pressable, Text, View } from "react-native";
+
+import {
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { X } from "lucide-react-native";
 
 import { Card } from "../../shared/components/Cards";
-import { Button } from "../../shared/components/Button";
 import { Cores } from "../../shared/constants/Cores";
+import { FONTS } from "../../shared/constants/Tipografia";
 
-// Mesmo visual dos cards da Reserva de emergência (overlay, card, X, título...)
 import { styles } from "@/features/menuMais/components/ModalReserva/styles";
 import { formatarMoeda } from "@/features/menuMais/utils";
 
+// Paleta exclusiva dos modais de metas
+const CORES_MODAL = {
+  fundo: "rgba(44, 27, 67, 0.92)",
+  botaoPrincipal: "rgba(89, 48, 145, 0.78)",
+  botaoSecundario: "rgba(56, 32, 91, 0.65)",
+  borda: "rgba(163, 87, 255, 0.25)",
+  limao: "#B7FF00",
+  textoSecundario: "#C7A9F5",
+};
+
+const estilosMetas = StyleSheet.create({
+  card: {
+    width: "86%",
+    alignSelf: "center",
+    borderWidth: 1,
+    borderColor: CORES_MODAL.borda,
+  },
+
+  botoes: {
+    width: "100%",
+    gap: 16,
+    marginTop: 18,
+  },
+
+  botaoPrincipal: {
+    width: "100%",
+    minHeight: 46,
+    backgroundColor: CORES_MODAL.botaoPrincipal,
+    borderWidth: 1,
+    borderColor: CORES_MODAL.borda,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+
+  botaoSecundario: {
+    width: "100%",
+    minHeight: 46,
+    backgroundColor: CORES_MODAL.botaoSecundario,
+    borderWidth: 1,
+    borderColor: CORES_MODAL.borda,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+
+  textoBotaoPrincipal: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: CORES_MODAL.limao,
+    textAlign: "center",
+  },
+
+  textoBotaoSecundario: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: CORES_MODAL.textoSecundario,
+    textAlign: "center",
+  },
+});
+
 type Props = {
-  // Controla se o card flutuante está aparecendo por cima da tela
   visible?: boolean;
-  // "criada": aparece na tela de criação depois de criar a meta
-  // "alcancada": aparece quando um depósito completa o valor da meta
   tipo?: "criada" | "alcancada";
-  // Nome da meta e valor mostrado na mensagem (valor objetivo na "criada",
-  // valor guardado na "alcançada")
   nome?: string;
   valor?: number;
-  // Chamado ao fechar o card (X, tocar fora, botão voltar do Android ou ao
-  // escolher uma das ações)
   onClose?: () => void;
 };
 
-// Card flutuante (modal) das metas. Tem dois jeitos, com o mesmo visual:
-// "Meta criada!" e "Meta alcançada!".
 export default function MetasFrame({
   visible = false,
   tipo = "criada",
@@ -34,10 +97,22 @@ export default function MetasFrame({
   valor = 0,
   onClose = () => {},
 }: Props) {
-  // Hook de navegação do Expo Router
   const router = useRouter();
 
   const alcancada = tipo === "alcancada";
+
+  function irParaMetas() {
+    onClose();
+    router.navigate("/metas");
+  }
+
+  function definirNovaMeta() {
+    onClose();
+    router.navigate({
+      pathname: "/MetasFuturas",
+      params: { tipo: "longoPrazo" },
+    });
+  }
 
   return (
     <Modal
@@ -48,13 +123,20 @@ export default function MetasFrame({
     >
       <View style={styles.overlay}>
         {/* Fundo escurecido: tocar fora fecha */}
-        <Pressable style={styles.fundo} onPress={onClose} />
+        <Pressable
+          style={styles.fundo}
+          onPress={onClose}
+        />
 
+        {/* Card principal */}
         <Card
-          gradiente={["rgba(73, 38, 155, 0.95)", "rgba(45, 17, 108, 0.95)"]}
-          style={styles.card}
+          gradiente={[
+            CORES_MODAL.fundo,
+            CORES_MODAL.fundo,
+          ]}
+          style={[styles.card, estilosMetas.card]}
         >
-          {/* Botão X no canto superior direito */}
+          {/* Botão de fechar */}
           <Pressable
             style={styles.fechar}
             onPress={onClose}
@@ -62,7 +144,10 @@ export default function MetasFrame({
             accessibilityRole="button"
             accessibilityLabel="Fechar"
           >
-            <X size={22} color={Cores.texto.claro} />
+            <X
+              size={22}
+              color={Cores.texto.claro}
+            />
           </Pressable>
 
           <View style={styles.centralizado}>
@@ -75,54 +160,95 @@ export default function MetasFrame({
               />
             </View>
 
-            <Text style={[styles.titulo, styles.tituloCentro]}>
-              {alcancada ? "Meta alcançada!" : "Meta criada!"}
+            {/* Título */}
+            <Text
+              style={[
+                styles.titulo,
+                styles.tituloCentro,
+              ]}
+            >
+              {alcancada
+                ? "Meta alcançada!"
+                : "Meta criada!"}
             </Text>
 
+            {/* Mensagem */}
             <Text style={styles.texto}>
               {alcancada
                 ? `Você guardou ${formatarMoeda(valor)} para ${nome}. Continue assim!`
                 : `Sua meta "${nome}" de ${formatarMoeda(valor)} está pronta. Agora é só começar a guardar!`}
             </Text>
 
-            <View style={styles.botoes}>
+            {/* Botões */}
+            <View
+              style={[
+                styles.botoes,
+                estilosMetas.botoes,
+              ]}
+            >
               {alcancada ? (
                 <>
-                  {/* Leva pra criação de uma nova meta */}
-                  <Button
-                    titulo="Definir nova meta"
-                    onPress={() => {
-                      onClose();
-                      router.navigate("/MetasFuturas");
-                    }}
-                  />
+                  {/* Definir nova meta */}
+                  <Pressable
+                    style={estilosMetas.botaoPrincipal}
+                    onPress={definirNovaMeta}
+                    accessibilityRole="button"
+                  >
+                    <Text
+                      style={
+                        estilosMetas.textoBotaoPrincipal
+                      }
+                    >
+                      Definir nova meta
+                    </Text>
+                  </Pressable>
 
-                  <Button
-                    titulo="Ver minhas metas"
-                    variante="botaotexto"
-                    onPress={() => {
-                      onClose();
-                      router.navigate("/metas");
-                    }}
-                  />
+                  {/* Ver minhas metas */}
+                  <Pressable
+                    style={estilosMetas.botaoSecundario}
+                    onPress={irParaMetas}
+                    accessibilityRole="button"
+                  >
+                    <Text
+                      style={
+                        estilosMetas.textoBotaoSecundario
+                      }
+                    >
+                      Ver minhas metas
+                    </Text>
+                  </Pressable>
                 </>
               ) : (
                 <>
-                  {/* Leva pra tela com a lista de metas */}
-                  <Button
-                    titulo="Ver minhas metas"
-                    onPress={() => {
-                      onClose();
-                      router.navigate("/metas");
-                    }}
-                  />
+                  {/* Ver minhas metas */}
+                  <Pressable
+                    style={estilosMetas.botaoPrincipal}
+                    onPress={irParaMetas}
+                    accessibilityRole="button"
+                  >
+                    <Text
+                      style={
+                        estilosMetas.textoBotaoPrincipal
+                      }
+                    >
+                      Ver minhas metas
+                    </Text>
+                  </Pressable>
 
-                  {/* Fecha o card e deixa a tela de criação limpa */}
-                  <Button
-                    titulo="Criar outra meta"
-                    variante="botaotexto"
+                  {/* Criar outra meta */}
+                  <Pressable
+                    style={estilosMetas.botaoSecundario}
                     onPress={onClose}
-                  />
+                    accessibilityRole="button"
+                  >
+                    <Text
+                      style={
+                        estilosMetas.textoBotaoSecundario
+                      }
+                    >
+                      Criar outra meta
+                    </Text>
+                  </Pressable>
                 </>
               )}
             </View>

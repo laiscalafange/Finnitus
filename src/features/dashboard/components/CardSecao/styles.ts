@@ -1,9 +1,8 @@
+
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
 
-// Mesmo padrão das outras telas (Dashboard, Plano B, Metas): título em verde
-// fora do card e card roxo liso (Cores.fundo.card)
 export const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
@@ -32,16 +31,16 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: Cores.roxo.claro,
   },
-
-  // Card com várias linhas (Despesas fixas, Atenção)
   lista: {
     borderRadius: 18,
-    backgroundColor: Cores.fundo.card,
+    backgroundColor: 'rgba(72, 34, 135, 0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(163, 87, 255, 0.22)',
     overflow: 'hidden',
   },
   divisor: {
     height: 1,
-    backgroundColor: Cores.overlay.suave,
+    backgroundColor: 'rgba(163, 87, 255, 0.18)',
     marginHorizontal: 14,
   },
   linha: {
@@ -52,7 +51,6 @@ export const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
   },
-  // Faixa verde no começo da linha (usada nos avisos)
   linhaDestaque: {
     borderLeftWidth: 4,
     borderLeftColor: Cores.destaque.limao,
@@ -61,7 +59,7 @@ export const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Cores.fundo.cardAlt,
+    backgroundColor: 'rgba(163, 87, 255, 0.18)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -79,11 +77,9 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.regular,
     fontSize: 14,
     lineHeight: 17,
-    color: Cores.texto.principal,
+    color: Cores.texto.claro,
     marginTop: 2,
   },
-
-  // Botão arredondado ("Ver evento", "Ver meta")
   pilula: {
     flexDirection: 'row',
     alignItems: 'center',

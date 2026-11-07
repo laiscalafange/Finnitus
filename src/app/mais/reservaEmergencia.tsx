@@ -241,13 +241,29 @@ export default function ReservaEmergencia() {
               </View>
             </Card>
 
+            {/* Botões sólidos, sem gradiente */}
             <View style={styles.linhaBotoes}>
-              <View style={styles.colunaBotao}>
-                <Button titulo="Depositar" onPress={() => abrirModal("depositar")} />
-              </View>
-              <View style={styles.colunaBotao}>
-                <Button titulo="Retirar" onPress={() => abrirModal("retirar")} />
-              </View>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.botaoDepositar,
+                  pressed && styles.botaoPressionado,
+                ]}
+                onPress={() => abrirModal("depositar")}
+                accessibilityRole="button"
+              >
+                <Text style={styles.textoBotaoDepositar}>Depositar</Text>
+              </Pressable>
+
+              <Pressable
+                style={({ pressed }) => [
+                  styles.botaoRetirar,
+                  pressed && styles.botaoPressionado,
+                ]}
+                onPress={() => abrirModal("retirar")}
+                accessibilityRole="button"
+              >
+                <Text style={styles.textoBotaoRetirar}>Retirar</Text>
+              </Pressable>
             </View>
 
             <Text style={styles.tituloSecao}>Últimas movimentações</Text>

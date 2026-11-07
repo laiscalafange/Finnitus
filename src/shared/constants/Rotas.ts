@@ -12,6 +12,8 @@ export const Rotas = {
   sumarioDetalhado: '/Detalhes/SumarioDetalhado',
   atividade: '/Detalhes/Atividade',
   rotasGastos: '/Detalhes/RotasGastos',
+  detalheImprevisto: '/Detalhes/DetalheImprevisto',
+  planoB: '/PlanoB',
   contasFixas: '/Contas/ContasFixas',
   detalhesConta: '/Contas/DetalhesConta',
   editarConta: '/Contas/EditarConta',

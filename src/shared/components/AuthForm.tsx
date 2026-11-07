@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BackgroundGradient } from "./backgroundGradient";
+import { AuthBackground } from "./AuthBackground";
 import { BotaoVoltarAuth } from "./BotaoVoltar";
 
 type AuthFormProps = {
@@ -72,8 +72,8 @@ export function AuthForm({
   );
 
   return (
-    <View style={styles.screen}>
-      <BackgroundGradient />
+    <View style={styles.screenBase}>
+      <AuthBackground />
 
       <SafeAreaView style={styles.screen}>
         {mostrarVoltar ? <BotaoVoltarAuth /> : null}
@@ -147,6 +147,11 @@ export const formStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
+  screenBase: {
+    flex: 1,
+    backgroundColor: "#09090B",
+  },
+
   screen: {
     flex: 1,
   },

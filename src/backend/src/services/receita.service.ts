@@ -1,3 +1,4 @@
+import { assertOwnedCategory } from "./ownership.service.js";
 
 import { prisma } from "../lib/prisma.js";
 
@@ -13,6 +14,7 @@ export async function criarReceita(dados: {
   frequencia: "UNICA" | "SEMANAL" | "QUINZENAL" | "MENSAL" | "ANUAL";
   observacao?: string;
 }) {
+  await assertOwnedCategory(dados.id_Usuario, dados.id_CategoriaPersonalizada);
   return prisma.receita.create({
     data: {
       id_Usuario: dados.id_Usuario,
@@ -69,8 +71,10 @@ export async function atualizarReceita(
     return null;
   }
 
-  return prisma.receita.update({
-    where: { id_Receita },
+  await assertOwnedCategory(id_Usuario, dados.id_CategoriaPersonalizada);
+
+  const atualizado = await prisma.receita.updateMany({
+    where: { id_Receita, id_Usuario },
     data: {
       id_Categoria: dados.id_Categoria,
       id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
@@ -85,6 +89,8 @@ export async function atualizarReceita(
       observacao: dados.observacao,
     },
   });
+  if (atualizado.count !== 1) return null;
+  return buscarReceita(id_Receita, id_Usuario);
 }
 
 export async function excluirReceita(
@@ -97,7 +103,8 @@ export async function excluirReceita(
     return null;
   }
 
-  return prisma.receita.delete({
-    where: { id_Receita },
+  const removido = await prisma.receita.deleteMany({
+    where: { id_Receita, id_Usuario },
   });
+  return removido.count === 1 ? existente : null;
 }

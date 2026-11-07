@@ -3,11 +3,8 @@ import {
 } from "../../features/calendar/utils/classificarEventoFinanceiro";
 
 import {
-  Image,
-  Modal,
-  ScrollView, StyleSheet, Text,
-  TextInput,
-  TouchableOpacity, View,
+  Alert, Animated, Easing, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
+  Text, TextInput, TouchableOpacity, View, Modal,
 } from "react-native";
 
 import {
@@ -16,20 +13,22 @@ import {
 } from "../../features/calendar/services/deviceCalendarService";
 
 import { LinearGradient } from "expo-linear-gradient";
-import { Calendar, LocaleConfig } from "react-native-calendars";
 import Svg, { Circle } from "react-native-svg";
+import { Calendar, LocaleConfig } from "react-native-calendars";
 
 import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
-  confirmarEventoFinanceiro,
   listarItensCalendario,
+  confirmarEventoFinanceiro,
   marcarEventoNaoFinanceiro,
   type ItemCalendario,
+  atualizarMovimentacaoCalendario,
 } from "../../features/calendar/services/calendarService";
-
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
+// Mesmos componentes do modal "Alterar foto de perfil" e das telas de cadastro
+import { Card } from "../../shared/components/Cards";
 import { Cores } from "../../shared/constants/Cores";
 import { GRADIENTS } from "../../shared/constants/Gradientes";
 import { Rotas } from "../../shared/constants/Rotas";
@@ -50,10 +49,10 @@ import {
 // Seletor de mês/ano e a função que gera "AAAA-MM-DD" na data local (a mesma
 // usada no calendário da semana de Metas)
 
-import coroaIcon from "../../../assets/icones/coroa.png";
-import sinoIcon from "../../../assets/icones/sino.png";
 import { ModalMesAno } from "../../features/calendar/components/ModalMesAno";
 import { chaveDia } from "../../shared/components/CalendarioSemana/CalendarioSemana";
+import coroaIcon from "../../../assets/icones/coroa.png";
+import sinoIcon from "../../../assets/icones/sino.png";
 
 // ─────────────────────────────────────────────
 
@@ -66,6 +65,8 @@ type SegmentoGauge = {
   pct: number;
 
 };
+
+
 
 type GaugeCircularProps = {
   tamanho?: number;
@@ -134,7 +135,7 @@ LocaleConfig.locales["pt"] = {
   ],
 
   // IMPORTANTE: a lista precisa começar no DOMINGO (índice 0 = domingo).
-  // A semana começar na segunda é controlado pelo firstDay={1} do <Calendar>.
+  // Quem define o primeiro dia da semana (domingo) é o firstDay={0} do <Calendar>.
   dayNamesShort: [
     "dom",
     "seg",
@@ -158,20 +159,47 @@ LocaleConfig.defaultLocale = "pt";
 // ─────────────────────────────────────────────
 
 const estilosEvento = StyleSheet.create({
+  // Card "Eventos": mesmo card roxo translúcido do modal de foto de perfil
   cardEvento: {
-    borderRadius: 18,
     padding: 16,
     marginBottom: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    overflow: "hidden",
   },
 
-  // Caixa "Possível movimentação financeira" dentro do card
-  eventoMovimentacao: {
+  // Cada evento do card: só espaço entre eles (sem a linha roxa embaixo)
+  eventoItem: {
     marginTop: 10,
-    padding: 14,
-    borderRadius: 14,
+  },
+
+  // "Calendário do celular" à esquerda e "Dia inteiro" / hora à direita,
+  // na mesma linha (antes eram duas linhas separadas)
+  eventoLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+
+  // Data do card (sem itálico: a fonte do app não tem versão itálica e o
+  // Android trocava pela fonte cursiva do sistema)
+  eventoData: {
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 16,
+    color: Cores.texto.claro,
+  },
+
+  // Caixa "Possível movimentação financeira": mesmo estilo das opções do
+  // modal de foto de perfil (translúcida, com borda e cantos arredondados)
+  eventoMovimentacao: {
+    marginTop: 8,
+    padding: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: Cores.overlay.medio,
-    backgroundColor: "rgba(12, 10, 20, 0.35)",
+    borderColor: 'rgba(72, 34, 135, 0.55)',
+    backgroundColor:  'rgba(73, 34, 135, 0.32)',
   },
 
   eventoMovTitulo: {
@@ -181,9 +209,9 @@ const estilosEvento = StyleSheet.create({
   },
 
   eventoMovDetalhe: {
-    fontFamily: FONTS.quicksand.regular,
+    fontFamily: FONTS.quicksand.semibold,
     fontSize: 14,
-    color: Cores.base.branco,
+    color:Cores.texto.claro,
     marginTop: 4,
   },
 
@@ -196,59 +224,232 @@ const estilosEvento = StyleSheet.create({
 
   eventoMovBotoes: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 12,
+    gap: 8,
+    marginTop: 10,
   },
 
-  // Botão principal (limão) e secundário (contorno) lado a lado
+  // Botão principal: mesmo gradiente roxo + texto limão do <Button>
   eventoBotaoPrimario: {
     flex: 1,
-    height: 44,
+    height: 40,
     borderRadius: 12,
-    backgroundColor: Cores.destaque.limao,
+    borderWidth: 1,
+    borderColor: 'rgba(91, 62, 137, 0.55)',
+    overflow: "hidden",
+  },
+
+  eventoBotaoPrimarioFundo: {
+    flex: 1,
+    paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
   },
 
   eventoBotaoPrimarioTexto: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 14,
-    color: Cores.texto.contraste,
+    fontSize: 13,
+    color: Cores.destaque.limao,
   },
 
+  // Botão secundário: mesmo visual das opções do modal de foto de perfil
   eventoBotaoSecundario: {
     flex: 1,
-    height: 44,
+    height: 40,
     borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Cores.overlay.intenso,
+    borderWidth: 1,
+    borderColor:'rgba(91, 62, 137, 0.55)',
+    backgroundColor:'rgba(72, 34, 135, 0.55)',
+    paddingHorizontal: 8,
     alignItems: "center",
     justifyContent: "center",
   },
 
   eventoBotaoSecundarioTexto: {
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 14,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 13,
     color: Cores.base.branco,
   },
 
-  // Botão de contorno limão ("Tornar financeiro" / "Marcar como financeiro")
+  // "Tornar financeiro" / "Marcar como financeiro": mesmo visual do secundário
+  // Botão pequeno, só do tamanho do texto (não ocupa a largura toda)
   eventoBotaoContorno: {
-    height: 44,
+    alignSelf: "flex-start",
+    height: 36,
     borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Cores.destaque.limao,
-    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.25)",
+    backgroundColor: "rgba(72, 34, 135, 0.55)",
+    paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "center",
   },
 
   eventoBotaoContornoTexto: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 13,
+    color: Cores.base.branco,
+  },
+
+  // ── Modal "Confirmar movimentação" (mesmo padrão do ModalFotoPerfil) ──
+  // Card flutuando no meio da tela
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+
+  modalFundo: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+  },
+
+  modalCard: {
+    maxHeight: "90%",
+    borderRadius: 28,
+    borderColor: "rgba(168, 79, 255, 0.35)",
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 18,
+    marginBottom: 0,
+  },
+
+  modalTitulo: {
+    fontFamily: FONTS.raleway.bold,
+    color: Cores.base.branco,
+    fontSize: 19,
+    textAlign: "center",
+    marginBottom: 4,
+  },
+
+  modalSubtitulo: {
+    fontFamily: FONTS.quicksand.regular,
+    color: Cores.texto.claro,
+    fontSize: 13,
+    textAlign: "center",
+    marginBottom: 14,
+  },
+
+  // Rótulo dos campos do modal (menor que o do <Input> padrão)
+  modalRotulo: {
     fontFamily: FONTS.raleway.bold,
     fontSize: 14,
     color: Cores.destaque.limao,
+    marginBottom: 6,
+  },
+
+  // Alternador Despesa | Receita (versão compacta do <AlternadorTipo>)
+  modalTipo: {
+    flexDirection: "row",
+    padding: 3,
+    marginBottom: 12,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: Cores.roxo.claro,
+    backgroundColor: "#38205B",
+    overflow: "hidden",
+  },
+
+  modalTipoIndicador: {
+    position: "absolute",
+    top: 3,
+    bottom: 3,
+    left: 3,
+    borderRadius: 11,
+    backgroundColor: Cores.destaque.limao,
+  },
+
+  modalTipoOpcao: {
+    flex: 1,
+    height: 32,
+    borderRadius: 11,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1,
+  },
+
+  modalTipoTexto: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 13,
+    color: Cores.texto.claro,
+  },
+
+  // Texto da opção marcada (roxo escuro sobre o limão)
+  modalTipoTextoAtivo: {
+    color: Cores.texto.contraste,
+  },
+
+  modalCampoBloco: {
+    marginBottom: 12,
+  },
+
+  modalCampo: {
+    height: 46,
+    justifyContent: "center",
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: Cores.roxo.claro,
+    backgroundColor: Cores.fundo.principal,
+  },
+
+  modalCampoTexto: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 15,
+    color: Cores.base.branco,
+    paddingVertical: 0,
+  },
+
+  // Cancelar e Confirmar lado a lado
+  modalBotoes: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 6,
   },
 });
+
+// Campo do modal "Confirmar movimentação": mesmas cores e fontes do <Input>
+// padrão, só que mais baixo e com menos espaço entre os campos
+function CampoModal({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  keyboardType,
+  maxLength,
+  autoCapitalize = "none",
+}: {
+  label: string;
+  value: string;
+  onChangeText: (texto: string) => void;
+  placeholder?: string;
+  keyboardType?: "numeric";
+  maxLength?: number;
+  autoCapitalize?: "none" | "sentences";
+}) {
+  return (
+    <View style={estilosEvento.modalCampoBloco}>
+      <Text style={estilosEvento.modalRotulo} maxFontSizeMultiplier={1.15}>
+        {label}
+      </Text>
+
+      <View style={estilosEvento.modalCampo}>
+        <TextInput
+          style={estilosEvento.modalCampoTexto}
+          maxFontSizeMultiplier={1.15}
+          accessibilityLabel={label}
+          placeholder={placeholder}
+          placeholderTextColor={Cores.texto.desabilitado}
+          keyboardType={keyboardType}
+          maxLength={maxLength}
+          autoCapitalize={autoCapitalize}
+          autoCorrect={false}
+          value={value}
+          onChangeText={onChangeText}
+        />
+      </View>
+    </View>
+  );
+}
 
 // ─────────────────────────────────────────────
 
@@ -256,23 +457,12 @@ const estilosEvento = StyleSheet.create({
 
 // ─────────────────────────────────────────────
 
-
-function obterDataCalendario(
-  item: ItemCalendario
-): string {
-  if (item.tipo === "EVENTO") {
-    const data = new Date(item.data);
-
-    if (Number.isNaN(data.getTime())) {
-      return item.data.slice(0, 10);
-    }
-
-    return chaveDia(data);
-  }
-
+function obterDataCalendario(item: ItemCalendario): string {
+  // O backend serializa as datas para ISO (AAAA-MM-DDTHH:mm:ss.sssZ).
+  // Usamos o dia gravado para evitar deslocar eventos à véspera
+  // quando o navegador está no fuso horário de Brasília.
   return item.data.slice(0, 10);
 }
-
 
 // ─────────────────────────────────────────────
 
@@ -370,6 +560,14 @@ function GaugeCircular({
 
 export default function Calendario() {
   const router = useRouter();
+
+  // Edição de receitas e despesas já cadastradas (não interfere no modal
+  // existente que confirma eventos importados do calendário do celular).
+  const [movimentacaoEmEdicao, setMovimentacaoEmEdicao] = useState<ItemCalendario | null>(null);
+  const [descricaoEdicao, setDescricaoEdicao] = useState("");
+  const [valorEdicao, setValorEdicao] = useState("");
+  const [dataEdicao, setDataEdicao] = useState("");
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [
   recarregarCalendario,
   setRecarregarCalendario,
@@ -411,6 +609,18 @@ const [
 ] = useState<"RECEITA" | "DESPESA">(
   "DESPESA"
 );
+
+  const deslocamentoTipo = useRef(new Animated.Value(0)).current;
+  const [larguraAlternador, setLarguraAlternador] = useState(0);
+
+  useEffect(() => {
+    Animated.timing(deslocamentoTipo, {
+      toValue: tipoRevisao === "RECEITA" ? 1 : 0,
+      duration: 250,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [tipoRevisao, deslocamentoTipo]);
 
 const [
   valorRevisao,
@@ -492,12 +702,6 @@ itensCalendario.forEach((item) => {
   };
 
 });
-
-useFocusEffect(
-  useCallback(() => {
-    setRecarregarCalendario((atual) => atual + 1);
-  }, [])
-);
 
 eventosDispositivo.forEach((evento) => {
   const dataEvento =
@@ -820,6 +1024,79 @@ function formatarValorCalendario(
     );
   }
 
+  // Abre o formulário já preenchido com os dados da movimentação tocada.
+  function abrirEdicaoMovimentacao(item: ItemCalendario) {
+    if (item.tipo !== "DESPESA" && item.tipo !== "RECEITA") return;
+
+    setMovimentacaoEmEdicao(item);
+    setDescricaoEdicao(item.titulo ?? "");
+    setValorEdicao(formatarCentavos(Math.round(Number(item.valor ?? 0) * 100)));
+    setDataEdicao(isoParaBr(obterDataCalendario(item)));
+  }
+
+  async function salvarEdicaoMovimentacao() {
+    if (!movimentacaoEmEdicao || salvandoEdicao) return;
+
+    const descricao = descricaoEdicao.trim();
+    const valor = moedaParaNumero(valorEdicao);
+
+    if (!descricao) {
+      Alert.alert("Descrição obrigatória", "Informe uma descrição para a movimentação.");
+      return;
+    }
+    if (!Number.isFinite(valor) || valor <= 0) {
+      Alert.alert("Valor inválido", "Informe um valor maior que zero.");
+      return;
+    }
+    if (!dataValida(dataEdicao)) {
+      Alert.alert("Data inválida", "Informe uma data válida no formato DD/MM/AAAA.");
+      return;
+    }
+
+    // O backend do calendário deve enviar o ID REAL da Receita/Despesa,
+    // nunca somente o ID do Evento.
+    const idOrigem = movimentacaoEmEdicao.movimentacaoId;
+    if (!Number.isSafeInteger(idOrigem) || !idOrigem || idOrigem <= 0) {
+      Alert.alert(
+        "Edição indisponível",
+        "O calendário ainda não enviou o ID da receita/despesa original. " +
+          "Inclua 'movimentacaoId' na resposta GET /calendario para editar com segurança."
+      );
+      return;
+    }
+
+    const novaData = brParaIso(dataEdicao);
+    setSalvandoEdicao(true);
+    try {
+      await atualizarMovimentacaoCalendario({
+        tipo: movimentacaoEmEdicao.tipo as "RECEITA" | "DESPESA",
+        movimentacaoId: idOrigem,
+        descricao,
+        valor,
+        data: novaData,
+      });
+
+      setMovimentacaoEmEdicao(null);
+      // Se mudar de mês, mostramos o mês onde a movimentação foi salva.
+      const novoMes = `${novaData.slice(0, 7)}-01`;
+      if (novoMes !== mesAtual) setMesAtual(novoMes);
+      setDataSelecionada(novaData);
+      setRecarregarCalendario((anterior) => anterior + 1);
+      Alert.alert("Alteração salva", "A movimentação foi atualizada no banco.");
+    } catch (error: any) {
+      console.error("Falha ao atualizar movimentação no backend:", error);
+      const detalhe = error?.response?.data?.erro ?? error?.message;
+      Alert.alert(
+        "Não foi possível salvar",
+        typeof detalhe === "string" && detalhe.length <= 250
+          ? detalhe
+          : "Não foi possível atualizar a movimentação no servidor."
+      );
+    } finally {
+      setSalvandoEdicao(false);
+    }
+  }
+
   // ─────────────────────────────────────────
 
   // TELA
@@ -920,7 +1197,7 @@ function formatarValorCalendario(
               markedDates={markedDates}
               enableSwipeMonths
               hideExtraDays={false}
-              firstDay={1}
+              firstDay={0}
               style={{
                 marginTop: 10,
               }}
@@ -1134,11 +1411,8 @@ function formatarValorCalendario(
 
           {/* ───────── EVENTOS ───────── */}
 
-          <LinearGradient
-            colors={[
-              "#3c1e75",
-              "#30096e",
-            ]}
+          <Card
+            gradiente={["rgba(73, 34, 135, 0.3)", "rgba(72, 34, 135, 0.55)"]}
             style={estilosEvento.cardEvento}
           >
             <View style={styles.eventoHeader}>
@@ -1148,7 +1422,7 @@ function formatarValorCalendario(
                 Eventos
               </Text>
               <Text
-                style={styles.eventoData}
+                style={estilosEvento.eventoData}
               >
                 {dataSelecionada
   ? dataSelecionada
@@ -1182,7 +1456,7 @@ eventosDispositivoDoDia.length > 0 ? (
       return (
         <View
           key={`${evento.tipo}-${evento.id}`}
-          style={styles.eventoItem}
+          style={estilosEvento.eventoItem}
         >
 
           <Text style={styles.eventoNome}>
@@ -1197,19 +1471,21 @@ eventosDispositivoDoDia.length > 0 ? (
             </Text>
           )}
 
-          <Text
-            style={styles.eventoDescricao}
-          >
-            {evento.origem === "DISPOSITIVO"
-              ? "Importado do calendário do celular"
-              : "Finnitus"}
-          </Text>
-
-          {!evento.diaInteiro && (
-            <Text style={styles.eventoHora}>
-              {hora}
+          <View style={estilosEvento.eventoLinha}>
+            <Text
+              style={styles.eventoDescricao}
+            >
+              {evento.origem === "DISPOSITIVO"
+                ? "Importado do calendário do celular"
+                : "Finnitus"}
             </Text>
-          )}
+
+            {!evento.diaInteiro && (
+              <Text style={styles.eventoHora}>
+                {hora}
+              </Text>
+            )}
+          </View>
         </View>
       );
     })}
@@ -1242,7 +1518,7 @@ const ehSuspeito =
           <View
             key={evento.id}
 
-            style={styles.eventoItem}
+            style={estilosEvento.eventoItem}
           >
 
             <Text style={styles.eventoNome}>
@@ -1250,17 +1526,19 @@ const ehSuspeito =
               • {evento.titulo}
 
             </Text>
-            <Text
-              style={styles.eventoDescricao}
-            >
-              Calendário do celular
-            </Text>
+            <View style={estilosEvento.eventoLinha}>
+              <Text
+                style={styles.eventoDescricao}
+              >
+                Calendário do celular
+              </Text>
 
-            <Text style={styles.eventoHora}>
-              {evento.diaInteiro
-                ? "Dia inteiro"
-                : hora}
-            </Text>
+              <Text style={styles.eventoHora}>
+                {evento.diaInteiro
+                  ? "Dia inteiro"
+                  : hora}
+              </Text>
+            </View>
 
             {ehSuspeito && (
               <View
@@ -1304,11 +1582,20 @@ const ehSuspeito =
                       }
                       style={estilosEvento.eventoBotaoPrimario}
                     >
-                      <Text
-                        style={estilosEvento.eventoBotaoPrimarioTexto}
+                      <LinearGradient
+                        colors={["#482287", "#482287"]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={estilosEvento.eventoBotaoPrimarioFundo}
                       >
-                        Confirmar
-                      </Text>
+                        <Text
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          style={estilosEvento.eventoBotaoPrimarioTexto}
+                        >
+                          Confirmar
+                        </Text>
+                      </LinearGradient>
                     </TouchableOpacity>
 <TouchableOpacity
   activeOpacity={0.8}
@@ -1354,6 +1641,8 @@ const ehSuspeito =
   style={estilosEvento.eventoBotaoSecundario}
 >
   <Text
+    numberOfLines={1}
+    adjustsFontSizeToFit
     style={estilosEvento.eventoBotaoSecundarioTexto}
   >
     Não é financeiro
@@ -1471,7 +1760,7 @@ const ehSuspeito =
 
 )}
 
-</LinearGradient>
+</Card>
 
 
 {/* ───────────────────────────────────── */}
@@ -1492,16 +1781,18 @@ const ehSuspeito =
         "RECEITA";
 
       return (
-        <LinearGradient
+        <TouchableOpacity
           key={`${item.tipo}-${item.id}`}
-          colors={[
-            "#30096e",
-            "#30096e",
-          ]}
-          style={
-            styles.gastoCard
-          }
+          activeOpacity={0.75}
+          onPress={() => abrirEdicaoMovimentacao(item)}
+          accessibilityRole="button"
+          accessibilityLabel={`Editar ${ehReceita ? "receita" : "despesa"}: ${item.titulo}`}
+          accessibilityHint="Abre os campos de descrição, valor e data para edição"
         >
+          <LinearGradient
+            colors={["rgba(72, 34, 135, 0.55)", "rgba(72, 34, 135, 0.55)"]}
+            style={styles.gastoCard}
+          >
           <View
             style={[
               styles.gastoIconeContainer,
@@ -1586,7 +1877,8 @@ const ehSuspeito =
                 ","
               )}
           </Text>
-        </LinearGradient>
+          </LinearGradient>
+        </TouchableOpacity>
       );
     }
   )
@@ -1611,10 +1903,7 @@ const ehSuspeito =
 </Text>
 
 <LinearGradient
-  colors={[
-    "#34176b",
-    "#30096e",
-  ]}
+  colors={["rgba(72, 34, 135, 0.55)", "rgba(72, 34, 135, 0.55)"]}
   style={styles.card}
 >
   <View style={styles.gastosMesCorpo}>
@@ -1755,338 +2044,316 @@ const ehSuspeito =
       </ScrollView>
 
 
+      {/* Editar uma receita ou despesa existente a partir de "Movimentações do dia". */}
+      <Modal
+        visible={movimentacaoEmEdicao !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => { if (!salvandoEdicao) setMovimentacaoEmEdicao(null); }}
+      >
+        <KeyboardAvoidingView
+          style={estilosEvento.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <Pressable
+            style={estilosEvento.modalFundo}
+            onPress={() => { if (!salvandoEdicao) setMovimentacaoEmEdicao(null); }}
+          />
+          <Card
+            gradiente={["#2C1B43", "#2C1B43"]}
+            style={estilosEvento.modalCard}
+          >
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+            >
+              <Text style={estilosEvento.modalTitulo}>
+                {movimentacaoEmEdicao?.tipo === "RECEITA" ? "Editar receita" : "Editar despesa"}
+              </Text>
+              <Text style={estilosEvento.modalSubtitulo}>
+                Altere os dados e salve para atualizar suas finanças.
+              </Text>
+
+              <CampoModal
+                label="Descrição"
+                autoCapitalize="sentences"
+                placeholder="Descrição da movimentação"
+                value={descricaoEdicao}
+                onChangeText={setDescricaoEdicao}
+              />
+              <CampoModal
+                label="Valor"
+                placeholder="0,00"
+                keyboardType="numeric"
+                value={valorEdicao}
+                onChangeText={(texto) => setValorEdicao(mascararMoeda(texto))}
+              />
+              <CampoModal
+                label="Data"
+                placeholder="DD/MM/AAAA"
+                keyboardType="numeric"
+                maxLength={10}
+                value={dataEdicao}
+                onChangeText={(texto) => setDataEdicao(mascararData(texto))}
+              />
+
+              <View style={estilosEvento.modalBotoes}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  disabled={salvandoEdicao}
+                  onPress={() => setMovimentacaoEmEdicao(null)}
+                  style={[estilosEvento.eventoBotaoSecundario, { opacity: salvandoEdicao ? 0.6 : 1 }]}
+                >
+                  <Text style={estilosEvento.eventoBotaoSecundarioTexto}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  disabled={salvandoEdicao}
+                  onPress={salvarEdicaoMovimentacao}
+                  style={[estilosEvento.eventoBotaoPrimario, { opacity: salvandoEdicao ? 0.6 : 1 }]}
+                >
+                  <LinearGradient
+                    colors={["rgba(73, 34, 135, 0.26)", "rgba(72, 34, 135, 0.55)"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={estilosEvento.eventoBotaoPrimarioFundo}
+                  >
+                    <Text style={estilosEvento.eventoBotaoPrimarioTexto}>
+                      {salvandoEdicao ? "Salvando..." : "Salvar alterações"}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </Card>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Confirmar movimentação: card roxo flutuando no meio da tela, com o
+          mesmo visual do modal "Alterar foto de perfil" (fundo escurecido,
+          tocar fora fecha) */}
       <Modal
         visible={eventoEmRevisao !== null}
         transparent
         animationType="fade"
-        onRequestClose={() =>
-          setEventoEmRevisao(null)
-        }
+        onRequestClose={() => setEventoEmRevisao(null)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor:
-              "rgba(0,0,0,0.75)",
-            justifyContent: "center",
-            padding: 20,
-          }}
+        <KeyboardAvoidingView
+          style={estilosEvento.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <View
-            style={{
-              backgroundColor: "#2C1257",
-              borderRadius: 18,
-              padding: 20,
-              borderWidth: 1,
-              borderColor:
-                Cores.destaque.limao,
-            }}
+          <Pressable
+            style={estilosEvento.modalFundo}
+            onPress={() => setEventoEmRevisao(null)}
+          />
+
+          <Card
+            gradiente={["#2c1b43d3", "#2C1B43"]}
+            style={estilosEvento.modalCard}
           >
-            <Text
-              style={{
-                color:
-                  Cores.destaque.limao,
-                fontFamily:
-                  FONTS.raleway.bold,
-                fontSize: 20,
-                marginBottom: 18,
-              }}
+            {/* Rolagem: se o teclado abrir, ainda dá pra chegar nos botões */}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
             >
-              Confirmar movimentação
-            </Text>
+              <Text style={estilosEvento.modalTitulo}>
+                Confirmar movimentação
+              </Text>
 
-            <Text
-              style={{
-                color: Cores.base.branco,
-                marginBottom: 6,
-              }}
-            >
-              Tipo
-            </Text>
+              <Text style={estilosEvento.modalSubtitulo}>
+                Revise os dados antes de salvar.
+              </Text>
 
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 10,
-                marginBottom: 15,
-              }}
-            >
-              <TouchableOpacity
-                onPress={() =>
-                  setTipoRevisao(
-                    "DESPESA"
-                  )
-                }
-                style={{
-                  flex: 1,
-                  padding: 10,
-                  borderRadius: 8,
-                  alignItems: "center",
-                  backgroundColor:
-                    tipoRevisao ===
-                    "DESPESA"
-                      ? Cores.destaque
-                          .limao
-                      : "#452078",
-                }}
+              <Text style={estilosEvento.modalRotulo}>Tipo</Text>
+
+              <View
+                style={estilosEvento.modalTipo}
+                onLayout={(event) => setLarguraAlternador(event.nativeEvent.layout.width)}
               >
-                <Text
-                  style={{
-                    color:
-                      tipoRevisao ===
-                      "DESPESA"
-                        ? Cores.roxo
-                            .escuro
-                        : Cores.base
-                            .branco,
-                  }}
-                >
-                  Despesa
-                </Text>
-              </TouchableOpacity>
+                {larguraAlternador > 0 && (
+                  <Animated.View
+                    pointerEvents="none"
+                    style={[
+                      estilosEvento.modalTipoIndicador,
+                      {
+                        width: (larguraAlternador - 6) / 2,
+                        transform: [{
+                          translateX: deslocamentoTipo.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, (larguraAlternador - 6) / 2],
+                          }),
+                        }],
+                      },
+                    ]}
+                  />
+                )}
+                {(["DESPESA", "RECEITA"] as const).map((opcao) => {
+                  const ativo = tipoRevisao === opcao;
 
-              <TouchableOpacity
-                onPress={() =>
-                  setTipoRevisao(
-                    "RECEITA"
-                  )
+                  return (
+                    <Pressable
+                      key={opcao}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: ativo }}
+                      onPress={() => setTipoRevisao(opcao)}
+                      style={[
+                        estilosEvento.modalTipoOpcao,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          estilosEvento.modalTipoTexto,
+                          ativo && estilosEvento.modalTipoTextoAtivo,
+                        ]}
+                      >
+                        {opcao === "DESPESA" ? "Despesa" : "Receita"}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <CampoModal
+                label="Valor"
+                placeholder="0,00"
+                keyboardType="numeric"
+                value={valorRevisao}
+                onChangeText={(texto) => setValorRevisao(mascararMoeda(texto))}
+              />
+
+              <CampoModal
+                label="Descrição"
+                autoCapitalize="sentences"
+                value={descricaoRevisao}
+                onChangeText={setDescricaoRevisao}
+              />
+
+              <CampoModal
+                label="Data"
+                placeholder="DD/MM/AAAA"
+                keyboardType="numeric"
+                maxLength={10}
+                value={dataRevisao}
+                onChangeText={(texto) => setDataRevisao(mascararData(texto))}
+              />
+
+              {/* Cancelar e Confirmar lado a lado, no mesmo tamanho dos
+                  botões do card de eventos */}
+              <View style={estilosEvento.modalBotoes}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setEventoEmRevisao(null)}
+                  style={estilosEvento.eventoBotaoSecundario}
+                >
+                  <Text style={estilosEvento.eventoBotaoSecundarioTexto}>
+                    Cancelar
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={async () => {
+                if (!eventoEmRevisao) {
+                  return;
                 }
-                style={{
-                  flex: 1,
-                  padding: 10,
-                  borderRadius: 8,
-                  alignItems: "center",
-                  backgroundColor:
-                    tipoRevisao ===
-                    "RECEITA"
-                      ? Cores.destaque
-                          .limao
-                      : "#452078",
-                }}
-              >
-                <Text
-                  style={{
-                    color:
-                      tipoRevisao ===
-                      "RECEITA"
-                        ? Cores.roxo
-                            .escuro
-                        : Cores.base
-                            .branco,
-                  }}
+
+                const valorNumerico =
+                  moedaParaNumero(valorRevisao);
+
+                if (
+                  !valorNumerico ||
+                  valorNumerico <= 0
+                ) {
+                  console.log(
+                    "Valor inválido."
+                  );
+
+                  return;
+                }
+
+                // A data digitada precisa ser uma data real (ex.: 31/02 não vale)
+                if (!dataValida(dataRevisao)) {
+                  console.log(
+                    "Data inválida."
+                  );
+
+                  return;
+                }
+
+                try {
+                  const resultado =
+                    await confirmarEventoFinanceiro({
+                      idEventoExterno:
+                        eventoEmRevisao.id,
+
+                      tituloEvento:
+                        eventoEmRevisao.titulo,
+
+                      dataInicio:
+                        eventoEmRevisao.dataInicio,
+
+                      dataFim:
+                        eventoEmRevisao.dataFim,
+
+                      diaInteiro:
+                        eventoEmRevisao.diaInteiro,
+
+                      tipoMovimentacao:
+                        tipoRevisao,
+
+                      descricao:
+                        descricaoRevisao,
+
+                      valor:
+                        valorNumerico,
+
+                      // A API continua recebendo AAAA-MM-DD
+                      data:
+                        brParaIso(dataRevisao),
+                    });
+
+                  console.log(
+                    "Movimentação salva:",
+                    resultado
+                  );
+
+                  setDecisoesEventos(
+                    (atual) => ({
+                      ...atual,
+                      [eventoEmRevisao.id]:
+                        "CONFIRMADO",
+                    })
+                  );
+
+                  setEventoEmRevisao(null);
+
+                  setRecarregarCalendario(
+                    (atual) => atual + 1
+                  );
+                } catch (error) {
+                  console.error(
+                    "Erro ao salvar movimentação:",
+                    error
+                  );
+                }
+              }}
+                  style={estilosEvento.eventoBotaoPrimario}
                 >
-                  Receita
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text
-              style={{
-                color: Cores.base.branco,
-                marginBottom: 6,
-              }}
-            >
-              Valor
-            </Text>
-
-            <TextInput
-              value={valorRevisao}
-              onChangeText={(texto) =>
-                setValorRevisao(
-                  mascararMoeda(texto)
-                )
-              }
-              placeholder="0,00"
-              placeholderTextColor="#9E8CBF"
-              keyboardType="numeric"
-              style={{
-                backgroundColor: "#1D0C39",
-                color: Cores.base.branco,
-                padding: 12,
-                borderRadius: 8,
-                marginBottom: 15,
-              }}
-            />
-
-            <Text
-              style={{
-                color: Cores.base.branco,
-                marginBottom: 6,
-              }}
-            >
-              Descrição
-            </Text>
-
-            <TextInput
-              value={descricaoRevisao}
-              onChangeText={
-                setDescricaoRevisao
-              }
-              style={{
-                backgroundColor: "#1D0C39",
-                color: Cores.base.branco,
-                padding: 12,
-                borderRadius: 8,
-                marginBottom: 15,
-              }}
-            />
-
-            <Text
-              style={{
-                color: Cores.base.branco,
-                marginBottom: 6,
-              }}
-            >
-              Data
-            </Text>
-
-            <TextInput
-              value={dataRevisao}
-              onChangeText={(texto) =>
-                setDataRevisao(
-                  mascararData(texto)
-                )
-              }
-              placeholder="DD/MM/AAAA"
-              placeholderTextColor="#9E8CBF"
-              keyboardType="numeric"
-              maxLength={10}
-              style={{
-                backgroundColor: "#1D0C39",
-                color: Cores.base.branco,
-                padding: 12,
-                borderRadius: 8,
-                marginBottom: 20,
-              }}
-            />
-
-            <TouchableOpacity
-  onPress={async () => {
-    if (!eventoEmRevisao) {
-      return;
-    }
-
-    const valorNumerico =
-      moedaParaNumero(valorRevisao);
-
-    if (
-      !valorNumerico ||
-      valorNumerico <= 0
-    ) {
-      console.log(
-        "Valor inválido."
-      );
-
-      return;
-    }
-
-    // A data digitada precisa ser uma data real (ex.: 31/02 não vale)
-    if (!dataValida(dataRevisao)) {
-      console.log(
-        "Data inválida."
-      );
-
-      return;
-    }
-
-    try {
-      const resultado =
-        await confirmarEventoFinanceiro({
-          idEventoExterno:
-            eventoEmRevisao.id,
-
-          tituloEvento:
-            eventoEmRevisao.titulo,
-
-          dataInicio:
-            eventoEmRevisao.dataInicio,
-
-          dataFim:
-            eventoEmRevisao.dataFim,
-
-          diaInteiro:
-            eventoEmRevisao.diaInteiro,
-
-          tipoMovimentacao:
-            tipoRevisao,
-
-          descricao:
-            descricaoRevisao,
-
-          valor:
-            valorNumerico,
-
-          // A API continua recebendo AAAA-MM-DD
-          data:
-            brParaIso(dataRevisao),
-        });
-
-      console.log(
-        "Movimentação salva:",
-        resultado
-      );
-
-      setDecisoesEventos(
-        (atual) => ({
-          ...atual,
-          [eventoEmRevisao.id]:
-            "CONFIRMADO",
-        })
-      );
-
-      setEventoEmRevisao(null);
-
-      setRecarregarCalendario(
-        (atual) => atual + 1
-      );
-    } catch (error) {
-      console.error(
-        "Erro ao salvar movimentação:",
-        error
-      );
-    }
-  }}
-  style={{
-    backgroundColor:
-      Cores.destaque.limao,
-    padding: 13,
-    borderRadius: 9,
-    alignItems: "center",
-    marginBottom: 10,
-  }}
->
-  <Text
-    style={{
-      color:
-        Cores.roxo.escuro,
-      fontFamily:
-        FONTS.raleway.bold,
-    }}
-  >
-    Confirmar movimentação
-  </Text>
-</TouchableOpacity>
-
-<TouchableOpacity
-  onPress={() =>
-    setEventoEmRevisao(null)
-  }
-  style={{
-    padding: 10,
-    alignItems: "center",
-  }}
->
-  <Text
-    style={{
-      color:
-        Cores.base.branco,
-    }}
-  >
-    Cancelar
-  </Text>
-</TouchableOpacity>
-          </View>
-        </View>
+                  <LinearGradient
+                    colors={['rgba(72, 34, 135, 0.55)','rgba(72, 34, 135, 0.55)']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={estilosEvento.eventoBotaoPrimarioFundo}
+                  >
+                    <Text style={estilosEvento.eventoBotaoPrimarioTexto}>
+                      Confirmar
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </Card>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Escolher mês e ano do calendário */}
@@ -2130,10 +2397,4 @@ const ehSuspeito =
 
   );
 
-}
-
-function useFocusEffect(effect: () => void) {
-  useEffect(() => {
-    effect();
-  }, [effect]);
 }

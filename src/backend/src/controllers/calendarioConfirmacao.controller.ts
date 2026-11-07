@@ -108,10 +108,7 @@ export async function confirmarEvento(
       .status(201)
       .json(resultado);
   } catch (error) {
-    console.error(
-      "Erro ao confirmar evento financeiro:",
-      error
-    );
+    console.error("Falha ao confirmar evento", { tipo: error instanceof Error ? error.name : "unknown" });
 
     const mensagem =
       error instanceof Error
@@ -126,7 +123,7 @@ export async function confirmarEvento(
         : 500;
 
     return res.status(status).json({
-      error: mensagem,
+      error: status === 409 ? "Este evento já foi classificado. Atualize a lista e tente novamente." : "Não foi possível processar o evento.",
     });
   }
 }
@@ -191,10 +188,7 @@ export async function marcarNaoFinanceiro(
       evento,
     });
   } catch (error) {
-    console.error(
-      "Erro ao marcar evento como não financeiro:",
-      error
-    );
+    console.error("Falha ao classificar evento", { tipo: error instanceof Error ? error.name : "unknown" });
 
     const mensagem =
       error instanceof Error
@@ -209,7 +203,7 @@ export async function marcarNaoFinanceiro(
         : 500;
 
     return res.status(status).json({
-      error: mensagem,
+      error: status === 409 ? "Este evento já foi classificado. Atualize a lista e tente novamente." : "Não foi possível processar o evento.",
     });
   }
 }

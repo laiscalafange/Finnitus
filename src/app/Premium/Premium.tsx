@@ -22,7 +22,7 @@ export default function Premium() {
 
   // Índice do plano ativo no carrossel (0 = Básico, 1 = Mega finn, 2 = Infinitos)
   // Começa em 1 porque o Mega finn é o plano "mais popular", já vem selecionado
-  const [indiceAtivo, setIndiceAtivo] = useState(1);
+  const [indiceAtivo, setIndiceAtivo] = useState(0);
 
   // Quando clica numa aba (Básico/Mega finn/Infinitos), rola o carrossel até ela
   function irParaPlano(indice: number) {
@@ -50,11 +50,6 @@ export default function Premium() {
   // passando o id do plano escolhido como parâmetro de rota.
   // O plano Básico é grátis (não tem pagamento), então só volta pra tela anterior.
   function aoConfirmarPlano(planoId: string) {
-    if (planoId === "basico") {
-      router.back();
-      return;
-    }
-
     router.push({
       pathname: Rotas.pagamento,
       params: { plano: planoId },
@@ -75,11 +70,12 @@ export default function Premium() {
     >
       {/* Cabeçalho da tela, com título e subtítulo */}
       <HeaderMP
-        titulo="Seja Premium!"
-        subtitulo="Detalhes"
+        titulo="Planos demonstrativos"
+        subtitulo="TCC · sem pagamentos"
         mostrarPremium={false}
       />
 
+      {/* Os planos abaixo são uma simulação acadêmica, sem cobrança. */}
       {/* Seletor de plano (abas Básico / Mega finn / Infinitos) */}
       <View style={styles.abas}>
         {PLANOS.map((plano, indice) => (
@@ -155,13 +151,6 @@ export default function Premium() {
                   )}
                 </Text>
 
-                {/* Texto de teste grátis — só aparece no plano Mega finn */}
-                {plano.teste && (
-                  <Text style={styles.teste}>
-                    {plano.teste}
-                  </Text>
-                )}
-
                 {/* Linha divisória com o texto "Benefícios" no meio */}
                 <View style={styles.divisor}>
                   <View style={styles.linha} />
@@ -189,9 +178,9 @@ export default function Premium() {
                   </View>
                 ))}
 
-                {/* Botão principal — confirma a escolha do plano e vai pro Pagamento */}
+                {/* Navega para explicação sem cobrança real */}
                 <Button
-                  titulo="Obter Agora"
+                  titulo="Conhecer plano"
                   variante="terciario"
                   onPress={() => aoConfirmarPlano(plano.id)}
                 />

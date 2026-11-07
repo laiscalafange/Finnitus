@@ -1,3 +1,4 @@
+
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
@@ -10,15 +11,12 @@ export const styles = StyleSheet.create({
   scroll: {
     flex: 1,
   },
-  // Header roxo (mesmo das outras telas) com a curva e a seta embaixo
   hero: {
     paddingBottom: 25,
     borderBottomLeftRadius: 34,
     borderBottomRightRadius: 34,
     overflow: 'visible',
   },
-  // Seta embaixo do header: toca pra esconder/mostrar Receitas e Despesas
-  // (fica FORA do header, como no Dashboard, pra o toque funcionar no Android)
   setaContainer: {
     alignItems: 'center',
     marginTop: -1,
@@ -35,13 +33,14 @@ export const styles = StyleSheet.create({
   conteudo: {
     paddingTop: 14,
   },
-  // Texto de "nada por aqui ainda" dentro dos cards de lista
   vazio: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 14,
     lineHeight: 19,
-    color: Cores.texto.principal,
-    backgroundColor: Cores.fundo.card,
+    color: Cores.texto.claro,
+    backgroundColor: 'rgba(72, 34, 135, 0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(163, 87, 255, 0.22)',
     borderRadius: 18,
     paddingVertical: 16,
     paddingHorizontal: 16,

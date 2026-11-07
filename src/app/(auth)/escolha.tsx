@@ -1,8 +1,10 @@
+import { useState } from "react";
+import { AceiteCadastroGoogle } from "../../shared/components/AceiteCadastroGoogle";
 import { View, Text, Image, ScrollView } from "react-native";
 
 import { useRouter } from "expo-router";
 
-import { BackgroundGradient } from "../../shared/components/backgroundGradient";
+import { AuthBackground } from "../../shared/components/AuthBackground";
 import { Button } from "../../shared/components/Button";
 import { BotaoVoltarAuth } from "../../shared/components/BotaoVoltar";
 import { Underline } from "../../shared/components/underline";
@@ -19,6 +21,7 @@ export default function Escolha() {
   const roteador = useRouter();
 
   const { googleLogin } = useAuth();
+  const [aceiteGoogle, setAceiteGoogle] = useState(false);
   const { busy, error, run } = useAction();
 
   function entrarGoogle() {
@@ -26,14 +29,14 @@ export default function Escolha() {
       const token = await googleIdToken();
 
       if (token) {
-        await googleLogin(token);
+        await googleLogin(token, aceiteGoogle);
       }
     });
   }
 
   return (
-    <View style={{ flex: 1 }}>
-      <BackgroundGradient />
+    <View style={{ flex: 1, backgroundColor: "#09090B" }}>
+      <AuthBackground />
 
       <BotaoVoltarAuth absoluto />
 
@@ -75,6 +78,7 @@ export default function Escolha() {
           </Text>
         ) : null}
 
+        <AceiteCadastroGoogle aceito={aceiteGoogle} onChange={setAceiteGoogle} />
         <Button
           variante="primario"
           titulo="Email"

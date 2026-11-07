@@ -53,13 +53,8 @@ api.interceptors.response.use(
   (response) => response,
 
   (error) => {
-    console.error("ERRO NA API:", {
-  metodo: error.config?.method,
-  rota: error.config?.url,
-  status: error.response?.status,
-  resposta: error.response?.data,
-  mensagem: error.message,
-});
+    // Não registrar corpo da resposta, payload, tokens ou dados financeiros.
+    if (__DEV__) console.warn("Falha na API", { status: error.response?.status });
     const sent = error.config?.headers?.Authorization;
 
     // Uma resposta antiga não encerra uma sessão mais recente.
@@ -92,10 +87,18 @@ export function errorMessage(error: unknown): string {
       return "Muitas tentativas. Aguarde e tente novamente.";
     }
 
-    if (
-      typeof error.response?.data?.error === "string"
-    ) {
-      return error.response.data.error;
+    if (error.response?.status === 401) {
+      if (error.config?.url?.includes('/auth/login')) return "E-mail ou senha incorretos.";
+      if (error.config?.url?.includes('/auth/google')) return "Não foi possível autenticar com Google.";
+      return "Sua sessão expirou. Entre novamente.";
+    }
+    if (error.response?.status === 403) return "Você não tem permissão para esta ação.";
+    if (error.response?.status === 404) return "Registro não encontrado ou indisponível.";
+    if ((error.response?.status ?? 0) >= 500) return "Não foi possível concluir. Tente novamente mais tarde.";
+    // Erros de validação (4xx) podem ser mostrados quando são curtos e objetivos.
+    const detail = error.response?.data?.error ?? error.response?.data?.mensagem;
+    if (error.response?.status === 400 && typeof detail === "string" && detail.length <= 140) {
+      return detail;
     }
 
     if (!error.response) {
@@ -108,7 +111,7 @@ export function errorMessage(error: unknown): string {
     return "Não foi possível concluir a operação.";
   }
 
-  return error instanceof Error
+  return error instanceof Error && !/Bearer|token|sql|stack|prisma|database|postgres/i.test(error.message)
     ? error.message
-    : "Ocorreu um erro. Tente novamente.";
+    : "Não foi possível concluir a operação.";
 }

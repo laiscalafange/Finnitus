@@ -2,13 +2,20 @@ import express from "express";
 import type { ErrorRequestHandler } from "express";
 
 import routes from "../routes/index.js";
-import authRoutes from "../routes/auth.routes.js";
 import { HttpError } from "../utils/errors.js";
 import { env } from "../config/env.js";
 
 const app = express();
 
 app.disable("x-powered-by");
+app.set("trust proxy", env.TRUST_PROXY_HOPS);
+app.use((_req, res, next) => {
+  res.set("X-Content-Type-Options", "nosniff");
+  res.set("Referrer-Policy", "no-referrer");
+  res.set("X-Frame-Options", "DENY");
+  res.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  next();
+});
 
 const allowedOrigins = new Set(
   env.CORS_ORIGINS
@@ -71,7 +78,7 @@ app.use((_req, res, next) => {
 app.use(routes);
 
 // Mantém caminhos como /auth/login.
-app.use("/auth", authRoutes);
+// Rotas de autenticação já são registradas em routes/index.ts.
 
 app.use((_req, res) => {
   res.status(404).json({
@@ -85,7 +92,7 @@ const errorHandler: ErrorRequestHandler = (
   res,
   _next
 ) => {
-  if (err instanceof HttpError) {
+  if (err instanceof HttpError && err.status >= 400 && err.status < 500) {
     res.status(err.status).json({
       error: err.message,
     });
@@ -109,8 +116,10 @@ const errorHandler: ErrorRequestHandler = (
     return;
   }
 
-  // Evita registrar senhas, tokens ou dados sensíveis.
-  console.error("Falha interna na API.", err);
+  // Não registrar err: alguns erros de validação carregam dados do request.
+  console.error("Falha interna na API", {
+    tipo: err instanceof Error ? err.name : "unknown",
+  });
 
   res.status(500).json({
     error: "Erro interno. Tente novamente.",

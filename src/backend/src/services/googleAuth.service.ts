@@ -25,7 +25,7 @@ function isUniqueConflict(error: unknown): boolean {
   );
 }
 
-export async function loginWithGoogle(idToken: string) {
+export async function loginWithGoogle(idToken: string, aceiteAdultoTermos = false) {
   const identity = await verifyGoogleIdentity(idToken);
 
   // A identidade principal é o ID Google, não o e-mail.
@@ -69,6 +69,10 @@ export async function loginWithGoogle(idToken: string) {
       400,
       "Para este provedor de e-mail, cadastre-se com e-mail e senha e depois vincule sua conta Google.",
     );
+  }
+
+  if (!aceiteAdultoTermos) {
+    throw new HttpError(400, "Antes de criar uma conta Google, confirme que tem 18 anos ou mais e que leu os documentos legais.");
   }
 
   try {

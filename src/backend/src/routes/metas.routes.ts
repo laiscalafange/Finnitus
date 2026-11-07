@@ -8,6 +8,7 @@ import {
   adicionarAporte,
   retirarDaMeta,
   cancelarMeta,
+  reabrirMeta,
   listarHistorico,
   obterAnalises,
 } from "../controllers/metas.controller.js";
@@ -55,6 +56,11 @@ router.post(
 router.patch(
   "/:id/cancelar",
   cancelarMeta,
+);
+
+router.patch(
+  "/:id/reabrir",
+  reabrirMeta,
 );
 
 export default router;

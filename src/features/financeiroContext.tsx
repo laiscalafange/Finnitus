@@ -9,6 +9,8 @@ import {
   adicionarAporteApi,
   retirarMetaApi,
   cancelarMetaApi,
+  reabrirMetaApi,
+  atualizarMetaApi,
   type MetaApi,
 } from "../services/metasApi";
 import {
@@ -119,6 +121,14 @@ type FinanceiroContextValue = FinanceiroState & {
     valor: number,
   ) => Promise<ResultadoMovimento>
   cancelarMeta: (id: string) => Promise<void>
+  // Desfaz um cancelamento ou uma conclusão (botão do Histórico de Metas)
+  reabrirMeta: (id: string) => Promise<void>
+  // Edita nome, tipo e valor da meta (modal "Editar meta"). Devolve
+  // 'concluida' se o novo valor já foi alcançado pelo que está guardado
+  editarMeta: (
+    id: string,
+    dados: { nome: string; tipo: Meta['tipo']; valorTotal: number },
+  ) => Promise<'ok' | 'concluida'>
   // No frontend antigo o menu chama "excluirMeta"; no backend isso vira
   // cancelamento para preservar a meta no Histórico.
   excluirMeta: (id: string) => Promise<void>
@@ -581,6 +591,54 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
     [carregarMetas],
   )
 
+  // Salva a edição no backend e recarrega as metas
+  const editarMeta = useCallback(
+    async (
+      id: string,
+      dados: { nome: string; tipo: Meta['tipo']; valorTotal: number },
+    ): Promise<'ok' | 'concluida'> => {
+      const idNumero = Number(id)
+
+      if (!Number.isInteger(idNumero) || idNumero <= 0) {
+        return 'ok'
+      }
+
+      const atual = metas.find((item) => item.id === id)
+
+      const resposta = await atualizarMetaApi(idNumero, {
+        nome: dados.nome.trim(),
+        tipo: dados.tipo === 'mes' ? 'MENSAL' : 'LONGO_PRAZO',
+        valorObjetivo: dados.valorTotal,
+        // Meta que passa a ser "do mês" precisa do mês de referência
+        mesReferencia:
+          dados.tipo === 'mes' && atual?.tipo !== 'mes'
+            ? mesAtualBackend()
+            : undefined,
+      })
+
+      await carregarMetas()
+
+      return resposta?.Mstatus === 'CONCLUIDA' ? 'concluida' : 'ok'
+    },
+    [metas, carregarMetas],
+  )
+
+  // Desfaz o cancelamento/conclusão no backend e recarrega as metas: a meta
+  // sai do Histórico e volta para a tela Metas.
+  const reabrirMeta = useCallback(
+    async (id: string): Promise<void> => {
+      const idNumero = Number(id)
+
+      if (!Number.isInteger(idNumero) || idNumero <= 0) {
+        return
+      }
+
+      await reabrirMetaApi(idNumero)
+      await carregarMetas()
+    },
+    [carregarMetas],
+  )
+
   // Mantido por compatibilidade com a tela atual. Em vez de apagar do banco,
   // cancela a meta para que ela permaneça no Histórico.
   const excluirMeta = cancelarMeta
@@ -606,6 +664,8 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       criarMeta,
       movimentarMeta,
       cancelarMeta,
+      reabrirMeta,
+      editarMeta,
       excluirMeta,
       transacoes,
       adicionarTransacao,
@@ -629,6 +689,8 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       criarMeta,
       movimentarMeta,
       cancelarMeta,
+      reabrirMeta,
+      editarMeta,
       excluirMeta,
       transacoes,
       adicionarTransacao,

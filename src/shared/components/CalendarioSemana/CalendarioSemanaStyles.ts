@@ -94,33 +94,40 @@ export const styles = StyleSheet.create({
         borderRadius: 40,
         backgroundColor: '#53269D',
         minHeight: 100,
-    },
-
-    diaContainerAtivo: {
-        backgroundColor: '#3A1D6C',
-    },
-
-    // Dia com prazo de meta: fundo verde
-    diaContainerMarcado: {
-        backgroundColor: Cores.destaque.limao,
-    },
-
-    // Dia marcado que também está selecionado: contorno branco
-    diaContainerMarcadoAtivo: {
+        // Borda transparente: o dia selecionado ganha contorno sem mudar de tamanho
         borderWidth: 2,
+        borderColor: 'transparent',
+    },
+
+    // Dia selecionado: contorno branco
+    diaContainerAtivo: {
         borderColor: Cores.base.branco,
     },
 
-    diaLetraMarcado: {
+    // Dia de hoje: fundo verde
+    diaContainerHoje: {
+        backgroundColor: Cores.destaque.limao,
+    },
+
+    diaLetraHoje: {
         color: Cores.texto.contraste,
     },
 
-    diaNumeroMarcado: {
+    diaNumeroHoje: {
         color: Cores.texto.contraste,
+    },
+
+    diaPontoHoje: {
+        backgroundColor: Cores.texto.contraste,
+    },
+
+    // Dia em que uma meta está prevista para terminar: roxo escuro
+    diaContainerMarcado: {
+        backgroundColor: '#3A1D6C',
     },
 
     diaPontoMarcado: {
-        backgroundColor: Cores.texto.contraste,
+        backgroundColor: Cores.destaque.limao,
     },
 
     diaLetra: {

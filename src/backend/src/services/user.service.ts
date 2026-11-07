@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma.js";
+import { cloudinary } from "../config/cloudinary.js";
 import { HttpError } from "../utils/errors.js";
 
 export const safeSelect = {
@@ -190,76 +191,106 @@ export async function changeUserPassword(
   });
 }
 
+
 export async function deleteUser(
   id: number,
   password: string,
 ) {
   const user = await prisma.usuario.findUnique({
-    where: {
-      id_Usuario: id,
-    },
+    where: { id_Usuario: id },
   });
 
-  // Conta Google que ainda não definiu uma senha local.
-  if (user && !user.Usenha) {
+  if (!user) {
+    throw new HttpError(401, "Usuário não encontrado.");
+  }
+
+  if (!user.Usenha) {
     throw new HttpError(
       400,
-      "Para excluir por este fluxo, primeiro defina uma senha do Finnitus usando a recuperação de senha.",
+      "Sua conta não possui senha local. Defina uma senha pela recuperação de senha antes de excluir a conta.",
     );
   }
 
-  // Verifica se o usuário existe e se a senha está correta.
-  if (
-    !user ||
-    !user.Usenha ||
-    !(await bcrypt.compare(password, user.Usenha))
-  ) {
+  const senhaCorreta = await bcrypt.compare(
+    password,
+    user.Usenha,
+  );
+
+  if (!senhaCorreta) {
     throw new HttpError(400, "Senha atual incorreta.");
   }
 
-
   await prisma.$transaction(async (tx) => {
-    // Confere a senha novamente na condição da atualização
-    // e bloqueia a linha durante a transação.
-    const lock = await tx.usuario.updateMany({
+    // Protege contra alterações concorrentes na conta.
+    const bloqueio = await tx.usuario.updateMany({
       where: {
         id_Usuario: id,
         Usenha: user.Usenha,
       },
       data: {
-        tokenVersion: {
-          increment: 1,
-        },
+        tokenVersion: { increment: 1 },
       },
     });
 
-    if (lock.count !== 1) {
+    if (bloqueio.count !== 1) {
       throw new HttpError(
         409,
-        "Conta alterada. Faça login novamente.",
+        "Conta alterada em outra sessão. Faça login novamente.",
       );
     }
 
-    const where = {
-      id_Usuario: id,
-    };
+    const where = { id_Usuario: id };
 
+    // 1. Excluir eventos antes das receitas e despesas.
+    await tx.evento.deleteMany({ where });
+
+    // 2. Excluir dívidas vinculadas às categorias.
+    await tx.divida.deleteMany({ where });
+
+    // 3. Excluir registros financeiros.
+    await tx.receita.deleteMany({ where });
+    await tx.despesa.deleteMany({ where });
+
+    // 4. Excluir metas.
+    // MovimentacaoMeta possui onDelete: Cascade.
+    await tx.meta.deleteMany({ where });
+
+    // 5. Excluir imprevistos.
+    await tx.imprevisto.deleteMany({ where });
+
+    // 6. Excluir a reserva.
+    // MovimentacaoReserva possui onDelete: Cascade.
+    await tx.reservaFinanceira.deleteMany({ where });
+
+    // 7. Excluir categorias criadas pelo usuário.
+    await tx.categoriaPersonalizada.deleteMany({ where });
+
+    // 8. Excluir tokens de recuperação de senha.
     await tx.redefinicaoSenha.deleteMany({ where });
 
-// Receitas e despesas precisam ser removidas antes das categorias.
-await tx.receita.deleteMany({ where });
-await tx.despesa.deleteMany({ where });
-
-await tx.meta.deleteMany({ where });
-await tx.imprevisto.deleteMany({ where });
-await tx.evento.deleteMany({ where });
-
-await tx.categoriaPersonalizada.deleteMany({ where });
-
-// O usuário é removido por último.
-await tx.usuario.delete({ where });
+    // 9. Excluir a conta por último.
+    await tx.usuario.delete({
+      where: { id_Usuario: id },
+    });
   });
+
+  // Remover a foto armazenada no Cloudinary.
+  // A conta já foi excluída do banco neste momento.
+  if (user.fotoPerfilPublicId) {
+    try {
+      await cloudinary.uploader.destroy(
+        user.fotoPerfilPublicId,
+        { invalidate: true },
+      );
+    } catch (error) {
+      console.error(
+        "Conta excluída, mas houve falha ao remover a foto do Cloudinary:",
+        error,
+      );
+    }
+  }
 }
+
 
 export async function logoutUser(id: number) {
   await prisma.usuario.update({

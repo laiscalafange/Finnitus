@@ -13,5 +13,9 @@ export interface ButtonProps {
     | "botaotexto"
     | "perigo";
 
+  // "compacto": botão mais baixo e arredondado, no mesmo estilo dos botões
+  // dos modais do Calendário e de Editar meta. Padrão: "padrao" (como sempre foi)
+  tamanho?: "padrao" | "compacto";
+
   onPress?: () => void;
 }

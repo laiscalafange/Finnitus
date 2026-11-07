@@ -5,6 +5,7 @@ import {
   Text,
   View,
   Image,
+  Pressable,
 } from "react-native";
 
 import { useRouter } from "expo-router";
@@ -44,6 +45,8 @@ export default function Cadastro() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [maiorDeIdade, setMaiorDeIdade] = useState(false);
+  const [leuTermos, setLeuTermos] = useState(false);
 
   // Executa o cadastro do usuário.
   function cadastrar() {
@@ -71,6 +74,9 @@ export default function Cadastro() {
 
       // Valida a senha e sua confirmação.
       validatePassword(senha, confirmarSenha);
+      if (!maiorDeIdade || !leuTermos) {
+        throw new Error("Confirme que tem 18 anos ou mais e que leu os Termos e a Política de Privacidade.");
+      }
 
       console.log("Validações concluídas. Enviando cadastro para a API...");
 
@@ -80,6 +86,8 @@ export default function Cadastro() {
        name: normalizedName,
         email: normalized,
         password: senha,
+        maiorDeIdade: true,
+        leuTermos: true,
       });
 
       // 2. Realiza o login automaticamente.
@@ -122,7 +130,10 @@ export default function Cadastro() {
         editable={!busy}
         icone={
           <Image
-            source={require("../../../assets/icones/boneco.png")}
+            accessible={false}
+            source={require(
+              "../../../assets/icones/boneco.png"
+            )}
             style={inputIconStyle}
           />
         }
@@ -172,13 +183,38 @@ export default function Cadastro() {
         editable={!busy}
         icone={
           <Image
-            source={require("../../../assets/icones/senha.png")}
+            accessible={false}
+            source={require(
+              "../../../assets/icones/senha.png"
+            )}
             style={inputIconStyle}
           />
         }
       />
 
       {/* Botão para cadastrar. */}
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: maiorDeIdade }}
+        disabled={busy} onPress={() => setMaiorDeIdade(!maiorDeIdade)}
+        style={{ paddingVertical: 10 }}>
+        <Text style={{ color: '#FFFFFF', fontSize: 14 }}>
+          {maiorDeIdade ? '☑' : '☐'} Confirmo que tenho 18 anos ou mais.
+        </Text>
+      </Pressable>
+      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: leuTermos }}
+        disabled={busy} onPress={() => setLeuTermos(!leuTermos)}
+        style={{ paddingVertical: 10 }}>
+        <Text style={{ color: '#FFFFFF', fontSize: 14 }}>
+          {leuTermos ? '☑' : '☐'} Confirmo que li os documentos legais abaixo.
+        </Text>
+      </Pressable>
+      <Pressable accessibilityRole="link" onPress={() => router.push('/legal/termos-de-uso')}
+        style={{ paddingVertical: 8 }}>
+        <Text style={{ color: '#FFF081', textDecorationLine: 'underline' }}>Ler Termos de Uso</Text>
+      </Pressable>
+      <Pressable accessibilityRole="link" onPress={() => router.push('/legal/politica-de-privacidade')}
+        style={{ paddingVertical: 8 }}>
+        <Text style={{ color: '#FFF081', textDecorationLine: 'underline' }}>Ler Política de Privacidade</Text>
+      </Pressable>
       <Button
         titulo={busy ? "Cadastrando..." : "Cadastrar"}
         variante="primario"
