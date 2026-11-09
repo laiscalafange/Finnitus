@@ -1,3 +1,4 @@
+
 import { Router } from "express";
 
 import {
@@ -11,56 +12,37 @@ import {
   reabrirMeta,
   listarHistorico,
   obterAnalises,
+  registrarMetasIniciais,
 } from "../controllers/metas.controller.js";
 
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+// Todas as rotas exigem autenticação.
 router.use(authMiddleware);
 
+// Criação e listagem de metas.
 router.post("/", criarMeta);
-
 router.get("/", listarMetas);
 
-router.get(
-  "/analises",
-  obterAnalises,
-);
+// Registra os objetivos selecionados no onboarding.
+router.post("/iniciais", registrarMetasIniciais);
 
-router.get(
-  "/historico",
-  listarHistorico,
-);
+// Análises e histórico.
+router.get("/analises", obterAnalises);
+router.get("/historico", listarHistorico);
 
-router.get(
-  "/:id",
-  buscarMeta,
-);
+// Busca e atualização de uma meta específica.
+router.get("/:id", buscarMeta);
+router.put("/:id", atualizarMeta);
 
-router.put(
-  "/:id",
-  atualizarMeta,
-);
+// Movimentações financeiras da meta.
+router.post("/:id/aportes", adicionarAporte);
+router.post("/:id/retiradas", retirarDaMeta);
 
-router.post(
-  "/:id/aportes",
-  adicionarAporte,
-);
-
-router.post(
-  "/:id/retiradas",
-  retirarDaMeta,
-);
-
-router.patch(
-  "/:id/cancelar",
-  cancelarMeta,
-);
-
-router.patch(
-  "/:id/reabrir",
-  reabrirMeta,
-);
+// Gerenciamento do status da meta.
+router.patch("/:id/cancelar", cancelarMeta);
+router.patch("/:id/reabrir", reabrirMeta);
 
 export default router;

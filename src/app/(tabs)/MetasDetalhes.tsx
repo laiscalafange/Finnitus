@@ -668,12 +668,12 @@ export default function MetasDetalhes() {
           <View style={styles.linhaProgresso}>
             <View style={styles.barraProgresso}>
               <Progress
-                value={meta.valorAtual}
-                max={meta.valorTotal}
-                height={17}
-                color="#8D49E1"
-                backgroundColor="#20112F"
-              />
+               value={meta.configurada ? meta.valorAtual : 0}
+               max={meta.configurada ? meta.valorTotal : 1}
+               height={17}
+               color="#8D49E1"
+               backgroundColor="#20112F"
+             />
             </View>
 
             <Text style={styles.percentual}>
@@ -681,11 +681,13 @@ export default function MetasDetalhes() {
             </Text>
           </View>
 
-          <Text style={styles.faltam}>
-            {faltam > 0
-              ? `Faltam ${formatarMoeda(faltam)}`
-              : "Meta alcançada!"}
-          </Text>
+         <Text style={styles.faltam}>
+         {!meta.configurada
+           ? "Registre o valor limite a ser alcançado"
+           : faltam > 0
+             ? `Faltam ${formatarMoeda(faltam)}`
+             : "Meta alcançada!"}
+         </Text>
 
           {emAndamento ? (
             <>
