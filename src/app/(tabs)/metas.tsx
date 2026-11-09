@@ -84,11 +84,19 @@ export default function Metas() {
     })
 
   function abrirMovimentar(meta: Meta) {
-    setMenuAbertoId(null)
-    setMetaAtivaId(meta.id)
-    setModal('movimentar')
+  setMenuAbertoId(null)
+
+  if (!meta.configurada) {
+    Alert.alert(
+      'Meta não configurada',
+      'Registre o valor limite a ser alcançado para começar a acompanhar esta meta.'
+    )
+    return
   }
 
+  setMetaAtivaId(meta.id)
+  setModal('movimentar')
+}
   function abrirExcluir(meta: Meta) {
     setMenuAbertoId(null)
     setMetaAtivaId(meta.id)

@@ -49,15 +49,24 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+
 api.interceptors.response.use(
   (response) => response,
 
   (error) => {
-    // Não registrar corpo da resposta, payload, tokens ou dados financeiros.
-    if (__DEV__) console.warn("Falha na API", { status: error.response?.status });
+    if (__DEV__) {
+      console.warn("ERRO COMPLETO DA API:", {
+        mensagem: error.message,
+        codigo: error.code,
+        url: error.config?.baseURL + error.config?.url,
+        metodo: error.config?.method,
+        status: error.response?.status,
+        resposta: error.response?.data,
+      });
+    }
+
     const sent = error.config?.headers?.Authorization;
 
-    // Uma resposta antiga não encerra uma sessão mais recente.
     if (
       error.response?.status === 401 &&
       accessToken &&
@@ -69,6 +78,7 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
 
 export function errorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {

@@ -65,4 +65,3 @@ routes.use("/perfil-financeiro", perfilFinanceiroRoutes);
 
 // Exporta todas as rotas para o app.ts.
 export default routes;
-export default routes;

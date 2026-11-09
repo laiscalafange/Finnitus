@@ -28,6 +28,8 @@ import {
   type TipoRecebimento,
   type VigenciaConta,
 } from './contas/contasData'
+import { perfilFinanceiroService } from "../services/perfilFinanceiro";
+
 
 export type FinanceiroState = {
   // Renda fixa e renda variável (média mensal) da configuração inicial.
@@ -222,11 +224,9 @@ function converterMetaApi(
         : "longoPrazo",
 
     status:
-      meta.Mstatus ===
-      "CONCLUIDA"
+      meta.Mstatus === "CONCLUIDA"
         ? "concluida"
-        : meta.Mstatus ===
-            "CANCELADA"
+        : meta.Mstatus === "CANCELADA"
           ? "cancelada"
           : "andamento",
 
@@ -239,6 +239,10 @@ function converterMetaApi(
       Number(
         meta.Mvalor_objetivo,
       ),
+
+    // Identifica se a meta já foi configurada pelo usuário
+    configurada:
+      meta.Mconfigurada,
 
     dataLimite:
       dataBackendParaTela(
@@ -270,8 +274,7 @@ function converterMetaApi(
             ),
 
             tipo:
-              movimentacao.tipo ===
-              "APORTE"
+              movimentacao.tipo === "APORTE"
                 ? "deposito"
                 : "retirada",
 
@@ -299,7 +302,6 @@ function converterMetaApi(
       ),
   };
 }
-
 export function FinanceiroProvider({ children }: { children: ReactNode }) {
   // Usuário que está autenticado no aplicativo
   const { user } = useAuth();
@@ -426,6 +428,39 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
           tipoRecebimento: dados.tipoRecebimento,
         },
       }
+
+// Recupera os dados financeiros salvos no banco.
+const carregarPerfilFinanceiro = useCallback(async (): Promise<void> => {
+  const perfil = await perfilFinanceiroService.buscar();
+
+  if (!perfil) {
+    setRendaFixa(undefined);
+    setRendaVariavel(undefined);
+    setSalario(undefined);
+    setDespesas(undefined);
+    return;
+  }
+
+  const fixa =
+    perfil.renda_fixa == null
+      ? undefined
+      : Number(perfil.renda_fixa);
+
+  const variavel =
+    perfil.renda_variavel == null
+      ? undefined
+      : Number(perfil.renda_variavel);
+
+  const total = (fixa ?? 0) + (variavel ?? 0);
+
+  setRendaFixa(fixa);
+  setRendaVariavel(variavel);
+  setSalario(total > 0 ? total : undefined);
+
+  setDespesas(
+    Number(perfil.despesas_mensais ?? 0)
+  );
+}, []);
 
       setTransacoes((lista) =>
         lista.map((item) =>
