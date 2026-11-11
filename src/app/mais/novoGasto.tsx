@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   View,
@@ -9,13 +8,14 @@ import {
   Switch,
 } from "react-native";
 
+import { useLocalSearchParams } from "expo-router";
+
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 import { Cores } from "../../shared/constants/Cores";
 
-import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
 import { SeletorCategoria } from "@/features/menuMais/components/SeletorCategoria";
 import {
   CATEGORIAS_ENTRADA,
@@ -33,34 +33,40 @@ import {
 import type { TipoTransacao } from "@/features/menuMais/types";
 import { styles } from "@/features/menuMais/styles/formulario";
 
+// Tela de registro aberta pelos botões "Despesas" e "Receitas" do menu do +.
+// O tipo chega pela rota (?tipo=gasto ou ?tipo=entrada) e não pode ser
+// trocado dentro da tela: cada botão abre o seu próprio registro.
+// Sem parâmetro, abre como despesa.
 export default function NovoGasto() {
   const voltar = useVoltar();
   const { adicionarTransacao } = useFinanceiro();
 
-  const [tipo, setTipo] = useState<TipoTransacao>("gasto");
+  // Tipo da transação: "entrada" = receita, "gasto" = despesa
+  const { tipo: tipoParam } = useLocalSearchParams<{ tipo?: string }>();
+  const tipo: TipoTransacao = tipoParam === "entrada" ? "entrada" : "gasto";
+  const ehReceita = tipo === "entrada";
+
+  // Textos e categorias de cada tipo
+  const categorias = ehReceita ? CATEGORIAS_ENTRADA : CATEGORIAS_GASTO;
+  const titulo = ehReceita ? "Nova receita" : "Nova despesa";
+  const nomeItem = ehReceita ? "receita" : "despesa";
+  const exemploDescricao = ehReceita
+    ? "Ex: Pagamento de projeto"
+    : "Ex: Almoço em família";
+
+  // Campos do formulário
   const [valor, setValor] = useState("");
-  const [categoria, setCategoria] = useState<string | null>(
-    null
-  );
+  const [categoria, setCategoria] = useState<string | null>(null);
   const [data, setData] = useState(hojeFormatado());
   const [descricao, setDescricao] = useState("");
   const [repetir, setRepetir] = useState(false);
+
+  // Mensagem de erro de validação
   const [erro, setErro] = useState("");
-
-  const categorias =
-    tipo === "gasto"
-      ? CATEGORIAS_GASTO
-      : CATEGORIAS_ENTRADA;
-
-  function mudarTipo(novo: TipoTransacao) {
-    setTipo(novo);
-    setCategoria(null);
-    setErro("");
-  }
 
   function salvar() {
     if (moedaParaNumero(valor) <= 0) {
-      setErro("Informe o valor da transação.");
+      setErro(`Informe o valor da ${nomeItem}.`);
       return;
     }
 
@@ -76,6 +82,8 @@ export default function NovoGasto() {
 
     setErro("");
 
+    // Guarda como "gasto" (despesa) ou "entrada" (receita), igual a antes,
+    // então Sumário, Rotas, Contas fixas e Movimentações continuam funcionando
     adicionarTransacao({
       tipo,
       valor: moedaParaNumero(valor),
@@ -92,40 +100,30 @@ export default function NovoGasto() {
     <View style={styles.container}>
       <BackgroundGradient variante="funcional" />
 
+      {/* Empurra o formulário pra cima quando o teclado abre */}
       <KeyboardAvoidingView
         style={styles.container}
-        behavior={
-          Platform.OS === "ios" ? "padding" : "height"
-        }
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.conteudo}
         >
-          <HeaderInterno titulo="Nova transação" />
+          {/* Cabeçalho: só a seta de voltar e o título do tipo */}
+          <HeaderInterno titulo={titulo} />
 
           <View style={styles.formulario}>
-            <AlternadorTipo
-              valor={tipo}
-              aoMudar={mudarTipo}
-            />
-
             <Input
               label="Valor"
               placeholder="0,00"
               keyboardType="numeric"
               value={valor}
-              onChangeText={(texto) =>
-                setValor(mascararMoeda(texto))
-              }
-              icone={
-                <Text style={styles.prefixoMoeda}>
-                  R$
-                </Text>
-              }
+              onChangeText={(texto) => setValor(mascararMoeda(texto))}
+              icone={<Text style={styles.prefixoMoeda}>R$</Text>}
             />
 
+            {/* Categorias de despesa ou de receita, conforme o botão usado */}
             <SeletorCategoria
               categorias={categorias}
               selecionada={categoria}
@@ -138,14 +136,12 @@ export default function NovoGasto() {
               keyboardType="numeric"
               maxLength={10}
               value={data}
-              onChangeText={(texto) =>
-                setData(mascararData(texto))
-              }
+              onChangeText={(texto) => setData(mascararData(texto))}
             />
 
             <Input
               label="Descrição (opcional)"
-              placeholder="Ex: Almoço em família"
+              placeholder={exemploDescricao}
               value={descricao}
               onChangeText={setDescricao}
               autoCapitalize="sentences"
@@ -153,9 +149,7 @@ export default function NovoGasto() {
             />
 
             <View style={styles.linhaSwitch}>
-              <Text style={styles.textoSwitch}>
-                Repetir mensalmente
-              </Text>
+              <Text style={styles.textoSwitch}>Repetir mensalmente</Text>
 
               <Switch
                 value={repetir}
@@ -165,18 +159,13 @@ export default function NovoGasto() {
                   true: Cores.roxo.claro,
                 }}
                 thumbColor={
-                  repetir
-                    ? Cores.destaque.limao
-                    : Cores.texto.claro
+                  repetir ? Cores.destaque.limao : Cores.texto.claro
                 }
               />
             </View>
 
             {erro ? (
-              <Text
-                style={styles.erro}
-                accessibilityRole="alert"
-              >
+              <Text style={styles.erro} accessibilityRole="alert">
                 {erro}
               </Text>
             ) : null}
@@ -192,7 +181,7 @@ export default function NovoGasto() {
 
               <View style={styles.colunaBotao}>
                 <Button
-                  titulo="Salvar transação"
+                  titulo={`Salvar ${nomeItem}`}
                   onPress={salvar}
                 />
               </View>
