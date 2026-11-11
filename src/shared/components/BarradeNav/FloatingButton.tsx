@@ -1,11 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ComponentType } from 'react'
 import { Text, TouchableOpacity, View, Image, Modal, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import MaskedView from '@react-native-masked-view/masked-view'
 import Svg, { Defs, Mask, Rect, Circle } from 'react-native-svg'
+import { ArrowDown, ArrowUp } from 'lucide-react-native'
 
+import { Cores } from '../../constants/Cores'
 import { getStyles } from './FloatingButtonStyles'
 import { FloatingButtonProps } from './FloatingButtonTypes'
+
+// O TypeScript não reconhece o MaskedView como componente JSX com os tipos
+// atuais do React. O cast só resolve o erro de tipo, sem mudar o comportamento.
+const MaskedViewJsx = MaskedView as unknown as ComponentType<any>
 
 const NOTCH_R = 42
 const FAB_R = 26
@@ -46,8 +52,8 @@ const ABAS = [
 // "chave" é o que chega em aoPress — a navegação de cada uma
 // fica a cargo de quem usa o FloatingButton (ex: o _layout.jsx).
 const ACOES = [
-  { chave: 'novoImprevisto', icone: require("../../../../assets/icones/B.png"), rotulo: 'Novo imprevisto' },
-  { chave: 'novoGasto', textoIcone: '↓', rotulo: 'Novo gasto' },
+  { chave: 'novaReceita', IconeSeta: ArrowUp, rotulo: 'Receitas' },
+  { chave: 'novaDespesa', IconeSeta: ArrowDown, rotulo: 'Despesas' },
   { chave: 'novoEvento', icone: require("../../../../assets/icones/calendar2.png"), rotulo: 'Novo evento' },
   { chave: 'reservaEmergencia', icone: require("../../../../assets/icones/saco.png"), rotulo: 'Reserva de emergência' },
 ]
@@ -130,11 +136,17 @@ export function FloatingButton({
               activeOpacity={0.8}
             >
               <View style={styles.menuCirculo}>
-                {acao.textoIcone ? (
-                  <Text style={styles.menuIconeTexto}>{acao.textoIcone}</Text>
-                ) : (
+                {'IconeSeta' in acao && acao.IconeSeta ? (
+                  // Mesmas setas (lucide, pontas arredondadas) dos cards
+                  // Receitas e Despesas da Home
+                  <acao.IconeSeta
+                    size={28}
+                    strokeWidth={2.5}
+                    color={Cores.roxo.principal}
+                  />
+                ) : 'icone' in acao ? (
                   <Image source={acao.icone} style={styles.menuIcone} />
-                )}
+                ) : null}
               </View>
               <Text style={styles.menuTexto}>{acao.rotulo}</Text>
             </TouchableOpacity>
@@ -145,7 +157,7 @@ export function FloatingButton({
 
       {/* BARRA COM RECORTE CENTRAL */}
 
-      <MaskedView
+      <MaskedViewJsx
         style={styles.maskContainer}
         maskElement={
           <Svg
@@ -193,7 +205,7 @@ export function FloatingButton({
         }
       >
         <View style={styles.barra} />
-      </MaskedView>
+      </MaskedViewJsx>
 
 
       {/* ÍCONES */}

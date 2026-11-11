@@ -27,8 +27,10 @@ function BarraInferior() {
     if (aba === 'perfil') router.push('/perfil')
 
     // Ações do menu que abre ao tocar no + (telas em src/app/mais)
-    if (aba === 'novoImprevisto') router.push('/mais/novoImprevisto')
-    if (aba === 'novoGasto') router.push('/mais/novoGasto')
+    // Receitas e Despesas abrem a mesma tela de registro, cada uma já no
+    // seu tipo (entrada ou gasto)
+    if (aba === 'novaReceita') router.push({ pathname: '/mais/novoGasto', params: { tipo: 'entrada' } })
+    if (aba === 'novaDespesa') router.push({ pathname: '/mais/novoGasto', params: { tipo: 'gasto' } })
     if (aba === 'novoEvento') router.push('/mais/novoEvento')
     if (aba === 'reservaEmergencia') router.push('/mais/reservaEmergencia')
   }
