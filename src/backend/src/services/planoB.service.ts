@@ -661,10 +661,12 @@ viáveis. Não invente alternativas apenas para completar a quantidade.
 
   const respostaBruta = await gerarRespostaGemini(prompt);
 
+if (!respostaBruta || typeof respostaBruta !== "string") {
+  throw new Error("O Gemini não retornou uma resposta válida.");
+}
 
-  const respostaEstruturada =
-    interpretarRespostaGemini(respostaBruta);
-
+const respostaEstruturada =
+  interpretarRespostaGemini(respostaBruta);
 
   // 9. SALVAR O IMPREVISTO
 
