@@ -1,7 +1,10 @@
+
 {
-  "extends": "expo/tsconfig.base",
+  "extends": "expo/tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
     "paths": {
       "@/*": ["./src/*"],
       "@/assets/*": ["./assets/*"]
@@ -13,7 +16,7 @@
     "**/*.d.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "src/backend/src/routes/meta.routes.js"  ],
+  ],
   "exclude": [
     "node_modules",
     "src/backend",

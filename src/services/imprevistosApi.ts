@@ -1,9 +1,15 @@
+
 import axios from "axios";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 
 import { api } from "./api";
-import { brParaIso, formatarMoeda, isoParaBr } from "@/features/menuMais/utils";
+import {
+  brParaIso,
+  isoParaBr,
+} from "@/features/menuMais/utils";
+
+
 
 // =====================================================================
 // Serviço do Plano B (imprevistos + análise da IA)
@@ -137,10 +143,21 @@ export type ResultadoAnalise = {
   analise: Analise;
 };
 
+type EstrategiaGeminiApi = {
+  titulo: string;
+  descricao: string;
+  justificativa: string;
+  riscos: string[];
+  vantagens: string[];
+};
+
 type RespostaPlanoB = {
   situacaoFinanceira: SituacaoFinanceira;
   imprevisto: ImprevistoApi;
-  resposta?: string | null;
+  resposta: string;
+  prioridades: string[];
+  estrategias: EstrategiaGeminiApi[];
+  analiseEstruturada: boolean;
 };
 
 // ---------------------------------------------------------------------
@@ -410,6 +427,21 @@ export function mensagemErroImprevisto(erro: unknown): string {
       return "Não foi possível conectar ao servidor. Verifique sua internet e a API.";
     }
   }
+  
+if (
+  erro instanceof Error &&
+  erro.message.startsWith("O Gemini")
+) {
+  return erro.message;
+}
+
+if (
+  erro instanceof Error &&
+  erro.message.startsWith("Autorize")
+) {
+  return erro.message;
+}
+
 
   return "Não foi possível concluir a operação. Tente novamente.";
 }
@@ -432,131 +464,33 @@ export function limparTextoIA(texto: string): string {
   return limpo || "A IA não retornou uma análise em texto desta vez.";
 }
 
-// ---------------------------------------------------------------------
-// ESTRATÉGIAS CALCULADAS NO APP
-// TODO (backend): hoje o POST /plano-b devolve só texto. Quando devolver as
-// estratégias estruturadas (título, explicação, impactos), é só trocar esta
-// função pelo que vier da API; o resto das telas não muda.
-// ---------------------------------------------------------------------
 
-function montarEstrategias(
-  valor: number,
-  duracaoMeses: number | undefined,
-  situacao: SituacaoFinanceira,
+function converterEstrategiasGemini(
+  estrategias: EstrategiaGeminiApi[],
 ): Estrategia[] {
-  const reserva = Math.max(0, situacao.reservaFinanceira);
-  const prazo = Math.min(12, Math.max(1, duracaoMeses ?? 3));
-  const porMes = valor / prazo;
-  const lista: Estrategia[] = [];
-
-  // 1) Usar a reserva de emergência
-  if (reserva > 0 && valor > 0) {
-    const usado = Math.min(valor, reserva);
-    const cobertura = Math.round((usado / valor) * 100);
-
-    const impactos: Impacto[] = [
-      {
-        rotulo: "Cobre do imprevisto",
-        valor: `${cobertura}%`,
-        tom: cobertura >= 100 ? "positivo" : "alerta",
-      },
-      { rotulo: "Reserva depois", valor: formatarMoeda(reserva - usado) },
-    ];
-
-    if (usado < valor) {
-      impactos.push({
-        rotulo: "Ainda falta cobrir",
-        valor: formatarMoeda(valor - usado),
-        tom: "alerta",
-      });
-    }
-
-    lista.push({
-      id: "reserva",
-      titulo: "Usar a reserva de emergência",
-      descricao:
-        "Cobre o imprevisto com o dinheiro que você já guardou, sem pesar no orçamento dos próximos meses. Nenhum valor é retirado automaticamente: você decide quando usar.",
-      impactos,
-    });
-  }
-
-  // 2) Diluir no orçamento
-  const saldoDepois = situacao.saldoMensal - porMes;
-
-  lista.push({
-    id: "diluir",
-    titulo:
-      prazo === 1
-        ? "Pagar com o orçamento do mês"
-        : `Diluir em ${prazo} meses`,
-    descricao:
-      "Separa uma parte do orçamento a cada mês até cobrir o imprevisto, mantendo a reserva intacta.",
+  return estrategias.map((item, indice) => ({
+    id: `gemini-${indice}`,
+    titulo: item.titulo,
+    descricao: item.descricao,
     impactos: [
       {
-        rotulo: prazo === 1 ? "Valor no mês" : "Parcela por mês",
-        valor: formatarMoeda(porMes),
+        rotulo: "Por que essa opção",
+        valor: item.justificativa,
       },
-      {
-        rotulo: "Saldo mensal depois",
-        valor: formatarMoeda(saldoDepois),
-        tom: saldoDepois >= 0 ? "positivo" : "alerta",
-      },
+      ...item.vantagens.map((vantagem) => ({
+        rotulo: "Vantagem",
+        valor: vantagem,
+        tom: "positivo" as const,
+      })),
+      ...item.riscos.map((risco) => ({
+        rotulo: "Risco",
+        valor: risco,
+        tom: "alerta" as const,
+      })),
     ],
-  });
-
-  // 3) Cortar gastos variáveis
-  const pesoNaRenda =
-    situacao.rendaMensal > 0
-      ? Math.round((porMes / situacao.rendaMensal) * 100)
-      : null;
-
-  const impactosCortes: Impacto[] = [
-    { rotulo: "Corte necessário por mês", valor: formatarMoeda(porMes) },
-  ];
-
-  if (pesoNaRenda !== null) {
-    impactosCortes.push({
-      rotulo: "Peso na renda mensal",
-      valor: `${pesoNaRenda}%`,
-      tom: pesoNaRenda > 15 ? "alerta" : "positivo",
-    });
-  }
-
-  lista.push({
-    id: "cortes",
-    titulo: "Cortar gastos variáveis",
-    descricao: `Reduz lazer, delivery e compras não essenciais por ${prazo} ${
-      prazo === 1 ? "mês" : "meses"
-    } para pagar o imprevisto sem usar a reserva.`,
-    impactos: impactosCortes,
-  });
-
-  // 4) Reserva + orçamento (usa no máximo metade da reserva)
-  if (reserva > 0) {
-    const daReserva = Math.min(valor, reserva * 0.5);
-    const resto = valor - daReserva;
-
-    if (resto > 0) {
-      lista.push({
-        id: "combinada",
-        titulo: "Reserva + ajuste no orçamento",
-        descricao:
-          "Usa até metade da reserva e paga o restante aos poucos, protegendo parte do que você guardou.",
-        impactos: [
-          { rotulo: "Da reserva", valor: formatarMoeda(daReserva) },
-          { rotulo: "Reserva depois", valor: formatarMoeda(reserva - daReserva) },
-          {
-            rotulo: "Restante por mês",
-            valor: formatarMoeda(resto / prazo),
-            tom: "alerta",
-          },
-        ],
-      });
-    }
-  }
-
-  return lista;
+  }));
 }
+
 
 // ---------------------------------------------------------------------
 // Chamadas à API
@@ -578,29 +512,73 @@ export async function buscarImprevisto(id: string): Promise<Imprevisto> {
 // Chama a IA. O backend grava o imprevisto junto (veja o aviso no topo).
 // "guardarTipo" é falso nas linhas temporárias (nova análise de um
 // imprevisto que já existe), que são apagadas logo em seguida.
+
 async function chamarAnalise(
   dados: DadosImprevisto,
   guardarTipo = true,
+  autorizarEnvioIA = false,
 ): Promise<ResultadoAnalise> {
+  if (!autorizarEnvioIA) {
+    throw new Error(
+      "Autorize o envio dos dados financeiros ao Gemini para solicitar a análise."
+    );
+  }
+
   const { data } = await api.post<RespostaPlanoB>(
     "/plano-b",
-    { imprevisto: corpo(dados) },
+    {
+      imprevisto: corpo(dados),
+      autorizarEnvioIA,
+    },
     { timeout: TEMPO_ANALISE_MS },
   );
 
-  if (guardarTipo && data.imprevisto.tipo === "OUTRO") {
-    await definirTipo(String(data.imprevisto.id_Imprevisto), dados.tipoDetalhe);
+  if (
+    !data.analiseEstruturada ||
+    !Array.isArray(data.estrategias)
+  ) {
+    throw new Error(
+      "O Gemini não retornou estratégias em formato válido."
+    );
   }
 
-  const imprevisto = paraImprevisto(data.imprevisto, await lerLocal());
+  if (
+    guardarTipo &&
+    data.imprevisto.tipo === "OUTRO"
+  ) {
+    await definirTipo(
+      String(data.imprevisto.id_Imprevisto),
+      dados.tipoDetalhe
+    );
+  }
+
+  const imprevisto = paraImprevisto(
+    data.imprevisto,
+    await lerLocal()
+  );
+
+  const prioridades = Array.isArray(data.prioridades)
+    ? data.prioridades.filter(
+        (p) => typeof p === "string" && p.trim()
+      )
+    : [];
 
   const analise: Analise = {
-    texto: limparTextoIA(data.resposta ?? ""),
+    texto: [
+      limparTextoIA(data.resposta ?? ""),
+      prioridades.length
+        ? `Prioridades:\n${prioridades
+            .map((p, i) => `${i + 1}. ${p}`)
+            .join("\n")}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
+
     situacao: data.situacaoFinanceira,
-    estrategias: montarEstrategias(
-      dados.valor,
-      dados.duracaoMeses,
-      data.situacaoFinanceira,
+
+    estrategias: converterEstrategiasGemini(
+      data.estrategias
     ),
   };
 
@@ -608,6 +586,7 @@ async function chamarAnalise(
 
   return { imprevisto, analise };
 }
+
 
 async function apagarSilencioso(id: string): Promise<void> {
   try {
@@ -623,33 +602,51 @@ async function apagarSilencioso(id: string): Promise<void> {
 // Primeira análise (ou nova análise de um formulário ainda não confirmado).
 // Se já existia uma análise anterior ainda sem estratégia, a linha antiga é
 // apagada para não ficar imprevisto duplicado no histórico.
+
 export async function analisarImprevisto(
   dados: DadosImprevisto,
   idAnterior?: string,
+  autorizarEnvioIA = false,
 ): Promise<ResultadoAnalise> {
-  const resultado = await chamarAnalise(dados);
+  const resultado = await chamarAnalise(
+    dados,
+    true,
+    autorizarEnvioIA
+  );
 
-  if (idAnterior && idAnterior !== resultado.imprevisto.id) {
+  if (
+    idAnterior &&
+    idAnterior !== resultado.imprevisto.id
+  ) {
     await apagarSilencioso(idAnterior);
   }
 
   return resultado;
 }
 
+
 // Nova análise de um imprevisto que já está no histórico: a IA grava uma
 // linha nova, que é apagada em seguida; a análise passa a valer para o id
 // original.
+
 export async function reanalisarImprevisto(
   id: string,
   dados: DadosImprevisto,
+  autorizarEnvioIA = false,
 ): Promise<Analise> {
-  const { imprevisto, analise } = await chamarAnalise(dados, false);
+  const { imprevisto, analise } =
+    await chamarAnalise(
+      dados,
+      false,
+      autorizarEnvioIA
+    );
 
   await apagarSilencioso(imprevisto.id);
   analises.set(id, analise);
 
   return analise;
 }
+
 
 // Grava a estratégia escolhida (não movimenta dinheiro da reserva)
 export async function escolherEstrategia(
