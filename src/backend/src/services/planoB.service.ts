@@ -665,8 +665,14 @@ if (!respostaBruta || typeof respostaBruta !== "string") {
   throw new Error("O Gemini não retornou uma resposta válida.");
 }
 
-const respostaEstruturada =
-  interpretarRespostaGemini(respostaBruta);
+const respostaEstruturada = interpretarRespostaGemini(respostaBruta);
+
+// Não salvar uma análise sem o JSON esperado, pra caso o gemini envie um texto comum
+if (!respostaEstruturada) {
+  throw new Error(
+    "O Gemini não retornou o JSON esperado para o Plano B."
+  );
+}
 
   // 9. SALVAR O IMPREVISTO
 
@@ -689,28 +695,17 @@ const respostaEstruturada =
   // 10. RETORNO PARA O FRONTEND
 
 
-  return {
-    situacaoFinanceira,
-    metas: metasParaAnalise,
+ return {
+  situacaoFinanceira,
+  metas: metasParaAnalise,
+  imprevisto: imprevistoSalvo,
 
+  resposta: respostaEstruturada.analise,
+  prioridades: respostaEstruturada.prioridades,
+  estrategias: respostaEstruturada.estrategias,
 
-    imprevisto: imprevistoSalvo,
-
-
-    // Mantém uma resposta textual para compatibilidade
-    // com a integração atual do frontend.
-    resposta: respostaEstruturada
-      ? respostaEstruturada.analise
-      : respostaBruta,
-
-
-    // Novos campos com as recomendações do Gemini.
-    prioridades: respostaEstruturada?.prioridades ?? [],
-    estrategias: respostaEstruturada?.estrategias ?? [],
-
-
-    analiseEstruturada: Boolean(respostaEstruturada),
-  };
+  analiseEstruturada: true,
+};
 }
 
 
