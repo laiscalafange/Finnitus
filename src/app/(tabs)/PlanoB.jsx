@@ -669,40 +669,42 @@ setAutorizarEnvioIA(false)
 
 // Estilos só desta tela (o restante reaproveita src/styles/Planobstyle.ts)
 const local = StyleSheet.create({
-  // Menos espaço vazio embaixo do painel (o padrão deixava uma faixa grande)
   headerAjuste: {
-autorizacaoLinha: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 10,
-  paddingVertical: 12,
-},
+    // Coloque aqui os estilos do cabeçalho
+  },
 
-autorizacaoCaixa: {
-  width: 22,
-  height: 22,
-  borderRadius: 6,
-  borderWidth: 1.5,
-  borderColor: Cores.destaque.limao,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
+  autorizacaoLinha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 12,
+  },
 
-autorizacaoMarcada: {
-  backgroundColor: Cores.destaque.limao,
-},
+  autorizacaoCaixa: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: Cores.destaque.limao,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
-autorizacaoSimbolo: {
-  color: Cores.texto.contraste,
-  fontSize: 16,
-  fontWeight: 'bold',
-},
+  autorizacaoMarcada: {
+    backgroundColor: Cores.destaque.limao,
+  },
 
-autorizacaoTexto: {
-  flex: 1,
-  fontFamily: FONTS.quicksand.medium,
-  color: Cores.texto.claro,
-  fontSize: 12,
-  lineHeight: 18,
-},
-  },})
+  autorizacaoSimbolo: {
+    color: Cores.texto.contraste,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+
+  autorizacaoTexto: {
+    flex: 1,
+    fontFamily: FONTS.quicksand.medium,
+    color: Cores.texto.claro,
+    fontSize: 12,
+    lineHeight: 18,
+  },
+})
