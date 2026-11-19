@@ -84,6 +84,8 @@ export default function PlanoBScreen() {
   // ----- Registro e análise -----
   const [campos, setCampos] = useState(camposVazios)
   const [erroForm, setErroForm] = useState('')
+  const [autorizarEnvioIA, setAutorizarEnvioIA] =
+  useState(false)
   const [analisando, setAnalisando] = useState(false)
   // Depois do envio: { imprevisto, analise }
   const [resultado, setResultado] = useState(null)
@@ -149,17 +151,27 @@ export default function PlanoBScreen() {
       setErroForm(mensagem)
       return
     }
+    
+    if (!autorizarEnvioIA) {
+      setErroForm(
+        'Autorize o envio dos dados financeiros ao Gemini para receber a análise.'
+      )
+      return
+    }
 
     ocupado.current = true
     setErroForm('')
     setAnalisando(true)
 
     try {
-      const novo = await analisarImprevisto(
-        camposParaDados(campos),
-        // Nova análise antes de escolher: troca a anterior, sem duplicar
-        resultado?.imprevisto.id,
-      )
+    const novo = await analisarImprevisto(
+    camposParaDados(campos),
+    resultado?.imprevisto.id,
+    autorizarEnvioIA,
+  )
+
+setAutorizarEnvioIA(false)
+
 
       setResultado(novo)
       setEstrategiaId(null)
@@ -458,6 +470,39 @@ export default function PlanoBScreen() {
                     desabilitado={analisando}
                   />
 
+                <Pressable
+                  accessibilityRole="checkbox"
+                  accessibilityState={{
+                    checked: autorizarEnvioIA,
+                    disabled: analisando,
+                  }}
+                  disabled={analisando}
+                  onPress={() =>
+                    setAutorizarEnvioIA((atual) => !atual)
+                  }
+                  style={local.autorizacaoLinha}
+                >
+                  <View
+                    style={[
+                      local.autorizacaoCaixa,
+                      autorizarEnvioIA && local.autorizacaoMarcada,
+                    ]}
+                  >
+                    {autorizarEnvioIA ? (
+                      <Text style={local.autorizacaoSimbolo}>
+                        ✓
+                      </Text>
+                    ) : null}
+                  </View>
+                
+                  <Text style={local.autorizacaoTexto}>
+                    Autorizo o envio dos meus dados financeiros
+                    resumidos e das informações deste imprevisto
+                    ao Gemini para gerar uma análise personalizada.
+                  </Text>
+                </Pressable>
+
+
                   <BotaoPlano
                     titulo={tituloBotao}
                     icone={Sparkles}
@@ -504,7 +549,13 @@ export default function PlanoBScreen() {
                   <TextoAnalise texto={resultado.analise.texto} />
                 </CardVidro>
 
-                <Text style={local.subtitulo}>Escolha uma estratégia</Text>
+                
+                <Text style={local.subtitulo}>
+                  {resultado.analise.estrategias.length
+                    ? 'Escolha uma estratégia'
+                    : 'Nenhuma estratégia viável identificada'}
+                </Text>
+
 
                 {resultado.analise.estrategias.map((estrategia) => (
                   <EstrategiaCard
@@ -516,10 +567,13 @@ export default function PlanoBScreen() {
                   />
                 ))}
 
+                
                 <Text style={local.aviso}>
-                  Valores estimados pelo app com base na sua situação financeira.
-                  Escolher uma estratégia não move dinheiro da sua reserva.
+                  Recomendações geradas pelo Gemini com base
+                  nos dados informados. Escolher uma estratégia
+                  não move dinheiro da sua reserva.
                 </Text>
+
 
                 {erroEstrategia ? (
                   <Text style={local.erro} accessibilityRole="alert">
@@ -615,206 +669,42 @@ export default function PlanoBScreen() {
 
 // Estilos só desta tela (o restante reaproveita src/styles/Planobstyle.ts)
 const local = StyleSheet.create({
-  // Menos espaço vazio embaixo do painel (o padrão deixava uma faixa grande)
   headerAjuste: {
-    paddingBottom: 36,
+    // Coloque aqui os estilos do cabeçalho
   },
 
-  // Seta apontando pra cima quando o painel está recolhido
-  setaRecolhida: {
-    transform: [{ rotate: '180deg' }],
-  },
-
-  // Painel translúcido com margem livre e reserva
-  painel: {
-    padding: 18,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.18)',
-    backgroundColor: 'rgba(20, 5, 50, 0.38)',
-  },
-
-  painelRotulo: {
-    fontFamily: FONTS.quicksand.bold,
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.85)',
-  },
-
-  painelNota: {
-    marginTop: 4,
-    fontFamily: FONTS.quicksand.medium,
-    fontSize: 13,
-    lineHeight: 18,
-    color: 'rgba(255, 255, 255, 0.75)',
-  },
-
-  painelLink: {
-    marginTop: 8,
-    fontFamily: FONTS.quicksand.bold,
-    fontSize: 14,
-    color: Cores.destaque.limao,
-  },
-
-  painelDivisor: {
-    height: 1,
-    marginVertical: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  },
-
-  margemValor: {
-    marginTop: 2,
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 30,
-    color: Cores.destaque.limao,
-  },
-
-  margemVazia: {
-    color: 'rgba(255, 255, 255, 0.6)',
-  },
-
-  reservaTopo: {
+  autorizacaoLinha: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     gap: 10,
-    marginBottom: 8,
+    paddingVertical: 12,
   },
 
-  chip: {
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 20,
+  autorizacaoCaixa: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: Cores.destaque.limao,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  autorizacaoMarcada: {
     backgroundColor: Cores.destaque.limao,
   },
 
-  chipTexto: {
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 13,
+  autorizacaoSimbolo: {
     color: Cores.texto.contraste,
-  },
-
-  reservaValores: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginBottom: 10,
-  },
-
-  reservaSaldo: {
-    flexShrink: 1,
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 24,
-    color: Cores.base.branco,
-  },
-
-  reservaMeta: {
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.75)',
-  },
-
-  // Resumo do formulário e cards do histórico
-  resumoTopo: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
-    marginBottom: 14,
-  },
-
-  resumoNome: {
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 17,
-    color: Cores.base.branco,
-  },
-
-  resumoSub: {
-    marginTop: 2,
-    fontFamily: FONTS.quicksand.medium,
-    fontSize: 13,
-    color: Cores.texto.claro,
-  },
-
-  resumoValor: {
-    fontFamily: FONTS.raleway.extrabold,
-    fontSize: 17,
-    color: Cores.destaque.limao,
-  },
-
-  cardHistorico: {
-    marginBottom: 10,
-  },
-
-  rodapeHistorico: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-
-  verDetalhes: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    gap: 4,
-  },
-
-  verDetalhesTexto: {
-    flexShrink: 1,
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 13,
-    color: Cores.texto.claro,
-  },
-
-  // Carregamento da análise
-  cardCarregando: {
-    alignItems: 'center',
-    gap: 8,
-  },
-
-  carregandoTitulo: {
-    fontFamily: FONTS.raleway.bold,
     fontSize: 16,
-    color: Cores.base.branco,
+    fontWeight: 'bold',
   },
 
-  carregandoTexto: {
-    textAlign: 'center',
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 14,
-    lineHeight: 20,
-    color: Cores.texto.claro,
-  },
-
-  // Análise
-  subtitulo: {
-    marginTop: 6,
-    marginBottom: 10,
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 18,
-    color: Cores.base.branco,
-  },
-
-  aviso: {
-    marginBottom: 14,
+  autorizacaoTexto: {
+    flex: 1,
     fontFamily: FONTS.quicksand.medium,
+    color: Cores.texto.claro,
     fontSize: 12,
-    lineHeight: 17,
-    color: Cores.texto.claro,
-  },
-
-  erro: {
-    marginBottom: 12,
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 14,
-    color: '#ffb4b4',
-  },
-
-  vazio: {
-    fontFamily: FONTS.quicksand.regular,
-    fontSize: 14,
-    lineHeight: 20,
-    color: Cores.texto.claro,
+    lineHeight: 18,
   },
 })

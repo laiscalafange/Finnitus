@@ -1,9 +1,11 @@
 import { Tabs, usePathname, useRouter } from 'expo-router'
 import { FloatingButton } from '../../shared/components/BarradeNav'
+import { Rotas } from '../../shared/constants/Rotas'
 
 function BarraInferior() {
   const router = useRouter()
   const pathname = usePathname()
+
   const abaAtiva = pathname.includes('paginaInicial') ? 'home'
     : pathname.includes('calendario') ? 'calendario'
     : pathname.includes('metas') ? 'metas'
@@ -12,49 +14,93 @@ function BarraInferior() {
     : pathname.includes('perfil') ? 'perfil'
     : 'home'
 
-  // Telas que não mostram a barra de navegação (criação de meta e as
-  // telas Histórico e Análises de Metas)
   const semBarra = pathname.includes('MetasFuturas')
     || pathname.includes('MetasHistorico')
     || pathname.includes('MetasAnalises')
 
   function navegar(aba) {
-    if (aba === 'home') router.push('/paginaInicial')
-    if (aba === 'calendario') router.push('/calendario')
-    if (aba === 'metas') router.push('/metas')
-    if (aba === 'dashboard') router.push('/dashboard')
-    if (aba === 'planoB') router.push('/PlanoB')
-    if (aba === 'perfil') router.push('/perfil')
+    switch (aba) {
+      case 'home':
+        router.push(Rotas.inicio)
+        break
 
-    // Ações do menu que abre ao tocar no + (telas em src/app/mais)
-    if (aba === 'novoImprevisto') router.push('/mais/novoImprevisto')
-    if (aba === 'novoGasto') router.push('/mais/novoGasto')
-    if (aba === 'novoEvento') router.push('/mais/novoEvento')
-    if (aba === 'reservaEmergencia') router.push('/mais/reservaEmergencia')
+      case 'calendario':
+        router.push('/calendario')
+        break
+
+      case 'metas':
+        router.push('/metas')
+        break
+
+      case 'dashboard':
+        router.push(Rotas.dashboard)
+        break
+
+      case 'planoB':
+        router.push(Rotas.planoB)
+        break
+
+      case 'perfil':
+        router.push('/perfil')
+        break
+
+      case 'novaReceita':
+        router.push({
+          pathname: '/mais/novoGasto',
+          params: { tipo: 'entrada' },
+        })
+        break
+
+      case 'novaDespesa':
+        router.push({
+          pathname: '/mais/novoGasto',
+          params: { tipo: 'gasto' },
+        })
+        break
+
+      case 'novoEvento':
+        router.push('/mais/novoEvento')
+        break
+
+      case 'reservaEmergencia':
+        router.push('/mais/reservaEmergencia')
+        break
+    }
   }
 
   if (semBarra) return null
 
-  return <FloatingButton abaAtiva={abaAtiva} aoPress={navegar} />
+  return (
+    <FloatingButton
+      abaAtiva={abaAtiva}
+      aoPress={navegar}
+    />
+  )
 }
 
 export default function TabsLayout() {
-  // backBehavior="history": a seta de voltar (router.back) retorna pra tela
-  // de onde o usuário veio, em vez de sempre cair na primeira aba
-  return <Tabs
-    backBehavior="history"
-    screenOptions={{ headerShown: false }}
-    tabBar={() => <BarraInferior />}
-  >
-    <Tabs.Screen name="paginaInicial" />
-    <Tabs.Screen name="calendario" />
-    <Tabs.Screen name="metas" />
-    <Tabs.Screen name="perfil" />
-    <Tabs.Screen name="dashboard" options={{ href: null }} />
-    <Tabs.Screen name="MetasDetalhes" options={{ href: null }} />
-    <Tabs.Screen name="MetasFrame" options={{ href: null }} />
-    <Tabs.Screen name="MetasFuturas" options={{ href: null }} />
-    <Tabs.Screen name="MetasHistorico" options={{ href: null }} />
-    <Tabs.Screen name="MetasAnalises" options={{ href: null }} />
-  </Tabs>
+  return (
+    <Tabs
+      backBehavior="history"
+      screenOptions={{
+        headerShown: false,
+      }}
+      tabBar={() => <BarraInferior />}
+    >
+      <Tabs.Screen name="paginaInicial" />
+      <Tabs.Screen name="calendario" />
+      <Tabs.Screen name="metas" />
+      <Tabs.Screen name="perfil" />
+
+      <Tabs.Screen name="dashboard" />
+
+      <Tabs.Screen name="PlanoB" />
+
+      <Tabs.Screen name="MetasDetalhes" options={{ href: null }} />
+      <Tabs.Screen name="MetasFrame" options={{ href: null }} />
+      <Tabs.Screen name="MetasFuturas" options={{ href: null }} />
+      <Tabs.Screen name="MetasHistorico" options={{ href: null }} />
+      <Tabs.Screen name="MetasAnalises" options={{ href: null }} />
+    </Tabs>
+  )
 }

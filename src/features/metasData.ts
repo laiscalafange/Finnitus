@@ -29,6 +29,7 @@ export type Meta = {
   // Análises e no Histórico). Metas novas usam "outros"
   categoriaId?: string
   movimentacoes: MovimentacaoMeta[]
+  configurada: boolean;
 }
 
 // ─────────────────────────────────────────────────────────────

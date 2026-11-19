@@ -68,21 +68,16 @@ function formatarValor(valor: number): number {
  * Além de verificar o formato, confere se o dia existe.
  * Por exemplo, uma data como 2026-02-30 será rejeitada.
  */
+
 function converterData(data: string): Date {
   // Verifica se a data está no formato AAAA-MM-DD.
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) {
     throw new Error("Data inválida. Use o formato AAAA-MM-DD.");
   }
 
-  // Separa a data em três partes.
+  // Separa o ano, o mês e o dia.
   const partes = data.split("-");
-  /*
-   * Separa o ano, o mês e o dia para validar
-   * se a data realmente existe no calendário.
-   */
-  const [ano = 0, mes = 0, dia = 0] = dataReferencia.split("-").map(Number);
 
-  // Converte cada parte para número explicitamente.
   const ano = Number(partes[0]);
   const mes = Number(partes[1]);
   const dia = Number(partes[2]);
@@ -114,15 +109,6 @@ function converterData(data: string): Date {
   return dataConvertida;
 }
 
-/*
- * Calcula o intervalo do período solicitado.
- *
- * A data de referência pode ser qualquer dia do período.
- *
- * Exemplo:
- * período MENSAL + data 2026-10-15
- * consulta de 2026-10-01 até antes de 2026-11-01.
- */
 function calcularIntervalo(
   periodo: PeriodoFinanceiro,
   dataReferencia: string,
