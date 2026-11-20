@@ -41,8 +41,7 @@ import {
   type VigenciaConta,
 } from './contas/contasData'
 
-import { perfilFinanceiroService } from "../services/perfilFinanceiro";
-
+import { perfilFinanceiroService } from "../services/perfilFinanceiro"
 
 
 export type FinanceiroState = {
@@ -214,12 +213,7 @@ function converterMetaApi(meta: MetaApi): Meta {
 
     valorTotal: Number(meta.Mvalor_objetivo),
 
-    dataLimite:
-      dataBackendParaTela(
-        meta.Mprazo,
-      ),
-
-    configurada: meta.Mconfigurada,
+    configurada: true,
 
     dataLimite: dataBackendParaTela(meta.Mprazo),
 
@@ -237,10 +231,10 @@ function converterMetaApi(meta: MetaApi): Meta {
       return {
         id: String(movimentacao.id_Movimentacao),
 
-            tipo:
-              movimentacao.tipo === "APORTE"
-                ? "deposito"
-                : "retirada",
+        tipo:
+          movimentacao.tipo === "APORTE"
+            ? "deposito"
+            : "retirada",
 
         valor: Number(movimentacao.valor),
 
@@ -257,10 +251,6 @@ function converterMetaApi(meta: MetaApi): Meta {
     }),
   }
 }
-
-export function FinanceiroProvider({ children }: { children: ReactNode }) {
-  // Usuário que está autenticado no aplicativo
-  const { user } = useAuth();
 
 export function FinanceiroProvider({
   children,
@@ -475,39 +465,6 @@ export function FinanceiroProvider({
           tipoRecebimento: dados.tipoRecebimento,
         },
       }
-
-// Recupera os dados financeiros salvos no banco.
-const carregarPerfilFinanceiro = useCallback(async (): Promise<void> => {
-  const perfil = await perfilFinanceiroService.buscar();
-
-  if (!perfil) {
-    setRendaFixa(undefined);
-    setRendaVariavel(undefined);
-    setSalario(undefined);
-    setDespesas(undefined);
-    return;
-  }
-
-  const fixa =
-    perfil.renda_fixa == null
-      ? undefined
-      : Number(perfil.renda_fixa);
-
-  const variavel =
-    perfil.renda_variavel == null
-      ? undefined
-      : Number(perfil.renda_variavel);
-
-  const total = (fixa ?? 0) + (variavel ?? 0);
-
-  setRendaFixa(fixa);
-  setRendaVariavel(variavel);
-  setSalario(total > 0 ? total : undefined);
-
-  setDespesas(
-    Number(perfil.despesas_mensais ?? 0)
-  );
-}, []);
 
       setTransacoes((lista) =>
         lista.map((item) =>
