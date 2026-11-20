@@ -131,6 +131,7 @@ model Usuario {
   Divida                 Divida[]
   ReservaFinanceira      ReservaFinanceira?
   PerfilFinanceiro PerfilFinanceiro?
+  Notificacoes Notificacao[]
 
 }
 
@@ -419,4 +420,24 @@ model MovimentacaoReserva {
   ReservaFinanceira ReservaFinanceira @relation(fields: [id_Reserva], references: [id_Reserva], onDelete: Cascade)
 
   @@index([id_Reserva, data])
+}
+
+model Notificacao {
+  id_Notificacao Int       @id @default(autoincrement())
+  id_Usuario     Int
+  tipo           String    @db.VarChar(40)
+  titulo         String    @db.VarChar(120)
+  mensagem       String    @db.VarChar(500)
+  chaveEvento    String    @db.VarChar(180)
+  relacionadoTipo String?  @db.VarChar(20)
+  relacionadoId   Int?
+  lida           Boolean   @default(false)
+  criadaEm       DateTime  @default(now())
+  lidaEm         DateTime?
+
+  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+
+  @@unique([id_Usuario, chaveEvento])
+  @@index([id_Usuario, criadaEm])
+  @@index([id_Usuario, lida, criadaEm])
 }

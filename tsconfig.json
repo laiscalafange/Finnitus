@@ -16,7 +16,7 @@
     "**/*.d.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ],
+, "src/backend/src/routes/notificacoes.routes.js"  ],
   "exclude": [
     "node_modules",
     "src/backend",
