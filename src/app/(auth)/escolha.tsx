@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AceiteCadastroGoogle } from "../../shared/components/AceiteCadastroGoogle";
 import { View, Text, Image, ScrollView } from "react-native";
@@ -21,7 +22,10 @@ export default function Escolha() {
   const roteador = useRouter();
 
   const { googleLogin } = useAuth();
-  const [confirmouRequisitos, setConfirmouRequisitos] = useState(false);
+
+  const [confirmouRequisitos, setConfirmouRequisitos] =
+    useState(false);
+
   const { busy, error, run, clearError } = useAuthAction();
 
   function continuarEmail() {
@@ -31,13 +35,14 @@ export default function Escolha() {
           "Confirme sua maioridade e a leitura dos documentos legais para continuar."
         );
       }
+
       roteador.push("/cadastro");
     });
   }
 
   function entrarGoogle() {
     void run(async () => {
-      // Exige confirmação antes de iniciar a autenticação Google.
+      // Exige confirmação antes de iniciar o Google.
       if (!confirmouRequisitos) {
         throw new Error(
           "Para criar conta pelo Google, confirme sua maioridade e a leitura dos documentos legais."
@@ -58,7 +63,6 @@ export default function Escolha() {
 
       <BotaoVoltarAuth absoluto />
 
-      {/* Layout, tipografia e underline ORIGINAIS preservados. */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -66,28 +70,47 @@ export default function Escolha() {
       >
         <View style={styles.linha}>
           <View>
-            <Text style={styles.title2} maxFontSizeMultiplier={LIMITE_FONTE}>
+            <Text
+              style={styles.title2}
+              maxFontSizeMultiplier={LIMITE_FONTE}
+            >
               Escolha
             </Text>
+
             <Underline width={106} marginLeft={9} />
           </View>
         </View>
-        <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
+
+        <Text
+          style={styles.title}
+          maxFontSizeMultiplier={LIMITE_FONTE}
+        >
           uma opção
         </Text>
-        <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
+
+        <Text
+          style={styles.title}
+          maxFontSizeMultiplier={LIMITE_FONTE}
+        >
           para continuar
         </Text>
-        <Text style={styles.subtitle} maxFontSizeMultiplier={LIMITE_FONTE}>
+
+        <Text
+          style={styles.subtitle}
+          maxFontSizeMultiplier={LIMITE_FONTE}
+        >
           Continue com o email ou outros serviços.
         </Text>
       </ScrollView>
 
-      {/* Somente espaçamento interno reduzido. */}
       <View
         style={[
           styles.conteiner,
-          { gap: 9, paddingTop: 8, paddingBottom: 14 },
+          {
+            gap: 9,
+            paddingTop: 8,
+            paddingBottom: 14,
+          },
         ]}
       >
         {error ? (
@@ -118,7 +141,9 @@ export default function Escolha() {
           onPress={continuarEmail}
           icone={
             <Image
-              source={require("../../../assets/icones/email2.png")}
+              source={require(
+                "../../../assets/icones/email2.png"
+              )}
               style={{
                 width: 20,
                 height: 20,
@@ -136,7 +161,9 @@ export default function Escolha() {
           disabled={busy || !confirmouRequisitos}
           icone={
             <Image
-              source={require("../../../assets/icones/google.png")}
+              source={require(
+                "../../../assets/icones/google.png"
+              )}
               style={{
                 width: 20,
                 height: 20,

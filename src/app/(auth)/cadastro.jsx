@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 
 import {
@@ -25,11 +26,10 @@ import {
   validatePassword,
 } from "../../shared/utils/formValidation";
 
-// Mesmo tamanho dos ícones originais.
 const inputIconStyle = {
   width: 24,
   height: 24,
-  resizeMode: "contain",
+  resizeMode: "contain" as const,
 };
 
 export default function Cadastro() {
@@ -47,6 +47,10 @@ export default function Cadastro() {
   const podeCadastrar = maiorDeIdade && leuTermos && !busy;
 
   function cadastrar() {
+    if (!podeCadastrar) {
+      return;
+    }
+
     void run(async () => {
       const normalized = normalizeEmail(email);
       const normalizedName = nome.trim();
@@ -55,19 +59,24 @@ export default function Cadastro() {
         throw new Error("Informe um e-mail válido.");
       }
 
-      if (normalizedName.length < 2 || normalizedName.length > 100) {
-        throw new Error("Informe um nome entre 2 e 100 caracteres.");
+      if (
+        normalizedName.length < 2 ||
+        normalizedName.length > 100
+      ) {
+        throw new Error(
+          "Informe um nome entre 2 e 100 caracteres."
+        );
       }
 
       validatePassword(senha, confirmarSenha);
 
-      // Verificação de segurança mantida mesmo com o botão desabilitado.
       if (!maiorDeIdade || !leuTermos) {
         throw new Error(
           "Confirme que tem 18 anos ou mais e que leu os Termos e a Política de Privacidade."
         );
       }
 
+      // Envia os valores reais dos checkboxes ao backend.
       await authService.register({
         name: normalizedName,
         email: normalized,
@@ -76,9 +85,16 @@ export default function Cadastro() {
         leuTermos,
       });
 
-      // O login automático precisa apresentar os aceites à API também.
-      await login(normalized, senha, maiorDeIdade && leuTermos);
-      router.replace("/configuracaoInicial/FinancialData");
+      // Login automático com as confirmações.
+      await login(
+        normalized,
+        senha,
+        maiorDeIdade && leuTermos
+      );
+
+      router.replace(
+        "/configuracaoInicial/FinancialData"
+      );
     });
   }
 
@@ -105,7 +121,10 @@ export default function Cadastro() {
         label="Nome"
         placeholder="Digite seu nome completo"
         value={nome}
-        onChangeText={(valor) => { setNome(valor); clearError(); } }
+        onChangeText={(valor) => {
+          setNome(valor);
+          clearError();
+        }}
         autoCapitalize="words"
         maxLength={100}
         editable={!busy}
@@ -122,7 +141,10 @@ export default function Cadastro() {
         label="E-mail"
         placeholder="Digite seu e-mail"
         value={email}
-        onChangeText={(valor) => { setEmail(valor); clearError(); } }
+        onChangeText={(valor) => {
+          setEmail(valor);
+          clearError();
+        }}
         keyboardType="email-address"
         autoComplete="email"
         editable={!busy}
@@ -139,7 +161,10 @@ export default function Cadastro() {
         placeholder="Digite sua senha"
         secureTextEntry
         value={senha}
-        onChangeText={(valor) => { setSenha(valor); clearError(); } }
+        onChangeText={(valor) => {
+          setSenha(valor);
+          clearError();
+        }}
         autoComplete="new-password"
         editable={!busy}
         icone={
@@ -155,7 +180,10 @@ export default function Cadastro() {
         placeholder="Repita sua senha"
         secureTextEntry
         value={confirmarSenha}
-        onChangeText={(valor) => { setConfirmarSenha(valor); clearError(); } }
+        onChangeText={(valor) => {
+          setConfirmarSenha(valor);
+          clearError();
+        }}
         editable={!busy}
         icone={
           <Image
@@ -166,14 +194,18 @@ export default function Cadastro() {
         }
       />
 
-      {/* Os elementos legais ficam num único grupo, sem o espaçamento
-          que o AuthForm aplicava entre cada filho separadamente. */}
       <View style={{ gap: 3 }}>
         <Pressable
           accessibilityRole="checkbox"
-          accessibilityState={{ checked: maiorDeIdade, disabled: busy }}
+          accessibilityState={{
+            checked: maiorDeIdade,
+            disabled: busy,
+          }}
           disabled={busy}
-          onPress={() => { setMaiorDeIdade(!maiorDeIdade); clearError(); }}
+          onPress={() => {
+            setMaiorDeIdade((anterior) => !anterior);
+            clearError();
+          }}
           style={{ paddingVertical: 3 }}
           hitSlop={6}
         >
@@ -184,9 +216,15 @@ export default function Cadastro() {
 
         <Pressable
           accessibilityRole="checkbox"
-          accessibilityState={{ checked: leuTermos, disabled: busy }}
+          accessibilityState={{
+            checked: leuTermos,
+            disabled: busy,
+          }}
           disabled={busy}
-          onPress={() => { setLeuTermos(!leuTermos); clearError(); }}
+          onPress={() => {
+            setLeuTermos((anterior) => !anterior);
+            clearError();
+          }}
           style={{ paddingVertical: 3 }}
           hitSlop={6}
         >
@@ -197,30 +235,45 @@ export default function Cadastro() {
 
         <Pressable
           accessibilityRole="link"
-          onPress={() => router.push("/legal/termos-de-uso")}
+          onPress={() =>
+            router.push("/legal/termos-de-uso")
+          }
           style={{ paddingVertical: 3 }}
           hitSlop={6}
         >
-          <Text style={{ color: "#FFF081", textDecorationLine: "underline" }}>
+          <Text
+            style={{
+              color: "#FFF081",
+              textDecorationLine: "underline",
+            }}
+          >
             Ler Termos de Uso
           </Text>
         </Pressable>
 
         <Pressable
           accessibilityRole="link"
-          onPress={() => router.push("/legal/politica-de-privacidade")}
+          onPress={() =>
+            router.push("/legal/politica-de-privacidade")
+          }
           style={{ paddingVertical: 3 }}
           hitSlop={6}
         >
-          <Text style={{ color: "#FFF081", textDecorationLine: "underline" }}>
+          <Text
+            style={{
+              color: "#FFF081",
+              textDecorationLine: "underline",
+            }}
+          >
             Ler Política de Privacidade
           </Text>
         </Pressable>
 
-        {/* Mesmos botões e tamanhos; a distância entre eles é menor. */}
         <View style={{ gap: 10, marginTop: 7 }}>
           <Button
-            titulo={busy ? "Cadastrando..." : "Cadastrar"}
+            titulo={
+              busy ? "Cadastrando..." : "Cadastrar"
+            }
             variante="primario"
             onPress={cadastrar}
             disabled={!podeCadastrar}
@@ -229,7 +282,9 @@ export default function Cadastro() {
           <Button
             titulo="Já tenho conta"
             variante="primario"
-            onPress={() => router.replace("/login")}
+            onPress={() =>
+              router.replace("/login")
+            }
             disabled={busy}
           />
         </View>

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AceiteCadastroGoogle } from "../../shared/components/AceiteCadastroGoogle";
 
@@ -36,14 +37,14 @@ import {
 const inputIconStyle = {
   width: 24,
   height: 24,
-  resizeMode: "contain",
+  resizeMode: "contain" as const,
 };
 
 const googleIconStyle = {
   width: 22,
   height: 22,
   marginRight: 8,
-  resizeMode: "contain",
+  resizeMode: "contain" as const,
 };
 
 export default function Login() {
@@ -53,12 +54,17 @@ export default function Login() {
   const [email, setEmail] = useState(
     typeof params.email === "string" ? params.email : ""
   );
+
   const [senha, setSenha] = useState("");
-  const [confirmouRequisitos, setConfirmouRequisitos] = useState(false);
+
+  const [confirmouRequisitos, setConfirmouRequisitos] =
+    useState(false);
 
   const { login, googleLogin } = useAuth();
+
   const { busy, error, run, clearError } = useAuthAction();
 
+  // LOGIN POR E-MAIL
   function entrar() {
     void run(async () => {
       if (!confirmouRequisitos) {
@@ -73,14 +79,18 @@ export default function Login() {
         throw new Error("Preencha e-mail e senha.");
       }
 
-      // A API exige os dois indicadores, inclusive no login por e-mail.
-      await login(normalized, senha, confirmouRequisitos);
+      // Envia a confirmação para o AuthContext.
+      await login(
+        normalized,
+        senha,
+        confirmouRequisitos
+      );
     });
   }
 
+  // LOGIN COM GOOGLE
   function google() {
     void run(async () => {
-      // A confirmação é exigida antes de qualquer autenticação.
       if (!confirmouRequisitos) {
         throw new Error(
           "Confirme que tem 18 anos ou mais e que leu os documentos legais."
@@ -90,8 +100,10 @@ export default function Login() {
       const idToken = await googleIdToken();
 
       if (idToken) {
-        // O backend também verifica o aceite em qualquer login Google.
-        await googleLogin(idToken, confirmouRequisitos);
+        await googleLogin(
+          idToken,
+          confirmouRequisitos
+        );
       }
     });
   }
@@ -116,7 +128,6 @@ export default function Login() {
         </View>
       }
       footer={
-        // Estilos originais; confirmação aparece antes dos botões de acesso.
         <View style={{ gap: 10 }}>
           <AceiteCadastroGoogle
             aceito={confirmouRequisitos}
@@ -141,7 +152,9 @@ export default function Login() {
             disabled={busy || !confirmouRequisitos}
             icone={
               <Image
-                source={require("../../../assets/icones/google.png")}
+                source={require(
+                  "../../../assets/icones/google.png"
+                )}
                 style={googleIconStyle}
               />
             }
@@ -160,8 +173,8 @@ export default function Login() {
             }}
             style={({ pressed }) => ({
               alignSelf: "center",
-              paddingVertical: 4, // antes: 10
-              marginBottom: 0,   // antes: 12
+              paddingVertical: 4,
+              marginBottom: 0,
               opacity: busy ? 0.5 : pressed ? 0.7 : 1,
             })}
           >
@@ -179,7 +192,10 @@ export default function Login() {
             titulo="Criar uma conta"
             variante="primario"
             onPress={() => {
-              if (busy || !confirmouRequisitos) return;
+              if (busy || !confirmouRequisitos) {
+                return;
+              }
+
               router.push("/cadastro");
             }}
             disabled={busy || !confirmouRequisitos}
@@ -203,13 +219,18 @@ export default function Login() {
         label="E-mail"
         placeholder="Digite seu e-mail"
         value={email}
-        onChangeText={(valor) => { setEmail(valor); clearError(); }}
+        onChangeText={(valor) => {
+          setEmail(valor);
+          clearError();
+        }}
         keyboardType="email-address"
         autoComplete="email"
         editable={!busy}
         icone={
           <Image
-            source={require("../../../assets/icones/email3.png")}
+            source={require(
+              "../../../assets/icones/email3.png"
+            )}
             style={inputIconStyle}
           />
         }
@@ -219,13 +240,18 @@ export default function Login() {
         label="Senha"
         placeholder="Digite sua senha"
         value={senha}
-        onChangeText={(valor) => { setSenha(valor); clearError(); }}
+        onChangeText={(valor) => {
+          setSenha(valor);
+          clearError();
+        }}
         secureTextEntry
         autoComplete="current-password"
         editable={!busy}
         icone={
           <Image
-            source={require("../../../assets/icones/senha.png")}
+            source={require(
+              "../../../assets/icones/senha.png"
+            )}
             style={inputIconStyle}
           />
         }
