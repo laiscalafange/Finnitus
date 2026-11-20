@@ -1,38 +1,55 @@
+
 import { useState } from "react";
+
 import {
   View,
   Text,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 
 import {
-  Sun,
-  Moon,
   Type,
+  ChevronDown,
+  Check,
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
-import { SelectCard } from "../../shared/components/SelectCard";
 
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/aparencia";
 
-const TEMAS = ["Claro", "Escuro"] as const;
-const TAMANHOS_TEXTO = ["Pequeno", "Médio", "Grande"] as const;
+const TAMANHOS_TEXTO = [
+  "Pequeno",
+  "Médio",
+  "Grande",
+] as const;
 
-// Tela "Aparência" (dentro de Configurações).
-// TODO (backend): nada aqui muda o app de verdade ainda — é tudo
-// estado local, só pra representar o layout do protótipo.
+type TamanhoTexto = (typeof TAMANHOS_TEXTO)[number];
+
+const GRADIENTE_CARD: [string, string] = [
+  "rgba(44, 27, 67, 0.94)",
+  "rgba(33, 18, 53, 0.94)",
+];
+
 export default function Aparencia() {
-  const [tema, setTema] = useState<(typeof TEMAS)[number]>("Escuro");
   const [tamanhoTexto, setTamanhoTexto] =
-    useState<(typeof TAMANHOS_TEXTO)[number]>("Médio");
+    useState<TamanhoTexto>("Médio");
+
+  const [seletorAberto, setSeletorAberto] =
+    useState(false);
+
+  function selecionarTamanho(opcao: TamanhoTexto) {
+    setTamanhoTexto(opcao);
+    setSeletorAberto(false);
+  }
 
   return (
     <View style={styles.container}>
-      <BackgroundGradient variante="funcional" />
+      <BackgroundGradient variante="padrao" />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
@@ -41,42 +58,98 @@ export default function Aparencia() {
 
         <View style={styles.lista}>
           <Card
-            gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
+            gradiente={GRADIENTE_CARD}
             style={styles.card}
           >
             <View style={styles.linhaIcone}>
-              {tema === "Claro" ? (
-                <Sun size={18} color={Cores.roxo.claro} />
-              ) : (
-                <Moon size={18} color={Cores.roxo.claro} />
-              )}
-              <Text style={styles.rotuloItem}>Tema</Text>
+              <View style={styles.iconeContainer}>
+                <Type
+                  size={19}
+                  color={Cores.destaque.limao}
+                />
+              </View>
+
+              <View style={styles.textosTitulo}>
+                <Text style={styles.rotuloItem}>
+                  Tamanho dos textos
+                </Text>
+
+                <Text style={styles.descricaoItem}>
+                  Escolha o tamanho de texto que prefere.
+                </Text>
+              </View>
             </View>
 
-            {TEMAS.map((opcao) => (
-              <SelectCard
-                key={opcao}
-                label={opcao}
-                icon={null}
-                selected={tema === opcao}
-                onPress={() => setTema(opcao)}
-              />
-            ))}
+            {/* SELETOR */}
+            <TouchableOpacity
+              style={[
+                styles.seletor,
+                seletorAberto && styles.seletorAberto,
+              ]}
+              activeOpacity={0.8}
+              onPress={() =>
+                setSeletorAberto(!seletorAberto)
+              }
+              accessibilityRole="button"
+              accessibilityState={{
+                expanded: seletorAberto,
+              }}
+            >
+              <Text style={styles.valorSelecionado}>
+                {tamanhoTexto}
+              </Text>
 
-            <View style={[styles.linhaIcone, styles.espacoTopo]}>
-              <Type size={18} color={Cores.roxo.claro} />
-              <Text style={styles.rotuloItem}>Tamanho dos textos</Text>
-            </View>
-
-            {TAMANHOS_TEXTO.map((opcao) => (
-              <SelectCard
-                key={opcao}
-                label={opcao}
-                icon={null}
-                selected={tamanhoTexto === opcao}
-                onPress={() => setTamanhoTexto(opcao)}
+              <ChevronDown
+                size={19}
+                color={Cores.destaque.limao}
+                style={{
+                  transform: [
+                    {
+                      rotate: seletorAberto
+                        ? "180deg"
+                        : "0deg",
+                    },
+                  ],
+                }}
               />
-            ))}
+            </TouchableOpacity>
+
+            {/* OPÇÕES */}
+            {seletorAberto && (
+              <View style={styles.opcoesContainer}>
+                {TAMANHOS_TEXTO.map((opcao) => (
+                  <TouchableOpacity
+                    key={opcao}
+                    style={[
+                      styles.opcao,
+                      tamanhoTexto === opcao &&
+                        styles.opcaoAtiva,
+                    ]}
+                    activeOpacity={0.8}
+                    onPress={() =>
+                      selecionarTamanho(opcao)
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.textoOpcao,
+                        tamanhoTexto === opcao &&
+                          styles.textoOpcaoAtiva,
+                      ]}
+                    >
+                      {opcao}
+                    </Text>
+
+                    {tamanhoTexto === opcao && (
+                      <Check
+                        size={17}
+                        color={Cores.destaque.limao}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </Card>
         </View>
       </ScrollView>

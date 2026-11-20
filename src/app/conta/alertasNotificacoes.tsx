@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+
 import {
   View,
   Text,
@@ -22,47 +24,56 @@ import { Card } from "../../shared/components/Cards";
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/alertasNotificacoes";
 
-// Alertas e notificações: cada um começa ligado por padrão.
-// TODO (backend): nada aqui é persistido ainda — é tudo estado local,
-// só pra representar o layout do protótipo.
 const ALERTAS = [
   {
     id: "vencimento",
     label: "Vencimento de contas",
+    descricao: "Receba lembretes sobre contas próximas do vencimento.",
     icon: Receipt,
   },
   {
     id: "gastos",
     label: "Lembretes de gastos",
+    descricao: "Avisos para manter seus registros financeiros em dia.",
     icon: PiggyBank,
   },
   {
     id: "calendario",
-    label: "Avisos do Calendário Financeiro",
+    label: "Calendário financeiro",
+    descricao: "Notificações sobre os eventos do seu calendário.",
     icon: CalendarClock,
   },
   {
     id: "planoB",
     label: "Alertas do Plano B",
+    descricao: "Acompanhe os avisos do seu planejamento financeiro.",
     icon: ShieldAlert,
   },
   {
     id: "resumo",
-    label: "Resumo financeiro do mês",
+    label: "Resumo financeiro",
+    descricao: "Receba um resumo da sua movimentação mensal.",
     icon: Sparkles,
   },
   {
     id: "metas",
     label: "Lembretes de metas",
+    descricao: "Acompanhe seus objetivos e prazos financeiros.",
     icon: Target,
   },
 ] as const;
 
 type AlertaId = (typeof ALERTAS)[number]["id"];
 
-// Tela "Alertas e notificações" (dentro de Configurações).
+const GRADIENTE_CARD: [string, string] = [
+  "rgba(44, 27, 67, 0.81)",
+  "rgba(33, 18, 53, 0.83)",
+];
+
 export default function AlertasNotificacoes() {
-  const [alertas, setAlertas] = useState<Record<AlertaId, boolean>>({
+  const [alertas, setAlertas] = useState<
+    Record<AlertaId, boolean>
+  >({
     vencimento: true,
     gastos: true,
     calendario: true,
@@ -72,12 +83,16 @@ export default function AlertasNotificacoes() {
   });
 
   function alternar(id: AlertaId) {
-    setAlertas((atual) => ({ ...atual, [id]: !atual[id] }));
+    setAlertas((atual) => ({
+      ...atual,
+      [id]: !atual[id],
+    }));
   }
 
   return (
     <View style={styles.container}>
-      <BackgroundGradient variante="funcional" />
+      <BackgroundGradient variante="padrao" />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
@@ -86,27 +101,48 @@ export default function AlertasNotificacoes() {
 
         <View style={styles.lista}>
           <Card
-            gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
+            gradiente={GRADIENTE_CARD}
             style={styles.card}
           >
-            {ALERTAS.map(({ id, label, icon: Icone }) => (
-              <View key={id} style={styles.linhaSwitch}>
-                <View style={styles.linhaIcone}>
-                  <Icone size={18} color={Cores.roxo.claro} />
-                  <Text style={styles.rotuloSwitch}>{label}</Text>
-                </View>
+            {ALERTAS.map(
+              ({ id, label, descricao, icon: Icone }, index) => (
+                <View
+                  key={id}
+                  style={[
+                    styles.item,
+                    index !== ALERTAS.length - 1 &&
+                      styles.itemComDivisor,
+                  ]}
+                >
+                  <View style={styles.iconeContainer}>
+                    <Icone
+                      size={19}
+                      color={Cores.destaque.limao}
+                    />
+                  </View>
 
-                <Switch
-                  value={alertas[id]}
-                  onValueChange={() => alternar(id)}
-                  trackColor={{
-                    false: Cores.interface.borda,
-                    true: Cores.destaque.limao,
-                  }}
-                  thumbColor={Cores.base.branco}
-                />
-              </View>
-            ))}
+                  <View style={styles.textosItem}>
+                    <Text style={styles.tituloItem}>
+                      {label}
+                    </Text>
+
+                    <Text style={styles.descricaoItem}>
+                      {descricao}
+                    </Text>
+                  </View>
+
+                  <Switch
+                    value={alertas[id]}
+                    onValueChange={() => alternar(id)}
+                    trackColor={{
+                      false: "rgba(163, 87, 255, 0.25)",
+                      true: Cores.destaque.limao,
+                    }}
+                    thumbColor={Cores.base.branco}
+                  />
+                </View>
+              )
+            )}
           </Card>
         </View>
       </ScrollView>

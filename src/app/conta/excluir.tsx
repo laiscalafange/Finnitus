@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+
 import {
   View,
   Text,
@@ -9,6 +10,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
+
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -59,7 +61,7 @@ export default function ExcluirConta() {
 
   return (
     <LinearGradient
-      colors={["#160B24", "#08070A", "#160B24"]}
+      colors={["#160B24", "#0D1112", "#160B24"]}
       style={styles.container}
     >
       <ScrollView
@@ -76,25 +78,29 @@ export default function ExcluirConta() {
           style={styles.voltar}
           onPress={() => router.back()}
           disabled={excluindo}
+          activeOpacity={0.8}
         >
           <Ionicons
             name="chevron-back"
             size={19}
-            color="#B6FF00"
+            color="#B7FF00"
           />
-          <Text style={styles.voltarTexto}>Voltar</Text>
+
+          <Text style={styles.voltarTexto}>
+            Voltar
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.centralizar}>
           <LinearGradient
-            colors={["#46238F", "#32166F"]}
+            colors={["#2C1B43", "#211235"]}
             style={styles.card}
           >
             <View style={styles.iconeFundo}>
               <Ionicons
                 name="trash-outline"
-                size={34}
-                color="#B6FF00"
+                size={30}
+                color="#FF7777"
               />
             </View>
 
@@ -107,12 +113,21 @@ export default function ExcluirConta() {
               sua conta do Finnitus?
             </Text>
 
-            <Text style={styles.alerta}>
-              Todos os seus dados financeiros,
-              metas, reservas e movimentações
-              serão apagados permanentemente.
-              Esta ação não pode ser desfeita.
-            </Text>
+            <View style={styles.alertaContainer}>
+              <Ionicons
+                name="alert-circle-outline"
+                size={20}
+                color="#FF7777"
+                style={styles.alertaIcone}
+              />
+
+              <Text style={styles.alerta}>
+                Todos os seus dados financeiros,
+                metas, reservas e movimentações
+                serão apagados permanentemente.
+                Esta ação não pode ser desfeita.
+              </Text>
+            </View>
 
             <View style={styles.formulario}>
               <Text style={styles.label}>
@@ -162,7 +177,7 @@ export default function ExcluirConta() {
               activeOpacity={0.8}
             >
               {excluindo ? (
-                <ActivityIndicator color="#B6FF00" />
+                <ActivityIndicator color="#FF7777" />
               ) : (
                 <Text style={styles.textoExcluir}>
                   Excluir minha conta
@@ -191,123 +206,165 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+
   scroll: {
     flexGrow: 1,
     paddingHorizontal: 20,
   },
+
   voltar: {
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
+    gap: 4,
     marginBottom: 20,
   },
+
   voltarTexto: {
-    color: "#B6FF00",
+    color: "#B7FF00",
     fontSize: 16,
+    fontWeight: "600",
   },
+
   centralizar: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
+
   card: {
     width: "100%",
     maxWidth: 490,
-    borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 30,
+    borderRadius: 22,
+    paddingHorizontal: 22,
+    paddingVertical: 28,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#6435AB",
+    borderColor: "rgba(163, 87, 255, 0.30)",
   },
+
   iconeFundo: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: "#5533A0",
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: "rgba(255, 65, 65, 0.09)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 119, 119, 0.30)",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 18,
   },
+
   titulo: {
     color: "#FFFFFF",
-    fontSize: 24,
+    fontSize: 23,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 10,
   },
+
   descricao: {
-    color: "#D4C5EB",
-    fontSize: 15,
+    color: "#C7A9F5",
+    fontSize: 14,
     textAlign: "center",
-    lineHeight: 22,
-    marginBottom: 10,
+    lineHeight: 21,
+    marginBottom: 20,
   },
+
+  alertaContainer: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: "rgba(255, 65, 65, 0.07)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 119, 119, 0.25)",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 24,
+    gap: 10,
+  },
+
+  alertaIcone: {
+    marginTop: 1,
+  },
+
   alerta: {
+    flex: 1,
     color: "#E5D7F4",
     fontSize: 13,
     lineHeight: 20,
-    textAlign: "center",
-    marginBottom: 24,
+    textAlign: "left",
   },
+
   formulario: {
     width: "100%",
     marginBottom: 10,
   },
+
   label: {
-    color: "#FFFFFF",
+    color: "#E5D7F4",
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 8,
   },
+
   input: {
-    backgroundColor: "#251347",
-    borderColor: "#7351AD",
+    backgroundColor: "rgba(13, 17, 18, 0.55)",
+    borderColor: "rgba(163, 87, 255, 0.35)",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 14,
     fontSize: 15,
     color: "#FFFFFF",
     marginBottom: 17,
     width: "100%",
   },
+
   erro: {
-    color: "#FF9DAA",
+    color: "#FF7777",
     textAlign: "center",
     marginBottom: 14,
     fontSize: 13,
   },
+
   botaoExcluir: {
     width: "100%",
-    minHeight: 54,
-    borderRadius: 7,
+    minHeight: 48,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#B6FF00",
-    backgroundColor: "#3D2085",
+    borderColor: "rgba(255, 119, 119, 0.55)",
+    backgroundColor: "rgba(255, 65, 65, 0.09)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 12,
+    paddingHorizontal: 12,
   },
+
   desabilitado: {
     opacity: 0.45,
   },
+
   textoExcluir: {
-    color: "#B6FF00",
-    fontSize: 17,
+    color: "#FF7777",
+    fontSize: 15,
     fontWeight: "bold",
   },
+
   botaoCancelar: {
     width: "100%",
-    minHeight: 54,
-    borderRadius: 7,
+    minHeight: 48,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#9853ED",
+    borderColor: "rgba(163, 87, 255, 0.35)",
+    backgroundColor: "rgba(56, 32, 91, 0.65)",
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 12,
   },
+
   textoCancelar: {
-    color: "#B96AFF",
-    fontSize: 17,
+    color: "#C7A9F5",
+    fontSize: 15,
     fontWeight: "bold",
   },
 });

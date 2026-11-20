@@ -1,171 +1,192 @@
+
 import { StyleSheet } from "react-native";
-import { Cores } from "@/shared/constants/Cores";
 import { FONTS } from "@/shared/constants/Tipografia";
 
- // Container principal, ocupa a tela toda (o gradiente de fundo)
+const ROXO_CLARO = "#D9C5F5";
+const TEXTO_BRANCO = "#F5F0FF";
+const VERDE_LIMAO = "#B7FF00";
+const BORDA = "rgba(163, 87, 255, 0.22)";
+
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
 
-   // Conteúdo do ScrollView, só um espaço no final pra não colar no fim da tela
   conteudo: {
     paddingBottom: 30,
   },
 
-  // Área do avatar + nome + username, centralizada
-  // marginTop negativo pra "subir" e sobrepor só a curva de baixo do header.
-  // O valor (-60) deixa o topo da foto abaixo do título "Perfil" e do
-  // subtítulo "Pessoal" (que terminam por volta de 115px do topo).
   profile: {
     alignItems: "center",
     marginTop: -60,
+    paddingHorizontal: 20,
   },
 
   nome: {
-    marginTop: 0,
-    color: Cores.roxo.principal,
-    fontSize: 25,
+    marginTop: 10,
+    color: TEXTO_BRANCO,
+    fontSize: 23,
     fontFamily: FONTS.raleway.bold,
+    textAlign: "center",
   },
 
   usuario: {
-    marginTop: 2,
-    color: Cores.roxo.escuro,
+    marginTop: 4,
+    color: ROXO_CLARO,
     fontSize: 12,
-    fontFamily: FONTS.raleway.regular
+    fontFamily: FONTS.raleway.regular,
+    textAlign: "center",
   },
 
-  /* ESPAÇO DOS CARDS */
+  mensagemSalvando: {
+    color: VERDE_LIMAO,
+    marginTop: 10,
+    fontFamily: FONTS.raleway.regular,
+  },
 
-  // Padding lateral pra todos os cards não colarem na borda da tela
+  mensagemErro: {
+    color: "#FF7777",
+    marginTop: 10,
+    textAlign: "center",
+    fontFamily: FONTS.raleway.regular,
+  },
+
   conteudoCards: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
+    marginTop: 12,
+    gap: 12,
   },
 
-  /* PREMIUM */
+  cardPremium: {
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: BORDA,
+  },
 
   premiumTituloContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
 
-  cardPremium: {
-    marginTop: 20,
-    padding: 12,
-    borderRadius: 6,
-  },
-
   premiumTitulo: {
-    color: Cores.roxo.claro,
+    color: VERDE_LIMAO,
     fontSize: 19,
     fontFamily: FONTS.raleway.bold,
   },
 
   coroa: {
-    width: 35,
-    height: 35,
+    width: 32,
+    height: 32,
     marginRight: 10,
     resizeMode: "contain",
   },
 
   premiumVerde: {
-    color: "#B8FF00",
+    color: VERDE_LIMAO,
   },
 
   premiumTexto: {
-    color: Cores.roxo.claro,
+    color: ROXO_CLARO,
     fontSize: 13,
-    marginTop: 3,
+    marginTop: 6,
+    lineHeight: 19,
     fontFamily: FONTS.raleway.regular,
   },
 
   botaoPremium: {
-    height: 32,
-    backgroundColor: Cores.roxo.claro,
-    borderRadius: 20,
+    minHeight: 40,
+    backgroundColor: "#7529d2",
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 8,
+    marginTop: 14,
   },
 
   botaoTexto: {
-    color: Cores.destaque.limao,
-    fontSize: 18,
-    fontFamily: FONTS.raleway.regular,
-  },
-
-  /* CARDS DE EDIÇÃO */
-
-  // Linha com os 2 cards lado a lado, com espaço entre eles
-  linhaCards: {
-    flexDirection: "row",
-    gap: 12,
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontFamily: FONTS.raleway.bold,
   },
 
   cardEdicao: {
+    minHeight: 108,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: BORDA,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  conteudoEdicao: {
     flex: 1,
-    height: 172,
-    padding: 8,
-    paddingRight: 0,
-    borderRadius: 6,
+    paddingRight: 10,
   },
 
   cardTitulo: {
-    color: Cores.roxo.claro,
+    color: TEXTO_BRANCO,
     fontSize: 18,
     fontFamily: FONTS.raleway.bold,
   },
 
-  EngrenagemPerfil: {
-    width: 130,
-    height: 130,
-    resizeMode: "contain",
-    alignSelf: "flex-end",
+  cardDescricao: {
+    color: ROXO_CLARO,
+    fontSize: 12,
+    lineHeight: 18,
     marginTop: 5,
+    fontFamily: FONTS.raleway.regular,
   },
 
-  BonecoPerfil: {
-    width: 70,
-    height: 105,
+  EngrenagemPerfil: {
+    width: 78,
+    height: 78,
     resizeMode: "contain",
-    alignSelf: "flex-end",
   },
-
-  /* CONFIGURAÇÕES */
 
   cardConfiguracoes: {
-    padding: 10,
-    borderRadius: 6,
-    marginTop: 0,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: BORDA,
   },
 
   tituloSecao: {
-    color: Cores.roxo.claro,
-    fontSize: 20,
+    color: VERDE_LIMAO,
+    fontSize: 18,
     fontFamily: FONTS.raleway.bold,
     marginBottom: 8,
+     marginTop: 12,
   },
 
-  // Cada linha clicável de configuração/suporte (ícone + texto)
   item: {
     flexDirection: "row",
     alignItems: "center",
-    height: 38,
+    minHeight: 48,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(163, 87, 255, 0.13)",
+  },
+
+  ultimoItem: {
+    borderBottomWidth: 0,
   },
 
   itemIcone: {
     width: 22,
     height: 22,
     resizeMode: "contain",
-    marginRight: 10,
+    marginRight: 12,
   },
 
   itemTexto: {
-    color: Cores.roxo.claro,
+    color: ROXO_CLARO,
     fontSize: 15,
     fontFamily: FONTS.raleway.regular,
   },
 
-
-  });
+  acoesConta: {
+    marginTop: 8,
+    gap: 12,
+  },
+});

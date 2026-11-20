@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { HeaderInterno } from "../../shared/components/Header";
@@ -63,7 +64,6 @@ export default function DetalhesConta() {
 
   const [aba, setAba] = useState<Aba>("info");
   const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
-  // "Marcar como paga/recebida" abre um modal (não é mais uma tela separada)
   const [confirmandoBaixa, setConfirmandoBaixa] = useState(false);
 
   const transacao = transacoes.find((item) => item.id === id);
@@ -72,7 +72,6 @@ export default function DetalhesConta() {
 
   const tituloHeader = conta?.tipo === "entrada" ? "Detalhes da receita" : "Detalhes da despesa";
 
-  // Conta não encontrada (ex.: foi excluída)
   if (!transacao || !conta) {
     return (
       <View style={form.container}>
@@ -92,12 +91,10 @@ export default function DetalhesConta() {
   const diferenca = diferencaDaConta(conta);
   const resumoDiferenca = textoDiferenca(conta);
 
-  // Pagamentos/recebimentos confirmados desta conta (histórico financeiro)
   const historicoBaixas = baixas
     .filter((baixa) => baixa.transacaoId === transacao.id)
     .sort((a, b) => b.registradaEm.localeCompare(a.registradaEm));
 
-  // Alterações de valor feitas na conta
   const alteracoes = (transacao.vigencias ?? [])
     .map((vigencia) => ({
       vigencia,
@@ -152,17 +149,6 @@ export default function DetalhesConta() {
               Valor previsto · {nomeCompetencia(conta.competencia)}
             </Text>
           </View>
-
-          {/* Ação principal (só enquanto não foi pago/recebido) */}
-          {conta.recorrente && aberta ? (
-            <>
-              <Button
-                titulo={entrada ? "Marcar como recebida" : "Marcar como paga"}
-                onPress={abrirConfirmar}
-              />
-              <View style={styles.espaco} />
-            </>
-          ) : null}
 
           <AlternadorTipo<Aba> valor={aba} aoMudar={setAba} opcoes={ABAS} />
 
@@ -244,19 +230,39 @@ export default function DetalhesConta() {
 
           {resumoDiferenca ? <Text style={styles.aviso}>{resumoDiferenca}</Text> : null}
 
-          {/* Editar | Excluir */}
-          <View style={form.linhaBotoes}>
-            <View style={form.colunaBotao}>
-              <Button titulo="Editar" variante="outline" onPress={abrirEditar} />
+          {/* Ações abaixo de Informações / Histórico */}
+          <View style={styles.acoesContainer}>
+            <View style={styles.acoesLinha}>
+              {conta.recorrente && aberta ? (
+                <View style={styles.acaoColuna}>
+                  <Button
+                    titulo={entrada ? "Foi recebida" : "Foi paga"}
+                    onPress={abrirConfirmar}
+                  />
+                </View>
+              ) : null}
+
+              <View style={styles.acaoColuna}>
+                <Button titulo="Editar" variante="outline" onPress={abrirEditar} />
+              </View>
             </View>
-            <View style={form.colunaBotao}>
-              <Button titulo="Excluir" variante="perigo" onPress={() => setConfirmandoExclusao(true)} />
-            </View>
+
+            <TouchableOpacity
+              style={styles.botaoExcluir}
+              activeOpacity={0.8}
+              onPress={() => setConfirmandoExclusao(true)}
+              accessibilityRole="button"
+            >
+              <Trash2 size={19} color="#FF6B6B" />
+              <Text style={styles.botaoExcluirTexto}>
+                {entrada ? "Excluir receita" : "Excluir despesa"}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
 
-      {/* Confirmar pagamento / recebimento (modal) */}
+      {/* Confirmar pagamento / recebimento */}
       <ModalConfirmarConta
         visible={confirmandoBaixa}
         conta={conta}
@@ -287,7 +293,6 @@ export default function DetalhesConta() {
   );
 }
 
-// Texto do status com a explicação (ex.: "Pendente · vence em 2 dias")
 function rotuloStatusTexto(conta: ContaDoMes): string {
   const nome = conta.tipo === "gasto" ? "vence" : "é prevista";
 

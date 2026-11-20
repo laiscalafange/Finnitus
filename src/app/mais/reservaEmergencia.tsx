@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -7,7 +8,7 @@ import {
   View,
 } from "react-native";
 import axios from "axios";
-import { Minus, PiggyBank, Plus, Trash2 } from "lucide-react-native";
+import { Minus, Plus, Trash2 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
@@ -24,14 +25,16 @@ import { styles } from "@/features/menuMais/styles/reserva";
 import { reservaApi } from "@/services/reserva";
 
 const MAX_MOVIMENTACOES = 5;
+
 const GRADIENTE_CARD: [string, string] = [
   Cores.fundo.cardAlt,
-  Cores.fundo.navBarra,
+  Cores.fundo.cardAlt,
 ];
 
 function mensagemErro(erro: unknown): string {
   if (axios.isAxiosError(erro)) {
     const dados: unknown = erro.response?.data;
+
     if (
       dados !== null &&
       typeof dados === "object" &&
@@ -51,6 +54,7 @@ function mensagemErro(erro: unknown): string {
 
 export default function ReservaEmergencia() {
   const voltar = useVoltar();
+
   const [reserva, setReserva] = useState<Reserva | null>(null);
   const [modal, setModal] = useState<TipoModalReserva | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -81,9 +85,11 @@ export default function ReservaEmergencia() {
 
   const saldo = reserva?.saldo ?? 0;
   const meta = reserva?.meta;
-  const percentual = meta && meta > 0
-    ? Math.min(100, Math.round((saldo / meta) * 100))
-    : 0;
+
+  const percentual =
+    meta && meta > 0
+      ? Math.min(100, Math.round((saldo / meta) * 100))
+      : 0;
 
   function abrirModal(tipo: TipoModalReserva) {
     setErroModal("");
@@ -92,6 +98,7 @@ export default function ReservaEmergencia() {
 
   function fecharModal() {
     if (processando) return;
+
     setErroModal("");
 
     if (!reserva) {
@@ -104,6 +111,7 @@ export default function ReservaEmergencia() {
 
   async function confirmarModal(valor: number) {
     const acao = modal;
+
     if (!acao || bloqueioEnvio.current) return;
 
     if (acao === "saldoInsuficiente") {
@@ -132,21 +140,26 @@ export default function ReservaEmergencia() {
         case "criar":
           novaReserva = await reservaApi.criar();
           break;
+
         case "depositar":
           novaReserva = await reservaApi.depositar(valor);
           break;
+
         case "retirar":
           novaReserva = await reservaApi.retirar(valor);
           break;
+
         case "meta":
           novaReserva = await reservaApi.definirMeta(valor);
           break;
+
         case "excluir":
           await reservaApi.excluir();
           setReserva(null);
           setModal(null);
           voltar();
           return;
+
         default:
           return;
       }
@@ -165,7 +178,6 @@ export default function ReservaEmergencia() {
         axios.isAxiosError(erro) &&
         erro.response?.status === 409
       ) {
-        // Ex.: a reserva já foi criada em outro aparelho.
         await carregarReserva();
       } else {
         setErroModal(mensagemErro(erro));
@@ -179,6 +191,7 @@ export default function ReservaEmergencia() {
   return (
     <View style={base.container}>
       <BackgroundGradient variante="funcional" />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={base.conteudo}
@@ -196,6 +209,7 @@ export default function ReservaEmergencia() {
             <Text style={{ color: Cores.texto.claro }}>
               {erroCarregamento}
             </Text>
+
             <Button
               titulo="Tentar novamente"
               onPress={() => void carregarReserva()}
@@ -203,45 +217,62 @@ export default function ReservaEmergencia() {
           </View>
         ) : reserva ? (
           <View style={base.formulario}>
-            <Card gradiente={GRADIENTE_CARD} style={styles.card}>
+            {/* RESERVA DISPONÍVEL */}
+            <Card
+              gradiente={GRADIENTE_CARD}
+              style={[styles.card, styles.cardSaldo]}
+            >
               <View style={styles.linhaSaldo}>
-                <PiggyBank size={40} color={Cores.destaque.limao} />
-                <View>
-                  <Text style={styles.rotuloPequeno}>Reserva disponível</Text>
-                  <Text style={styles.valorSaldo}>{formatarMoeda(saldo)}</Text>
-                </View>
+                <Text style={styles.rotuloPequeno}>
+                  Reserva disponível
+                </Text>
+
+                <Text style={styles.valorSaldo}>
+                  {formatarMoeda(saldo)}
+                </Text>
               </View>
             </Card>
 
+            {/* META DA RESERVA */}
             <Card gradiente={GRADIENTE_CARD} style={styles.card}>
               <View style={styles.linhaMeta}>
-                <Text style={styles.rotuloPequeno}>Meta da reserva</Text>
+                <Text style={styles.rotuloPequeno}>
+                  Meta da reserva
+                </Text>
+
                 <Pressable
                   style={styles.chipMeta}
                   onPress={() => abrirModal("meta")}
                   accessibilityRole="button"
                 >
-                  <Text style={styles.textoChipMeta}>Definir meta</Text>
+                  <Text style={styles.textoChipMeta}>
+                    Definir meta
+                  </Text>
                 </Pressable>
               </View>
 
               <Text style={styles.valorMeta}>
                 {meta ? formatarMoeda(meta) : "Sem meta definida"}
               </Text>
+
               <View style={styles.linhaProgresso}>
                 <View style={styles.barraProgresso}>
                   <Progress
                     value={saldo}
                     max={meta ?? 1}
                     height={10}
-                    color={Cores.destaque.limao}
+                    color={Cores.roxo.claro}
+                    backgroundColor={"#16082baf"}
                   />
                 </View>
-                <Text style={styles.percentual}>{percentual}%</Text>
+
+                <Text style={styles.percentual}>
+                  {percentual}%
+                </Text>
               </View>
             </Card>
 
-            {/* Botões sólidos, sem gradiente */}
+            {/* DEPOSITAR E RETIRAR */}
             <View style={styles.linhaBotoes}>
               <Pressable
                 style={({ pressed }) => [
@@ -251,7 +282,9 @@ export default function ReservaEmergencia() {
                 onPress={() => abrirModal("depositar")}
                 accessibilityRole="button"
               >
-                <Text style={styles.textoBotaoDepositar}>Depositar</Text>
+                <Text style={styles.textoBotaoDepositar}>
+                  Depositar
+                </Text>
               </Pressable>
 
               <Pressable
@@ -262,11 +295,16 @@ export default function ReservaEmergencia() {
                 onPress={() => abrirModal("retirar")}
                 accessibilityRole="button"
               >
-                <Text style={styles.textoBotaoRetirar}>Retirar</Text>
+                <Text style={styles.textoBotaoRetirar}>
+                  Retirar
+                </Text>
               </Pressable>
             </View>
 
-            <Text style={styles.tituloSecao}>Últimas movimentações</Text>
+            {/* ÚLTIMAS MOVIMENTAÇÕES */}
+            <Text style={styles.tituloSecao}>
+              Últimas movimentações
+            </Text>
 
             {reserva.movimentacoes.length === 0 ? (
               <Text style={styles.semMovimentacoes}>
@@ -277,6 +315,7 @@ export default function ReservaEmergencia() {
                 .slice(0, MAX_MOVIMENTACOES)
                 .map((mov) => {
                   const deposito = mov.tipo === "deposito";
+
                   return (
                     <Card
                       key={mov.id}
@@ -293,9 +332,15 @@ export default function ReservaEmergencia() {
                           ]}
                         >
                           {deposito ? (
-                            <Plus size={18} color={Cores.destaque.limao} />
+                            <Plus
+                              size={18}
+                              color={Cores.destaque.limao}
+                            />
                           ) : (
-                            <Minus size={18} color={Cores.roxo.claro} />
+                            <Minus
+                              size={18}
+                              color={Cores.roxo.claro}
+                            />
                           )}
                         </View>
 
@@ -306,25 +351,39 @@ export default function ReservaEmergencia() {
                               !deposito && styles.valorRetirada,
                             ]}
                           >
-                            {deposito ? "+" : "-"} {formatarMoeda(mov.valor)}
+                            {deposito ? "+" : "-"}{" "}
+                            {formatarMoeda(mov.valor)}
                           </Text>
+
                           <Text style={styles.tipoMovimentacao}>
                             {deposito ? "Depósito" : "Retirada"}
                           </Text>
                         </View>
-                        <Text style={styles.dataMovimentacao}>{mov.data}</Text>
+
+                        <Text style={styles.dataMovimentacao}>
+                          {mov.data}
+                        </Text>
                       </View>
                     </Card>
                   );
                 })
             )}
 
-            <Button
-              titulo="Excluir reserva"
-              variante="botaotexto"
-              icone={<Trash2 size={16} color="#A357FF" />}
+            {/* EXCLUIR RESERVA */}
+            <Pressable
+              style={({ pressed }) => [
+                styles.botaoExcluir,
+                pressed && styles.botaoPressionado,
+              ]}
               onPress={() => abrirModal("excluir")}
-            />
+              accessibilityRole="button"
+            >
+              <Trash2 size={20} color="#FF7777" />
+
+              <Text style={styles.textoExcluir}>
+                Excluir reserva
+              </Text>
+            </Pressable>
           </View>
         ) : null}
       </ScrollView>

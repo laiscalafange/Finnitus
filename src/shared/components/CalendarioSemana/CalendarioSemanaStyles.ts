@@ -101,7 +101,7 @@ export const styles = StyleSheet.create({
 
     // Dia selecionado: contorno branco
     diaContainerAtivo: {
-        borderColor: Cores.base.branco,
+        borderColor:Cores.roxo.claro,
     },
 
     // Dia de hoje: fundo verde

@@ -3,7 +3,7 @@ export const Cores = {
   fundo: {
     principal: '#0D1112',   // fundo das telas
     card: '#482287',        // fundo de cards
-    cardAlt: '#3A1D6C',     // NOVO - variante mais escura de card (dashboard, metas)
+    cardAlt: '#49257b9c',     // NOVO - variante mais escura de card (dashboard, metas)
     destaque: '#7E3BED',    // destaque em fundos escuros
     navBarra: '#25074f',    // NOVO - fundo da Nav Bar
     navFab: '#260654',      // NOVO - fundo do botão central (FAB) da Nav Bar

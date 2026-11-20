@@ -3,32 +3,39 @@ import { Cores } from "@/shared/constants/Cores";
 import { FONTS } from "@/shared/constants/Tipografia";
 
 export const styles = StyleSheet.create({
-  container: { flex: 1 },
-  conteudo: { paddingBottom: 30 },
-
-  // Área do conteúdo, logo abaixo do cabeçalho discreto (HeaderInterno)
-  lista: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
+  container: {
+    flex: 1,
   },
 
-  // Cada item é um Card, com o mesmo fundo/borda roxos usados no Ajuda
+  conteudo: {
+    paddingBottom: 10,
+  },
+
+  lista: {
+    paddingHorizontal: 16,
+    paddingTop: 2,
+    gap: 2,
+  },
+
   card: {
-    marginBottom: 14,
-    borderColor: "rgba(168, 79, 255, 0.35)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    paddingHorizontal: 15,
+    paddingVertical: 14,
   },
 
   linha: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: 12,
   },
 
   iconeCirculo: {
     width: 38,
     height: 38,
-    borderRadius: 12,
-    backgroundColor: "rgba(183, 255, 0, 0.12)",
+    borderRadius: 11,
+    backgroundColor: "rgba(183, 255, 0, 0.10)",
     alignItems: "center",
     justifyContent: "center",
   },
