@@ -1,7 +1,5 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+
+import { useEffect, useState } from "react";
 
 import {
   Modal,
@@ -11,10 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 
-import {
-  LogOut,
-  Trash2,
-} from "lucide-react-native";
+import { LogOut, Trash2 } from "lucide-react-native";
 
 import { Card } from "../Cards";
 import { Button } from "../Button";
@@ -27,13 +22,11 @@ import { useAction } from "../../hooks/useAction";
 // Segundos até o botão "Confirmar" liberar
 const ESPERA_SEGUNDOS = 10;
 
-// Textos de cada ação. O mesmo modal serve pras duas:
-// acao="sair" (botão "Sair da conta" do Perfil) e
-// acao="excluir" (botão "Excluir conta" da Segurança).
 const ACOES = {
   sair: {
     pergunta: "Você tem certeza que deseja sair da conta?",
-    descricao: "Você precisará entrar novamente para acessar seus dados.",
+    descricao:
+      "Você precisará entrar novamente para acessar seus dados.",
     confirmar: "Confirmar saída",
     icone: LogOut,
     variante: "terciario",
@@ -54,23 +47,24 @@ type Props = {
   onClose: () => void;
 };
 
-// Card flutuante de confirmação (igual ao ModalFotoPerfil: fica por cima
-// da tela atual, com o fundo escurecido). O botão de confirmar só libera
-// depois de 10 segundos, pra evitar confirmar sem querer.
 export function ModalConfirmarAcao({
   visible,
   acao,
   onClose,
 }: Props) {
-  const { pergunta, descricao, confirmar, icone: Icone, variante } =
-    ACOES[acao];
+  const {
+    pergunta,
+    descricao,
+    confirmar,
+    icone: Icone,
+    variante,
+  } = ACOES[acao];
 
   const { logout } = useAuth();
   const { busy, error, run } = useAction();
 
   const [restante, setRestante] = useState(ESPERA_SEGUNDOS);
 
-  // A contagem recomeça do zero toda vez que o modal abre
   useEffect(() => {
     if (!visible) {
       return;
@@ -110,56 +104,82 @@ export function ModalConfirmarAcao({
       onRequestClose={fechar}
     >
       <View style={styles.overlay}>
-        {/* Fundo escurecido (mesmo do menu do +): tocar fora fecha */}
-        <Pressable style={styles.fundo} onPress={fechar} />
+        <Pressable
+          style={styles.fundo}
+          onPress={fechar}
+        />
 
         <Card
-          gradiente={["rgba(73, 38, 155, 0.95)", "rgba(45, 17, 108, 0.95)"]}
+          gradiente={[
+            "rgba(44, 27, 67, 0.98)",
+            "rgba(33, 18, 53, 0.98)",
+          ]}
           style={[
             styles.card,
-            acao === "excluir" ? styles.cardExcluir : null,
+            acao === "excluir"
+              ? styles.cardExcluir
+              : null,
           ]}
         >
-          <View style={styles.iconeCirculo}>
+          <View
+            style={[
+              styles.iconeCirculo,
+              acao === "excluir"
+                ? styles.iconeCirculoExcluir
+                : null,
+            ]}
+          >
             <Icone
-              size={28}
+              size={26}
               color={
                 acao === "excluir"
-                  ? Cores.estado.erro
+                  ? "#FF7777"
                   : Cores.destaque.limao
               }
             />
           </View>
 
-          <Text style={styles.pergunta}>{pergunta}</Text>
-          <Text style={styles.descricao}>{descricao}</Text>
+          <Text style={styles.pergunta}>
+            {pergunta}
+          </Text>
+
+          <Text style={styles.descricao}>
+            {descricao}
+          </Text>
 
           {error ? (
-            <Text style={styles.erro} accessibilityRole="alert">
+            <Text
+              style={styles.erro}
+              accessibilityRole="alert"
+            >
               {error}
             </Text>
           ) : null}
 
           <View style={styles.botoes}>
-            <Button
-              titulo={
-                busy
-                  ? "Aguarde..."
-                  : restante > 0
-                    ? `${confirmar} (${restante}s)`
-                    : confirmar
-              }
-              variante={variante}
-              disabled={busy || restante > 0}
-              onPress={confirmarAcao}
-            />
+            <View style={styles.botaoContainer}>
+              <Button
+                titulo={
+                  busy
+                    ? "Aguarde..."
+                    : restante > 0
+                      ? `${confirmar} (${restante}s)`
+                      : confirmar
+                }
+                variante={variante}
+                disabled={busy || restante > 0}
+                onPress={confirmarAcao}
+              />
+            </View>
 
-            <Button
-              titulo="Cancelar"
-              variante="outline"
-              disabled={busy}
-              onPress={fechar}
-            />
+            <View style={styles.botaoContainer}>
+              <Button
+                titulo="Cancelar"
+                variante="outline"
+                disabled={busy}
+                onPress={fechar}
+              />
+            </View>
           </View>
         </Card>
       </View>
@@ -174,51 +194,64 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
 
-  // Mesmo escurecimento do fundo do menu do + na barra de navegação
   fundo: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    backgroundColor: "rgba(0, 0, 0, 0.72)",
   },
 
   card: {
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
     alignItems: "center",
-    borderColor: "rgba(168, 79, 255, 0.35)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.30)",
+    borderRadius: 22,
+    paddingHorizontal: 22,
+    paddingVertical: 28,
   },
 
-  // Card de "Excluir conta": borda vermelha de alerta
   cardExcluir: {
-    borderColor: "rgba(239, 68, 68, 0.4)",
+    borderColor: "rgba(255, 119, 119, 0.40)",
   },
 
   iconeCirculo: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    backgroundColor: "rgba(163, 87, 255, 0.15)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.25)",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 14,
+    marginBottom: 18,
+  },
+
+  iconeCirculoExcluir: {
+    backgroundColor: "rgba(255, 65, 65, 0.09)",
+    borderColor: "rgba(255, 119, 119, 0.30)",
   },
 
   pergunta: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 18,
+    fontSize: 20,
+    lineHeight: 27,
     color: Cores.base.branco,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 10,
   },
 
   descricao: {
     fontFamily: FONTS.quicksand.regular,
     fontSize: 14,
-    lineHeight: 20,
-    color: Cores.texto.claro,
+    lineHeight: 21,
+    color: "#C7A9F5",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 24,
   },
 
   erro: {
-    color: "#ffb4b4",
+    color: "#FF7777",
     fontSize: 14,
     fontFamily: FONTS.quicksand.semibold,
     marginBottom: 12,
@@ -227,5 +260,13 @@ const styles = StyleSheet.create({
 
   botoes: {
     alignSelf: "stretch",
+    width: "100%",
+    gap: 10,
+  },
+
+  botaoContainer: {
+    width: "100%",
+    borderRadius: 14,
+    overflow: "hidden",
   },
 });

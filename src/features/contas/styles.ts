@@ -1,13 +1,9 @@
+
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
 
-// Estilos das telas de contas (Contas fixas, Detalhes, Editar, Confirmar,
-// Movimentações) e dos componentes em components/ContaUI. O container, o
-// conteúdo "sobre o header" e os botões lado a lado vêm de
-// menuMais/styles/formulario (mesmo padrão do Novo gasto).
 export const styles = StyleSheet.create({
-  // Faixa de seção: título verde fora do card
   secaoTitulo: {
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 20,
@@ -21,24 +17,25 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.regular,
     fontSize: 14,
     lineHeight: 19,
-    color: Cores.texto.principal,
-    backgroundColor: Cores.fundo.card,
-    borderRadius: 18,
+    color: Cores.texto.claro,
+    backgroundColor: "rgba(44, 27, 67, 0.83)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 16,
     overflow: 'hidden',
     marginBottom: 16,
   },
 
-  // ---- Seletor de mês (‹ Outubro 2026 ›)
   seletorMes: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Cores.overlay.cardForte,
-    borderWidth: 1.5,
-    borderColor: Cores.roxo.claro,
-    borderRadius: 30,
+    backgroundColor: "rgba(44, 27, 67, 0.83)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.30)",
+    borderRadius: 16,
     paddingHorizontal: 8,
     height: 52,
     marginBottom: 18,
@@ -55,13 +52,14 @@ export const styles = StyleSheet.create({
     color: Cores.base.branco,
   },
 
-  // ---- Linha de uma conta (lista)
   conta: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: Cores.fundo.card,
-    borderRadius: 18,
+    backgroundColor: "rgba(44, 27, 67, 0.83)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 14,
     marginBottom: 10,
@@ -77,8 +75,8 @@ export const styles = StyleSheet.create({
   contaBolha: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: Cores.fundo.cardAlt,
+    borderRadius: 11,
+    backgroundColor: "rgba(183, 255, 0, 0.10)",
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -96,7 +94,7 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.regular,
     fontSize: 13,
     lineHeight: 17,
-    color: Cores.texto.principal,
+    color: Cores.texto.claro,
     marginTop: 1,
   },
   contaDireita: {
@@ -112,7 +110,6 @@ export const styles = StyleSheet.create({
     color: Cores.destaque.limao,
   },
 
-  // ---- Selo de status (sempre com texto)
   badge: {
     paddingVertical: 3,
     paddingHorizontal: 10,
@@ -124,10 +121,11 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
 
-  // ---- Cartão de informações (Detalhes)
   cartao: {
-    backgroundColor: Cores.fundo.card,
-    borderRadius: 18,
+    backgroundColor: "rgba(44, 27, 67, 0.83)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    borderRadius: 16,
     padding: 16,
     marginBottom: 14,
   },
@@ -139,8 +137,8 @@ export const styles = StyleSheet.create({
   cartaoBolha: {
     width: 56,
     height: 56,
-    borderRadius: 28,
-    backgroundColor: Cores.fundo.cardAlt,
+    borderRadius: 16,
+    backgroundColor: "rgba(183, 255, 0, 0.10)",
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -152,7 +150,7 @@ export const styles = StyleSheet.create({
   cartaoTipo: {
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 13,
-    color: Cores.texto.principal,
+    color: Cores.texto.claro,
     marginTop: 1,
   },
   cartaoValor: {
@@ -167,11 +165,10 @@ export const styles = StyleSheet.create({
     color: Cores.texto.claro,
   },
 
-  // ---- Linhas "rótulo / valor"
   info: {
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: Cores.overlay.suave,
+    borderTopColor: "rgba(163, 87, 255, 0.22)",
   },
   infoPrimeira: {
     borderTopWidth: 0,
@@ -188,11 +185,10 @@ export const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // ---- Histórico
   historicoItem: {
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: Cores.overlay.suave,
+    borderTopColor: "rgba(163, 87, 255, 0.22)",
   },
   historicoTitulo: {
     fontFamily: FONTS.quicksand.bold,
@@ -203,11 +199,10 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.regular,
     fontSize: 13,
     lineHeight: 18,
-    color: Cores.texto.principal,
+    color: Cores.texto.claro,
     marginTop: 2,
   },
 
-  // ---- Avisos e textos de apoio
   aviso: {
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 13,
@@ -219,7 +214,7 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 16,
     lineHeight: 23,
-    color: Cores.texto.principal,
+    color: Cores.texto.claro,
     marginBottom: 18,
   },
   perguntaDestaque: {
@@ -230,7 +225,6 @@ export const styles = StyleSheet.create({
     height: 12,
   },
 
-  // ---- Resumo do mês (Movimentações)
   resumoLinha: {
     flexDirection: 'row',
     gap: 12,
@@ -238,8 +232,10 @@ export const styles = StyleSheet.create({
   },
   resumoCard: {
     flex: 1,
-    backgroundColor: Cores.fundo.card,
-    borderRadius: 18,
+    backgroundColor: "rgba(44, 27, 67, 0.83)",
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    borderRadius: 16,
     padding: 14,
   },
   resumoRotulo: {
@@ -253,15 +249,14 @@ export const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // ---- Modal (card flutuante)
   modalData: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: Cores.overlay.cardForte,
+    backgroundColor: "rgba(44, 27, 67, 0.83)",
     borderWidth: 1,
-    borderColor: Cores.overlay.medio,
-    borderRadius: 14,
+    borderColor: "rgba(163, 87, 255, 0.22)",
+    borderRadius: 16,
     paddingVertical: 12,
     paddingHorizontal: 14,
     marginBottom: 14,
@@ -276,8 +271,8 @@ export const styles = StyleSheet.create({
   modalIcone: {
     width: 64,
     height: 64,
-    borderRadius: 32,
-    backgroundColor: Cores.fundo.cardAlt,
+    borderRadius: 16,
+    backgroundColor: "rgba(183, 255, 0, 0.10)",
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
@@ -286,7 +281,7 @@ export const styles = StyleSheet.create({
   modalSubtitulo: {
     fontFamily: FONTS.quicksand.bold,
     fontSize: 13,
-    color: Cores.texto.principal,
+    color: Cores.texto.claro,
     textAlign: 'center',
     marginBottom: 14,
   },
@@ -299,5 +294,40 @@ export const styles = StyleSheet.create({
   },
   modalBotoes: {
     alignSelf: 'stretch',
+  },
+
+  // Botões da tela de detalhes
+  acoesContainer: {
+    marginTop: 8,
+    marginBottom: 20,
+  },
+  acoesLinha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 14,
+  },
+  acaoColuna: {
+    flex: 1,
+    minWidth: 0,
+  },
+  botaoExcluir: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 9,
+    width: '100%',
+    minHeight: 46,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(239, 68, 68, 0.13)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.45)',
+    borderRadius: 14,
+  },
+  botaoExcluirTexto: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 15,
+    color: '#FF6B6B',
   },
 })

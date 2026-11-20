@@ -1,3 +1,4 @@
+
 import {
   View,
   Text,
@@ -6,6 +7,7 @@ import {
 } from "react-native";
 
 import { useRouter } from "expo-router";
+
 import {
   SlidersHorizontal,
   Bell,
@@ -20,7 +22,6 @@ import { Card } from "../../shared/components/Cards";
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/configuracoes";
 
-// Itens do menu de Configurações — cada um leva pra sua própria tela.
 const ITENS = [
   {
     id: "preferencias",
@@ -42,20 +43,17 @@ const ITENS = [
   },
 ] as const;
 
-// Tela "Configurações": só o menu, igual ao protótipo (um card por
-// funcionalidade, com o mesmo fundo/borda roxos usados no Ajuda).
 export default function Configuracoes() {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
       <BackgroundGradient variante="funcional" />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        {/* Cabeçalho: só a seta de voltar e o título, igual às outras
-            telas de Perfil */}
         <HeaderInterno titulo="Configurações" />
 
         <View style={styles.lista}>
@@ -66,17 +64,28 @@ export default function Configuracoes() {
               onPress={() => router.push(rota)}
             >
               <Card
-                gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
+                gradiente={[
+                  "rgba(44, 27, 67, 0.83)",
+                  "rgba(33, 18, 53, 0.8)",
+                ]}
                 style={styles.card}
               >
                 <View style={styles.linha}>
                   <View style={styles.iconeCirculo}>
-                    <Icone size={20} color={Cores.destaque.limao} />
+                    <Icone
+                      size={20}
+                      color={Cores.destaque.limao}
+                    />
                   </View>
 
-                  <Text style={styles.rotulo}>{label}</Text>
+                  <Text style={styles.rotulo}>
+                    {label}
+                  </Text>
 
-                  <ChevronRight size={20} color={Cores.texto.claro} />
+                  <ChevronRight
+                    size={19}
+                    color="#BFA7DD"
+                  />
                 </View>
               </Card>
             </TouchableOpacity>

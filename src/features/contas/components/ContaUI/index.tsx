@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react'
 import { KeyboardAvoidingView, Modal, Platform, Pressable, Text, TouchableOpacity, View } from 'react-native'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react-native'
@@ -67,7 +68,7 @@ export function CardConta({ conta, aoPress }: { conta: ContaDoMes; aoPress?: () 
       <View style={[styles.contaFaixa, { backgroundColor: tom.cor }]} />
 
       <View style={styles.contaBolha}>
-        <Icone size={22} color={Cores.texto.principal} />
+        <Icone size={22} color={Cores.destaque.limao} />
       </View>
 
       <View style={styles.contaTextos}>
@@ -165,7 +166,7 @@ export function ModalCartao({
         <Pressable style={modal.fundo} onPress={aoFechar} />
 
         <Card
-          gradiente={['rgba(73, 38, 155, 0.95)', 'rgba(45, 17, 108, 0.95)']}
+          gradiente={['rgba(44, 27, 67, 0.98)', 'rgba(33, 18, 53, 0.98)']}
           style={modal.card}
         >
           <Pressable

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   View,
@@ -7,7 +8,11 @@ import {
 } from "react-native";
 
 import { useRouter } from "expo-router";
-import { ChevronDown, ChevronUp } from "lucide-react-native";
+import {
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
+} from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
@@ -17,8 +22,11 @@ import { Button } from "../../shared/components/Button";
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/ajuda";
 
-// Perguntas frequentes: cada uma abre/fecha a própria resposta.
-// Pra adicionar uma pergunta nova, é só incluir mais um item aqui.
+const GRADIENTE_CARD = [
+  "rgba(44, 27, 67, 0.83)",
+  "rgba(33, 18, 53, 0.8)",
+] as const;
+
 const FAQS = [
   {
     id: "gasto",
@@ -36,45 +44,43 @@ const FAQS = [
     id: "planoB",
     pergunta: "Como funciona o Plano B?",
     resposta:
-      "O Plano B ajuda você a lidar com imprevistos sem perder o controle do orçamento. Ao registrar uma despesa inesperada, o Finnitus mostra alternativas para reorganizar seus gastos e reduzir o impacto no mês.",
+      "O Plano B ajuda você a organizar seus limites de gastos, acompanhar quanto já utilizou e visualizar o valor restante do orçamento.",
   },
   {
     id: "calendario",
     pergunta: "Como funciona o Calendário Financeiro?",
     resposta:
-      "O Calendário Financeiro mostra seus próximos compromissos e gastos previstos, permitindo que você se organize com antecedência e se prepare para as despesas que estão por vir.",
+      "O Calendário Financeiro mostra seus compromissos e movimentações financeiras, ajudando você a planejar as despesas do mês.",
   },
   {
     id: "acompanhar",
     pergunta: "Como acompanhar meus gastos do mês?",
     resposta:
-      "No Dashboard, você encontra um resumo da sua situação financeira, podendo acompanhar suas receitas, despesas e o andamento do seu orçamento mensal.",
+      "No Dashboard, você encontra um resumo da sua situação financeira, incluindo receitas, despesas e saldo.",
   },
   {
     id: "editarTransacao",
     pergunta: "Como editar uma transação?",
     resposta:
-      "Toque na transação que deseja alterar para abrir seus detalhes. Depois, selecione “Editar”, faça as alterações necessárias e salve.",
+      "Toque na transação desejada para visualizar seus detalhes e utilize a opção de edição disponível.",
   },
   {
     id: "receita",
     pergunta: "Como adicionar uma receita?",
     resposta:
-      "Toque no “+” e selecione “Nova receita”. Informe o valor, a origem e a data do recebimento para registrar o dinheiro que entrou no seu orçamento.",
+      "Toque no “+” e selecione “Nova receita”. Informe o valor, a origem e a data do recebimento.",
   },
   {
     id: "dadosConta",
     pergunta: "Como alterar meus dados da conta?",
     resposta:
-      "Acesse Perfil > Configurações > Editar conta para atualizar seus dados pessoais e outras informações disponíveis da sua conta.",
+      "Acesse Perfil e selecione Editar conta para atualizar suas informações pessoais.",
   },
 ] as const;
 
-// Tela "Ajuda".
 export default function Ajuda() {
   const router = useRouter();
 
-  // id da pergunta aberta no momento (null = todas fechadas)
   const [aberta, setAberta] = useState<string | null>(null);
 
   function alternar(id: string) {
@@ -84,14 +90,13 @@ export default function Ajuda() {
   return (
     <View style={styles.container}>
       <BackgroundGradient variante="funcional" />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
         <HeaderInterno titulo="Ajuda" />
 
-        {/* Lista de perguntas (logo abaixo do cabeçalho) */}
         <View style={styles.lista}>
           <Text style={styles.tituloSecao}>
             Perguntas frequentes
@@ -103,39 +108,72 @@ export default function Ajuda() {
             return (
               <Card
                 key={id}
-                gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
-                style={styles.item}
+                gradiente={[...GRADIENTE_CARD]}
+                style={styles.card}
               >
                 <TouchableOpacity
-                  style={styles.pergunta}
+                  style={styles.linha}
                   activeOpacity={0.85}
                   onPress={() => alternar(id)}
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    expanded: aberto,
+                  }}
                 >
+                  <View style={styles.iconeCirculo}>
+                    <HelpCircle
+                      size={20}
+                      color={Cores.destaque.limao}
+                    />
+                  </View>
+
                   <Text style={styles.perguntaTexto}>
                     {pergunta}
                   </Text>
 
                   {aberto ? (
-                    <ChevronUp size={22} color={Cores.base.branco} />
+                    <ChevronUp
+                      size={19}
+                      color="#BFA7DD"
+                    />
                   ) : (
-                    <ChevronDown size={22} color={Cores.texto.claro} />
+                    <ChevronDown
+                      size={19}
+                      color="#BFA7DD"
+                    />
                   )}
                 </TouchableOpacity>
 
-                {aberto ? (
-                  <Text style={styles.respostaTexto}>
-                    {resposta}
-                  </Text>
-                ) : null}
+                {aberto && (
+                  <View style={styles.respostaContainer}>
+                    <View style={styles.divisor} />
+
+                    <Text style={styles.respostaTexto}>
+                      {resposta}
+                    </Text>
+                  </View>
+                )}
               </Card>
             );
           })}
 
-          <Button
-            titulo="Falar com o suporte"
-            variante="outline"
-            onPress={() => router.push("/conta/contato")}
-          />
+          <View style={styles.suporte}>
+            <Text style={styles.suporteTitulo}>
+              Ainda precisa de ajuda?
+            </Text>
+
+            <Text style={styles.suporteDescricao}>
+              Entre em contato com o nosso suporte.
+            </Text>
+
+            <Button
+              titulo="Falar com o suporte"
+              variante="outline"
+              onPress={() =>
+                router.push("/conta/contato")
+              }
+            />
+          </View>
         </View>
       </ScrollView>
     </View>

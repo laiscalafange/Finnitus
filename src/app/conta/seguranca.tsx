@@ -1,29 +1,41 @@
+
 import { useState } from "react";
+
 import {
   View,
   Text,
   ScrollView,
   Switch,
+  TouchableOpacity,
 } from "react-native";
 
 import { useRouter } from "expo-router";
+
 import {
   Smartphone,
   Laptop,
+  LockKeyhole,
+  ShieldCheck,
+  MonitorSmartphone,
+  Trash2,
+  ChevronRight,
 } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
-import { Button } from "../../shared/components/Button";
 import { ModalConfirmarAcao } from "../../shared/components/Modal/ModalConfirmarAcao";
 
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/seguranca";
 
-// Dispositivos conectados à conta.
-// TODO (backend): não existe endpoint de sessões/dispositivos ainda —
-// por enquanto é só um mock pra representar o layout do protótipo.
+const GRADIENTE_CARD: [string, string] = [
+  "rgba(44, 27, 67, 0.94)",
+  "rgba(33, 18, 53, 0.94)",
+];
+
+// Dados ilustrativos do protótipo.
+// Ainda não existe integração com sessões do backend.
 const DISPOSITIVOS = [
   {
     id: "1",
@@ -41,61 +53,88 @@ const DISPOSITIVOS = [
   },
 ] as const;
 
-// Tela "Segurança".
 export default function Seguranca() {
   const router = useRouter();
 
-  // Autenticação em duas etapas (mock local — sem endpoint ainda)
   const [duasEtapas, setDuasEtapas] = useState(false);
 
-  // Card flutuante de confirmação de "Excluir conta"
-  const [modalExcluirVisivel, setModalExcluirVisivel] = useState(false);
+  const [
+    modalExcluirVisivel,
+    setModalExcluirVisivel,
+  ] = useState(false);
 
   return (
     <View style={styles.container}>
-      <BackgroundGradient variante="funcional" />
+      <BackgroundGradient variante="padrao" />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        {/* Cabeçalho: só a seta de voltar e o título, igual ao protótipo */}
         <HeaderInterno titulo="Segurança" />
 
         <View style={styles.lista}>
-          {/* Trocar senha: em vez do formulário de senha aparecer direto
-              aqui (menos seguro), o botão leva pra um fluxo próprio de
-              3 telas dentro de app/conta (e-mail → código → Redefinir
-              senha). Não dá pra reaproveitar o forgotPassword de dentro
-              do app logado: aquela pasta (auth) só existe pra quem está
-              deslogado (guard={!user} no _layout raiz) — por isso
-              navegar pra lá com o usuário logado não fazia nada. */}
+          {/* ALTERAR SENHA */}
           <Card
-            gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
+            gradiente={GRADIENTE_CARD}
             style={styles.card}
           >
-            <Text style={styles.tituloCard}>
-              Alterar senha
-            </Text>
+            <View style={styles.cabecalhoCard}>
+              <View style={styles.iconeContainer}>
+                <LockKeyhole
+                  size={19}
+                  color={Cores.destaque.limao}
+                />
+              </View>
 
-            <Button
-              titulo="Trocar senha"
-              variante="terciario"
-              onPress={() => router.push("/conta/trocarSenhaEmail")}
-            />
+              <View style={styles.textosCabecalho}>
+                <Text style={styles.tituloCard}>
+                  Alterar senha
+                </Text>
+
+                <Text style={styles.descricaoCard}>
+                  Atualize sua senha para proteger sua conta.
+                </Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.botao}
+              activeOpacity={0.8}
+              onPress={() =>
+                router.push("/conta/trocarSenhaEmail")
+              }
+            >
+              <Text style={styles.textoBotao}>
+                Trocar senha
+              </Text>
+
+              <ChevronRight
+                size={18}
+                color={Cores.destaque.limao}
+              />
+            </TouchableOpacity>
           </Card>
 
-          {/* Autenticação em duas etapas */}
+          {/* AUTENTICAÇÃO EM DUAS ETAPAS */}
           <Card
-            gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
+            gradiente={GRADIENTE_CARD}
             style={styles.card}
           >
             <View style={styles.linha2fa}>
+              <View style={styles.iconeContainer}>
+                <ShieldCheck
+                  size={19}
+                  color={Cores.destaque.limao}
+                />
+              </View>
+
               <View style={styles.textoContainer2fa}>
                 <Text style={styles.tituloCard}>
                   Autenticação em duas etapas
                 </Text>
 
-                <Text style={styles.descricao2fa}>
+                <Text style={styles.descricaoCard}>
                   Adiciona uma camada extra de segurança.
                 </Text>
               </View>
@@ -104,7 +143,7 @@ export default function Seguranca() {
                 value={duasEtapas}
                 onValueChange={setDuasEtapas}
                 trackColor={{
-                  false: Cores.interface.borda,
+                  false: "rgba(163, 87, 255, 0.25)",
                   true: Cores.destaque.limao,
                 }}
                 thumbColor={Cores.base.branco}
@@ -112,19 +151,49 @@ export default function Seguranca() {
             </View>
           </Card>
 
-          {/* Dispositivos conectados */}
+          {/* DISPOSITIVOS CONECTADOS */}
           <Card
-            gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
+            gradiente={GRADIENTE_CARD}
             style={styles.card}
           >
-            <Text style={styles.tituloCard}>
-              Dispositivos conectados
-            </Text>
+            <View style={styles.cabecalhoCard}>
+              <View style={styles.iconeContainer}>
+                <MonitorSmartphone
+                  size={19}
+                  color={Cores.destaque.limao}
+                />
+              </View>
+
+              <Text style={styles.tituloCard}>
+                Dispositivos conectados
+              </Text>
+            </View>
 
             {DISPOSITIVOS.map(
-              ({ id, nome, local, icon: Icone, esteAparelho }) => (
-                <View key={id} style={styles.dispositivo}>
-                  <Icone size={22} color={Cores.roxo.claro} />
+              (
+                {
+                  id,
+                  nome,
+                  local,
+                  icon: Icone,
+                  esteAparelho,
+                },
+                index
+              ) => (
+                <View
+                  key={id}
+                  style={[
+                    styles.dispositivo,
+                    index !== DISPOSITIVOS.length - 1 &&
+                      styles.dispositivoDivisor,
+                  ]}
+                >
+                  <View style={styles.iconeDispositivo}>
+                    <Icone
+                      size={19}
+                      color={Cores.destaque.limao}
+                    />
+                  </View>
 
                   <View style={styles.dispositivoTextos}>
                     <View style={styles.dispositivoNomeLinha}>
@@ -132,11 +201,13 @@ export default function Seguranca() {
                         {nome}
                       </Text>
 
-                      {esteAparelho ? (
+                      {esteAparelho && (
                         <View style={styles.selo}>
-                          <Text style={styles.seloTexto}>Este</Text>
+                          <Text style={styles.seloTexto}>
+                            Este
+                          </Text>
                         </View>
-                      ) : null}
+                      )}
                     </View>
 
                     <Text style={styles.dispositivoLocal}>
@@ -144,42 +215,55 @@ export default function Seguranca() {
                     </Text>
                   </View>
 
-                  {!esteAparelho ? (
+                  {!esteAparelho && (
                     <Text style={styles.desconectar}>
                       Desconectar
                     </Text>
-                  ) : null}
+                  )}
                 </View>
               )
             )}
           </Card>
 
-          {/* Excluir conta */}
-          <Card
-            gradiente={["rgba(73, 38, 155, 0.71)", "rgba(45, 17, 108, 0.48)"]}
-            style={[styles.card, styles.cardExcluir]}
+          {/* EXCLUIR CONTA - ÁREA DE PERIGO */}
+          <TouchableOpacity
+            style={styles.cardExcluir}
+            activeOpacity={0.8}
+            onPress={() =>
+              setModalExcluirVisivel(true)
+            }
           >
-            <Text style={styles.tituloCard}>
-              Excluir conta
-            </Text>
+            <View style={styles.iconePerigoContainer}>
+              <Trash2
+                size={20}
+                color="#FF8585"
+              />
+            </View>
 
-            <Text style={styles.descricaoExcluir}>
-              Todos os dados serão apagados permanentemente.
-            </Text>
+            <View style={styles.textosPerigo}>
+              <Text style={styles.tituloPerigo}>
+                Excluir conta
+              </Text>
 
-            <Button
-              titulo="Excluir conta"
-              variante="perigo"
-              onPress={() => setModalExcluirVisivel(true)}
+              <Text style={styles.descricaoPerigo}>
+                Apagar permanentemente os dados da conta.
+              </Text>
+            </View>
+
+            <ChevronRight
+              size={19}
+              color="#FF8585"
             />
-          </Card>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
       <ModalConfirmarAcao
         visible={modalExcluirVisivel}
         acao="excluir"
-        onClose={() => setModalExcluirVisivel(false)}
+        onClose={() =>
+          setModalExcluirVisivel(false)
+        }
       />
     </View>
   );

@@ -38,7 +38,7 @@ export function BackgroundGradient({ variante = "padrao" }: BackgroundGradientPr
 
           {/* Verde-limão (#B7FF00) bem discreto no canto inferior direito */}
           <RadialGradient id="funcionalVerde" cx="100%" cy="100%" r="55%">
-            <Stop offset="0%" stopColor="#B7FF00" stopOpacity="0.1" />
+            <Stop offset="0%" stopColor="#b7ff0018" stopOpacity="0.1" />
             <Stop offset="100%" stopColor="#B7FF00" stopOpacity="0" />
           </RadialGradient>
         </Defs>

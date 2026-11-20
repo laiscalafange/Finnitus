@@ -6,12 +6,12 @@ import { FONTS } from "@/shared/constants/Tipografia";
 
 export const styles = StyleSheet.create({
   card: {
-    borderColor: "rgba(163, 87, 255, 0.25)",
+    borderColor: "rgba(163, 87, 255, 0.47)",
   },
 
-  // Saldo disponível — referência visual da Home
+  // SALDO DISPONÍVEL
   cardSaldo: {
-    borderColor: "rgba(163, 87, 255, 0.25)",
+    borderColor: "rgba(163, 87, 255, 0.51)",
     paddingVertical: 22,
     paddingHorizontal: 18,
   },
@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Meta da reserva
+  // META DA RESERVA
   linhaMeta: {
     flexDirection: "row",
     alignItems: "center",
@@ -70,10 +70,12 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+    
   },
 
   barraProgresso: {
     flex: 1,
+   
   },
 
   percentual: {
@@ -82,7 +84,7 @@ export const styles = StyleSheet.create({
     color: "#C7A9F5",
   },
 
-  // Depositar e Retirar — sem gradientes
+  // DEPOSITAR E RETIRAR
   linhaBotoes: {
     flexDirection: "row",
     gap: 10,
@@ -130,7 +132,7 @@ export const styles = StyleSheet.create({
     opacity: 0.75,
   },
 
-  // Últimas movimentações — igual à hierarquia da Home
+  // ÚLTIMAS MOVIMENTAÇÕES
   tituloSecao: {
     fontFamily: FONTS.raleway.extrabold,
     fontSize: 22,
@@ -195,7 +197,7 @@ export const styles = StyleSheet.create({
     color: Cores.texto.claro,
   },
 
-  // Excluir reserva — vermelho transparente
+  // EXCLUIR RESERVA
   botaoExcluir: {
     flexDirection: "row",
     alignItems: "center",
