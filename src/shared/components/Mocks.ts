@@ -580,50 +580,6 @@ export const TRANSACOES_MOCK = [
 // EVENTOS DO CALENDÁRIO
 // ────────────────────────────────────────────────────────────
 
-export const EVENTOS_MES_MOCK = [
-  {
-    id: 'evento-1',
-    data: '2026-09-05',
-    nome: 'Viagem',
-    descricao: 'Ir para casa de Anne',
-    hora: '09:00',
-    tipo: 'evento',
-  },
-  {
-    id: 'evento-2',
-    data: '2026-09-12',
-    nome: 'Aniversário Anne',
-    descricao: 'Comprar um presente',
-    hora: '12:40',
-    tipo: 'evento',
-  },
-  {
-    id: 'evento-3',
-    data: '2026-09-15',
-    nome: 'Pagamento',
-    descricao: 'Recebimento do salário',
-    hora: '08:00',
-    tipo: 'financeiro',
-  },
-  {
-    id: 'evento-4',
-    data: '2026-09-20',
-    nome: 'Conta de luz',
-    descricao: 'Vencimento da conta',
-    hora: '00:00',
-    tipo: 'conta',
-  },
-  {
-    id: 'evento-5',
-    data: '2026-09-25',
-    nome: 'Cinema',
-    descricao: 'Sessão com amigos',
-    hora: '19:30',
-    tipo: 'lazer',
-  },
-]
-
-
 // ────────────────────────────────────────────────────────────
 // CALENDÁRIO
 // ────────────────────────────────────────────────────────────

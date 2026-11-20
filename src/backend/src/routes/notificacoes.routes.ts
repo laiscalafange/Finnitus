@@ -50,8 +50,7 @@ const camposPublicos = {
 
 export function criarRotasNotificacoes({ prisma, autenticar }: Dependencias) {
   const router = Router();
-  // Mantém a rota compatível com um PrismaClient gerado antes da inclusão do modelo.
-  const notificacao = (prisma as unknown as { notificacao: any }).notificacao;
+  const notificacao = prisma.notificacao;
 
   router.get("/", autenticar, async (req: Request, res: Response): Promise<void> => {
     const idUsuario = obterUsuarioId(req);

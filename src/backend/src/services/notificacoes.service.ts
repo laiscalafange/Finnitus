@@ -28,7 +28,8 @@ export type TipoNotificacao =
   | "META_APORTE"
   | "META_RETIRADA"
   | "META_CONCLUIDA"
-  | "EVENTO_CONFIRMADO";
+  | "EVENTO_CONFIRMADO"
+  | "EVENTO_CRIADO";
 
 export type RelacionadoTipo = "RECEITA" | "DESPESA" | "META" | "EVENTO";
 

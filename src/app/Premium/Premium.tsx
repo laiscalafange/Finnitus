@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, TouchableOpacity, View, useWindowDimensions,
+import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, type ScrollViewInstance, Text, TouchableOpacity, View, useWindowDimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -18,7 +18,7 @@ export default function Premium() {
 
   // Referência do ScrollView horizontal, pra poder mover ele manualmente
   // quando o usuário clica numa aba em vez de arrastar
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
 
   // Índice do plano ativo no carrossel (0 = Básico, 1 = Mega finn, 2 = Infinitos)
   // Começa em 1 porque o Mega finn é o plano "mais popular", já vem selecionado

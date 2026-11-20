@@ -16,6 +16,9 @@ import categoriaPersonalizadaRoutes from "./categoriaPersonalizada.routes.js";
 import planoBRoutes from "./planoB.routes.js";
 import metasRoutes from "./metas.routes.js";
 import perfilFinanceiroRoutes from "./perfilFinanceiro.routes.js";
+import { criarRotasNotificacoes } from "./notificacoes.routes.js";
+import { prisma } from "../lib/prisma.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 // Importa as novas rotas financeiras.
 import telaInicialRoutes from "./telaInicial.routes.js";
@@ -35,6 +38,7 @@ routes.use(userRoutes);
 routes.use("/receitas", receitaRoutes);
 routes.use("/despesas", despesaRoutes);
 routes.use("/eventos", eventosRoutes);
+routes.use("/notificacoes", criarRotasNotificacoes({ prisma, autenticar: authMiddleware }));
 routes.use("/calendario", calendarioRoutes);
 
 // Edita receitas e despesas exibidas nas Movimentações do dia.

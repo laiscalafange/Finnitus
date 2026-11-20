@@ -1,13 +1,19 @@
-
 {
   "extends": "expo/tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
     "target": "ES2022",
-    "lib": ["ES2022", "DOM"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@/assets/*": ["./assets/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@/assets/*": [
+        "./assets/*"
+      ]
     }
   },
   "include": [
@@ -16,7 +22,7 @@
     "**/*.d.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "src/backend/src/routes/notificacoes.routes.js"  ],
+  ],
   "exclude": [
     "node_modules",
     "src/backend",

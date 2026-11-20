@@ -25,7 +25,7 @@ export function FourInput({
   >(null);
 
   const inputsRef = useRef<
-    Array<TextInput | null>
+    Array<React.ComponentRef<typeof TextInput> | null>
   >([]);
 
   function handleChange(
