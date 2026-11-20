@@ -32,6 +32,7 @@ import {
   validEmail,
 } from "../../shared/utils/formValidation";
 
+// Mesmos tamanhos dos ícones originais.
 const inputIconStyle = {
   width: 24,
   height: 24,
@@ -50,11 +51,8 @@ export default function Login() {
   const params = useLocalSearchParams();
 
   const [email, setEmail] = useState(
-    typeof params.email === "string"
-      ? params.email
-      : ""
+    typeof params.email === "string" ? params.email : ""
   );
-
   const [senha, setSenha] = useState("");
   const [aceiteGoogle, setAceiteGoogle] = useState(false);
 
@@ -69,21 +67,24 @@ export default function Login() {
         throw new Error("Preencha e-mail e senha.");
       }
 
+      // Contas existentes já devem ter passado pela verificação no cadastro.
       await login(normalized, senha);
     });
   }
 
   function google() {
-  void run(async () => {
-    const idToken = await googleIdToken();
+    void run(async () => {
+      const idToken = await googleIdToken();
 
-    if (idToken) {
-      await googleLogin(idToken, aceiteGoogle);
-    }
-  });
-}
+      if (idToken) {
+        // O backend impede a CRIAÇÃO de conta Google sem aceite;
+        // contas Google existentes podem entrar sem aceitar de novo.
+        await googleLogin(idToken, aceiteGoogle);
+      }
+    });
+  }
 
-    return (
+  return (
     <AuthForm
       layout="topo"
       title="Entre na sua conta"
@@ -103,7 +104,8 @@ export default function Login() {
         </View>
       }
       footer={
-        <>
+        // Apenas os intervalos mudaram. Fonte, botões e estilos originais preservados.
+        <View style={{ gap: 10 }}>
           <Button
             titulo={busy ? "Aguarde..." : "Entrar"}
             variante="primario"
@@ -111,7 +113,12 @@ export default function Login() {
             disabled={busy}
           />
 
-          <AceiteCadastroGoogle aceito={aceiteGoogle} onChange={setAceiteGoogle} />
+          <AceiteCadastroGoogle
+            aceito={aceiteGoogle}
+            onChange={setAceiteGoogle}
+            disabled={busy}
+          />
+
           <Button
             titulo="Entrar com Google"
             variante="primario"
@@ -119,9 +126,7 @@ export default function Login() {
             disabled={busy}
             icone={
               <Image
-                source={require(
-                  "../../../assets/icones/google.png"
-                )}
+                source={require("../../../assets/icones/google.png")}
                 style={googleIconStyle}
               />
             }
@@ -140,8 +145,8 @@ export default function Login() {
             }}
             style={({ pressed }) => ({
               alignSelf: "center",
-              paddingVertical: 10,
-              marginBottom: 12,
+              paddingVertical: 4, // antes: 10
+              marginBottom: 0,   // antes: 12
               opacity: busy ? 0.5 : pressed ? 0.7 : 1,
             })}
           >
@@ -161,7 +166,7 @@ export default function Login() {
             onPress={() => router.push("/cadastro")}
             disabled={busy}
           />
-        </>
+        </View>
       }
     >
       {params.cadastrado === "1" ? (
@@ -186,9 +191,7 @@ export default function Login() {
         editable={!busy}
         icone={
           <Image
-            source={require(
-              "../../../assets/icones/email3.png"
-            )}
+            source={require("../../../assets/icones/email3.png")}
             style={inputIconStyle}
           />
         }
@@ -204,9 +207,7 @@ export default function Login() {
         editable={!busy}
         icone={
           <Image
-            source={require(
-              "../../../assets/icones/senha.png"
-            )}
+            source={require("../../../assets/icones/senha.png")}
             style={inputIconStyle}
           />
         }
