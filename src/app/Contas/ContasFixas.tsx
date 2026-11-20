@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { Text } from "@/shared/components/Texto";
 import { useRouter } from "expo-router";
 
 import { HeaderInterno } from "../../shared/components/Header";

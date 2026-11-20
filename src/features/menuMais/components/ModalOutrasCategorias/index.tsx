@@ -22,6 +22,28 @@ import type { CategoriaItem } from "../../types";
 import { styles as modalBase } from "../ModalReserva/styles";
 import { styles } from "./styles";
 
+export type TextosCategoria = {
+  titulo: string;
+  criar: string;
+  rotuloCampo: string;
+  placeholder: string;
+  botaoCriar: string;
+  semNome: string;
+  jaExiste: string;
+  falhou: string;
+};
+
+export const TEXTOS_CATEGORIA: TextosCategoria = {
+  titulo: "Outras categorias",
+  criar: "+ Criar categoria",
+  rotuloCampo: "Nova categoria",
+  placeholder: "Ex: Assinaturas",
+  botaoCriar: "Criar categoria",
+  semNome: "Digite o nome da categoria.",
+  jaExiste: "Essa categoria já existe.",
+  falhou: "Não foi possível criar a categoria.",
+};
+
 type Props = {
   visivel: boolean;
   opcoes: CategoriaItem[];
@@ -29,6 +51,7 @@ type Props = {
   aoFechar: () => void;
   aoSelecionar: (id: string) => void;
   aoCriar: (nome: string) => string | null;
+  textos?: TextosCategoria;
 };
 
 export function ModalOutrasCategorias({
@@ -38,6 +61,7 @@ export function ModalOutrasCategorias({
   aoFechar,
   aoSelecionar,
   aoCriar,
+  textos = TEXTOS_CATEGORIA,
 }: Props) {
   const [criando, setCriando] = useState(false);
   const [nome, setNome] = useState("");
@@ -93,7 +117,7 @@ export function ModalOutrasCategorias({
           </Pressable>
 
           <Text style={modalBase.titulo}>
-            Outras categorias
+            {textos.titulo}
           </Text>
 
           <ScrollView
@@ -150,7 +174,7 @@ export function ModalOutrasCategorias({
           </ScrollView>
 
           <Button
-            titulo="+ Criar categoria"
+            titulo={textos.criar}
             variante="botaotexto"
             onPress={() => setCriando(true)}
           />
@@ -158,8 +182,8 @@ export function ModalOutrasCategorias({
           {criando ? (
             <View style={styles.areaCriar}>
               <Input
-                label="Nova categoria"
-                placeholder="Ex: Assinaturas"
+                label={textos.rotuloCampo}
+                placeholder={textos.placeholder}
                 value={nome}
                 onChangeText={(texto) => {
                   setNome(texto);
@@ -171,7 +195,7 @@ export function ModalOutrasCategorias({
               />
 
               <Button
-                titulo="Criar categoria"
+                titulo={textos.botaoCriar}
                 tamanho="compacto"
                 onPress={criar}
               />

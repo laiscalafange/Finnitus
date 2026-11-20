@@ -8,11 +8,11 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/Texto";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Minus, Plus } from "lucide-react-native";
@@ -26,7 +26,6 @@ import { styles } from "../../styles/metasdetalhes";
 
 import { ModalReserva } from "@/features/menuMais/components/ModalReserva";
 import {
-  formatarMoeda,
   mascararMoeda,
   moedaParaNumero,
 } from "@/features/menuMais/utils";
@@ -78,6 +77,7 @@ function ModalEditarMeta({
   aoSalvar,
   aoReiniciar,
 }: ModalEditarMetaProps) {
+  const moedaVisivel = useMoedaVisivel();
   const [nome, setNome] = useState("");
   const [tipo, setTipo] = useState<TipoMeta>("longoPrazo");
   const [valor, setValor] = useState("");
@@ -293,7 +293,7 @@ function ModalEditarMeta({
 
             {confirmandoReinicio ? (
               <Text style={estilosEditar.aviso}>
-                Os {formatarMoeda(meta.valorAtual)} guardados
+                Os {moedaVisivel(meta.valorAtual)} guardados
                 serão retirados e a meta volta para R$ 0,00.
               </Text>
             ) : null}
@@ -500,6 +500,7 @@ const estilosEditar = StyleSheet.create({
 });
 
 export default function MetasDetalhes() {
+  const moedaVisivel = useMoedaVisivel();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
 
@@ -658,11 +659,11 @@ export default function MetasDetalhes() {
           </Text>
 
           <Text style={styles.valor}>
-            {formatarMoeda(meta.valorAtual)}
+            {moedaVisivel(meta.valorAtual)}
           </Text>
 
           <Text style={styles.metaTotal}>
-            De {formatarMoeda(meta.valorTotal)}
+            De {moedaVisivel(meta.valorTotal)}
           </Text>
 
           <View style={styles.linhaProgresso}>
@@ -685,7 +686,7 @@ export default function MetasDetalhes() {
          {!meta.configurada
            ? "Registre o valor limite a ser alcançado"
            : faltam > 0
-             ? `Faltam ${formatarMoeda(faltam)}`
+             ? `Faltam ${moedaVisivel(faltam)}`
              : "Meta alcançada!"}
          </Text>
 
@@ -809,7 +810,7 @@ export default function MetasDetalhes() {
                           adjustsFontSizeToFit
                         >
                           {deposito ? "+" : "-"}{" "}
-                          {formatarMoeda(item.valor)}
+                          {moedaVisivel(item.valor)}
                         </Text>
                       </View>
                     </Card>

@@ -4,9 +4,9 @@ import {
   ActivityIndicator,
   Pressable,
   ScrollView,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 import axios from "axios";
 import { Minus, Plus, Trash2 } from "lucide-react-native";
 
@@ -18,7 +18,7 @@ import { Progress } from "../../shared/components/Progress";
 import { Cores } from "../../shared/constants/Cores";
 import { ModalReserva } from "@/features/menuMais/components/ModalReserva";
 import { useVoltar } from "@/features/menuMais/useVoltar";
-import { formatarMoeda } from "@/features/menuMais/utils";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import type { Reserva, TipoModalReserva } from "@/features/menuMais/types";
 import { styles as base } from "@/features/menuMais/styles/formulario";
 import { styles } from "@/features/menuMais/styles/reserva";
@@ -53,6 +53,7 @@ function mensagemErro(erro: unknown): string {
 }
 
 export default function ReservaEmergencia() {
+  const moedaVisivel = useMoedaVisivel();
   const voltar = useVoltar();
 
   const [reserva, setReserva] = useState<Reserva | null>(null);
@@ -228,7 +229,7 @@ export default function ReservaEmergencia() {
                 </Text>
 
                 <Text style={styles.valorSaldo}>
-                  {formatarMoeda(saldo)}
+                  {moedaVisivel(saldo)}
                 </Text>
               </View>
             </Card>
@@ -252,7 +253,7 @@ export default function ReservaEmergencia() {
               </View>
 
               <Text style={styles.valorMeta}>
-                {meta ? formatarMoeda(meta) : "Sem meta definida"}
+                {meta ? moedaVisivel(meta) : "Sem meta definida"}
               </Text>
 
               <View style={styles.linhaProgresso}>
@@ -352,7 +353,7 @@ export default function ReservaEmergencia() {
                             ]}
                           >
                             {deposito ? "+" : "-"}{" "}
-                            {formatarMoeda(mov.valor)}
+                            {moedaVisivel(mov.valor)}
                           </Text>
 
                           <Text style={styles.tipoMovimentacao}>

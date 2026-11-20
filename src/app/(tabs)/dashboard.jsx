@@ -1,4 +1,6 @@
-import { ScrollView, View, Text, TouchableOpacity, Image } from 'react-native'
+import { ScrollView, View, TouchableOpacity, Image } from 'react-native'
+import { Text } from '@/shared/components/Texto'
+import { useExibirValores, useMoedaVisivel } from '@/features/configuracoesContext'
 import { LinearGradient } from 'expo-linear-gradient'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { GRADIENTS } from '../../shared/constants/Gradientes'
@@ -136,6 +138,8 @@ function GaugeCircular({
 }
 
 export default function Dashboard() {
+  const exibir = useExibirValores()
+  const moedaVisivel = useMoedaVisivel()
   // Hook de navegação do Expo Router
   const router = useRouter()
 
@@ -475,13 +479,13 @@ export default function Dashboard() {
                 </Text>
 
                 <Text style={styles.planejamentoFaltam}>
-                  Faltam {DASHBOARD_MOCK.planejamentos[0].faltam}$
+                  Faltam {moedaVisivel(DASHBOARD_MOCK.planejamentos[0].faltam)}
                 </Text>
               </View>
 
               <Text style={styles.planejamentoValor}>
-                ${DASHBOARD_MOCK.planejamentos[0].valorAtual} de $
-                {DASHBOARD_MOCK.planejamentos[0].valorTotal}
+                {moedaVisivel(DASHBOARD_MOCK.planejamentos[0].valorAtual)} de{' '}
+                {moedaVisivel(DASHBOARD_MOCK.planejamentos[0].valorTotal)}
               </Text>
             </View>
 
@@ -510,7 +514,7 @@ export default function Dashboard() {
             <View style={styles.gastosCorpo}>
               <GaugeCircular
                 tamanho={130}
-                label={`R$${DASHBOARD_MOCK.gastosSemana.restante}`}
+                label={moedaVisivel(DASHBOARD_MOCK.gastosSemana.restante)}
                 sublabel="Restante"
                 segmentos={DASHBOARD_MOCK.gastosSemana.segmentos.map(
                   segmento => ({
@@ -533,7 +537,7 @@ export default function Dashboard() {
                         { color: item.cor },
                       ]}
                     >
-                      {item.valor}
+                      {exibir(item.valor)}
                     </Text>
                   </View>
                 ))}
@@ -583,10 +587,7 @@ export default function Dashboard() {
               style={stylesPlanoB.areaCard}
             >
               <Text style={stylesPlanoB.areaValor}>
-                Restante:                 R${' '}
-                {SALDO_MOCK.maximoDisponivel.toLocaleString('pt-BR', {
-                  minimumFractionDigits: 2,
-                })}
+                Restante: {moedaVisivel(SALDO_MOCK.maximoDisponivel)}
               </Text>
 
               <VictoryArea
@@ -610,10 +611,7 @@ export default function Dashboard() {
               style={stylesPlanoB.areaCard}
             >
               <Text style={stylesPlanoB.areaValor}>
-                Gastos:                      R${' '}
-                {SALDO_MOCK.atual.toLocaleString('pt-BR', {
-                  minimumFractionDigits: 2,
-                })}
+                Gastos: {moedaVisivel(SALDO_MOCK.atual)}
               </Text>
 
               <VictoryArea

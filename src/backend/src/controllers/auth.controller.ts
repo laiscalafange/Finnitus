@@ -6,9 +6,10 @@ import {
 } from "../services/user.service.js";
 
 import {
-  generateToken,
   verifyResetToken,
 } from "../services/token.service.js";
+import { concluirPrimeiraEtapa } from "../services/seguranca.service.js";
+import { nomeDispositivo } from "../services/sessao.service.js";
 
 import {
   requestPasswordReset,
@@ -57,13 +58,11 @@ export async function login(req: Request, res: Response) {
     password(body.password, false),
   );
 
-  res.json({
-    user: result.user,
-    token: generateToken(
-      result.user.id,
-      result.tokenVersion,
-    ),
-  });
+  res.json(await concluirPrimeiraEtapa(
+    result.user.id,
+    result.tokenVersion,
+    nomeDispositivo(req.get("user-agent"), body.plataforma),
+  ));
 }
 
 export async function forgotPassword(

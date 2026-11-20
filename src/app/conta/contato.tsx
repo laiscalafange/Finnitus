@@ -12,6 +12,8 @@ import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
+import { api } from "../../services/api";
+import { useAction } from "../../shared/hooks/useAction";
 
 import { styles } from "../../styles/contato";
 
@@ -21,25 +23,26 @@ export default function Contato() {
   const [assunto, setAssunto] = useState("");
   const [mensagem, setMensagem] = useState("");
 
-  // Mensagem de erro de validação | true = mensagem enviada
-  const [erro, setErro] = useState("");
   const [enviado, setEnviado] = useState(false);
+  const { busy, error, run } = useAction();
 
   function enviar() {
-    if (!assunto.trim() || !mensagem.trim()) {
-      setErro("Preencha o assunto e a mensagem.");
-      return;
-    }
+    void run(async () => {
+      setEnviado(false);
+      const assuntoLimpo = assunto.trim();
+      const mensagemLimpa = mensagem.trim();
+      if (!assuntoLimpo || !mensagemLimpa) {
+        throw new Error("Preencha o assunto e a mensagem.");
+      }
 
-    setErro("");
-
-    // TODO (backend): enviar { assunto, mensagem } pra API.
-    // Hoje ainda não existe rota de contato, então por enquanto
-    // a tela só valida e mostra a confirmação abaixo.
-
-    setEnviado(true);
-    setAssunto("");
-    setMensagem("");
+      await api.post("/me/contato", {
+        assunto: assuntoLimpo,
+        mensagem: mensagemLimpa,
+      });
+      setEnviado(true);
+      setAssunto("");
+      setMensagem("");
+    });
   }
 
   return (
@@ -69,6 +72,8 @@ export default function Contato() {
               placeholder="Do que se trata?"
               value={assunto}
               onChangeText={setAssunto}
+              maxLength={120}
+              editable={!busy}
             />
 
             <Input
@@ -78,29 +83,30 @@ export default function Contato() {
               onChangeText={setMensagem}
               multiline
               numberOfLines={5}
+              maxLength={2000}
+              editable={!busy}
             />
 
-            {/* Mensagem de erro de validação */}
-            {erro ? (
+            {error ? (
               <Text
                 style={styles.erro}
                 accessibilityRole="alert"
               >
-                {erro}
+                {error}
               </Text>
             ) : null}
 
-            {/* Confirmação depois de "enviar" (ainda sem backend) */}
             {enviado ? (
-              <Text style={styles.confirmacao}>
+              <Text style={styles.confirmacao} accessibilityLiveRegion="polite">
                 Mensagem enviada! Nossa equipe vai te responder em breve.
               </Text>
             ) : null}
 
             <Button
-              titulo="Enviar mensagem"
+              titulo={busy ? "Enviando..." : "Enviar mensagem"}
               variante="terciario"
               onPress={enviar}
+              disabled={busy}
             />
           </View>
         </ScrollView>

@@ -275,7 +275,8 @@ export function montarCardsRotas(resumo: ResumoRotas): {
 // Linhas do "Resumo" que aparece no final de cada versão da tela
 export function linhasResumo(
   resumo: ResumoRotas,
-  versao: "atuais" | "recomendado"
+  versao: "atuais" | "recomendado",
+  moeda = formatarMoeda,
 ): string[] {
   return resumo.rotas.map((rota) => {
     const nome = (CATEGORIAS_POR_ID[rota.categoriaId] ?? CATEGORIAS_POR_ID.outros)
@@ -288,7 +289,7 @@ export function linhasResumo(
 
     if (versao === "recomendado") {
       return rota.status === "acima"
-        ? `• ${nome}: reduzir ${formatarMoeda(rota.diferenca)}`
+        ? `• ${nome}: reduzir ${moeda(rota.diferenca)}`
         : `• ${nome}: pode manter`;
     }
 

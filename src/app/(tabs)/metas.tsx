@@ -4,11 +4,11 @@ import {
   Alert,
   View,
   ScrollView,
-  Text,
   TouchableOpacity,
   Pressable,
   Image,
 } from 'react-native'
+import { Text } from '@/shared/components/Texto'
 import { errorMessage } from '@/services/api'
 import { useRouter } from 'expo-router'
 import { Trash2 } from 'lucide-react-native'
@@ -19,7 +19,7 @@ import { styles } from '../../styles/metas'
 import { Cores } from '../../shared/constants/Cores'
 
 import { ModalReserva } from '@/features/menuMais/components/ModalReserva'
-import { formatarMoeda } from '@/features/menuMais/utils'
+import { useMoedaVisivel } from '@/features/configuracoesContext'
 import type { TipoModalReserva } from '@/features/menuMais/types'
 import { useFinanceiro } from '../../features/financeiroContext'
 import {
@@ -31,6 +31,7 @@ import {
 import MetasFrame from './MetasFrame'
 
 export default function Metas() {
+  const moedaVisivel = useMoedaVisivel();
   const router = useRouter()
 
   const {
@@ -386,11 +387,11 @@ export default function Metas() {
                         <Text
                           style={styles.metaValor}
                         >
-                          {formatarMoeda(
+                          {moedaVisivel(
                             meta.valorAtual
                           )}{' '}
                           de{' '}
-                          {formatarMoeda(
+                          {moedaVisivel(
                             meta.valorTotal
                           )}
                         </Text>

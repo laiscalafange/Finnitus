@@ -12,9 +12,7 @@ import {
   safeSelect,
 } from "./user.service.js";
 
-import {
-  generateToken,
-} from "./token.service.js";
+import { concluirPrimeiraEtapa } from "./seguranca.service.js";
 
 function isUniqueConflict(error: unknown): boolean {
   return (
@@ -27,7 +25,8 @@ function isUniqueConflict(error: unknown): boolean {
 
 export async function loginWithGoogle(
   idToken: string,
-  aceiteAdultoTermos = false
+  aceiteAdultoTermos: boolean,
+  dispositivo: string,
 ) {
   // Importante: verificar ANTES de buscar um usuário existente.
   // Antes, contas Google já vinculadas entravam sem essa confirmação.
@@ -48,14 +47,7 @@ export async function loginWithGoogle(
   });
 
   if (linkedUser) {
-    return {
-      user: safeUser(linkedUser),
-      token: generateToken(
-        linkedUser.id_Usuario,
-        linkedUser.tokenVersion,
-      ),
-      isNewUser: false,
-    };
+    return concluirPrimeiraEtapa(linkedUser.id_Usuario, linkedUser.tokenVersion, dispositivo);
   }
 
   const sameEmail = await prisma.usuario.findUnique({
@@ -95,14 +87,7 @@ export async function loginWithGoogle(
       },
     });
 
-    return {
-      user: safeUser(user),
-      token: generateToken(
-        user.id_Usuario,
-        user.tokenVersion,
-      ),
-      isNewUser: true,
-    };
+    return concluirPrimeiraEtapa(user.id_Usuario, user.tokenVersion, dispositivo, true);
   } catch (error) {
     if (isUniqueConflict(error)) {
       throw new HttpError(

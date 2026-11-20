@@ -191,7 +191,6 @@ export async function changeUserPassword(
   });
 }
 
-
 export async function deleteUser(
   id: number,
   password: string,
@@ -289,18 +288,4 @@ export async function deleteUser(
       );
     }
   }
-}
-
-
-export async function logoutUser(id: number) {
-  await prisma.usuario.update({
-    where: {
-      id_Usuario: id,
-    },
-    data: {
-      tokenVersion: {
-        increment: 1,
-      },
-    },
-  });
 }

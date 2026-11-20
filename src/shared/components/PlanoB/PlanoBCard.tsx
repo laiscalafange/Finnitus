@@ -1,4 +1,7 @@
-import { View, Text, Image } from 'react-native'
+import { View, Image } from 'react-native'
+import { Text } from '@/shared/components/Texto'
+import { useExibirValores } from '@/features/configuracoesContext'
+import { formatarMoeda } from '@/features/menuMais/utils'
 import { LinearGradient } from 'expo-linear-gradient'
 import Svg, { Circle } from 'react-native-svg'
 
@@ -120,6 +123,7 @@ export function PlanoBCard({
   restante,
   mes = 'Mês',
 }: PlanoBCardProps) {
+  const exibir = useExibirValores()
   return (
     <LinearGradient
       colors={['#3c1e75bd', '#30096e']}
@@ -138,12 +142,12 @@ export function PlanoBCard({
       <View style={styles.planoBCorpo}>
         <GaugeCircular
           tamanho={180}
-          label={restante.toLocaleString(
+          label={exibir(restante.toLocaleString(
             'pt-BR',
             {
               minimumFractionDigits: 2,
             },
-          )}
+          ))}
           sublabel="Restantes"
           segmentos={categorias.map(cat => ({
             cor: cat.cor,
@@ -168,13 +172,7 @@ export function PlanoBCard({
                 </Text>
 
                 <Text style={styles.categoriaValor}>
-                  R$
-                  {cat.valor.toLocaleString(
-                    'pt-BR',
-                    {
-                      minimumFractionDigits: 2,
-                    },
-                  )}
+                  {exibir(formatarMoeda(cat.valor))}
                 </Text>
               </View>
             </View>

@@ -1,5 +1,6 @@
 import { Router } from "express";
 
+import { enviarContato } from "../controllers/contato.controller.js";
 import {
   getMe,
   updateMe,
@@ -17,6 +18,7 @@ import {
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 import {
+  rateLimit,
   sensitiveLimiter,
 } from "../middlewares/rateLimit.middleware.js";
 
@@ -27,8 +29,17 @@ import {
 import {
   linkGoogle,
 } from "../controllers/googleAuth.controller.js";
+import {
+  ativar2FA,
+  confirmar2FA,
+  desativar2FA,
+  desconectarSessao,
+  verConfiguracao2FA,
+  verSessoes,
+} from "../controllers/seguranca.controller.js";
 
 const router = Router();
+const contatoLimiter = rateLimit(5, 60 * 60000, (req) => `contato:${req.userId}`);
 
 // ===============================
 // DADOS DO USUÁRIO
@@ -45,6 +56,8 @@ router.patch(
   authMiddleware,
   updateMe,
 );
+
+router.post("/me/contato", authMiddleware, contatoLimiter, enviarContato);
 
 // ===============================
 // FOTO DE PERFIL
@@ -122,5 +135,13 @@ router.post(
   authMiddleware,
   linkGoogle,
 );
+
+router.get("/me/sessoes", authMiddleware, verSessoes);
+router.delete("/me/sessoes/:id", authMiddleware, desconectarSessao);
+
+router.get("/me/2fa", authMiddleware, verConfiguracao2FA);
+router.post("/me/2fa/ativar", sensitiveLimiter, authMiddleware, ativar2FA);
+router.post("/me/2fa/confirmar", sensitiveLimiter, authMiddleware, confirmar2FA);
+router.post("/me/2fa/desativar", sensitiveLimiter, authMiddleware, desativar2FA);
 
 export default router;

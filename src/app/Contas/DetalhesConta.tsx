@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { ScrollView, Text, View, TouchableOpacity } from "react-native";
+import { ScrollView, View, TouchableOpacity } from "react-native";
+import { Text } from "@/shared/components/Texto";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { HeaderInterno } from "../../shared/components/Header";
@@ -12,7 +13,7 @@ import { Rotas } from "../../shared/constants/Rotas";
 import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
 import { styles as form } from "@/features/menuMais/styles/formulario";
 import { useVoltar } from "@/features/menuMais/useVoltar";
-import { formatarMoeda } from "@/features/menuMais/utils";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import { useFinanceiro } from "@/features/financeiroContext";
 import {
   competenciaAtual,
@@ -53,6 +54,7 @@ const TIPOS_RECEBIMENTO = {
 
 // Tela "Detalhes da despesa/receita fixa". Recebe ?id=...&competencia=AAAA-MM.
 export default function DetalhesConta() {
+  const moedaVisivel = useMoedaVisivel();
   const router = useRouter();
   const voltar = useVoltar();
   const { id, competencia: competenciaParam } = useLocalSearchParams<{
@@ -89,7 +91,7 @@ export default function DetalhesConta() {
   const entrada = conta.tipo === "entrada";
   const aberta = estaAberta(conta);
   const diferenca = diferencaDaConta(conta);
-  const resumoDiferenca = textoDiferenca(conta);
+  const resumoDiferenca = textoDiferenca(conta, moedaVisivel);
 
   const historicoBaixas = baixas
     .filter((baixa) => baixa.transacaoId === transacao.id)
@@ -144,7 +146,7 @@ export default function DetalhesConta() {
               <BadgeStatus conta={conta} />
             </View>
 
-            <Text style={styles.cartaoValor}>{formatarMoeda(conta.valorPrevisto)}</Text>
+            <Text style={styles.cartaoValor}>{moedaVisivel(conta.valorPrevisto)}</Text>
             <Text style={styles.cartaoValorLegenda}>
               Valor previsto · {nomeCompetencia(conta.competencia)}
             </Text>
@@ -154,7 +156,7 @@ export default function DetalhesConta() {
 
           {aba === "info" ? (
             <View style={styles.cartao}>
-              <LinhaInfo primeira rotulo="Valor previsto" valor={formatarMoeda(conta.valorPrevisto)} />
+              <LinhaInfo primeira rotulo="Valor previsto" valor={moedaVisivel(conta.valorPrevisto)} />
               <LinhaInfo
                 rotulo={entrada ? "Data de recebimento" : "Data de vencimento"}
                 valor={dataPorExtenso(conta.dataVencimento)}
@@ -170,12 +172,12 @@ export default function DetalhesConta() {
                   />
                   <LinhaInfo
                     rotulo={entrada ? "Valor recebido" : "Valor pago"}
-                    valor={formatarMoeda(conta.valorRealizado)}
+                    valor={moedaVisivel(conta.valorRealizado)}
                   />
                   {diferenca !== 0 ? (
                     <LinhaInfo
                       rotulo="Diferença em relação ao previsto"
-                      valor={`${diferenca > 0 ? "+" : "-"}${formatarMoeda(Math.abs(diferenca))}`}
+                      valor={`${diferenca > 0 ? "+" : "-"}${moedaVisivel(Math.abs(diferenca))}`}
                     />
                   ) : null}
                 </>
@@ -207,10 +209,10 @@ export default function DetalhesConta() {
                   </Text>
                   <Text style={styles.historicoTexto}>
                     {entrada ? "Recebido" : "Pago"} em {baixa.dataRealizada}:{" "}
-                    {formatarMoeda(baixa.valorRealizado)}
-                    {"\n"}Previsto: {formatarMoeda(baixa.valorPrevisto)}
+                    {moedaVisivel(baixa.valorRealizado)}
+                    {"\n"}Previsto: {moedaVisivel(baixa.valorPrevisto)}
                     {baixa.valorRealizado !== baixa.valorPrevisto
-                      ? ` · diferença de ${formatarMoeda(Math.abs(baixa.valorRealizado - baixa.valorPrevisto))} ${baixa.valorRealizado > baixa.valorPrevisto ? "a mais" : "a menos"}`
+                      ? ` · diferença de ${moedaVisivel(Math.abs(baixa.valorRealizado - baixa.valorPrevisto))} ${baixa.valorRealizado > baixa.valorPrevisto ? "a mais" : "a menos"}`
                       : ""}
                   </Text>
                 </View>
@@ -220,7 +222,7 @@ export default function DetalhesConta() {
                 <View key={vigencia.desde + vigencia.alteradaEm} style={styles.historicoItem}>
                   <Text style={styles.historicoTitulo}>Valor previsto alterado</Text>
                   <Text style={styles.historicoTexto}>
-                    De {formatarMoeda(anterior)} para {formatarMoeda(vigencia.dados.valor)} a partir de{" "}
+                    De {moedaVisivel(anterior)} para {moedaVisivel(vigencia.dados.valor)} a partir de{" "}
                     {mesPorExtenso(vigencia.desde)}.
                   </Text>
                 </View>

@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { api } from "./api";
 
 export type User = {
@@ -16,6 +17,9 @@ export type Session = {
   token: string;
   isNewUser?: boolean;
 };
+
+export type Desafio2FA = { requires2FA: true; challengeId: string; };
+export type ResultadoLogin = Session | Desafio2FA;
 
 export type RegisterData = {
   name: string;
@@ -62,13 +66,14 @@ export const authService = {
     aceite = false
   ) => {
     exigirAceite(aceite);
-    const response = await api.post<Session>(
+    const response = await api.post<ResultadoLogin>(
       "/auth/login",
       {
         email,
         password,
         maiorDeIdade: aceite,
         leuTermos: aceite,
+        plataforma: Platform.OS,
       }
     );
     return response.data;
@@ -76,16 +81,22 @@ export const authService = {
 
   google: async (idToken: string, aceite = false) => {
     exigirAceite(aceite);
-    const response = await api.post<Session>(
+    const response = await api.post<ResultadoLogin>(
       "/auth/google",
       {
         idToken,
         maiorDeIdade: aceite,
         leuTermos: aceite,
+        plataforma: Platform.OS,
       }
     );
 
     return response.data;
+  },
+
+  verificarDuasEtapas: async (challengeId: string, codigo: string) => {
+    const { data } = await api.post<Session>("/auth/2fa", { challengeId, codigo });
+    return data;
   },
 
   me: async () => {

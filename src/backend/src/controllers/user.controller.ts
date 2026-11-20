@@ -5,8 +5,8 @@ import {
   updateUser,
   changeUserPassword,
   deleteUser,
-  logoutUser,
 } from "../services/user.service.js";
+import { revogarSessao } from "../services/sessao.service.js";
 
 import {
   objectBody,
@@ -109,7 +109,11 @@ export async function deleteMe(req: Request, res: Response) {
 }
 
 export async function logout(req: Request, res: Response) {
-  await logoutUser(userId(req));
+  if (!req.sessaoId || req.tokenVersion === undefined) {
+    throw new HttpError(401, "Sessão não identificada.");
+  }
+
+  await revogarSessao(userId(req), req.tokenVersion, req.sessaoId);
 
   res.status(204).end();
 }

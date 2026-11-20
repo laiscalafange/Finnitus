@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { ActivityIndicator, RefreshControl, View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { ActivityIndicator, RefreshControl, View, TouchableOpacity, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { CalendarDays, Target, Wallet } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
+import { Text } from "@/shared/components/Texto";
 import { CardNotificacao } from "../../shared/components/CardsNotificacoes";
 import { Button } from "../../shared/components/Button";
 import { Cores } from "../../shared/constants/Cores";
@@ -14,6 +15,7 @@ import { styles as modal } from "@/features/menuMais/components/ModalReserva/sty
 import { ModalCartao } from "@/features/contas/components/ContaUI";
 import { styles as ui } from "@/features/contas/styles";
 import { useNotificacoes } from "@/features/contas/useNotificacoes";
+import { useConfiguracoes } from "@/features/configuracoesContext";
 import { categoriaNotificacao, dataNotificacao, tempoNotificacao, tipoCardNotificacao, type CategoriaNotificacao } from "@/features/contas/notificacoesReais";
 import type { Notificacao } from "@/services/notificacoes.api";
 
@@ -27,6 +29,7 @@ const OPCOES: { id: Filtro; rotulo: string }[] = [
 
 export default function Notificacoes() {
   const router = useRouter();
+  const { configuracoes } = useConfiguracoes();
   const { notificacoes, carregando, atualizando, erro, carregar, marcarLida, marcarTodasLidas } = useNotificacoes();
   const [filtro, setFiltro] = useState<Filtro>("todas");
   const [aberta, setAberta] = useState<Notificacao | null>(null);
@@ -40,6 +43,14 @@ export default function Notificacoes() {
         await marcarLida(item.id_Notificacao);
         setAberta(prev => prev?.id_Notificacao === item.id_Notificacao ? { ...prev, lida: true } : prev);
       } catch { /* A tela mostra o erro; leitura não é fingida localmente. */ }
+    }
+  }
+
+  async function lerTodas() {
+    try {
+      await marcarTodasLidas();
+    } catch {
+      // A mensagem da API é exibida na tela pelo hook.
     }
   }
 
@@ -60,7 +71,7 @@ export default function Notificacoes() {
         <View style={styles.conteudoLista}>
           <AlternadorTipo<Filtro> valor={filtro} aoMudar={setFiltro} opcoes={OPCOES} />
           <View style={styles.linhaMarcarTodas}>
-            <TouchableOpacity onPress={() => void marcarTodasLidas()} disabled={naoLidas === 0} accessibilityRole="button">
+            <TouchableOpacity onPress={() => void lerTodas()} disabled={naoLidas === 0} accessibilityRole="button">
               <Text style={styles.marcarTodas}>Marcar todas como lidas ({naoLidas})</Text>
             </TouchableOpacity>
           </View>
@@ -72,7 +83,9 @@ export default function Notificacoes() {
               key={item.id_Notificacao}
               tipo={tipoCardNotificacao(item)}
               mensagem={item.titulo}
-              tempo={`${item.mensagem} · ${tempoNotificacao(item.criadaEm)}`}
+              tempo={configuracoes?.mostrarValores
+                ? `${item.mensagem} · ${tempoNotificacao(item.criadaEm)}`
+                : tempoNotificacao(item.criadaEm)}
               lida={item.lida}
               onPress={() => void abrir(item)}
             />
@@ -83,7 +96,7 @@ export default function Notificacoes() {
         {aberta ? <>
           <View style={ui.modalIcone}><Icone size={30} color={Cores.texto.principal} /></View>
           <Text style={[modal.titulo, modal.tituloCentro]}>{aberta.titulo}</Text>
-          <Text style={ui.modalSubtitulo}>{aberta.mensagem}</Text>
+          {configuracoes?.mostrarValores ? <Text style={ui.modalSubtitulo}>{aberta.mensagem}</Text> : null}
           <View style={ui.modalData}>
             <CalendarDays size={20} color={Cores.texto.claro} />
             <Text style={ui.modalDataTexto}>{dataNotificacao(aberta.criadaEm)}</Text>

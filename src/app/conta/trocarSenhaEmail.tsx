@@ -49,6 +49,10 @@ export default function TrocarSenhaEmail() {
         throw new Error("Informe um e-mail válido.");
       }
 
+      if (!user || normalized !== normalizeEmail(user.email)) {
+        throw new Error("Informe o e-mail da sua conta.");
+      }
+
       await authService.forgot(normalized);
 
       startRecovery(normalized);

@@ -8,11 +8,11 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   UIManager,
   View,
 } from 'react-native'
+import { Text } from '@/shared/components/Texto'
 import { useFocusEffect, useRouter } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
 import { ChevronRight, Pencil, Sparkles } from 'lucide-react-native'
@@ -40,7 +40,7 @@ import sinoIcon from '../../../assets/icones/sino.png'
 
 import { useFinanceiro } from '../../features/financeiroContext'
 import { calcularSumario } from '../../features/sumarioData'
-import { formatarMoeda } from '../../features/menuMais/utils'
+import { useMoedaVisivel } from '@/features/configuracoesContext'
 import { reservaApi } from '../../services/reserva'
 import {
   analisarImprevisto,
@@ -66,6 +66,7 @@ if (Platform.OS === 'android') {
 // Os cards antigos desta tela (gráficos, Performance, Sumário, Atividade e
 // Rotas) agora ficam no Dashboard.
 export default function PlanoBScreen() {
+  const moedaVisivel = useMoedaVisivel()
   const router = useRouter()
 
   // Margem livre = o que sobra da renda depois de gastar e guardar nas metas
@@ -309,7 +310,7 @@ setAutorizarEnvioIA(false)
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                {sumario.semRenda ? '—' : formatarMoeda(sumario.disponivel)}
+                {sumario.semRenda ? '—' : moedaVisivel(sumario.disponivel)}
               </Text>
 
               {sumario.semRenda ? (
@@ -365,12 +366,12 @@ setAutorizarEnvioIA(false)
                       numberOfLines={1}
                       adjustsFontSizeToFit
                     >
-                      {formatarMoeda(saldoReserva)}
+                      {moedaVisivel(saldoReserva)}
                     </Text>
 
                     {metaReserva > 0 ? (
                       <Text style={local.reservaMeta} numberOfLines={1}>
-                        de {formatarMoeda(metaReserva)}
+                        de {moedaVisivel(metaReserva)}
                       </Text>
                     ) : null}
                   </View>
@@ -449,7 +450,7 @@ setAutorizarEnvioIA(false)
                     </View>
 
                     <Text style={local.resumoValor}>
-                      {formatarMoeda(resultado.imprevisto.valor)}
+                      {moedaVisivel(resultado.imprevisto.valor)}
                     </Text>
                   </View>
 
@@ -642,7 +643,7 @@ setAutorizarEnvioIA(false)
                       </View>
 
                       <Text style={local.resumoValor}>
-                        {formatarMoeda(item.valor)}
+                        {moedaVisivel(item.valor)}
                       </Text>
                     </View>
 

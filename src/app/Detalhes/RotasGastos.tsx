@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { useLocalSearchParams } from "expo-router";
 import {
@@ -18,7 +19,7 @@ import { Cores } from "../../shared/constants/Cores";
 
 import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
-import { formatarMoeda } from "@/features/menuMais/utils";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import { useFinanceiro } from "@/features/financeiroContext";
 import {
   calcularRotas,
@@ -66,6 +67,7 @@ function corDoStatus(status: StatusRota): string {
 // tela, com um alternador no topo pra trocar entre elas.
 // Os valores vêm das transações registradas no Novo gasto.
 export default function RotasGastos() {
+  const moedaVisivel = useMoedaVisivel();
   const { versao: versaoParam } = useLocalSearchParams<{ versao?: string }>();
 
   // Abre já na versão do card que foi tocado
@@ -116,7 +118,7 @@ export default function RotasGastos() {
 
           {/* Resumo: sempre no final da tela */}
           {dados.temGastos && !(versao === "recomendado" && dados.semRenda) ? (
-            <CardResumo linhas={linhasResumo(dados, versao)} />
+            <CardResumo linhas={linhasResumo(dados, versao, moedaVisivel)} />
           ) : null}
         </View>
       </ScrollView>
@@ -153,6 +155,7 @@ function CardResumo({ linhas }: { linhas: string[] }) {
 // Versão 1: gastos atuais (gráfico + um card por categoria, igual ao protótipo)
 // ---------------------------------------------------------------------------
 function GastosAtuais({ dados }: { dados: ResumoRotas }) {
+  const moedaVisivel = useMoedaVisivel();
   const { rotas, semRenda } = dados;
 
   // Maior valor entre gasto atual e ideal = comprimento total das barras
@@ -235,8 +238,8 @@ function GastosAtuais({ dados }: { dados: ResumoRotas }) {
 
               <Text style={styles.categoriaDetalhe}>
                 {semRenda
-                  ? formatarMoeda(rota.atual)
-                  : `${formatarMoeda(rota.atual)} vs ${formatarMoeda(rota.ideal)} ideal`}
+                  ? moedaVisivel(rota.atual)
+                  : `${moedaVisivel(rota.atual)} vs ${moedaVisivel(rota.ideal)} ideal`}
               </Text>
             </View>
 
@@ -263,6 +266,7 @@ function GastosAtuais({ dados }: { dados: ResumoRotas }) {
 // categoria, da que mais passou do ideal pra que menos passou)
 // ---------------------------------------------------------------------------
 function Recomendado({ dados }: { dados: ResumoRotas }) {
+  const moedaVisivel = useMoedaVisivel();
   // Quem mais passou do ideal vem primeiro
   const ordenadas = [...dados.rotas].sort((a, b) => b.diferenca - a.diferenca);
 
@@ -279,7 +283,7 @@ function Recomendado({ dados }: { dados: ResumoRotas }) {
             <Text style={styles.heroRotulo}>Você pode economizar</Text>
 
             <Text style={styles.heroValor}>
-              {formatarMoeda(dados.economia)}
+              {moedaVisivel(dados.economia)}
             </Text>
 
             <Text style={styles.heroDescricao}>
@@ -301,7 +305,7 @@ function Recomendado({ dados }: { dados: ResumoRotas }) {
           <View style={styles.heroColuna}>
             <Text style={styles.heroColunaRotulo}>Hoje</Text>
             <Text style={styles.heroColunaValor}>
-              {formatarMoeda(dados.totalAtual)}
+              {moedaVisivel(dados.totalAtual)}
             </Text>
           </View>
 
@@ -312,7 +316,7 @@ function Recomendado({ dados }: { dados: ResumoRotas }) {
             <Text
               style={[styles.heroColunaValor, { color: Cores.destaque.limao }]}
             >
-              {formatarMoeda(dados.totalComPlano)}
+              {moedaVisivel(dados.totalComPlano)}
             </Text>
           </View>
         </View>
@@ -385,7 +389,7 @@ function Recomendado({ dados }: { dados: ResumoRotas }) {
                   ]}
                 >
                   {reduzir
-                    ? `Reduzir ${formatarMoeda(rota.diferenca)}`
+                    ? `Reduzir ${moedaVisivel(rota.diferenca)}`
                     : rota.status === "limite"
                       ? "No limite"
                       : "Dentro do ideal"}
@@ -407,7 +411,7 @@ function Recomendado({ dados }: { dados: ResumoRotas }) {
               <Text style={styles.valorRotaTexto}>
                 Hoje{" "}
                 <Text style={styles.valorRotaDestaque}>
-                  {formatarMoeda(rota.atual)}
+                  {moedaVisivel(rota.atual)}
                 </Text>
               </Text>
 
@@ -416,7 +420,7 @@ function Recomendado({ dados }: { dados: ResumoRotas }) {
               <Text style={styles.valorRotaTexto}>
                 {reduzir ? "Recomendado" : "Limite"}{" "}
                 <Text style={styles.valorRotaDestaque}>
-                  {formatarMoeda(rota.ideal)}
+                  {moedaVisivel(rota.ideal)}
                 </Text>
               </Text>
             </View>
@@ -426,13 +430,13 @@ function Recomendado({ dados }: { dados: ResumoRotas }) {
               <Text
                 style={[styles.resultadoRota, { color: Cores.estado.perigo }]}
               >
-                ≈ {formatarMoeda(rota.diferenca / DIAS_NO_MES)} a menos por dia
+                ≈ {moedaVisivel(rota.diferenca / DIAS_NO_MES)} a menos por dia
               </Text>
             ) : rota.status === "dentro" ? (
               <Text
                 style={[styles.resultadoRota, { color: Cores.destaque.limao }]}
               >
-                Folga de {formatarMoeda(-rota.diferenca)} no mês
+                Folga de {moedaVisivel(-rota.diferenca)} no mês
               </Text>
             ) : null}
 
@@ -459,7 +463,7 @@ function Recomendado({ dados }: { dados: ResumoRotas }) {
                   {dadosCategoria(maiorCorte.categoriaId).rotulo}
                 </Text>
                 : é onde você mais pode economizar (
-                {formatarMoeda(maiorCorte.diferenca)} no mês).
+                {moedaVisivel(maiorCorte.diferenca)} no mês).
               </>
             ) : (
               "Você está dentro do ideal em todas as categorias. Continue assim!"

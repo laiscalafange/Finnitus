@@ -26,8 +26,8 @@ import {
 import {
   ActivityIndicator,
   View,
-  Text,
 } from "react-native";
+import { Text } from "../shared/components/Texto";
 
 import {
   FinanceiroProvider,
@@ -42,9 +42,7 @@ import {
   Button,
 } from "../shared/components/Button";
 
-import {
-  inicializarNotificacoesEventos,
-} from "../features/calendar/services/notificacoesEventos";
+import { ConfiguracoesProvider, useConfiguracoes } from "../features/configuracoesContext";
 
 // Mantém a splash screen enquanto as fontes carregam.
 SplashScreen.preventAutoHideAsync().catch(
@@ -92,27 +90,13 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, fontError]);
 
-  // 3. INICIALIZAÇÃO DAS NOTIFICAÇÕES
-  // Este Hook fica antes de qualquer return.
-
-  useEffect(() => {
-    inicializarNotificacoesEventos().catch(
-      (error) => {
-        console.warn(
-          "Falha ao inicializar notificações:",
-          error
-        );
-      }
-    );
-  }, []);
-
-  // 4. AGUARDA O CARREGAMENTO DAS FONTES
+  // 3. AGUARDA O CARREGAMENTO DAS FONTES
 
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
-  // 5. PROVIDERS DO APLICATIVO
+  // 4. PROVIDERS DO APLICATIVO
 
   return (
     <SafeAreaProvider>
@@ -187,11 +171,17 @@ function SessionNavigator() {
     );
   }
 
-  // NAVEGAÇÃO PROTEGIDA
-  // O contexto financeiro reinicia ao trocar de conta.
-
   return (
-    <FinanceiroProvider key={user?.id ?? "guest"}>
+    <ConfiguracoesProvider key={user?.id ?? "guest"} usuarioId={user?.id}>
+      <NavegacaoProtegida user={user} />
+    </ConfiguracoesProvider>
+  );
+}
+
+function NavegacaoProtegida({ user }) {
+  const { revisaoFinanceira } = useConfiguracoes();
+  return (
+    <FinanceiroProvider key={revisaoFinanceira}>
       <Stack
         screenOptions={{
           headerShown: false,

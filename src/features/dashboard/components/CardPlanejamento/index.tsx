@@ -1,4 +1,6 @@
-import { Image, Text, View } from 'react-native'
+import { Image, View } from 'react-native'
+import { Text } from '@/shared/components/Texto'
+import { useExibirValores } from '@/features/configuracoesContext'
 import { Progress } from '@/shared/components/Progress'
 import { Cores } from '@/shared/constants/Cores'
 import { formatarMoeda } from '@/features/menuMais/utils'
@@ -14,6 +16,7 @@ type Props = {
 
 // Card "Metas" da Home (antigo "Planejamento"; separado do card "Eventos")
 export function CardPlanejamento({ dados, onPress }: Props) {
+  const exibir = useExibirValores()
   return (
     <CardSecao titulo="Metas" aoVerTodos={onPress} textoVerTodos="Ver todas">
       {dados ? (
@@ -39,7 +42,7 @@ export function CardPlanejamento({ dados, onPress }: Props) {
             </View>
 
             <Text style={styles.faltam}>
-              Faltam {formatarMoeda(dados.faltam)} de {formatarMoeda(dados.total)}
+              Faltam {exibir(formatarMoeda(dados.faltam))} de {exibir(formatarMoeda(dados.total))}
             </Text>
           </View>
 

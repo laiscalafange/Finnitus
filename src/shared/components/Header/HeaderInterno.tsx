@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { Text } from "@/shared/components/Texto";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { FONTS } from "../../constants/Tipografia";
 import { Cores } from "../../constants/Cores";

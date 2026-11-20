@@ -1,4 +1,5 @@
-import { Modal as RNModal, View, Text, Pressable } from "react-native";
+import { Modal as RNModal, View, Pressable } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { styles } from "./ModalStyles";
 import { ModalProps } from "./ModalTypes";

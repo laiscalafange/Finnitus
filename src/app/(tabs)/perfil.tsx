@@ -2,12 +2,12 @@
 import { useEffect, useState } from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   ScrollView,
   Image,
   Platform,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

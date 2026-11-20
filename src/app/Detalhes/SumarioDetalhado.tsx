@@ -1,4 +1,5 @@
-import { ScrollView, Text, View, useWindowDimensions } from "react-native";
+import { ScrollView, View, useWindowDimensions } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { VictoryArea, VictoryAxis, VictoryChart } from "victory-native";
 
@@ -9,7 +10,7 @@ import { Cores } from "../../shared/constants/Cores";
 import { FONTS } from "../../shared/constants/Tipografia";
 
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
-import { formatarMoeda } from "@/features/menuMais/utils";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import { useFinanceiro } from "@/features/financeiroContext";
 import { calcularRotas } from "@/features/rotasDatas";
 import { calcularSumario } from "@/features/sumarioData";
@@ -27,6 +28,7 @@ const COR_GASTOS = "#FF8800";
 // Dashboard e do Plano-B. Os valores vêm do que a pessoa registrou no
 // Novo gasto e nas Metas.
 export default function SumarioDetalhado() {
+  const moedaVisivel = useMoedaVisivel();
   const { width } = useWindowDimensions();
 
   // Gastos, entradas e metas registrados no app (FinanceiroProvider)
@@ -77,7 +79,7 @@ export default function SumarioDetalhado() {
                 adjustsFontSizeToFit
                 style={[styles.totalValor, { color: COR_GASTOS }]}
               >
-                {formatarMoeda(gastos)}
+                {moedaVisivel(gastos)}
               </Text>
             </Card>
 
@@ -88,7 +90,7 @@ export default function SumarioDetalhado() {
                 adjustsFontSizeToFit
                 style={[styles.totalValor, { color: Cores.destaque.limao }]}
               >
-                {formatarMoeda(economias)}
+                {moedaVisivel(economias)}
               </Text>
             </Card>
           </View>
@@ -163,7 +165,7 @@ export default function SumarioDetalhado() {
                     <Text style={styles.categoriaNome}>{categoria.rotulo}</Text>
 
                     <Text style={styles.categoriaValor}>
-                      {formatarMoeda(item.atual)}
+                      {moedaVisivel(item.atual)}
                     </Text>
                   </View>
 

@@ -8,7 +8,7 @@ function verify(
   token: string,
   audience: string,
   purpose: string,
-) {
+): jwt.JwtPayload & { exp: number } {
   try {
     const payload = jwt.verify(token, env.JWT_SECRET, {
       algorithms: ["HS256"],
@@ -28,7 +28,7 @@ function verify(
       throw new Error();
     }
 
-    return payload;
+    return { ...payload, exp: payload.exp };
   } catch {
     throw new HttpError(401, "Token inválido ou expirado.");
   }
@@ -37,6 +37,7 @@ function verify(
 export function generateToken(
   userId: number,
   tokenVersion: number,
+  sessaoId: string,
 ): string {
   return jwt.sign(
     {
@@ -49,6 +50,7 @@ export function generateToken(
       subject: String(userId),
       issuer,
       audience: "finnitus-app",
+      jwtid: sessaoId,
       expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"],
     },
   );
@@ -67,6 +69,9 @@ export function verifyAccessToken(token: string) {
   return {
     userId: Number(payload.sub),
     tokenVersion: payload.tokenVersion as number,
+    sessaoId: payload.jti,
+    criadaEm: payload.iat === undefined ? undefined : new Date(payload.iat * 1000),
+    expiraEm: new Date(payload.exp * 1000),
   };
 }
 

@@ -1,4 +1,7 @@
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '@/shared/components/Texto'
+import { useExibirValores } from '@/features/configuracoesContext'
+import { formatarMoeda } from '@/features/menuMais/utils'
 import { LinearGradient } from 'expo-linear-gradient'
 
 import { Cores } from '../../../shared/constants/Cores'
@@ -20,6 +23,7 @@ export function SumarioCard({
   disponivel,
   itens,
 }: SumarioCardProps) {
+  const exibir = useExibirValores()
   return (
     <LinearGradient
       colors={['#3c1e75', '#30096e']}
@@ -46,13 +50,7 @@ export function SumarioCard({
       </View>
 
       <Text style={styles.duploDescricao}>
-        Você tem R$
-        {disponivel.toLocaleString(
-          'pt-BR',
-          {
-            minimumFractionDigits: 2,
-          },
-        )}{' '}
+        Você tem {exibir(formatarMoeda(disponivel))}{' '}
         para investir ou gastar
       </Text>
 
@@ -67,12 +65,12 @@ export function SumarioCard({
             </Text>
 
             <Text style={styles.sumarioBarraValor}>
-              {item.valor.toLocaleString(
+              {exibir(item.valor.toLocaleString(
                 'pt-BR',
                 {
                   minimumFractionDigits: 2,
                 },
-              )}
+              ))}
             </Text>
           </View>
 

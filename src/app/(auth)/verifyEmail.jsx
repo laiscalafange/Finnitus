@@ -38,7 +38,7 @@ export default function VerifyEmail() {
     busy,
     error,
     run,
-    setError,
+    clearError,
   } = useAction();
 
   useEffect(() => {
@@ -182,7 +182,7 @@ export default function VerifyEmail() {
         erro={Boolean(error)}
         onCodigoCompleto={(value) => {
           setCodigo(value);
-          setError("");
+              clearError();
         }}
       />
     </AuthForm>

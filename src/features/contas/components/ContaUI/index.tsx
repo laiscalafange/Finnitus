@@ -1,10 +1,12 @@
 
 import type { ReactNode } from 'react'
-import { KeyboardAvoidingView, Modal, Platform, Pressable, Text, TouchableOpacity, View } from 'react-native'
+import { KeyboardAvoidingView, Modal, Platform, Pressable, TouchableOpacity, View } from 'react-native'
+import { Text } from '@/shared/components/Texto'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react-native'
 import { Card } from '@/shared/components/Cards'
 import { Cores } from '@/shared/constants/Cores'
 import { formatarMoeda } from '@/features/menuMais/utils'
+import { useMoedaVisivel } from '@/features/configuracoesContext'
 // Mesmo card flutuante dos modais de Metas/Reserva (fundo escurecido + X)
 import { styles as modal } from '@/features/menuMais/components/ModalReserva/styles'
 import {
@@ -47,6 +49,7 @@ export function BadgeStatus({ conta }: { conta: ContaDoMes }) {
 
 // Linha de uma conta (lista de Contas fixas e de Movimentações)
 export function CardConta({ conta, aoPress }: { conta: ContaDoMes; aoPress?: () => void }) {
+  const moedaVisivel = useMoedaVisivel()
   const Icone = conta.icone
   const entrada = conta.tipo === 'entrada'
   const valor = conta.valorRealizado ?? conta.valorPrevisto
@@ -63,7 +66,7 @@ export function CardConta({ conta, aoPress }: { conta: ContaDoMes; aoPress?: () 
       disabled={!aoPress}
       activeOpacity={0.88}
       accessibilityRole="button"
-      accessibilityLabel={`${conta.nome}, ${formatarMoeda(valor)}, ${rotuloStatus(conta)}`}
+      accessibilityLabel={`${conta.nome}, ${moedaVisivel(valor)}, ${rotuloStatus(conta)}`}
     >
       <View style={[styles.contaFaixa, { backgroundColor: tom.cor }]} />
 
@@ -78,7 +81,7 @@ export function CardConta({ conta, aoPress }: { conta: ContaDoMes; aoPress?: () 
 
       <View style={styles.contaDireita}>
         <Text style={[styles.contaValor, entrada && styles.contaValorEntrada]}>
-          {entrada ? '+' : '-'}{formatarMoeda(valor)}
+          {entrada ? '+' : '-'}{moedaVisivel(valor)}
         </Text>
         <BadgeStatus conta={conta} />
       </View>
@@ -136,14 +139,14 @@ export function LinhaInfo({
 }
 
 // Texto "Previsto R$ X · Pago R$ Y · Diferença ..." (mantém o previsto separado do realizado)
-export function textoDiferenca(conta: ContaDoMes): string | undefined {
+export function textoDiferenca(conta: ContaDoMes, moeda = formatarMoeda): string | undefined {
   const diferenca = diferencaDaConta(conta)
   if (conta.valorRealizado === undefined || diferenca === 0) return undefined
 
   const verbo = conta.tipo === 'gasto' ? 'pago' : 'recebido'
   const direcao = diferenca > 0 ? 'a mais' : 'a menos'
 
-  return `Previsto ${formatarMoeda(conta.valorPrevisto)} · ${verbo} ${formatarMoeda(conta.valorRealizado)} (${formatarMoeda(Math.abs(diferenca))} ${direcao})`
+  return `Previsto ${moeda(conta.valorPrevisto)} · ${verbo} ${moeda(conta.valorRealizado)} (${moeda(Math.abs(diferenca))} ${direcao})`
 }
 
 // Card flutuante (um por vez: nada de modal em cima de modal)

@@ -92,7 +92,7 @@ const errorHandler: ErrorRequestHandler = (
   res,
   _next
 ) => {
-  if (err instanceof HttpError && err.status >= 400 && err.status < 500) {
+  if (err instanceof HttpError && ((err.status >= 400 && err.status < 500) || err.status === 503)) {
     res.status(err.status).json({
       error: err.message,
     });

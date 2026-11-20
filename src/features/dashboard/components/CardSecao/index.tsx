@@ -1,5 +1,6 @@
 import { Children, Fragment, type ReactNode } from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
+import { Text } from '@/shared/components/Texto'
 import { ChevronRight, type LucideIcon } from 'lucide-react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { styles } from './styles'
