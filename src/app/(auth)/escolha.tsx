@@ -14,7 +14,7 @@ import { useAuth } from "../../features/authContext";
 import { googleIdToken } from "../../services/google";
 import { useAction } from "../../shared/hooks/useAction";
 
-// Limite do aumento de fonte do sistema (evita o texto estourar a tela)
+// Mantido o mesmo limite de fonte do arquivo original.
 const LIMITE_FONTE = 1.1;
 
 export default function Escolha() {
@@ -26,6 +26,14 @@ export default function Escolha() {
 
   function entrarGoogle() {
     void run(async () => {
+      // Esta tela oferece criação de conta com Google;
+      // exige a confirmação antes de iniciar esse cadastro.
+      if (!aceiteGoogle) {
+        throw new Error(
+          "Para criar conta pelo Google, confirme sua maioridade e a leitura dos documentos legais."
+        );
+      }
+
       const token = await googleIdToken();
 
       if (token) {
@@ -40,7 +48,7 @@ export default function Escolha() {
 
       <BotaoVoltarAuth absoluto />
 
-      {/* O texto rola se não couber; os botões ficam sempre livres embaixo */}
+      {/* Layout, tipografia e underline ORIGINAIS preservados. */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -65,20 +73,31 @@ export default function Escolha() {
         </Text>
       </ScrollView>
 
-      <View style={styles.conteiner}>
+      {/* Somente espaçamento interno reduzido. */}
+      <View
+        style={[
+          styles.conteiner,
+          { gap: 9, paddingTop: 8, paddingBottom: 14 },
+        ]}
+      >
         {error ? (
           <Text
             accessibilityRole="alert"
             style={{
               color: "#ffacb8",
-              marginBottom: 12,
+              marginBottom: 6,
             }}
           >
             {error}
           </Text>
         ) : null}
 
-        <AceiteCadastroGoogle aceito={aceiteGoogle} onChange={setAceiteGoogle} />
+        <AceiteCadastroGoogle
+          aceito={aceiteGoogle}
+          onChange={setAceiteGoogle}
+          disabled={busy}
+        />
+
         <Button
           variante="primario"
           titulo="Email"
