@@ -16,8 +16,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Circle } from "react-native-svg";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 
-import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
   listarItensCalendario,
@@ -461,6 +461,11 @@ function obterDataCalendario(item: ItemCalendario): string {
   // O backend serializa as datas para ISO (AAAA-MM-DDTHH:mm:ss.sssZ).
   // Usamos o dia gravado para evitar deslocar eventos à véspera
   // quando o navegador está no fuso horário de Brasília.
+  if (item.tipo === "EVENTO") {
+    // Eventos com horário são instantes UTC. Exiba o dia local do usuário.
+    return chaveDia(new Date(item.horarioInicio ?? item.data));
+  }
+  // Valores financeiros de @db.Date mantêm a data civil.
   return item.data.slice(0, 10);
 }
 
@@ -572,6 +577,9 @@ export default function Calendario() {
   recarregarCalendario,
   setRecarregarCalendario,
 ] = useState(0);
+useFocusEffect(useCallback(() => {
+  setRecarregarCalendario(valor => valor + 1);
+}, []));
 const [
 
     dataSelecionada,

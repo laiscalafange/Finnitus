@@ -67,7 +67,7 @@ export default function DetalheImprevisto() {
   const [confirmarExclusao, setConfirmarExclusao] = useState(false);
 
   // Uma ação por vez (editar, escolher estratégia, excluir...)
-  const { busy, error, setError, run } = useAction();
+  const { busy, error, clearError, run } = useAction();
 
   const carregar = useCallback(async () => {
     if (!id) {
@@ -98,7 +98,7 @@ export default function DetalheImprevisto() {
 
     setCampos(camposDoImprevisto(imprevisto));
     setErroEdicao("");
-    setError("");
+    clearError();
     setEditando(true);
   }
 
@@ -129,7 +129,7 @@ export default function DetalheImprevisto() {
   function pedirNovaAnalise() {
     if (!imprevisto) return;
 
-    setError("");
+    clearError();
 
     void run(async () => {
       const nova = await reanalisarImprevisto(
@@ -147,7 +147,7 @@ export default function DetalheImprevisto() {
   function escolher(titulo: string) {
     if (!imprevisto) return;
 
-    setError("");
+    clearError();
 
     void run(async () => {
       const salvo = await escolherEstrategia(imprevisto.id, titulo);
@@ -159,7 +159,7 @@ export default function DetalheImprevisto() {
   function alternarResolvido() {
     if (!imprevisto) return;
 
-    setError("");
+    clearError();
 
     void run(async () => {
       setImprevisto(
@@ -172,7 +172,7 @@ export default function DetalheImprevisto() {
     if (!imprevisto) return;
 
     setConfirmarExclusao(false);
-    setError("");
+    clearError();
 
     void run(async () => {
       await excluirImprevisto(imprevisto.id);
@@ -410,7 +410,7 @@ export default function DetalheImprevisto() {
       <ModalEdicao
         visible={editando}
         animationType="slide"
-        onRequestClose={() => !busy && setEditando(false)}
+        onRequestClose={() => { if (!busy) setEditando(false); }}
       >
         <View style={estilos.tela}>
           <BackgroundGradient variante="funcional" />

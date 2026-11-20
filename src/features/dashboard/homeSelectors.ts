@@ -1,7 +1,6 @@
 import {
   DASHBOARD_MOCK,
   ESTATISTICAS_MOCK,
-  EVENTOS_MES_MOCK,
   PLANOB_MOCK,
 } from '../../shared/components/Mocks'
 import { percentualMeta, type Meta } from '../metasData'
@@ -21,8 +20,8 @@ const DATA_EVENTO_FORMAT = new Intl.DateTimeFormat('pt-BR', {
   month: 'long',
 })
 
-export function obterProximoEvento(agora = new Date()): EventoResumo | undefined {
-  const eventosFuturos = EVENTOS_MES_MOCK
+export function obterProximoEvento(eventos: Array<{ nome: string; data: string }>, agora = new Date()): EventoResumo | undefined {
+  const eventosFuturos = eventos
     .map(evento => ({ ...evento, dataObjeto: new Date(`${evento.data}T12:00:00`) }))
     .filter(evento => evento.dataObjeto >= agora)
     .sort((a, b) => a.dataObjeto.getTime() - b.dataObjeto.getTime())

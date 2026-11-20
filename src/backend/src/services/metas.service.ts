@@ -1,3 +1,4 @@
+import { notificarMetaCriada, notificarMetaConcluida, notificarMovimentoMeta } from "./notificacoes.gatilhos.js";
 import { prisma } from "../lib/prisma.js";
 
 import { HttpError } from "../utils/errors.js";
@@ -425,6 +426,9 @@ export async function criarMeta(
 
         }
 
+        await notificarMetaCriada(tx, meta);
+        if (concluida) await notificarMetaConcluida(tx, meta);
+
         return meta;
 
       },
@@ -693,7 +697,8 @@ export async function atualizarMeta(
   const atual = Number(meta.Mvalor_atual);
   const concluida = atual >= objetivo;
 
-  const atualizada = await prisma.meta.update({
+  const atualizada = await prisma.$transaction(async (tx) => {
+    const atualizada = await tx.meta.update({
     where: {
       id_Meta,
       id_Usuario,
@@ -724,6 +729,12 @@ export async function atualizarMeta(
         ? meta.Mdata_conclusao ?? new Date()
         : null,
     },
+    });
+
+    if (meta.Mstatus !== "CONCLUIDA" && atualizada.Mstatus === "CONCLUIDA") {
+      await notificarMetaConcluida(tx, atualizada);
+    }
+    return atualizada;
   });
 
   return formatarMeta(atualizada);
@@ -917,6 +928,11 @@ export async function adicionarAporte(
 
       }
 
+      await notificarMovimentoMeta(tx, metaFinal, movimentacao);
+      if (meta.Mstatus !== "CONCLUIDA" && metaFinal.Mstatus === "CONCLUIDA") {
+        await notificarMetaConcluida(tx, metaFinal);
+      }
+
       return {
 
         meta:
@@ -1104,6 +1120,8 @@ export async function retirarDaMeta(
           },
 
         });
+
+      await notificarMovimentoMeta(tx, metaAtualizada, movimentacao);
 
       return {
 

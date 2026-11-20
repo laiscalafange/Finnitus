@@ -159,3 +159,16 @@ export function notificarEventoConfirmado(banco: BancoNotificacoes, evento: Even
     relacionadoId: evento.id_Evento,
   });
 }
+
+/** Novo evento próprio do Finnitus. A notificação é criada na mesma transação. */
+export function notificarEventoCriado(banco: BancoNotificacoes, evento: EventoBase) {
+  return registrarNotificacao(banco, {
+    idUsuario: evento.id_Usuario,
+    tipo: "EVENTO_CRIADO",
+    titulo: "Novo evento no calendário",
+    mensagem: `O evento ${nomeCurto(evento.Enome)} foi criado com sucesso.`,
+    chaveEvento: `evento:${evento.id_Evento}:criado`,
+    relacionadoTipo: "EVENTO",
+    relacionadoId: evento.id_Evento,
+  });
+}

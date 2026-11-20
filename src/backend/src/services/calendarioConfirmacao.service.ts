@@ -1,3 +1,4 @@
+import { notificarEventoConfirmado } from "./notificacoes.gatilhos.js";
 import { prisma } from "../lib/prisma.js";
 
 type DadosEventoExterno = {
@@ -346,6 +347,7 @@ export async function confirmarEventoFinanceiro(
             });
         }
 
+        await notificarEventoConfirmado(tx, evento);
         return {
           tipo: "DESPESA",
           movimentacao: despesa,
@@ -489,6 +491,7 @@ export async function confirmarEventoFinanceiro(
           });
       }
 
+      await notificarEventoConfirmado(tx, evento);
       return {
         tipo: "RECEITA",
         movimentacao: receita,

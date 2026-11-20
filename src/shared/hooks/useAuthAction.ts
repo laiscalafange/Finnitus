@@ -31,5 +31,5 @@ export function useAuthAction() {
     }
   }, []);
 
-  return { busy, error, run, clearError };
+  return { busy, error, run, clearError, setError };
 }

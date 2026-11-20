@@ -1,3 +1,4 @@
+import { api } from "./api";
 import type { AxiosInstance } from "axios";
 
 export type TipoNotificacao =
@@ -9,7 +10,8 @@ export type TipoNotificacao =
   | "META_APORTE"
   | "META_RETIRADA"
   | "META_CONCLUIDA"
-  | "EVENTO_CONFIRMADO";
+  | "EVENTO_CONFIRMADO"
+  | "EVENTO_CRIADO";
 
 export type Notificacao = {
   id_Notificacao: number;
@@ -52,3 +54,5 @@ export function criarClienteNotificacoes(api: AxiosInstance) {
     },
   };
 }
+
+export const notificacoesApi = criarClienteNotificacoes(api);

@@ -122,9 +122,11 @@ export async function listarItensCalendario(
     prisma.evento.findMany({
       where: {
         id_Usuario,
+        // Um evento no fim do mês às 23h locais pode cair no mês seguinte em UTC.
+        // Margem de 1 dia: o frontend exibe seu dia local correto.
         data_inicio: {
-          gte: dataInicio,
-          lt: dataFim,
+          gte: new Date(dataInicio.getTime() - 86_400_000),
+          lt: new Date(dataFim.getTime() + 86_400_000),
         },
       },
     }),

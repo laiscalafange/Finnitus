@@ -37,7 +37,7 @@ import {
 
 import { competenciaDe, contasDoMes, rotuloStatus, diaMes } from '../../features/contas/contasData'
 
-import { gerarNotificacoes } from '../../features/contas/notificacoesData'
+import type { Notificacao } from '../../services/notificacoes.api'
 
 import { useFinanceiro } from '../../features/financeiroContext'
 
@@ -197,9 +197,10 @@ export default function PaginaInicial() {
 
     baixas,
 
-    notificacoesLidas,
 
   } = useFinanceiro()
+
+  const notificacoesReais: Notificacao[] = []
 
   // Mês que a Home está mostrando (começa no mês atual)
 
@@ -253,11 +254,9 @@ export default function PaginaInicial() {
 
   // fica na tela Notificações)
 
-  const atencao = gerarNotificacoes(transacoes, baixas, metas)
-
-    .filter(item => !notificacoesLidas.includes(item.id))
-
-    .slice(0, 2)
+  const atencao = notificacoesReais
+    .filter(item => !item.lida)
+    .slice(0, 2);
 
   // Primeira meta do mês em andamento (a mesma da tela Metas); se não houver,
 
@@ -299,7 +298,7 @@ export default function PaginaInicial() {
           const eventosFinanceiros = itens.filter(
             item =>
               item.tipo === 'EVENTO' &&
-              item.statusFinanceiro === 'CONFIRMADO',
+              (item.origem === 'FINNITUS' || item.statusFinanceiro === 'CONFIRMADO'),
           )
 
           /*
@@ -541,19 +540,17 @@ export default function PaginaInicial() {
               <ListaItens>
                 {atencao.map(item => (
                   <LinhaItem
-                    key={item.id}
+                    key={item.id_Notificacao}
                     destaque
                     icone={
-                      item.conta
-                        ? item.conta.icone
-                        : item.categoria === 'metas'
+                      item.tipo.startsWith('META_')
                           ? Target
-                          : item.categoria === 'eventos'
+                          : item.tipo.startsWith('EVENTO_')
                             ? CalendarDays
                             : TriangleAlert
                     }
                     titulo={item.titulo}
-                    subtitulo={`${item.subtitulo}  ·  ${item.quando}`}
+                    subtitulo={item.mensagem}
                     aoPress={() => router.push(Rotas.notificacao)}
                   />
 
