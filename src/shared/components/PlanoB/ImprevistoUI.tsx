@@ -2,7 +2,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import {
   Pressable,
   StyleSheet,
-  Text,
   View,
   type StyleProp,
   type ViewStyle,
@@ -27,6 +26,7 @@ import {
   type LucideIcon,
 } from "lucide-react-native";
 
+import { Text } from "@/shared/components/Texto";
 import { Card } from "../Cards";
 import { Input } from "../Input";
 import { Cores } from "../../constants/Cores";

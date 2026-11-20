@@ -1,31 +1,41 @@
-
 import { StyleSheet } from 'react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { FONTS } from '@/shared/constants/Tipografia'
 
+// Medidas usadas no layout E no cálculo do tamanho da fonte do valor
+// (index.tsx). Mexeu aqui, o cálculo acompanha automaticamente.
+export const MEDIDAS = {
+  linhaPadding: 20, // padding lateral da linha
+  linhaGap: 7, // espaço entre Receitas e Despesas
+  itemPadding: 8, // padding lateral de cada metade
+  itemGap: 8, // espaço entre o ícone e o texto
+  bolha: 42, // tamanho do ícone (seta)
+} as const
+
 export const styles = StyleSheet.create({
   linha: {
     flexDirection: 'row',
-    gap: 7,
-    paddingHorizontal: 20,
+    gap: MEDIDAS.linhaGap,
+    paddingHorizontal: MEDIDAS.linhaPadding,
     marginTop: 2,
   },
 
+  // Cada metade tem o mesmo tamanho (flex: 1) e o conteúdo fica centralizado.
   item: {
     flex: 1,
     minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    gap: MEDIDAS.itemGap,
 
-    paddingHorizontal: 35,
+    paddingHorizontal: MEDIDAS.itemPadding,
     paddingVertical: 5,
-
   },
 
   bolha: {
-    width: 42,
-    height: 42,
+    width: MEDIDAS.bolha,
+    height: MEDIDAS.bolha,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
@@ -39,6 +49,7 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(187, 19, 19, 0.9)',
   },
 
+  // flex: 1 dá uma largura definida ao texto
   textos: {
     flex: 1,
     minWidth: 0,
@@ -57,9 +68,9 @@ export const styles = StyleSheet.create({
     color: '#E4D2FF',
   },
 
+  // O fontSize é calculado no index.tsx (depende da largura do valor)
   valor: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 17,
     lineHeight: 23,
   },
 

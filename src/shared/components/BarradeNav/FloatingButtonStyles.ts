@@ -81,29 +81,17 @@ export const getStyles = (insetBottom: number) => StyleSheet.create({
     tintColor: '#7E3BED',
   },
 
-  // ⋮ desenhado com 3 pontinhos, numa caixa 26x26 igual à dos outros ícones
-  maisOpcoes: {
-    width: 26,
-    height: 26,
+  // Perfil: caixa 27x27 com a mesma transparência dos outros ícones inativos
+  perfilIcone: {
+    width: 27,
+    height: 27,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 3.5,
     opacity: 0.5,
   },
 
-  maisOpcoesAtivo: {
+  perfilIconeAtivo: {
     opacity: 1,
-  },
-
-  maisOpcoesPonto: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: '#7E3BED',
-  },
-
-  maisOpcoesPontoAtivo: {
-    backgroundColor: Cores.destaque.limao,
   },
 
   fab: {

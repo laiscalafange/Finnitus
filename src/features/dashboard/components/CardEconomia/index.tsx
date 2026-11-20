@@ -1,6 +1,5 @@
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 import Svg, { Circle } from 'react-native-svg'
-import { ChevronRight } from 'lucide-react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { Text } from '@/shared/components/Texto'
 import { useExibirValores } from '@/features/configuracoesContext'
@@ -9,7 +8,6 @@ import { styles } from './styles'
 
 type Props = {
   dados?: EconomiaResumo
-  onPress?: () => void
 }
 
 // R$ 208 (sem centavos quando o valor é inteiro) ou R$ 208,50
@@ -24,8 +22,9 @@ const TAMANHO = 100
 const RAIO = 34
 const CIRCUNFERENCIA = 2 * Math.PI * RAIO
 
-// Card "Economia mensal": quanto foi guardado nas metas no mês selecionado
-export function CardEconomia({ dados, onPress }: Props) {
+// Card "Economia mensal": quanto foi guardado nas metas no mês selecionado.
+// É só informativo: não é clicável (não leva a nenhuma outra tela).
+export function CardEconomia({ dados }: Props) {
   const exibir = useExibirValores()
   const percentual = Math.min(100, Math.max(0, dados?.percentual ?? 0))
 
@@ -33,7 +32,7 @@ export function CardEconomia({ dados, onPress }: Props) {
     <View style={styles.container}>
       <Text style={styles.titulo}>Economia mensal</Text>
 
-      <TouchableOpacity style={styles.card} onPress={onPress} disabled={!onPress} activeOpacity={0.88} accessibilityRole="button">
+      <View style={styles.card}>
         <View style={styles.medidor}>
           <Svg
             width={TAMANHO}
@@ -70,9 +69,7 @@ export function CardEconomia({ dados, onPress }: Props) {
               : 'Mesmo um pequeno esforço já faz uma grande diferença no futuro!'}
           </Text>
         </View>
-
-        {onPress && <ChevronRight size={22} color={Cores.roxo.claro} />}
-      </TouchableOpacity>
+      </View>
     </View>
   )
 }

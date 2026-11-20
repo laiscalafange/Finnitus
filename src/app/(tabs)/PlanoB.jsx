@@ -15,7 +15,7 @@ import {
 import { Text } from '@/shared/components/Texto'
 import { useFocusEffect, useRouter } from 'expo-router'
 import { LinearGradient } from 'expo-linear-gradient'
-import { ChevronRight, Pencil, Sparkles } from 'lucide-react-native'
+import { Check, ChevronRight, Pencil, Sparkles } from 'lucide-react-native'
 
 import { Cores } from '../../shared/constants/Cores'
 import { FONTS } from '../../shared/constants/Tipografia'
@@ -57,6 +57,54 @@ if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental?.(true)
 }
 
+// ---------------------------------------------------------------------
+// MODO PRÉVIA (só para conferir o design)
+// Com PREVIA_ANALISE = true a tela já abre no estado "depois da análise",
+// usando os dados de exemplo abaixo, sem chamar a IA nem o backend.
+// Deixe SEMPRE false ao entregar o app.
+// ---------------------------------------------------------------------
+const PREVIA_ANALISE = false
+
+const RESULTADO_PREVIA = {
+  imprevisto: {
+    id: 'previa',
+    nome: 'Concertar o celular',
+    tipo: 'DESPESA_INESPERADA',
+    valor: 500,
+    data: '20/11/2026',
+    duracaoMeses: 2,
+    descricao: 'O celular caiu no chão e quebrou a tela.',
+    status: 'pendente',
+  },
+  analise: {
+    texto:
+      'O conserto de R$ 500,00 cabe no seu mês, mas reduz bastante a sua margem livre.\n\nPrioridades:\n1. Resolver o celular, que é uma ferramenta de trabalho.\n2. Evitar mexer na reserva de emergência.',
+    situacao: {},
+    estrategias: [
+      {
+        id: 'previa-0',
+        titulo: 'Pagar com a margem livre do mês',
+        descricao: 'Usa só o que sobrou da renda, sem tocar na reserva.',
+        impactos: [
+          { rotulo: 'Por que essa opção', valor: 'Mantém a reserva intacta.' },
+          { rotulo: 'Vantagem', valor: 'Sem juros e sem dívida.', tom: 'positivo' },
+          { rotulo: 'Risco', valor: 'A margem do mês fica apertada.', tom: 'alerta' },
+        ],
+      },
+      {
+        id: 'previa-1',
+        titulo: 'Parcelar em 2 vezes',
+        descricao: 'Divide o valor entre este mês e o próximo.',
+        impactos: [
+          { rotulo: 'Por que essa opção', valor: 'Alivia o caixa agora.' },
+          { rotulo: 'Vantagem', valor: 'Parcelas menores.', tom: 'positivo' },
+          { rotulo: 'Risco', valor: 'Compromete parte da renda futura.', tom: 'alerta' },
+        ],
+      },
+    ],
+  },
+}
+
 // Tela Plano-B. Ordem dos blocos (não mudar):
 //  1. Margem livre / Reserva de emergência (dentro do cabeçalho)
 //  2. Registrar imprevisto
@@ -85,11 +133,14 @@ export default function PlanoBScreen() {
   // ----- Registro e análise -----
   const [campos, setCampos] = useState(camposVazios)
   const [erroForm, setErroForm] = useState('')
-  const [autorizarEnvioIA, setAutorizarEnvioIA] =
-  useState(false)
+  // Autorização (LGPD) para enviar os dados financeiros resumidos ao Gemini.
+  // Volta a ficar desmarcada depois de cada análise.
+  const [autorizarEnvioIA, setAutorizarEnvioIA] = useState(false)
   const [analisando, setAnalisando] = useState(false)
   // Depois do envio: { imprevisto, analise }
-  const [resultado, setResultado] = useState(null)
+  const [resultado, setResultado] = useState(
+    PREVIA_ANALISE ? RESULTADO_PREVIA : null,
+  )
   // true = formulário reaberto para editar e pedir nova análise
   const [editando, setEditando] = useState(false)
   const [estrategiaId, setEstrategiaId] = useState(null)
@@ -152,10 +203,11 @@ export default function PlanoBScreen() {
       setErroForm(mensagem)
       return
     }
-    
+
+    // Sem autorização, a análise da IA não é solicitada
     if (!autorizarEnvioIA) {
       setErroForm(
-        'Autorize o envio dos dados financeiros ao Gemini para receber a análise.'
+        'Autorize o envio dos dados financeiros ao Gemini para receber a análise.',
       )
       return
     }
@@ -165,14 +217,15 @@ export default function PlanoBScreen() {
     setAnalisando(true)
 
     try {
-    const novo = await analisarImprevisto(
-    camposParaDados(campos),
-    resultado?.imprevisto.id,
-    autorizarEnvioIA,
-  )
+      const novo = await analisarImprevisto(
+        camposParaDados(campos),
+        // Nova análise antes de escolher: troca a anterior, sem duplicar
+        resultado?.imprevisto.id,
+        autorizarEnvioIA,
+      )
 
-setAutorizarEnvioIA(false)
-
+      // A autorização vale para um envio só
+      setAutorizarEnvioIA(false)
 
       setResultado(novo)
       setEstrategiaId(null)
@@ -302,22 +355,53 @@ setAutorizarEnvioIA(false)
 
             {painelAberto ? (
             <View style={local.painel}>
-              {/* Margem livre do mês */}
+              {/* Margem livre do mês: o que sobra da renda */}
               <Text style={local.painelRotulo}>Margem livre do mês</Text>
 
-              <Text
-                style={[local.margemValor, sumario.semRenda && local.margemVazia]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-              >
-                {sumario.semRenda ? '—' : moedaVisivel(sumario.disponivel)}
+              <Text style={local.painelNota}>
+                Quanto sobra da sua renda depois dos gastos e das metas.
               </Text>
 
               {sumario.semRenda ? (
-                <Text style={local.painelNota}>
-                  Registre uma entrada ou informe sua renda para calcular.
-                </Text>
-              ) : null}
+                <>
+                  <Text style={local.margemAviso}>Ainda não dá para calcular</Text>
+
+                  <Text style={local.painelNota}>
+                    Registre uma receita ou informe sua renda para ver quanto
+                    sobra.
+                  </Text>
+
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() =>
+                      router.push({
+                        pathname: '/mais/novoGasto',
+                        params: { tipo: 'entrada' },
+                      })
+                    }
+                  >
+                    <Text style={local.painelLink}>Registrar receita</Text>
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <Text
+                    style={local.margemValor}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                  >
+                    {moedaVisivel(sumario.disponivel)}
+                  </Text>
+
+                  {/* Explica por que está zerada (o cálculo nunca passa de
+                      zero para baixo) */}
+                  {sumario.disponivel <= 0 ? (
+                    <Text style={local.margemAlerta}>
+                      Seus gastos e metas já usam toda a renda deste mês.
+                    </Text>
+                  ) : null}
+                </>
+              )}
 
               <View style={local.painelDivisor} />
 
@@ -371,7 +455,7 @@ setAutorizarEnvioIA(false)
 
                     {metaReserva > 0 ? (
                       <Text style={local.reservaMeta} numberOfLines={1}>
-                        de {moedaVisivel(metaReserva)}
+                        Meta: {moedaVisivel(metaReserva)}
                       </Text>
                     ) : null}
                   </View>
@@ -471,38 +555,43 @@ setAutorizarEnvioIA(false)
                     desabilitado={analisando}
                   />
 
-                <Pressable
-                  accessibilityRole="checkbox"
-                  accessibilityState={{
-                    checked: autorizarEnvioIA,
-                    disabled: analisando,
-                  }}
-                  disabled={analisando}
-                  onPress={() =>
-                    setAutorizarEnvioIA((atual) => !atual)
-                  }
-                  style={local.autorizacaoLinha}
-                >
-                  <View
+                  {/* Autorização do envio dos dados à IA (mesmo padrão de
+                      caixa de marcar do SelectCard) */}
+                  <Pressable
+                    accessibilityRole="checkbox"
+                    accessibilityState={{
+                      checked: autorizarEnvioIA,
+                      disabled: analisando,
+                    }}
+                    disabled={analisando}
+                    hitSlop={6}
+                    onPress={() => setAutorizarEnvioIA((atual) => !atual)}
                     style={[
-                      local.autorizacaoCaixa,
-                      autorizarEnvioIA && local.autorizacaoMarcada,
+                      local.autorizacaoLinha,
+                      analisando && local.autorizacaoDesabilitada,
                     ]}
                   >
-                    {autorizarEnvioIA ? (
-                      <Text style={local.autorizacaoSimbolo}>
-                        ✓
-                      </Text>
-                    ) : null}
-                  </View>
-                
-                  <Text style={local.autorizacaoTexto}>
-                    Autorizo o envio dos meus dados financeiros
-                    resumidos e das informações deste imprevisto
-                    ao Gemini para gerar uma análise personalizada.
-                  </Text>
-                </Pressable>
+                    <View
+                      style={[
+                        local.autorizacaoCaixa,
+                        autorizarEnvioIA && local.autorizacaoMarcada,
+                      ]}
+                    >
+                      {autorizarEnvioIA ? (
+                        <Check
+                          size={14}
+                          color={Cores.texto.contraste}
+                          strokeWidth={3}
+                        />
+                      ) : null}
+                    </View>
 
+                    <Text style={local.autorizacaoTexto}>
+                      Autorizo o envio dos meus dados financeiros resumidos e
+                      das informações deste imprevisto ao Gemini para gerar uma
+                      análise personalizada.
+                    </Text>
+                  </Pressable>
 
                   <BotaoPlano
                     titulo={tituloBotao}
@@ -550,13 +639,12 @@ setAutorizarEnvioIA(false)
                   <TextoAnalise texto={resultado.analise.texto} />
                 </CardVidro>
 
-                
+                {/* Se a IA não achou estratégia viável, o título avisa */}
                 <Text style={local.subtitulo}>
                   {resultado.analise.estrategias.length
                     ? 'Escolha uma estratégia'
                     : 'Nenhuma estratégia viável identificada'}
                 </Text>
-
 
                 {resultado.analise.estrategias.map((estrategia) => (
                   <EstrategiaCard
@@ -568,13 +656,11 @@ setAutorizarEnvioIA(false)
                   />
                 ))}
 
-                
                 <Text style={local.aviso}>
                   Recomendações geradas pelo Gemini com base
                   nos dados informados. Escolher uma estratégia
                   não move dinheiro da sua reserva.
                 </Text>
-
 
                 {erroEstrategia ? (
                   <Text style={local.erro} accessibilityRole="alert">
@@ -670,42 +756,271 @@ setAutorizarEnvioIA(false)
 
 // Estilos só desta tela (o restante reaproveita src/styles/Planobstyle.ts)
 const local = StyleSheet.create({
+  // ----- Cabeçalho -----
+
+  // Menos espaço vazio embaixo do painel (o padrão deixava uma faixa grande)
   headerAjuste: {
-    // Coloque aqui os estilos do cabeçalho
+    paddingBottom: 36,
   },
 
-  autorizacaoLinha: {
+  // Seta apontando pra cima quando o painel está recolhido
+  setaRecolhida: {
+    transform: [{ rotate: '180deg' }],
+  },
+
+  // ----- Painel de margem livre e reserva -----
+
+  // Painel translúcido com margem livre e reserva
+  painel: {
+    padding: 18,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    backgroundColor: 'rgba(20, 5, 50, 0.38)',
+  },
+
+  painelRotulo: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.85)',
+  },
+
+  painelNota: {
+    marginTop: 4,
+    fontFamily: FONTS.quicksand.medium,
+    fontSize: 13,
+    lineHeight: 18,
+    color: 'rgba(255, 255, 255, 0.75)',
+  },
+
+  painelLink: {
+    marginTop: 8,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 14,
+    color: Cores.destaque.limao,
+  },
+
+  painelDivisor: {
+    height: 1,
+    marginVertical: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+
+  margemValor: {
+    marginTop: 2,
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 30,
+    color: Cores.destaque.limao,
+  },
+
+  // Mensagem quando ainda não há renda para calcular
+  margemAviso: {
+    marginTop: 10,
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 18,
+    color: Cores.base.branco,
+  },
+
+  // Aviso quando a margem está zerada
+  margemAlerta: {
+    marginTop: 2,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 13,
+    lineHeight: 18,
+    color: Cores.estado.alerta,
+  },
+
+  reservaTopo: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     gap: 10,
-    paddingVertical: 12,
+    marginBottom: 8,
+  },
+
+  chip: {
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    borderRadius: 20,
+    backgroundColor: Cores.destaque.limao,
+  },
+
+  chipTexto: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 13,
+    color: Cores.texto.contraste,
+  },
+
+  reservaValores: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginBottom: 10,
+  },
+
+  reservaSaldo: {
+    flexShrink: 1,
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 24,
+    color: Cores.base.branco,
+  },
+
+  reservaMeta: {
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.75)',
+  },
+
+  // ----- Registrar imprevisto -----
+
+  // Linha de autorização do envio dos dados à IA (mesmo estilo das linhas
+  // de opção dos formulários e da caixa de marcar do SelectCard)
+  autorizacaoLinha: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    padding: 12,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(163, 87, 255, 0.30)',
+    borderRadius: 12,
+    backgroundColor: 'rgba(29, 19, 44, 0.78)',
+  },
+
+  autorizacaoDesabilitada: {
+    opacity: 0.6,
   },
 
   autorizacaoCaixa: {
     width: 22,
     height: 22,
+    marginTop: 1,
     borderRadius: 6,
     borderWidth: 1.5,
-    borderColor: Cores.destaque.limao,
+    borderColor: Cores.roxo.claro,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   autorizacaoMarcada: {
+    borderColor: Cores.destaque.limao,
     backgroundColor: Cores.destaque.limao,
-  },
-
-  autorizacaoSimbolo: {
-    color: Cores.texto.contraste,
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 
   autorizacaoTexto: {
     flex: 1,
     fontFamily: FONTS.quicksand.medium,
-    color: Cores.texto.claro,
     fontSize: 12,
     lineHeight: 18,
+    color: Cores.texto.claro,
+  },
+
+  // Resumo do formulário e cards do histórico
+  resumoTopo: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginBottom: 14,
+  },
+
+  resumoNome: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 17,
+    color: Cores.base.branco,
+  },
+
+  resumoSub: {
+    marginTop: 2,
+    fontFamily: FONTS.quicksand.medium,
+    fontSize: 13,
+    color: Cores.texto.claro,
+  },
+
+  resumoValor: {
+    fontFamily: FONTS.raleway.extrabold,
+    fontSize: 17,
+    color: Cores.destaque.limao,
+  },
+
+  // ----- Carregamento da análise -----
+
+  cardCarregando: {
+    alignItems: 'center',
+    gap: 8,
+  },
+
+  carregandoTitulo: {
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 16,
+    color: Cores.base.branco,
+  },
+
+  carregandoTexto: {
+    textAlign: 'center',
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    lineHeight: 20,
+    color: Cores.texto.claro,
+  },
+
+  // ----- Análise da IA -----
+
+  subtitulo: {
+    marginTop: 6,
+    marginBottom: 10,
+    fontFamily: FONTS.raleway.bold,
+    fontSize: 18,
+    color: Cores.base.branco,
+  },
+
+  aviso: {
+    marginBottom: 14,
+    fontFamily: FONTS.quicksand.medium,
+    fontSize: 12,
+    lineHeight: 17,
+    color: Cores.texto.claro,
+  },
+
+  erro: {
+    marginBottom: 12,
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 14,
+    color: '#ffb4b4',
+  },
+
+  // ----- Seus imprevistos -----
+
+  vazio: {
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: 14,
+    lineHeight: 20,
+    color: Cores.texto.claro,
+  },
+
+  cardHistorico: {
+    marginBottom: 10,
+  },
+
+  rodapeHistorico: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+
+  verDetalhes: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+  },
+
+  verDetalhesTexto: {
+    flexShrink: 1,
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 13,
+    color: Cores.texto.claro,
   },
 })
