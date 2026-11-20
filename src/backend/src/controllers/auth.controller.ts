@@ -25,12 +25,19 @@ import {
 
 import { HttpError } from "../utils/errors.js";
 
+// Mesmo controle no login e no cadastro: a proteção não depende do botão.
+function exigirConfirmacoes(body: Record<string, unknown>): void {
+  if (body.maiorDeIdade !== true || body.leuTermos !== true) {
+    throw new HttpError(
+      400,
+      "Confirme que tem 18 anos ou mais e que leu os Termos e a Política de Privacidade."
+    );
+  }
+}
+
 export async function register(req: Request, res: Response) {
   const body = objectBody(req.body);
-
-  if (body.maiorDeIdade !== true || body.leuTermos !== true) {
-    throw new HttpError(400, "Confirme que tem 18 anos ou mais e que leu os Termos e a Política de Privacidade.");
-  }
+  exigirConfirmacoes(body);
 
   const user = await createUser({
     name: text(body.name, "name", 2, 100),
@@ -43,6 +50,7 @@ export async function register(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   const body = objectBody(req.body);
+  exigirConfirmacoes(body);
 
   const result = await validateCredentials(
     emailValue(body.email),
@@ -74,8 +82,7 @@ export async function forgotPassword(
 
   // Resposta genérica, inclusive se o envio falhar.
   res.json({
-    message:
-      "Se o e-mail existir, um código de redefinição foi enviado.",
+    message: "Se o e-mail existir, um código de redefinição foi enviado.",
   });
 }
 

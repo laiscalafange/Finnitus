@@ -31,8 +31,23 @@ export type UpdateProfileData = {
   data_nasc: string;
 };
 
+function exigirAceite(aceite: boolean): void {
+  if (aceite !== true) {
+    throw new Error(
+      "Confirme que tem 18 anos ou mais e que leu os documentos legais antes de continuar."
+    );
+  }
+}
+
 export const authService = {
   register: async (data: RegisterData) => {
+    // Nunca envia cadastro sem as DUAS declarações.
+    if (data.maiorDeIdade !== true || data.leuTermos !== true) {
+      throw new Error(
+        "Confirme sua maioridade e a leitura dos Termos e da Política de Privacidade."
+      );
+    }
+
     const response = await api.post<{ user: User }>(
       "/auth/register",
       data
@@ -43,87 +58,80 @@ export const authService = {
 
   login: async (
     email: string,
-    password: string
+    password: string,
+    aceite = false
   ) => {
+    exigirAceite(aceite);
     const response = await api.post<Session>(
       "/auth/login",
       {
         email,
         password,
+        maiorDeIdade: aceite,
+        leuTermos: aceite,
+      }
+    );
+    return response.data;
+  },
+
+  google: async (idToken: string, aceite = false) => {
+    exigirAceite(aceite);
+    const response = await api.post<Session>(
+      "/auth/google",
+      {
+        idToken,
+        maiorDeIdade: aceite,
+        leuTermos: aceite,
       }
     );
 
     return response.data;
   },
 
-  google: async (idToken: string, leuTermos = false) => {
-    const response = await api.post<Session>(
-      "/auth/google",
-      { idToken, maiorDeIdade: leuTermos, leuTermos }
-    );
-
-    return response.data;
-  },
-
   me: async () => {
-    const response = await api.get<{ user: User }>(
-      "/me"
-    );
-
+    const response = await api.get<{ user: User }>("/me");
     return response.data.user;
   },
 
   update: async (data: UpdateProfileData) => {
-  const response = await api.patch<{ user: User }>(
-    "/me",
-    data
-  );
-
-  return response.data.user;
-},
+    const response = await api.patch<{ user: User }>(
+      "/me",
+      data
+    );
+    return response.data.user;
+  },
 
   forgot: async (email: string) => {
-    const response = await api.post<{
-      message: string;
-    }>("/auth/forgot-password", { email });
-
+    const response = await api.post<{ message: string }>(
+      "/auth/forgot-password",
+      { email }
+    );
     return response.data;
   },
 
-  verify: async (
-    email: string,
-    code: string
-  ) => {
-    const response = await api.post<{
-      resetToken: string;
-    }>("/auth/verify-code", {
-      email,
-      code,
-    });
-
+  verify: async (email: string, code: string) => {
+    const response = await api.post<{ resetToken: string }>(
+      "/auth/verify-code",
+      { email, code }
+    );
     return response.data;
   },
 
-  reset: async (
-    resetToken: string,
-    newPassword: string
-  ) => {
+  reset: async (resetToken: string, newPassword: string) => {
     return api.post("/auth/reset-password", {
       resetToken,
       newPassword,
     });
   },
 
-  
-deleteAccount: async (currentPassword: string) => {
-  await api.delete("/me", {
-    data: {
-      confirm: true,
-      currentPassword,
-    },
-  });
-},
-
+  deleteAccount: async (currentPassword: string) => {
+    await api.delete("/me", {
+      data: {
+        confirm: true,
+        currentPassword,
+      },
+    });
+  },
 
   logout: async () => {
     return api.post("/logout");

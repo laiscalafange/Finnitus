@@ -12,24 +12,42 @@ import { styles } from "../../styles/escolhaStyles";
 
 import { useAuth } from "../../features/authContext";
 import { googleIdToken } from "../../services/google";
-import { useAction } from "../../shared/hooks/useAction";
+import { useAuthAction } from "../../shared/hooks/useAuthAction";
 
-// Limite do aumento de fonte do sistema (evita o texto estourar a tela)
+// Mantido o mesmo limite de fonte do arquivo original.
 const LIMITE_FONTE = 1.1;
 
 export default function Escolha() {
   const roteador = useRouter();
 
   const { googleLogin } = useAuth();
-  const [aceiteGoogle, setAceiteGoogle] = useState(false);
-  const { busy, error, run } = useAction();
+  const [confirmouRequisitos, setConfirmouRequisitos] = useState(false);
+  const { busy, error, run, clearError } = useAuthAction();
+
+  function continuarEmail() {
+    void run(async () => {
+      if (!confirmouRequisitos) {
+        throw new Error(
+          "Confirme sua maioridade e a leitura dos documentos legais para continuar."
+        );
+      }
+      roteador.push("/cadastro");
+    });
+  }
 
   function entrarGoogle() {
     void run(async () => {
+      // Exige confirmação antes de iniciar a autenticação Google.
+      if (!confirmouRequisitos) {
+        throw new Error(
+          "Para criar conta pelo Google, confirme sua maioridade e a leitura dos documentos legais."
+        );
+      }
+
       const token = await googleIdToken();
 
       if (token) {
-        await googleLogin(token, aceiteGoogle);
+        await googleLogin(token, confirmouRequisitos);
       }
     });
   }
@@ -40,7 +58,7 @@ export default function Escolha() {
 
       <BotaoVoltarAuth absoluto />
 
-      {/* O texto rola se não couber; os botões ficam sempre livres embaixo */}
+      {/* Layout, tipografia e underline ORIGINAIS preservados. */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -65,25 +83,39 @@ export default function Escolha() {
         </Text>
       </ScrollView>
 
-      <View style={styles.conteiner}>
+      {/* Somente espaçamento interno reduzido. */}
+      <View
+        style={[
+          styles.conteiner,
+          { gap: 9, paddingTop: 8, paddingBottom: 14 },
+        ]}
+      >
         {error ? (
           <Text
             accessibilityRole="alert"
             style={{
               color: "#ffacb8",
-              marginBottom: 12,
+              marginBottom: 6,
             }}
           >
             {error}
           </Text>
         ) : null}
 
-        <AceiteCadastroGoogle aceito={aceiteGoogle} onChange={setAceiteGoogle} />
+        <AceiteCadastroGoogle
+          aceito={confirmouRequisitos}
+          onChange={(marcado) => {
+            setConfirmouRequisitos(marcado);
+            clearError();
+          }}
+          disabled={busy}
+        />
+
         <Button
           variante="primario"
           titulo="Email"
-          disabled={busy}
-          onPress={() => roteador.push("/cadastro")}
+          disabled={busy || !confirmouRequisitos}
+          onPress={continuarEmail}
           icone={
             <Image
               source={require("../../../assets/icones/email2.png")}
@@ -101,7 +133,7 @@ export default function Escolha() {
           variante="outline"
           titulo={busy ? "Aguarde..." : "Google"}
           onPress={entrarGoogle}
-          disabled={busy}
+          disabled={busy || !confirmouRequisitos}
           icone={
             <Image
               source={require("../../../assets/icones/google.png")}

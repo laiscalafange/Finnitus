@@ -25,7 +25,19 @@ function isUniqueConflict(error: unknown): boolean {
   );
 }
 
-export async function loginWithGoogle(idToken: string, aceiteAdultoTermos = false) {
+export async function loginWithGoogle(
+  idToken: string,
+  aceiteAdultoTermos = false
+) {
+  // Importante: verificar ANTES de buscar um usuário existente.
+  // Antes, contas Google já vinculadas entravam sem essa confirmação.
+  if (!aceiteAdultoTermos) {
+    throw new HttpError(
+      400,
+      "Confirme que tem 18 anos ou mais e que leu os documentos legais para continuar com Google."
+    );
+  }
+
   const identity = await verifyGoogleIdentity(idToken);
 
   // A identidade principal é o ID Google, não o e-mail.
@@ -38,12 +50,10 @@ export async function loginWithGoogle(idToken: string, aceiteAdultoTermos = fals
   if (linkedUser) {
     return {
       user: safeUser(linkedUser),
-
       token: generateToken(
         linkedUser.id_Usuario,
         linkedUser.tokenVersion,
       ),
-
       isNewUser: false,
     };
   }
@@ -71,21 +81,15 @@ export async function loginWithGoogle(idToken: string, aceiteAdultoTermos = fals
     );
   }
 
-  if (!aceiteAdultoTermos) {
-    throw new HttpError(400, "Antes de criar uma conta Google, confirme que tem 18 anos ou mais e que leu os documentos legais.");
-  }
-
   try {
     const user = await prisma.usuario.create({
       data: {
         googleId: identity.googleId,
         Unome: identity.name,
         Uemail: identity.email,
-
         Usenha: null,
         Utelefone: null,
         Udata_nasc: null,
-
         Udata_cadastro: new Date(),
         UTipo: "usuario",
       },
@@ -93,12 +97,10 @@ export async function loginWithGoogle(idToken: string, aceiteAdultoTermos = fals
 
     return {
       user: safeUser(user),
-
       token: generateToken(
         user.id_Usuario,
         user.tokenVersion,
       ),
-
       isNewUser: true,
     };
   } catch (error) {

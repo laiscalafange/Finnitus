@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 import {
@@ -16,7 +15,7 @@ import { Button } from "../../shared/components/Button";
 
 import { styles as cadastroStyles } from "../../styles/cadastroStyles";
 
-import { useAction } from "../../shared/hooks/useAction";
+import { useAuthAction } from "../../shared/hooks/useAuthAction";
 import { authService } from "../../services/auth";
 import { useAuth } from "../../features/authContext";
 
@@ -26,7 +25,7 @@ import {
   validatePassword,
 } from "../../shared/utils/formValidation";
 
-// Estilo dos ícones utilizados nos campos.
+// Mesmo tamanho dos ícones originais.
 const inputIconStyle = {
   width: 24,
   height: 24,
@@ -36,11 +35,8 @@ const inputIconStyle = {
 export default function Cadastro() {
   const router = useRouter();
   const { login } = useAuth();
+  const { busy, error, run, clearError } = useAuthAction();
 
-  // Controla o carregamento e as mensagens de erro.
-  const { busy, error, run } = useAction();
-
-  // Estados dos campos do formulário.
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -48,57 +44,43 @@ export default function Cadastro() {
   const [maiorDeIdade, setMaiorDeIdade] = useState(false);
   const [leuTermos, setLeuTermos] = useState(false);
 
-  // Executa o cadastro do usuário.
+  const podeCadastrar = maiorDeIdade && leuTermos && !busy;
+
   function cadastrar() {
     void run(async () => {
-      console.log("Iniciando cadastro...");
-
-      // Normaliza os dados informados.
       const normalized = normalizeEmail(email);
       const normalizedName = nome.trim();
 
-      // Valida o e-mail.
       if (!validEmail(normalized)) {
         throw new Error("Informe um e-mail válido.");
       }
 
-      // Valida o nome.
-      if (
-        normalizedName.length < 2 ||
-        normalizedName.length > 100
-      ) {
+      if (normalizedName.length < 2 || normalizedName.length > 100) {
+        throw new Error("Informe um nome entre 2 e 100 caracteres.");
+      }
+
+      validatePassword(senha, confirmarSenha);
+
+      // Verificação de segurança mantida mesmo com o botão desabilitado.
+      if (!maiorDeIdade || !leuTermos) {
         throw new Error(
-          "Informe um nome entre 2 e 100 caracteres."
+          "Confirme que tem 18 anos ou mais e que leu os Termos e a Política de Privacidade."
         );
       }
 
-      // Valida a senha e sua confirmação.
-      validatePassword(senha, confirmarSenha);
-      if (!maiorDeIdade || !leuTermos) {
-        throw new Error("Confirme que tem 18 anos ou mais e que leu os Termos e a Política de Privacidade.");
-      }
-
-      console.log("Validações concluídas. Enviando cadastro para a API...");
-
-      // Envia os dados para o backend cadastrar o usuário.
-      // 1. Cria a conta do usuário no banco de dados.
       await authService.register({
-       name: normalizedName,
+        name: normalizedName,
         email: normalized,
         password: senha,
-        maiorDeIdade: true,
-        leuTermos: true,
+        maiorDeIdade,
+        leuTermos,
       });
 
-      // 2. Realiza o login automaticamente.
-      // Essa função salva o token e atualiza o usuário no AuthContext.
-      await login(normalized, senha);
-
-      // 3. Depois que o usuário estiver autenticado,
-      // permite acessar a configuração financeira inicial.
+      // O login automático precisa apresentar os aceites à API também.
+      await login(normalized, senha, maiorDeIdade && leuTermos);
       router.replace("/configuracaoInicial/FinancialData");
-          });
-        }
+    });
+  }
 
   return (
     <AuthForm
@@ -119,32 +101,28 @@ export default function Cadastro() {
         </View>
       }
     >
-      {/* Campo de nome do usuário. */}
       <Input
         label="Nome"
         placeholder="Digite seu nome completo"
         value={nome}
-        onChangeText={setNome}
+        onChangeText={(valor) => { setNome(valor); clearError(); } }
         autoCapitalize="words"
         maxLength={100}
         editable={!busy}
         icone={
           <Image
             accessible={false}
-            source={require(
-              "../../../assets/icones/boneco.png"
-            )}
+            source={require("../../../assets/icones/boneco.png")}
             style={inputIconStyle}
           />
         }
       />
 
-      {/* Campo de e-mail. */}
       <Input
         label="E-mail"
         placeholder="Digite seu e-mail"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(valor) => { setEmail(valor); clearError(); } }
         keyboardType="email-address"
         autoComplete="email"
         editable={!busy}
@@ -156,13 +134,12 @@ export default function Cadastro() {
         }
       />
 
-      {/* Campo de senha. */}
       <Input
         label="Senha"
         placeholder="Digite sua senha"
         secureTextEntry
         value={senha}
-        onChangeText={setSenha}
+        onChangeText={(valor) => { setSenha(valor); clearError(); } }
         autoComplete="new-password"
         editable={!busy}
         icone={
@@ -173,62 +150,90 @@ export default function Cadastro() {
         }
       />
 
-      {/* Campo de confirmação da senha. */}
       <Input
         label="Confirme a senha"
         placeholder="Repita sua senha"
         secureTextEntry
         value={confirmarSenha}
-        onChangeText={setConfirmarSenha}
+        onChangeText={(valor) => { setConfirmarSenha(valor); clearError(); } }
         editable={!busy}
         icone={
           <Image
             accessible={false}
-            source={require(
-              "../../../assets/icones/senha.png"
-            )}
+            source={require("../../../assets/icones/senha.png")}
             style={inputIconStyle}
           />
         }
       />
 
-      {/* Botão para cadastrar. */}
-      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: maiorDeIdade }}
-        disabled={busy} onPress={() => setMaiorDeIdade(!maiorDeIdade)}
-        style={{ paddingVertical: 10 }}>
-        <Text style={{ color: '#FFFFFF', fontSize: 14 }}>
-          {maiorDeIdade ? '☑' : '☐'} Confirmo que tenho 18 anos ou mais.
-        </Text>
-      </Pressable>
-      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: leuTermos }}
-        disabled={busy} onPress={() => setLeuTermos(!leuTermos)}
-        style={{ paddingVertical: 10 }}>
-        <Text style={{ color: '#FFFFFF', fontSize: 14 }}>
-          {leuTermos ? '☑' : '☐'} Confirmo que li os documentos legais abaixo.
-        </Text>
-      </Pressable>
-      <Pressable accessibilityRole="link" onPress={() => router.push('/legal/termos-de-uso')}
-        style={{ paddingVertical: 8 }}>
-        <Text style={{ color: '#FFF081', textDecorationLine: 'underline' }}>Ler Termos de Uso</Text>
-      </Pressable>
-      <Pressable accessibilityRole="link" onPress={() => router.push('/legal/politica-de-privacidade')}
-        style={{ paddingVertical: 8 }}>
-        <Text style={{ color: '#FFF081', textDecorationLine: 'underline' }}>Ler Política de Privacidade</Text>
-      </Pressable>
-      <Button
-        titulo={busy ? "Cadastrando..." : "Cadastrar"}
-        variante="primario"
-        onPress={cadastrar}
-        disabled={busy}
-      />
+      {/* Os elementos legais ficam num único grupo, sem o espaçamento
+          que o AuthForm aplicava entre cada filho separadamente. */}
+      <View style={{ gap: 3 }}>
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: maiorDeIdade, disabled: busy }}
+          disabled={busy}
+          onPress={() => { setMaiorDeIdade(!maiorDeIdade); clearError(); }}
+          style={{ paddingVertical: 3 }}
+          hitSlop={6}
+        >
+          <Text style={{ color: "#FFFFFF", fontSize: 14 }}>
+            {maiorDeIdade ? "☑" : "☐"} Confirmo que tenho 18 anos ou mais.
+          </Text>
+        </Pressable>
 
-      {/* Botão para quem já possui uma conta. */}
-      <Button
-        titulo="Já tenho conta"
-        variante="primario"
-        onPress={() => router.replace("/login")}
-        disabled={busy}
-      />
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: leuTermos, disabled: busy }}
+          disabled={busy}
+          onPress={() => { setLeuTermos(!leuTermos); clearError(); }}
+          style={{ paddingVertical: 3 }}
+          hitSlop={6}
+        >
+          <Text style={{ color: "#FFFFFF", fontSize: 14 }}>
+            {leuTermos ? "☑" : "☐"} Confirmo que li os documentos legais abaixo.
+          </Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => router.push("/legal/termos-de-uso")}
+          style={{ paddingVertical: 3 }}
+          hitSlop={6}
+        >
+          <Text style={{ color: "#FFF081", textDecorationLine: "underline" }}>
+            Ler Termos de Uso
+          </Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="link"
+          onPress={() => router.push("/legal/politica-de-privacidade")}
+          style={{ paddingVertical: 3 }}
+          hitSlop={6}
+        >
+          <Text style={{ color: "#FFF081", textDecorationLine: "underline" }}>
+            Ler Política de Privacidade
+          </Text>
+        </Pressable>
+
+        {/* Mesmos botões e tamanhos; a distância entre eles é menor. */}
+        <View style={{ gap: 10, marginTop: 7 }}>
+          <Button
+            titulo={busy ? "Cadastrando..." : "Cadastrar"}
+            variante="primario"
+            onPress={cadastrar}
+            disabled={!podeCadastrar}
+          />
+
+          <Button
+            titulo="Já tenho conta"
+            variante="primario"
+            onPress={() => router.replace("/login")}
+            disabled={busy}
+          />
+        </View>
+      </View>
     </AuthForm>
   );
 }
