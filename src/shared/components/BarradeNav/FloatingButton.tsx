@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, View, Image, Modal, Pressable } from 'react-nat
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import MaskedView from '@react-native-masked-view/masked-view'
 import Svg, { Defs, Mask, Rect, Circle } from 'react-native-svg'
-import { ArrowDown, ArrowUp } from 'lucide-react-native'
+import { ArrowDown, ArrowUp, User } from 'lucide-react-native'
 
 import { Cores } from '../../constants/Cores'
 import { getStyles } from './FloatingButtonStyles'
@@ -43,8 +43,11 @@ const ABAS = [
     icone: require("../../../../assets/icones/B.png"),
   },
   {
-    chave: 'maisOpcoes',
-    icone: '⋮',
+    // Atalho para a tela de Perfil (antes eram os 3 pontinhos).
+    // O desenho é o ícone User do lucide, preenchido (ver mais abaixo),
+    // por isso aqui o "icone" é só um marcador.
+    chave: 'perfil',
+    icone: 'perfil',
   },
 ]
 
@@ -262,27 +265,22 @@ export function FloatingButton({
               activeOpacity={0.7}
             >
 
-              {aba.chave === 'maisOpcoes' ? (
+              {aba.chave === 'perfil' ? (
 
-                // Os três pontinhos são desenhados com Views (e não com o
-                // caractere ⋮) para ficarem na mesma altura dos outros ícones
+                // Silhueta preenchida e simétrica (mesmo peso dos outros
+                // ícones). A cor muda no Svg; a transparência fica no wrapper
                 <View
                   style={[
-                    styles.maisOpcoes,
-                    abaAtiva === aba.chave &&
-                      styles.maisOpcoesAtivo,
+                    styles.perfilIcone,
+                    abaAtiva === aba.chave && styles.perfilIconeAtivo,
                   ]}
                 >
-                  {[0, 1, 2].map((ponto) => (
-                    <View
-                      key={ponto}
-                      style={[
-                        styles.maisOpcoesPonto,
-                        abaAtiva === aba.chave &&
-                          styles.maisOpcoesPontoAtivo,
-                      ]}
-                    />
-                  ))}
+                  <User
+                    size={27}
+                    strokeWidth={2}
+                    color={abaAtiva === aba.chave ? Cores.destaque.limao : '#7E3BED'}
+                    fill={abaAtiva === aba.chave ? Cores.destaque.limao : '#7E3BED'}
+                  />
                 </View>
 
               ) : (

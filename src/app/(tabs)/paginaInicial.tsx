@@ -572,13 +572,7 @@ export default function PaginaInicial() {
 
           {/* ECONOMIA MENSAL */}
 
-          <CardEconomia
-
-            dados={economia}
-
-            onPress={() => router.push('/metas')}
-
-          />
+          <CardEconomia dados={economia} />
 
         </View>
 
