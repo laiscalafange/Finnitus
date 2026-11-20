@@ -38,7 +38,7 @@ export default function TrocarSenhaCodigo() {
   const [remaining, setRemaining] = useState(60);
   const [attempt, setAttempt] = useState(0);
 
-  const { busy, error, run, setError } = useAction();
+  const { busy, error, run, clearError } = useAction();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -96,7 +96,7 @@ export default function TrocarSenhaCodigo() {
             erro={Boolean(error)}
             onCodigoCompleto={(value) => {
               setCodigo(value);
-              setError("");
+              clearError();
             }}
           />
 
@@ -131,7 +131,7 @@ export default function TrocarSenhaCodigo() {
             </Text>
 
             <Button
-              titulo="Usar outro e-mail"
+              titulo="Voltar"
               variante="outline"
               disabled={busy}
               onPress={() => router.replace("/conta/trocarSenhaEmail")}

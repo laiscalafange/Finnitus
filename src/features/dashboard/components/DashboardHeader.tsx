@@ -2,7 +2,8 @@ import { Cores } from '@/shared/constants/Cores';
 import { useFocusEffect } from "expo-router";
 import { ChevronDown } from 'lucide-react-native';
 import { useCallback, useState } from "react";
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
+import { Text } from '@/shared/components/Texto';
 import { styles } from './DashboardHeaderStyles';
 
 import { api } from "../../../services/api";

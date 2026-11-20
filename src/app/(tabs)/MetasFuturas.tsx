@@ -1,12 +1,12 @@
 
 import { useCallback, useState } from "react";
 import {
-  Text,
   View,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { LinearGradient } from "expo-linear-gradient";
 import {

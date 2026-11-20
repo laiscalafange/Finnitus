@@ -1,10 +1,10 @@
 
 import {
   View,
-  Text,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { useRouter } from "expo-router";
 

@@ -2,16 +2,18 @@
 import { useState } from "react";
 import {
 View,
-Text,
 ScrollView,
 KeyboardAvoidingView,
 Platform,
 Switch,
 Alert,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { useRouter } from "expo-router";
 import { errorMessage } from "@/services/api";
+import { useAuth } from "@/features/authContext";
+import { useConfiguracoes } from "@/features/configuracoesContext";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
@@ -90,6 +92,8 @@ return resultado;
 
 export default function NovoEvento() {
 const router = useRouter();
+const { user } = useAuth();
+const { configuracoes } = useConfiguracoes();
 
 const [nome, setNome] = useState("");
 const [descricao, setDescricao] = useState("");
@@ -160,10 +164,12 @@ async function criar() {
   // Eventos com horário duram uma hora por padrão.
   // Eventos de dia inteiro terminam no início
   // do dia seguinte.
-  const dataFim = new Date(
-    dataInicio.getTime() +
-      (diaInteiro ? 24 : 1) * 60 * 60 * 1000
-  );
+  const dataFim = new Date(dataInicio);
+  if (diaInteiro) {
+    dataFim.setDate(dataFim.getDate() + 1);
+  } else {
+    dataFim.setTime(dataInicio.getTime() + 60 * 60 * 1000);
+  }
 
   setSalvando(true);
 
@@ -181,25 +187,24 @@ async function criar() {
 
     // 2. Agenda uma notificação no dispositivo.
     // Uma falha no alerta não desfaz o cadastro.
-    try {
-      await agendarLembreteEvento({
-        eventoId: evento.id_Evento,
-        nome: nome.trim(),
-        dataInicio,
-        diaInteiro,
-      });
-    } catch (erroNotificacao) {
-      console.warn(
-        "Evento salvo, mas o lembrete não foi agendado:",
-        erroNotificacao
-      );
+    if (user && configuracoes?.calendario) {
+      try {
+        await agendarLembreteEvento({
+          usuarioId: user.id,
+          eventoId: evento.id_Evento,
+          nome: nome.trim(),
+          dataInicio,
+          diaInteiro,
+          financeiro: valorNumerico !== undefined,
+        });
+      } catch {
+        console.warn("Evento salvo, mas o lembrete não foi agendado.");
+      }
     }
 
     // 3. Volta ao calendário.
     router.dismissTo("/calendario");
-  } catch (error: any) {
-    console.error("Erro ao cadastrar evento:", error);
-
+  } catch (error) {
     const mensagem = errorMessage(error);
 
     setErro(mensagem);
@@ -316,16 +321,17 @@ return (
             />
           )}
 
-          <Text
-            style={{
-              color: "#BDA1E9",
-              fontSize: 13,
-              marginVertical: 12,
-            }}
-          >
-            O Finnitus tentará enviar um lembrete
-            antes do evento.
-          </Text>
+          {configuracoes?.calendario ? (
+            <Text
+              style={{
+                color: "#BDA1E9",
+                fontSize: 13,
+                marginVertical: 12,
+              }}
+            >
+              O Finnitus tentará enviar um lembrete antes do evento.
+            </Text>
+          ) : null}
 
           {erro ? (
             <Text

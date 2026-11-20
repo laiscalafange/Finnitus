@@ -5,6 +5,7 @@ import type {
 } from "express";
 
 import { verifyAccessToken } from "../services/token.service.js";
+import { verificarSessao } from "../services/sessao.service.js";
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../utils/errors.js";
 
@@ -12,6 +13,8 @@ declare global {
   namespace Express {
     interface Request {
       userId?: number;
+      tokenVersion?: number;
+      sessaoId?: string;
     }
   }
 }
@@ -50,7 +53,14 @@ export async function authMiddleware(
     );
   }
 
+  const sessaoId = await verificarSessao(match[1], payload, req.get("user-agent"));
+  if (!sessaoId) {
+    throw new HttpError(401, "Sessão encerrada. Faça login novamente.");
+  }
+
   req.userId = payload.userId;
+  req.tokenVersion = payload.tokenVersion;
+  req.sessaoId = sessaoId;
 
   next();
 }

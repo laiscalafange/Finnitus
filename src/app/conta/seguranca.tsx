@@ -1,19 +1,18 @@
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   View,
-  Text,
   ScrollView,
   Switch,
   TouchableOpacity,
 } from "react-native";
+import { Text } from "../../shared/components/Texto";
 
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 import {
   Smartphone,
-  Laptop,
   LockKeyhole,
   ShieldCheck,
   MonitorSmartphone,
@@ -25,6 +24,14 @@ import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
 import { ModalConfirmarAcao } from "../../shared/components/Modal/ModalConfirmarAcao";
+import { ModalCodigoSeguranca } from "../../shared/components/Modal/ModalCodigoSeguranca";
+import { useAuth } from "../../features/authContext";
+import { useAuthAction } from "../../shared/hooks/useAuthAction";
+import {
+  segurancaService,
+  type EstadoDuasEtapas,
+  type SessaoUsuario,
+} from "../../services/seguranca";
 
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/seguranca";
@@ -34,29 +41,54 @@ const GRADIENTE_CARD: [string, string] = [
   "rgba(33, 18, 53, 0.94)",
 ];
 
-// Dados ilustrativos do protótipo.
-// Ainda não existe integração com sessões do backend.
-const DISPOSITIVOS = [
-  {
-    id: "1",
-    nome: "iPhone 14 Pro",
-    local: "São Paulo, BR · Agora",
-    icon: Smartphone,
-    esteAparelho: true,
-  },
-  {
-    id: "2",
-    nome: "MacBook Pro",
-    local: "São Paulo, BR · Há 2 horas",
-    icon: Laptop,
-    esteAparelho: false,
-  },
-] as const;
+const formatoDataSessao = new Intl.DateTimeFormat("pt-BR", {
+  dateStyle: "short",
+  timeStyle: "short",
+});
 
 export default function Seguranca() {
   const router = useRouter();
+  const { confirmarAlteracao2FA } = useAuth();
+  const [duasEtapas, setDuasEtapas] = useState<EstadoDuasEtapas | null>(null);
+  const [dispositivos, setDispositivos] = useState<SessaoUsuario[] | null>(null);
+  const [desafio, setDesafio] = useState<{ challengeId: string; ativar: boolean } | null>(null);
+  const { busy, error, run } = useAuthAction();
 
-  const [duasEtapas, setDuasEtapas] = useState(false);
+  const carregar = useCallback(async () => {
+    const [configuracao, sessoes] = await Promise.all([
+      segurancaService.verDuasEtapas(),
+      segurancaService.listarSessoes(),
+    ]);
+    setDuasEtapas(configuracao);
+    setDispositivos(sessoes);
+  }, []);
+
+  useFocusEffect(useCallback(() => {
+    void run(carregar);
+  }, [carregar, run]));
+
+  function solicitarDuasEtapas(ativar: boolean) {
+    void run(async () => {
+      const { challengeId } = await segurancaService.solicitarAlteracao(ativar);
+      setDesafio({ challengeId, ativar });
+    });
+  }
+
+  async function confirmarDuasEtapas(codigo: string) {
+    if (!desafio) return;
+    const ativa = await confirmarAlteracao2FA(desafio.ativar, desafio.challengeId, codigo);
+    setDuasEtapas((atual) => atual && { ...atual, ativa });
+    setDispositivos(null);
+    setDesafio(null);
+    void run(carregar);
+  }
+
+  function desconectar(id: string) {
+    void run(async () => {
+      await segurancaService.desconectarSessao(id);
+      setDispositivos((sessoes) => sessoes?.filter((sessao) => sessao.id !== id) ?? null);
+    });
+  }
 
   const [
     modalExcluirVisivel,
@@ -74,6 +106,18 @@ export default function Seguranca() {
         <HeaderInterno titulo="Segurança" />
 
         <View style={styles.lista}>
+          {error ? (
+            <TouchableOpacity
+              accessibilityRole="button"
+              disabled={busy}
+              style={styles.botao}
+              onPress={() => void run(carregar)}
+            >
+              <Text style={[styles.descricaoCard, styles.textosCabecalho]} accessibilityRole="alert">
+                {error} Toque para atualizar.
+              </Text>
+            </TouchableOpacity>
+          ) : null}
           {/* ALTERAR SENHA */}
           <Card
             gradiente={GRADIENTE_CARD}
@@ -135,13 +179,19 @@ export default function Seguranca() {
                 </Text>
 
                 <Text style={styles.descricaoCard}>
-                  Adiciona uma camada extra de segurança.
+                  {duasEtapas?.disponivel
+                    ? "Receba um código por e-mail ao entrar."
+                    : duasEtapas
+                      ? "O envio de códigos está indisponível."
+                      : busy ? "Carregando…" : "Status indisponível."}
                 </Text>
               </View>
 
               <Switch
-                value={duasEtapas}
-                onValueChange={setDuasEtapas}
+                accessibilityLabel="Autenticação em duas etapas"
+                value={duasEtapas?.ativa ?? false}
+                disabled={busy || !duasEtapas?.disponivel}
+                onValueChange={solicitarDuasEtapas}
                 trackColor={{
                   false: "rgba(163, 87, 255, 0.25)",
                   true: Cores.destaque.limao,
@@ -169,14 +219,18 @@ export default function Seguranca() {
               </Text>
             </View>
 
-            {DISPOSITIVOS.map(
+            {!dispositivos?.length && (
+              <Text style={styles.descricaoCard}>
+                {dispositivos ? "Nenhuma sessão ativa." : busy ? "Carregando…" : "Sessões indisponíveis."}
+              </Text>
+            )}
+            {dispositivos?.map(
               (
                 {
                   id,
-                  nome,
-                  local,
-                  icon: Icone,
-                  esteAparelho,
+                  dispositivo,
+                  criadaEm,
+                  atual,
                 },
                 index
               ) => (
@@ -184,12 +238,12 @@ export default function Seguranca() {
                   key={id}
                   style={[
                     styles.dispositivo,
-                    index !== DISPOSITIVOS.length - 1 &&
+                    index !== dispositivos.length - 1 &&
                       styles.dispositivoDivisor,
                   ]}
                 >
                   <View style={styles.iconeDispositivo}>
-                    <Icone
+                    <Smartphone
                       size={19}
                       color={Cores.destaque.limao}
                     />
@@ -198,27 +252,33 @@ export default function Seguranca() {
                   <View style={styles.dispositivoTextos}>
                     <View style={styles.dispositivoNomeLinha}>
                       <Text style={styles.dispositivoNome}>
-                        {nome}
+                        {dispositivo}
                       </Text>
 
-                      {esteAparelho && (
+                      {atual && (
                         <View style={styles.selo}>
                           <Text style={styles.seloTexto}>
-                            Este
+                            Este aparelho
                           </Text>
                         </View>
                       )}
                     </View>
 
                     <Text style={styles.dispositivoLocal}>
-                      {local}
+                      Acesso iniciado em {formatoDataSessao.format(new Date(criadaEm))}
                     </Text>
                   </View>
 
-                  {!esteAparelho && (
-                    <Text style={styles.desconectar}>
-                      Desconectar
-                    </Text>
+                  {!atual && (
+                    <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={`Desconectar ${dispositivo}`}
+                      disabled={busy}
+                      hitSlop={8}
+                      onPress={() => desconectar(id)}
+                    >
+                      <Text style={styles.desconectar}>Desconectar</Text>
+                    </TouchableOpacity>
                   )}
                 </View>
               )
@@ -257,6 +317,16 @@ export default function Seguranca() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {desafio && (
+        <ModalCodigoSeguranca
+          key={desafio.challengeId}
+          titulo={desafio.ativar ? "Ativar verificação em duas etapas" : "Desativar verificação em duas etapas"}
+          instrucao="Digite o código recebido por e-mail. Ao confirmar, as outras sessões serão encerradas."
+          onConfirmar={confirmarDuasEtapas}
+          onCancelar={() => setDesafio(null)}
+        />
+      )}
 
       <ModalConfirmarAcao
         visible={modalExcluirVisivel}

@@ -24,7 +24,11 @@ function dataObrigatoria(valor: unknown, nome: string): Date {
     throw new HttpError(400, `${nome} deve ser uma data ISO com horário.`);
   }
   const data = new Date(valor);
-  if (Number.isNaN(data.getTime())) throw new HttpError(400, `${nome} inválida.`);
+  const dia = new Date(valor.slice(0, 10));
+  if (Number.isNaN(data.getTime()) || Number.isNaN(dia.getTime()) ||
+    dia.toISOString().slice(0, 10) !== valor.slice(0, 10)) {
+    throw new HttpError(400, `${nome} inválida.`);
+  }
   return data;
 }
 

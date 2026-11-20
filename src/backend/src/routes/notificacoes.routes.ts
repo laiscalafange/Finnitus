@@ -1,5 +1,6 @@
 import { Router, type Request, type RequestHandler, type Response } from "express";
 import type { PrismaClient } from "../../generated/prisma/client.js";
+import { registrarAvisosPeriodicos } from "../services/notificacoes.periodicas.js";
 
 type Dependencias = {
   prisma: PrismaClient;
@@ -68,13 +69,24 @@ export function criarRotasNotificacoes({ prisma, autenticar }: Dependencias) {
       ? Math.min(10000, Math.max(1, paginaInformada))
       : 1;
     const apenasNaoLidas = req.query.apenasNaoLidas === "true";
+    const categorias = {
+      contas: ["RECEITA", "DESPESA"],
+      metas: ["META"],
+      eventos: ["EVENTO"],
+    };
+    const categoria = req.query.categoria;
+    const tiposRelacionados = categoria === "contas" || categoria === "metas" || categoria === "eventos"
+      ? categorias[categoria]
+      : undefined;
 
     const where = {
       id_Usuario: idUsuario,
       ...(apenasNaoLidas ? { lida: false } : {}),
+      ...(tiposRelacionados ? { relacionadoTipo: { in: tiposRelacionados } } : {}),
     };
 
     try {
+      if (pagina === 1) await registrarAvisosPeriodicos(prisma, idUsuario);
       const [notificacoes, totalNaoLidas, total] = await Promise.all([
         notificacao.findMany({
           where,

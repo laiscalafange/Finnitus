@@ -1,7 +1,7 @@
 import {
-  Text,
   View,
 } from 'react-native'
+import { Text } from '@/shared/components/Texto'
 
 import {
   Cake,

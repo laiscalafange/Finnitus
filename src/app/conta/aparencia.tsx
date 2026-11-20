@@ -3,7 +3,6 @@ import { useState } from "react";
 
 import {
   View,
-  Text,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
@@ -17,17 +16,18 @@ import {
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
+import { EstadoConfiguracoes } from "@/shared/components/EstadoConfiguracoes";
+import { Text } from "@/shared/components/Texto";
+import { useConfiguracoes, type TamanhoTexto } from "@/features/configuracoesContext";
 
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/aparencia";
 
-const TAMANHOS_TEXTO = [
-  "Pequeno",
-  "Médio",
-  "Grande",
-] as const;
-
-type TamanhoTexto = (typeof TAMANHOS_TEXTO)[number];
+const TAMANHOS_TEXTO: Record<TamanhoTexto, string> = {
+  PEQUENO: "Pequeno",
+  MEDIO: "Médio",
+  GRANDE: "Grande",
+};
 
 const GRADIENTE_CARD: [string, string] = [
   "rgba(44, 27, 67, 0.94)",
@@ -35,15 +35,15 @@ const GRADIENTE_CARD: [string, string] = [
 ];
 
 export default function Aparencia() {
-  const [tamanhoTexto, setTamanhoTexto] =
-    useState<TamanhoTexto>("Médio");
-
+  const { configuracoes, carregando, salvando, atualizar } = useConfiguracoes();
+  const tamanhoTexto = configuracoes?.tamanhoTexto;
+  const bloqueado = !configuracoes || carregando || salvando;
   const [seletorAberto, setSeletorAberto] =
     useState(false);
 
   function selecionarTamanho(opcao: TamanhoTexto) {
-    setTamanhoTexto(opcao);
     setSeletorAberto(false);
+    if (opcao !== tamanhoTexto) void atualizar({ tamanhoTexto: opcao });
   }
 
   return (
@@ -57,6 +57,7 @@ export default function Aparencia() {
         <HeaderInterno titulo="Aparência" />
 
         <View style={styles.lista}>
+          <EstadoConfiguracoes />
           <Card
             gradiente={GRADIENTE_CARD}
             style={styles.card}
@@ -87,16 +88,18 @@ export default function Aparencia() {
                 seletorAberto && styles.seletorAberto,
               ]}
               activeOpacity={0.8}
+              disabled={bloqueado}
               onPress={() =>
                 setSeletorAberto(!seletorAberto)
               }
               accessibilityRole="button"
               accessibilityState={{
                 expanded: seletorAberto,
+                disabled: bloqueado,
               }}
             >
               <Text style={styles.valorSelecionado}>
-                {tamanhoTexto}
+                {tamanhoTexto ? TAMANHOS_TEXTO[tamanhoTexto] : "—"}
               </Text>
 
               <ChevronDown
@@ -117,7 +120,7 @@ export default function Aparencia() {
             {/* OPÇÕES */}
             {seletorAberto && (
               <View style={styles.opcoesContainer}>
-                {TAMANHOS_TEXTO.map((opcao) => (
+                {(Object.keys(TAMANHOS_TEXTO) as TamanhoTexto[]).map((opcao) => (
                   <TouchableOpacity
                     key={opcao}
                     style={[
@@ -126,6 +129,7 @@ export default function Aparencia() {
                         styles.opcaoAtiva,
                     ]}
                     activeOpacity={0.8}
+                    disabled={bloqueado}
                     onPress={() =>
                       selecionarTamanho(opcao)
                     }
@@ -137,7 +141,7 @@ export default function Aparencia() {
                           styles.textoOpcaoAtiva,
                       ]}
                     >
-                      {opcao}
+                      {TAMANHOS_TEXTO[opcao]}
                     </Text>
 
                     {tamanhoTexto === opcao && (

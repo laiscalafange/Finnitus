@@ -1,7 +1,9 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 import Svg, { Circle } from 'react-native-svg'
 import { ChevronRight } from 'lucide-react-native'
 import { Cores } from '@/shared/constants/Cores'
+import { Text } from '@/shared/components/Texto'
+import { useExibirValores } from '@/features/configuracoesContext'
 import { EconomiaResumo } from '../../types'
 import { styles } from './styles'
 
@@ -24,6 +26,7 @@ const CIRCUNFERENCIA = 2 * Math.PI * RAIO
 
 // Card "Economia mensal": quanto foi guardado nas metas no mês selecionado
 export function CardEconomia({ dados, onPress }: Props) {
+  const exibir = useExibirValores()
   const percentual = Math.min(100, Math.max(0, dados?.percentual ?? 0))
 
   return (
@@ -58,12 +61,12 @@ export function CardEconomia({ dados, onPress }: Props) {
         <View style={styles.textos}>
           <Text style={styles.rotulo}>Você economizou</Text>
           <View style={styles.valorLinha}>
-            <Text style={styles.valor}>{moeda(dados?.economizado ?? 0)}</Text>
+            <Text style={styles.valor}>{exibir(moeda(dados?.economizado ?? 0))}</Text>
             <Text style={styles.valorSufixo}>este mês</Text>
           </View>
           <Text style={styles.mensagem}>
             {dados?.metaMensal !== undefined
-              ? `Sua meta é economizar ${moeda(dados.metaMensal)} por mês.`
+              ? `Sua meta é economizar ${exibir(moeda(dados.metaMensal))} por mês.`
               : 'Mesmo um pequeno esforço já faz uma grande diferença no futuro!'}
           </Text>
         </View>

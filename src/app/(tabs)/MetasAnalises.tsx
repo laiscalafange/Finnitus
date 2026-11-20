@@ -2,10 +2,10 @@
 import { useMemo } from "react";
 import {
   ScrollView,
-  Text,
   View,
   useWindowDimensions,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { Lightbulb, Wallet } from "lucide-react-native";
 import {
@@ -24,6 +24,7 @@ import { FONTS } from "../../shared/constants/Tipografia";
 
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
 import { formatarMoeda } from "@/features/menuMais/utils";
+import { useExibirValores, useMoedaVisivel } from "@/features/configuracoesContext";
 import { useFinanceiro } from "@/features/financeiroContext";
 import {
   habitoGuardar,
@@ -70,6 +71,8 @@ function valorCompacto(valor: number): string {
 }
 
 export default function MetasAnalises() {
+  const exibir = useExibirValores();
+  const moedaVisivel = useMoedaVisivel();
   const { width: larguraTela } = useWindowDimensions();
   const { metas } = useFinanceiro();
 
@@ -197,7 +200,7 @@ export default function MetasAnalises() {
               adjustsFontSizeToFit
               numberOfLines={1}
             >
-              {formatarMoeda(totalGuardado)}
+              {moedaVisivel(totalGuardado)}
             </Text>
 
             <Text style={styles.descricaoTotal}>
@@ -316,12 +319,12 @@ export default function MetasAnalises() {
 
                     <View style={styles.linhaValoresMeta}>
                       <Text style={styles.valorGuardado}>
-                        {moedaSegura(meta.valorAtual)}
+                        {exibir(moedaSegura(meta.valorAtual))}
                       </Text>
 
                       <Text style={styles.valorObjetivo}>
                         {meta.valorObjetivo !== null
-                          ? `de ${moedaSegura(meta.valorObjetivo)}`
+                          ? `de ${exibir(moedaSegura(meta.valorObjetivo))}`
                           : "Objetivo indisponível"}
                       </Text>
                     </View>
@@ -409,7 +412,7 @@ export default function MetasAnalises() {
                       }}
                       labels={({ datum }) =>
                         datum.y > 0
-                          ? valorCompacto(datum.y)
+                          ? exibir(valorCompacto(datum.y))
                           : ""
                       }
                       labelComponent={
@@ -444,7 +447,7 @@ export default function MetasAnalises() {
                   </Text>
 
                   <Text style={styles.valorHabito}>
-                    {formatarMoeda(totalPeriodo)}
+                    {moedaVisivel(totalPeriodo)}
                   </Text>
                 </View>
 
@@ -467,7 +470,7 @@ export default function MetasAnalises() {
                         adjustsFontSizeToFit
                         numberOfLines={1}
                       >
-                        {formatarMoeda(item.valor)}
+                        {moedaVisivel(item.valor)}
                       </Text>
                     </View>
                   ))}

@@ -1,9 +1,6 @@
 
-import { useState } from "react";
-
 import {
   View,
-  Text,
   ScrollView,
   Switch,
 } from "react-native";
@@ -20,6 +17,9 @@ import {
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Card } from "../../shared/components/Cards";
+import { EstadoConfiguracoes } from "@/shared/components/EstadoConfiguracoes";
+import { Text } from "@/shared/components/Texto";
+import { useConfiguracoes } from "@/features/configuracoesContext";
 
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/alertasNotificacoes";
@@ -63,31 +63,13 @@ const ALERTAS = [
   },
 ] as const;
 
-type AlertaId = (typeof ALERTAS)[number]["id"];
-
 const GRADIENTE_CARD: [string, string] = [
   "rgba(44, 27, 67, 0.81)",
   "rgba(33, 18, 53, 0.83)",
 ];
 
 export default function AlertasNotificacoes() {
-  const [alertas, setAlertas] = useState<
-    Record<AlertaId, boolean>
-  >({
-    vencimento: true,
-    gastos: true,
-    calendario: true,
-    planoB: true,
-    resumo: true,
-    metas: true,
-  });
-
-  function alternar(id: AlertaId) {
-    setAlertas((atual) => ({
-      ...atual,
-      [id]: !atual[id],
-    }));
-  }
+  const { configuracoes, carregando, salvando, atualizar } = useConfiguracoes();
 
   return (
     <View style={styles.container}>
@@ -100,6 +82,7 @@ export default function AlertasNotificacoes() {
         <HeaderInterno titulo="Alertas e notificações" />
 
         <View style={styles.lista}>
+          <EstadoConfiguracoes />
           <Card
             gradiente={GRADIENTE_CARD}
             style={styles.card}
@@ -132,8 +115,10 @@ export default function AlertasNotificacoes() {
                   </View>
 
                   <Switch
-                    value={alertas[id]}
-                    onValueChange={() => alternar(id)}
+                    accessibilityLabel={label}
+                    disabled={!configuracoes || carregando || salvando}
+                    value={configuracoes?.[id] === true}
+                    onValueChange={(value) => void atualizar({ [id]: value })}
                     trackColor={{
                       false: "rgba(163, 87, 255, 0.25)",
                       true: Cores.destaque.limao,

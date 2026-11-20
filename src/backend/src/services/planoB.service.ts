@@ -1,3 +1,4 @@
+import { registrarNotificacao } from "./notificacoes.service.js";
 
 
 import { prisma } from "../lib/prisma.js";
@@ -677,7 +678,8 @@ if (!respostaEstruturada) {
   // 9. SALVAR O IMPREVISTO
 
 
-  const imprevistoSalvo = await prisma.imprevisto.create({
+  const imprevistoSalvo = await prisma.$transaction(async tx => {
+    const imprevistoSalvo = await tx.imprevisto.create({
     data: {
       id_Usuario,
       Inome: imprevisto.Inome,
@@ -689,6 +691,15 @@ if (!respostaEstruturada) {
         imprevisto.solucao_escolhida ?? null,
       Idescricao: imprevisto.Idescricao ?? null,
     },
+    });
+    await registrarNotificacao(tx, {
+      idUsuario: id_Usuario,
+      tipo: "PLANO_B",
+      titulo: "Análise do Plano B disponível",
+      mensagem: `Confira as alternativas para ${imprevistoSalvo.Inome} no Plano B.`,
+      chaveEvento: `plano-b:${imprevistoSalvo.id_Imprevisto}`,
+    });
+    return imprevistoSalvo;
   });
 
 
@@ -707,6 +718,3 @@ if (!respostaEstruturada) {
   analiseEstruturada: true,
 };
 }
-
-
-

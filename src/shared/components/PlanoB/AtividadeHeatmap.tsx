@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '@/shared/components/Texto'
 import { LinearGradient } from 'expo-linear-gradient'
 
 import { NIVEIS_ATIVIDADE } from '../../../features/sumarioData'

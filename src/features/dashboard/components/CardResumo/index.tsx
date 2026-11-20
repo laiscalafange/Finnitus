@@ -1,6 +1,8 @@
-import { Text, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react-native'
 import { Cores } from '@/shared/constants/Cores'
+import { Text } from '@/shared/components/Texto'
+import { useExibirValores } from '@/features/configuracoesContext'
 import { styles } from './styles'
 
 type Props = {
@@ -17,6 +19,7 @@ const moeda = (valor?: number) =>
 
 // Receitas e Despesas lado a lado (ficam dentro do header roxo da Home)
 export function CardResumo({ receitas, despesas, onPressReceitas, onPressDespesas }: Props) {
+  const exibir = useExibirValores()
   return (
     <View style={styles.linha}>
       <TouchableOpacity
@@ -36,7 +39,7 @@ export function CardResumo({ receitas, despesas, onPressReceitas, onPressDespesa
             {onPressReceitas && <ChevronRight size={16} color={Cores.texto.claro} />}
           </View>
           <Text style={[styles.valor, styles.valorReceita]} numberOfLines={1} adjustsFontSizeToFit>
-            {moeda(receitas)}
+            {exibir(moeda(receitas))}
           </Text>
         </View>
       </TouchableOpacity>
@@ -58,7 +61,7 @@ export function CardResumo({ receitas, despesas, onPressReceitas, onPressDespesa
             {onPressDespesas && <ChevronRight size={16} color={Cores.texto.claro} />}
           </View>
           <Text style={[styles.valor, styles.valorDespesa]} numberOfLines={1} adjustsFontSizeToFit>
-            {moeda(despesas)}
+            {exibir(moeda(despesas))}
           </Text>
         </View>
       </TouchableOpacity>

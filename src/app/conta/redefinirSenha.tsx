@@ -7,10 +7,7 @@ import {
   Platform,
 } from "react-native";
 
-import {
-  Redirect,
-  useRouter,
-} from "expo-router";
+import { Redirect } from "expo-router";
 
 
 import { HeaderInterno } from "../../shared/components/Header";
@@ -25,33 +22,29 @@ import { validatePassword } from "../../shared/utils/formValidation";
 
 import { styles } from "../../styles/redefinirSenha";
 
-// 3ª e última etapa de "Trocar senha": define a nova senha usando o
-// token de reset ganho na etapa do código. Ao terminar, volta pra
-// Segurança — a sessão atual continua logada, não precisa passar
-// pelo login de novo.
 export default function RedefinirSenha() {
-  const router = useRouter();
-
-  const { resetToken, clearRecovery } = useAuth();
+  const { resetToken, clearSession, senhaRedefinida } = useAuth();
 
   const [senha, setSenha] = useState("");
   const [confirmacao, setConfirmacao] = useState("");
 
   const { busy, error, run } = useAction();
 
+  if (senhaRedefinida) {
+    return null;
+  }
+
   if (!resetToken) {
     return <Redirect href="/conta/trocarSenhaEmail" />;
   }
 
+  const token = resetToken;
   function salvar() {
     void run(async () => {
       validatePassword(senha, confirmacao);
 
-      await authService.reset(resetToken as string, senha);
-
-      clearRecovery();
-
-      router.dismissTo("/conta/seguranca");
+      await authService.reset(token, senha);
+      await clearSession({ senhaRedefinida: true });
     });
   }
 

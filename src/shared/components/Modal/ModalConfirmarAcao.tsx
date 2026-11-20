@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useRouter } from "expo-router";
 
 import {
   Modal,
@@ -34,8 +35,8 @@ const ACOES = {
   excluir: {
     pergunta: "Você tem certeza que deseja excluir sua conta?",
     descricao:
-      "Todos os seus dados serão apagados permanentemente. Essa ação não pode ser desfeita.",
-    confirmar: "Confirmar exclusão",
+      "Na próxima tela, confirme a exclusão com sua senha. Todos os seus dados serão apagados permanentemente.",
+    confirmar: "Continuar para exclusão",
     icone: Trash2,
     variante: "perigo",
   },
@@ -60,6 +61,7 @@ export function ModalConfirmarAcao({
     variante,
   } = ACOES[acao];
 
+  const router = useRouter();
   const { logout } = useAuth();
   const { busy, error, run } = useAction();
 
@@ -80,14 +82,13 @@ export function ModalConfirmarAcao({
   }, [visible]);
 
   function confirmarAcao() {
-    void run(async () => {
-      if (acao === "excluir") {
-        // TODO (backend): não existe endpoint de exclusão de conta ainda.
-        // Por enquanto, confirmar aqui só desconecta o usuário (logout).
-      }
+    if (acao === "excluir") {
+      onClose();
+      router.push("/conta/excluir");
+      return;
+    }
 
-      await logout();
-    });
+    void run(logout);
   }
 
   function fechar() {

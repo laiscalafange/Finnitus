@@ -1,5 +1,6 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '@/shared/components/Texto'
 import Svg, { Path } from 'react-native-svg'
 
 interface PerformanceGaugeProps {

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { Text } from "@/shared/components/Texto";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Trash2 } from "lucide-react-native";
 
@@ -12,7 +13,7 @@ import { Rotas } from "../../shared/constants/Rotas";
 import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
 import { styles as form } from "@/features/menuMais/styles/formulario";
 import { styles as modal } from "@/features/menuMais/components/ModalReserva/styles";
-import { formatarMoeda } from "@/features/menuMais/utils";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import { useFinanceiro } from "@/features/financeiroContext";
 import { obterResumoMes } from "@/features/dashboard/homeSelectors";
 import {
@@ -45,8 +46,6 @@ const OPCOES: { id: Filtro; rotulo: string; cor?: string }[] = [
   { id: "gasto", rotulo: "Despesas", cor: Cores.estado.alerta },
 ];
 
-const moeda = (valor?: number) => (valor === undefined ? "R$ —" : formatarMoeda(valor));
-
 // "Hoje", "Ontem" ou "10 de outubro"
 function rotuloDia(dataVencimento: string): string {
   const dias = diasAte(dataVencimento);
@@ -62,6 +61,8 @@ function rotuloDia(dataVencimento: string): string {
 // variáveis e contas fixas). Aberta pelo resumo Receitas/Despesas da Home.
 // Aceita ?filtro=entrada|gasto&competencia=AAAA-MM.
 export default function Movimentacoes() {
+  const moedaVisivel = useMoedaVisivel();
+  const moeda = (valor?: number) => valor === undefined ? "R$ —" : moedaVisivel(valor);
   const router = useRouter();
   const params = useLocalSearchParams<{ filtro?: string; competencia?: string }>();
   const { salario, despesas, transacoes, baixas, excluirTransacao } = useFinanceiro();
@@ -146,7 +147,7 @@ export default function Movimentacoes() {
       );
     }
 
-    const diferenca = textoDiferenca(conta);
+    const diferenca = textoDiferenca(conta, moedaVisivel);
 
     return (
       <>
@@ -158,12 +159,12 @@ export default function Movimentacoes() {
           {entrada ? "Receita" : "Despesa"} {conta.recorrente ? "fixa · Mensal" : "avulsa"}
         </Text>
 
-        <LinhaInfo primeira rotulo={conta.valorRealizado !== undefined ? "Valor previsto" : "Valor"} valor={formatarMoeda(conta.valorPrevisto)} />
+        <LinhaInfo primeira rotulo={conta.valorRealizado !== undefined ? "Valor previsto" : "Valor"} valor={moedaVisivel(conta.valorPrevisto)} />
         <LinhaInfo rotulo={rotuloData(conta)} valor={dataPorExtenso(conta.dataVencimento)} />
         {conta.valorRealizado !== undefined && conta.recorrente ? (
           <LinhaInfo
             rotulo={entrada ? "Recebido em" : "Pago em"}
-            valor={`${conta.dataRealizada} · ${formatarMoeda(conta.valorRealizado)}`}
+            valor={`${conta.dataRealizada} · ${moedaVisivel(conta.valorRealizado)}`}
           />
         ) : null}
         <View style={[styles.info, { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }]}>
@@ -231,9 +232,9 @@ export default function Movimentacoes() {
           {salario !== undefined || despesas !== undefined ? (
             <Text style={styles.aviso}>
               Os totais incluem o que você informou na configuração inicial
-              {salario !== undefined ? ` (salário ${formatarMoeda(salario)}` : ""}
+              {salario !== undefined ? ` (salário ${moedaVisivel(salario)}` : ""}
               {salario !== undefined && despesas !== undefined ? " e " : salario !== undefined ? ")" : " ("}
-              {despesas !== undefined ? `despesas mensais ${formatarMoeda(despesas)})` : ""}.
+              {despesas !== undefined ? `despesas mensais ${moedaVisivel(despesas)})` : ""}.
             </Text>
           ) : null}
 

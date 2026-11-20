@@ -107,9 +107,16 @@ enum TipoMeta {
   MENSAL
 }
 
+enum TamanhoTexto {
+  PEQUENO
+  MEDIO
+  GRANDE
+}
+
 model Usuario {
   id_Usuario         Int       @id @default(autoincrement())
   tokenVersion       Int       @default(0)
+  duasEtapasAtiva    Boolean   @default(false)
   googleId           String?   @unique @db.VarChar(255)
   Unome              String    @db.VarChar(100)
   Usenha             String?   @db.VarChar(255)
@@ -128,11 +135,30 @@ model Usuario {
   Meta                   Meta[]
   Receita                Receita[]
   redefinicoes           RedefinicaoSenha[]
+  sessoes                SessaoUsuario[]
+  desafios2FA            Desafio2FA[]
   Divida                 Divida[]
   ReservaFinanceira      ReservaFinanceira?
   PerfilFinanceiro PerfilFinanceiro?
   Notificacoes Notificacao[]
+  configuracao ConfiguracaoUsuario?
 
+}
+
+model ConfiguracaoUsuario {
+  id_Usuario     Int          @id
+  idioma         String       @default("pt-BR") @db.VarChar(10)
+  moeda          String       @default("BRL") @db.Char(3)
+  mostrarValores Boolean      @default(true)
+  tamanhoTexto   TamanhoTexto @default(MEDIO)
+  vencimento     Boolean      @default(true)
+  gastos         Boolean      @default(true)
+  calendario     Boolean      @default(true)
+  planoB         Boolean      @default(true)
+  resumo         Boolean      @default(true)
+  metas          Boolean      @default(true)
+
+  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
 }
 
 // Armazena os dados financeiros iniciais do usuário.
@@ -170,6 +196,44 @@ model RedefinicaoSenha {
   verificado     Boolean  @default(false)
 
   Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+}
+
+enum TipoDesafio2FA {
+  LOGIN
+  ATIVACAO
+  DESATIVACAO
+}
+
+model SessaoUsuario {
+  id           String   @id @db.VarChar(71)
+  id_Usuario   Int
+  tokenVersion Int
+  dispositivo  String   @db.VarChar(60)
+  criadaEm     DateTime @default(now())
+  expiraEm     DateTime
+  revogadaEm   DateTime?
+
+  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+
+  @@index([id_Usuario, tokenVersion, expiraEm])
+}
+
+model Desafio2FA {
+  id           String          @id @db.Uuid
+  id_Usuario   Int
+  tipo         TipoDesafio2FA
+  tokenVersion Int
+  codigoHash   String          @db.Char(64)
+  dispositivo  String?         @db.VarChar(60)
+  sessaoId     String?         @db.VarChar(71)
+  criadoEm     DateTime        @default(now())
+  expiraEm     DateTime
+  usadoEm      DateTime?
+  tentativas   Int             @default(0)
+
+  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
+
+  @@index([id_Usuario, tipo, criadoEm])
 }
 
 model Receita {

@@ -3,10 +3,10 @@ import { useState } from "react";
 import {
   Alert,
   ScrollView,
-  Text,
   View,
   Pressable,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { RotateCcw } from "lucide-react-native";
 
@@ -18,7 +18,7 @@ import { Cores } from "../../shared/constants/Cores";
 
 import { AlternadorTipo } from "@/features/menuMais/components/AlternadorTipo";
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
-import { formatarMoeda } from "@/features/menuMais/utils";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import { errorMessage } from "@/services/api";
 import { useFinanceiro } from "@/features/financeiroContext";
 import {
@@ -61,6 +61,7 @@ function obterObjetivo(meta: unknown): number | null {
 }
 
 export default function MetasHistorico() {
+  const moedaVisivel = useMoedaVisivel();
   const [filtro, setFiltro] = useState<Filtro>("todas");
   const [reabrindoId, setReabrindoId] = useState<string | null>(
     null
@@ -215,7 +216,7 @@ export default function MetasHistorico() {
                       </Text>
 
                       <Text style={styles.valorGuardado}>
-                        {formatarMoeda(valorAtual)}
+                        {moedaVisivel(valorAtual)}
                       </Text>
                     </View>
 
@@ -226,7 +227,7 @@ export default function MetasHistorico() {
 
                       <Text style={styles.valorObjetivo}>
                         {valorObjetivo !== null
-                          ? formatarMoeda(valorObjetivo)
+                          ? moedaVisivel(valorObjetivo)
                           : "Não informado"}
                       </Text>
                     </View>

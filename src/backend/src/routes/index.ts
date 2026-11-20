@@ -16,6 +16,7 @@ import categoriaPersonalizadaRoutes from "./categoriaPersonalizada.routes.js";
 import planoBRoutes from "./planoB.routes.js";
 import metasRoutes from "./metas.routes.js";
 import perfilFinanceiroRoutes from "./perfilFinanceiro.routes.js";
+import configuracoesRoutes from "./configuracoes.routes.js";
 import { criarRotasNotificacoes } from "./notificacoes.routes.js";
 import { prisma } from "../lib/prisma.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
@@ -33,6 +34,7 @@ routes.use(authRoutes);
 // Compatibilidade com clientes que usam /auth/login e /auth/register.
 routes.use("/auth", authRoutes);
 routes.use(userRoutes);
+routes.use(configuracoesRoutes);
 
 // Rotas de receitas e funcionalidades relacionadas.
 routes.use("/receitas", receitaRoutes);

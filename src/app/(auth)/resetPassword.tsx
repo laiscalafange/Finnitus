@@ -39,12 +39,6 @@ export default function ResetPassword() {
   } = useAction();
 
   if (complete) {
-    // Trocando a senha já logada: volta pra Segurança em vez de
-    // mandar pro login (a sessão atual continua valendo).
-    if (trocando) {
-      return <Redirect href="/conta/seguranca" />;
-    }
-
     return (
       <Redirect
         href={{

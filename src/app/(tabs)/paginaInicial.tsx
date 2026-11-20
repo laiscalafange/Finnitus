@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native'
+import { ScrollView, View, TouchableOpacity } from 'react-native'
 
 import { LinearGradient } from 'expo-linear-gradient'
 
@@ -19,7 +19,8 @@ import { ModalMesAno } from '../../features/calendar/components/ModalMesAno'
 import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { Rotas } from '../../shared/constants/Rotas'
 
-import { formatarMoeda } from '../../features/menuMais/utils'
+import { Text } from '@/shared/components/Texto'
+import { useConfiguracoes, useMoedaVisivel } from '@/features/configuracoesContext'
 
 import {
   CardSaldo,
@@ -37,7 +38,8 @@ import {
 
 import { competenciaDe, contasDoMes, rotuloStatus, diaMes } from '../../features/contas/contasData'
 
-import type { Notificacao } from '../../services/notificacoes.api'
+import { useNotificacoes } from '@/features/contas/useNotificacoes'
+import { tempoNotificacao } from '@/features/contas/notificacoesReais'
 
 import { useFinanceiro } from '../../features/financeiroContext'
 
@@ -168,6 +170,8 @@ export default function PaginaInicial() {
   const insets = useSafeAreaInsets()
 
   const { user } = useAuth()
+  const { configuracoes } = useConfiguracoes()
+  const moedaVisivel = useMoedaVisivel()
 
   const [
 
@@ -200,7 +204,7 @@ export default function PaginaInicial() {
 
   } = useFinanceiro()
 
-  const notificacoesReais: Notificacao[] = []
+  const { notificacoes: notificacoesReais } = useNotificacoes()
 
   // Mês que a Home está mostrando (começa no mês atual)
 
@@ -493,7 +497,7 @@ export default function PaginaInicial() {
                     key={`${conta.transacaoId}-${conta.competencia}`}
                     icone={conta.icone}
                     titulo={conta.nome}
-                    subtitulo={`Vencimento ${diaMes(conta.dataVencimento)}  ·  ${formatarMoeda(conta.valorRealizado ?? conta.valorPrevisto)}  ·  ${rotuloStatus(conta)}`}
+                    subtitulo={`Vencimento ${diaMes(conta.dataVencimento)}  ·  ${moedaVisivel(conta.valorRealizado ?? conta.valorPrevisto)}  ·  ${rotuloStatus(conta)}`}
 
                     aoPress={() =>
 
@@ -550,7 +554,7 @@ export default function PaginaInicial() {
                             : TriangleAlert
                     }
                     titulo={item.titulo}
-                    subtitulo={item.mensagem}
+                    subtitulo={configuracoes?.mostrarValores ? item.mensagem : tempoNotificacao(item.criadaEm)}
                     aoPress={() => router.push(Rotas.notificacao)}
                   />
 

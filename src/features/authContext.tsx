@@ -12,6 +12,8 @@ import axios from "axios";
 
 import {
   authService,
+  type Desafio2FA,
+  type ResultadoLogin,
   type Session,
   type User,
 } from "../services/auth";
@@ -23,6 +25,8 @@ import {
 } from "../services/api";
 
 import { tokenStorage } from "../services/tokenStorage";
+import { segurancaService } from "../services/seguranca";
+import { ModalCodigoSeguranca } from "../shared/components/Modal/ModalCodigoSeguranca";
 
 type Auth = {
   user: User | null;
@@ -45,7 +49,9 @@ type Auth = {
   ) => Promise<void>;
 
   logout: () => Promise<void>;
-  clearSession: () => Promise<void>;
+  clearSession: (options?: { senhaRedefinida?: boolean }) => Promise<void>;
+  senhaRedefinida: boolean;
+  confirmarAlteracao2FA: (ativar: boolean, challengeId: string, codigo: string) => Promise<boolean>;
   updateUser: (user: User) => void;
 
   recoveryEmail: string;
@@ -67,21 +73,26 @@ export function AuthProvider({
 
   const [loading, setLoading] = useState(true);
   const [startupError, setStartupError] = useState("");
+  const [senhaRedefinida, setSenhaRedefinida] = useState(false);
+  const [desafio, setDesafio] = useState<(Desafio2FA & { revision: number }) | null>(null);
 
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [resetToken, setResetToken] = useState<string | null>(null);
 
   const revision = useRef(0);
+  const rotacaoToken = useRef<{ expirou: boolean } | null>(null);
 
   const clearRecovery = useCallback(() => {
     setRecoveryEmail("");
     setResetToken(null);
   }, []);
 
-  const clearSession = useCallback(async () => {
+  const clearSession = useCallback(async (options?: { senhaRedefinida?: boolean }) => {
     revision.current++;
 
     setAccessToken(null);
+    setDesafio(null);
+    setSenhaRedefinida(options?.senhaRedefinida === true);
     setUser(null);
     clearRecovery();
 
@@ -146,7 +157,11 @@ export function AuthProvider({
 
   useEffect(() => {
     onSessionExpired(() => {
-      void clearSession();
+      if (rotacaoToken.current) {
+        rotacaoToken.current.expirou = true;
+      } else {
+        void clearSession();
+      }
     });
 
     void retry();
@@ -169,8 +184,58 @@ export function AuthProvider({
     }
 
     setAccessToken(session.token);
+    setDesafio(null);
+    setSenhaRedefinida(false);
     setUser(session.user);
     clearRecovery();
+  }
+
+  async function processarLogin(resultado: ResultadoLogin, current: number) {
+    if (current !== revision.current) return;
+    if ("requires2FA" in resultado) {
+      setDesafio({ ...resultado, revision: current });
+      return;
+    }
+    await establish(resultado, current);
+  }
+
+  async function confirmarLogin2FA(codigo: string) {
+    if (!desafio) return;
+    const sessao = await authService.verificarDuasEtapas(desafio.challengeId, codigo);
+    await establish(sessao, desafio.revision);
+  }
+
+  async function confirmarAlteracao2FA(ativar: boolean, challengeId: string, codigo: string) {
+    const current = revision.current;
+    const rotacao = { expirou: false };
+    rotacaoToken.current = rotacao;
+    try {
+      const sessao = await segurancaService.confirmarAlteracao(ativar, challengeId, codigo);
+      if (current === revision.current) {
+        // As outras requisições podem ter sido iniciadas com o token já revogado.
+        setAccessToken(sessao.token);
+        try {
+          await establish(sessao, current);
+        } catch (error) {
+          await clearSession();
+          throw error;
+        }
+      }
+      return sessao.ativa;
+    } catch (error) {
+      if (rotacao.expirou && current === revision.current) {
+        try {
+          await authService.me();
+        } catch (checkError) {
+          if (axios.isAxiosError(checkError) && checkError.response?.status === 401) {
+            await clearSession();
+          }
+        }
+      }
+      throw error;
+    } finally {
+      rotacaoToken.current = null;
+    }
   }
 
   async function login(
@@ -186,8 +251,8 @@ export function AuthProvider({
     }
 
     const current = ++revision.current;
-    const session = await authService.login(email, password, aceite);
-    await establish(session, current);
+    const resultado = await authService.login(email, password, aceite);
+    await processarLogin(resultado, current);
   }
 
   async function googleLogin(idToken: string, aceite = false) {
@@ -198,8 +263,8 @@ export function AuthProvider({
     }
 
     const current = ++revision.current;
-    const session = await authService.google(idToken, aceite);
-    await establish(session, current);
+    const resultado = await authService.google(idToken, aceite);
+    await processarLogin(resultado, current);
   }
 
   async function logout() {
@@ -216,7 +281,7 @@ export function AuthProvider({
     if (failed) {
       Alert.alert(
         "Você saiu deste aparelho",
-        "Não foi possível confirmar a saída das outras sessões no servidor. Elas continuam válidas até expirar ou até um novo logout online."
+        "Não foi possível confirmar a revogação desta sessão no servidor."
       );
     }
   }
@@ -232,6 +297,8 @@ export function AuthProvider({
         googleLogin,
         logout,
         clearSession,
+        senhaRedefinida,
+        confirmarAlteracao2FA,
 
         updateUser: (updated) => {
           setUser((current) =>
@@ -252,6 +319,15 @@ export function AuthProvider({
       }}
     >
       {children}
+      {desafio && (
+        <ModalCodigoSeguranca
+          key={desafio.challengeId}
+          titulo="Verificação em duas etapas"
+          instrucao="Digite o código enviado ao e-mail da sua conta. O código expira em 5 minutos."
+          onConfirmar={confirmarLogin2FA}
+          onCancelar={() => setDesafio(null)}
+        />
+      )}
     </Context.Provider>
   );
 }

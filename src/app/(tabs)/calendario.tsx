@@ -4,8 +4,10 @@ import {
 
 import {
   Alert, Animated, Easing, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet,
-  Text, TextInput, TouchableOpacity, View, Modal,
+  TouchableOpacity, View, Modal,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/Texto";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 
 import {
   listarEventosDoDispositivo,
@@ -565,6 +567,7 @@ function GaugeCircular({
 
 export default function Calendario() {
   const router = useRouter();
+  const formatarValorCalendario = useMoedaVisivel();
 
   // Edição de receitas e despesas já cadastradas (não interfere no modal
   // existente que confirma eventos importados do calendário do celular).
@@ -980,18 +983,6 @@ const percentualRestanteMes =
         0
       )
     : 0;
-
-function formatarValorCalendario(
-  valor: number
-) {
-  return valor.toLocaleString(
-    "pt-BR",
-    {
-      style: "currency",
-      currency: "BRL",
-    }
-  );
-}
 
   function abrirRevisaoFinanceira(
     evento: EventoDispositivo
@@ -1571,9 +1562,7 @@ const ehSuspeito =
 
                   {classificacao.valorDetectado !==
                   undefined
-                    ? ` • R$ ${classificacao.valorDetectado
-                        .toFixed(2)
-                        .replace(".", ",")}`
+                    ? ` • ${formatarValorCalendario(classificacao.valorDetectado)}`
                     : ""}
                 </Text>
 
@@ -1876,14 +1865,7 @@ const ehSuspeito =
               ? "+ "
               : "- "}
 
-            R${" "}
-
-            {(item.valor ?? 0)
-              .toFixed(2)
-              .replace(
-                ".",
-                ","
-              )}
+            {formatarValorCalendario(item.valor ?? 0)}
           </Text>
           </LinearGradient>
         </TouchableOpacity>

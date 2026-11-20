@@ -2,11 +2,10 @@ import { useState } from "react";
 
 import {
   View,
-  Text,
-  TextInput,
   Pressable,
   StyleSheet,
 } from "react-native";
+import { Text, TextInput } from "@/shared/components/Texto";
 
 import { Eye, EyeOff } from "lucide-react-native";
 

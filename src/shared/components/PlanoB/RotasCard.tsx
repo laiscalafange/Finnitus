@@ -1,5 +1,7 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '@/shared/components/Texto'
+import { useExibirValores, useMoedaVisivel } from '@/features/configuracoesContext'
 import Svg, { Circle } from 'react-native-svg'
 import { LinearGradient } from 'expo-linear-gradient'
 
@@ -42,6 +44,8 @@ export function RotasCard({
   vazio,
   styles,
 }: RotasCardProps) {
+  const exibir = useExibirValores()
+  const moedaVisivel = useMoedaVisivel()
 
   const radius = 50
   const centro = 60
@@ -139,7 +143,7 @@ export function RotasCard({
 
         <View style={styles.rotasGaugeValor}>
           <Text style={styles.gaugeLabel}>
-            {formatarMoeda(total)}
+            {exibir(formatarMoeda(total))}
           </Text>
         </View>
       </View>
@@ -173,7 +177,7 @@ export function RotasCard({
               </View>
 
               <Text style={styles.rotasCategoriaValor}>
-                {formatarMoeda(categoria.valor)}
+                {exibir(formatarMoeda(categoria.valor))}
               </Text>
 
               <Text style={styles.rotasCategoriaPercentual}>
@@ -210,7 +214,7 @@ export function RotasCard({
 
       {sobra !== undefined && (
         <Text style={styles.rotasSobra}>
-          Sobra: R$ {formatarMoeda(sobra)}
+          Sobra: {moedaVisivel(sobra)}
         </Text>
       )}
 

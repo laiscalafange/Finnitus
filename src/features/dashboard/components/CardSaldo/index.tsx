@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { Text, TouchableOpacity, View } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 import { Eye, EyeOff } from 'lucide-react-native'
 import { Cores } from '@/shared/constants/Cores'
+import { Text } from '@/shared/components/Texto'
+import { useConfiguracoes } from '@/features/configuracoesContext'
 import { styles } from './styles'
 
 type Props = {
@@ -17,6 +19,8 @@ const moeda = (valor?: number) =>
 export function CardSaldo({ saldoAtual, onPress }: Props) {
   // Olho: mostra ou esconde o valor do saldo
   const [oculto, setOculto] = useState(false)
+  const { configuracoes } = useConfiguracoes()
+  const mostrarValores = configuracoes?.mostrarValores === true
 
   return (
     <View style={styles.container}>
@@ -24,12 +28,12 @@ export function CardSaldo({ saldoAtual, onPress }: Props) {
 
       <TouchableOpacity activeOpacity={0.9} onPress={onPress} disabled={!onPress}>
         <Text style={styles.saldo} numberOfLines={1} adjustsFontSizeToFit>
-          {oculto ? 'R$ ••••••' : moeda(saldoAtual)}
+          {oculto || !mostrarValores ? '•••••' : moeda(saldoAtual)}
         </Text>
       </TouchableOpacity>
       <Text style={styles.descricao}>após despesas previstas</Text>
 
-      <TouchableOpacity
+      {mostrarValores && <TouchableOpacity
         style={styles.olho}
         onPress={() => setOculto(valor => !valor)}
         activeOpacity={0.8}
@@ -42,7 +46,7 @@ export function CardSaldo({ saldoAtual, onPress }: Props) {
         ) : (
           <Eye size={26} color={Cores.texto.claro} />
         )}
-      </TouchableOpacity>
+      </TouchableOpacity>}
     </View>
   )
 }

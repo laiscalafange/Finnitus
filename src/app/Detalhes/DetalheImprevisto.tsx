@@ -6,9 +6,9 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -31,7 +31,7 @@ import { Cores } from "../../shared/constants/Cores";
 import { FONTS } from "../../shared/constants/Tipografia";
 import { useAction } from "../../shared/hooks/useAction";
 
-import { formatarMoeda } from "@/features/menuMais/utils";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import {
   analiseEmCache,
   atualizarImprevisto,
@@ -51,6 +51,7 @@ import {
 // Tela de detalhes de um imprevisto: aberta ao tocar num card de
 // "Seus imprevistos" na tela Plano-B (recebe o parâmetro "id").
 export default function DetalheImprevisto() {
+  const moedaVisivel = useMoedaVisivel();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -250,7 +251,7 @@ export default function DetalheImprevisto() {
               <Linha rotulo="Tipo" valor={rotuloTipoImprevisto(imprevisto)} />
               <Linha
                 rotulo="Valor estimado"
-                valor={formatarMoeda(imprevisto.valor)}
+                valor={moedaVisivel(imprevisto.valor)}
                 destaque
               />
               <Linha rotulo="Data do evento" valor={imprevisto.data} />

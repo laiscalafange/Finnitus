@@ -1,8 +1,8 @@
 import {
   Pressable,
-  Text,
   View,
 } from "react-native";
+import { Text } from "@/shared/components/Texto";
 
 import { LinearGradient } from "expo-linear-gradient";
 

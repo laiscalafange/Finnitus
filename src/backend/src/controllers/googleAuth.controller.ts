@@ -4,6 +4,7 @@ import {
   loginWithGoogle,
   linkGoogleAccount,
 } from "../services/googleAuth.service.js";
+import { nomeDispositivo } from "../services/sessao.service.js";
 
 import {
   objectBody,
@@ -29,6 +30,7 @@ export async function googleLogin(
   const result = await loginWithGoogle(
     idToken,
     body.maiorDeIdade === true && body.leuTermos === true,
+    nomeDispositivo(req.get("user-agent"), body.plataforma),
   );
 
   res.status(200).json(result);

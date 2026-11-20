@@ -30,24 +30,18 @@ function getTransporter(): Transporter {
   return transporter;
 }
 
-interface SendEmailParams {
+type SendEmailParams = {
   to: string;
   subject: string;
-  html: string;
-}
+  replyTo?: { address: string; name: string };
+} & ({ html: string; text?: string } | { text: string; html?: string });
 
-export async function sendEmail({
-  to,
-  subject,
-  html,
-}: SendEmailParams): Promise<void> {
+export async function sendEmail(message: SendEmailParams): Promise<void> {
   const activeTransporter = getTransporter();
 
   await activeTransporter.sendMail({
+    ...message,
     from: env.EMAIL_FROM,
-    to,
-    subject,
-    html,
   });
 }
 

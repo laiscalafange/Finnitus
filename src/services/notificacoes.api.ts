@@ -11,7 +11,10 @@ export type TipoNotificacao =
   | "META_RETIRADA"
   | "META_CONCLUIDA"
   | "EVENTO_CONFIRMADO"
-  | "EVENTO_CRIADO";
+  | "EVENTO_CRIADO"
+  | "CONTA_VENCIMENTO"
+  | "PLANO_B"
+  | "RESUMO_MENSAL";
 
 export type Notificacao = {
   id_Notificacao: number;

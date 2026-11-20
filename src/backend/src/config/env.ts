@@ -83,7 +83,7 @@ export const env = {
     "http://localhost:8081,http://localhost:19006"
   ),
 
-  // Recuperação de senha por e-mail
+  // Envio de e-mails
   EMAIL_HOST: getEnvVarOptional(
     "EMAIL_HOST",
     "smtp.gmail.com"
@@ -112,6 +112,8 @@ export const env = {
     "EMAIL_FROM",
     ""
   ),
+
+  CONTACT_EMAIL: getEnvVarOptional("CONTACT_EMAIL", "").trim(),
 };
 
 // ============================================
