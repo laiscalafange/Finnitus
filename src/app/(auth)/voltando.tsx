@@ -12,9 +12,8 @@ import { styles } from "../../styles/voltandoStyles";
 
 import { useAuth } from "../../features/authContext";
 import { googleIdToken } from "../../services/google";
-import { useAction } from "../../shared/hooks/useAction";
 
-// Limite do aumento de fonte do sistema (evita o texto estourar a tela)
+// Mantém as fontes e os estilos da tela original.
 const LIMITE_FONTE = 1.1;
 
 export default function Voltando() {
@@ -22,12 +21,40 @@ export default function Voltando() {
 
   const { googleLogin } = useAuth();
   const [aceiteGoogle, setAceiteGoogle] = useState(false);
-  const { busy, error, run } = useAction();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const podeContinuar = aceiteGoogle && !busy;
+
+  async function run(action: () => Promise<void>) {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await action();
+    } catch (erro) {
+      setError(
+        erro instanceof Error ? erro.message : "Ocorreu um erro. Tente novamente."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function continuarEmail() {
+    if (!podeContinuar) return;
+    roteador.push("/login");
+  }
 
   function entrarGoogle() {
+    if (!podeContinuar) return;
     void run(async () => {
+      if (!aceiteGoogle) {
+        throw new Error(
+          "Confirme sua maioridade e a leitura dos documentos legais para continuar."
+        );
+      }
       const token = await googleIdToken();
-
       if (token) {
         await googleLogin(token, aceiteGoogle);
       }
@@ -40,7 +67,6 @@ export default function Voltando() {
 
       <BotaoVoltarAuth absoluto />
 
-      {/* O texto rola se não couber; os botões ficam sempre livres embaixo */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -67,21 +93,26 @@ export default function Voltando() {
         {error ? (
           <Text
             accessibilityRole="alert"
-            style={{
-              color: "#ffacb8",
-              marginBottom: 12,
-            }}
+            style={{ color: "#ffacb8", marginBottom: 12 }}
           >
             {error}
           </Text>
         ) : null}
 
-        <AceiteCadastroGoogle aceito={aceiteGoogle} onChange={setAceiteGoogle} />
+        <AceiteCadastroGoogle
+          aceito={aceiteGoogle}
+          onChange={(marcado) => {
+            setAceiteGoogle(marcado);
+            setError(null);
+          }}
+          disabled={busy}
+        />
+
         <Button
           variante="primario"
           titulo="Email"
-          disabled={busy}
-          onPress={() => roteador.push("/login")}
+          disabled={!podeContinuar}
+          onPress={continuarEmail}
           icone={
             <Image
               source={require("../../../assets/icones/email2.png")}
@@ -99,7 +130,7 @@ export default function Voltando() {
           variante="outline"
           titulo={busy ? "Aguarde..." : "Google"}
           onPress={entrarGoogle}
-          disabled={busy}
+          disabled={!podeContinuar}
           icone={
             <Image
               source={require("../../../assets/icones/google.png")}

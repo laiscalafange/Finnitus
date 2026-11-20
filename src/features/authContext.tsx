@@ -31,9 +31,12 @@ type Auth = {
 
   retry: () => Promise<void>;
 
+  // O último argumento é obrigatório na API. O default false mantém
+  // chamadas antigas compatíveis, mas elas serão rejeitadas pelo servidor.
   login: (
     email: string,
-    password: string
+    password: string,
+    aceite?: boolean
   ) => Promise<void>;
 
   googleLogin: (
@@ -66,10 +69,7 @@ export function AuthProvider({
   const [startupError, setStartupError] = useState("");
 
   const [recoveryEmail, setRecoveryEmail] = useState("");
-
-  const [resetToken, setResetToken] = useState<
-    string | null
-  >(null);
+  const [resetToken, setResetToken] = useState<string | null>(null);
 
   const revision = useRef(0);
 
@@ -157,10 +157,7 @@ export function AuthProvider({
     };
   }, [clearSession, retry]);
 
-  async function establish(
-    session: Session,
-    current: number
-  ) {
+  async function establish(session: Session, current: number) {
     if (current !== revision.current) {
       return;
     }
@@ -176,29 +173,35 @@ export function AuthProvider({
     clearRecovery();
   }
 
-  
-
   async function login(
     email: string,
-    password: string
+    password: string,
+    aceite = false
   ) {
+    // Defesa extra para que qualquer tela que use o contexto não burle o aceite.
+    if (aceite !== true) {
+      throw new Error(
+        "Confirme que tem 18 anos ou mais e que leu os documentos legais para entrar."
+      );
+    }
+
     const current = ++revision.current;
-
-    const session = await authService.login(
-      email,
-      password
-    );
-
+    const session = await authService.login(email, password, aceite);
     await establish(session, current);
   }
 
   async function googleLogin(idToken: string, aceite = false) {
-  const current = ++revision.current;
+    if (aceite !== true) {
+      throw new Error(
+        "Confirme que tem 18 anos ou mais e que leu os documentos legais para continuar."
+      );
+    }
 
-  const session = await authService.google(idToken, aceite);
+    const current = ++revision.current;
+    const session = await authService.google(idToken, aceite);
+    await establish(session, current);
+  }
 
-  await establish(session, current);
-}
   async function logout() {
     let failed = false;
 
@@ -232,9 +235,7 @@ export function AuthProvider({
 
         updateUser: (updated) => {
           setUser((current) =>
-            current?.id === updated.id
-              ? updated
-              : current
+            current?.id === updated.id ? updated : current
           );
         },
 
@@ -259,9 +260,7 @@ export function useAuth() {
   const value = useContext(Context);
 
   if (!value) {
-    throw new Error(
-      "useAuth precisa de AuthProvider."
-    );
+    throw new Error("useAuth precisa de AuthProvider.");
   }
 
   return value;

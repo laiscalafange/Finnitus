@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AceiteCadastroGoogle } from "../../shared/components/AceiteCadastroGoogle";
 import { View, Text, Image, ScrollView } from "react-native";
@@ -12,7 +13,7 @@ import { styles } from "../../styles/escolhaStyles";
 
 import { useAuth } from "../../features/authContext";
 import { googleIdToken } from "../../services/google";
-import { useAction } from "../../shared/hooks/useAction";
+import { useAuthAction } from "../../shared/hooks/useAuthAction";
 
 // Mantido o mesmo limite de fonte do arquivo original.
 const LIMITE_FONTE = 1.1;
@@ -21,14 +22,28 @@ export default function Escolha() {
   const roteador = useRouter();
 
   const { googleLogin } = useAuth();
-  const [aceiteGoogle, setAceiteGoogle] = useState(false);
-  const { busy, error, run } = useAction();
+
+  const [confirmouRequisitos, setConfirmouRequisitos] =
+    useState(false);
+
+  const { busy, error, run, clearError } = useAuthAction();
+
+  function continuarEmail() {
+    void run(async () => {
+      if (!confirmouRequisitos) {
+        throw new Error(
+          "Confirme sua maioridade e a leitura dos documentos legais para continuar."
+        );
+      }
+
+      roteador.push("/cadastro");
+    });
+  }
 
   function entrarGoogle() {
     void run(async () => {
-      // Esta tela oferece criação de conta com Google;
-      // exige a confirmação antes de iniciar esse cadastro.
-      if (!aceiteGoogle) {
+      // Exige confirmação antes de iniciar o Google.
+      if (!confirmouRequisitos) {
         throw new Error(
           "Para criar conta pelo Google, confirme sua maioridade e a leitura dos documentos legais."
         );
@@ -37,7 +52,7 @@ export default function Escolha() {
       const token = await googleIdToken();
 
       if (token) {
-        await googleLogin(token, aceiteGoogle);
+        await googleLogin(token, confirmouRequisitos);
       }
     });
   }
@@ -48,7 +63,6 @@ export default function Escolha() {
 
       <BotaoVoltarAuth absoluto />
 
-      {/* Layout, tipografia e underline ORIGINAIS preservados. */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.content}
@@ -56,28 +70,47 @@ export default function Escolha() {
       >
         <View style={styles.linha}>
           <View>
-            <Text style={styles.title2} maxFontSizeMultiplier={LIMITE_FONTE}>
+            <Text
+              style={styles.title2}
+              maxFontSizeMultiplier={LIMITE_FONTE}
+            >
               Escolha
             </Text>
+
             <Underline width={106} marginLeft={9} />
           </View>
         </View>
-        <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
+
+        <Text
+          style={styles.title}
+          maxFontSizeMultiplier={LIMITE_FONTE}
+        >
           uma opção
         </Text>
-        <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
+
+        <Text
+          style={styles.title}
+          maxFontSizeMultiplier={LIMITE_FONTE}
+        >
           para continuar
         </Text>
-        <Text style={styles.subtitle} maxFontSizeMultiplier={LIMITE_FONTE}>
+
+        <Text
+          style={styles.subtitle}
+          maxFontSizeMultiplier={LIMITE_FONTE}
+        >
           Continue com o email ou outros serviços.
         </Text>
       </ScrollView>
 
-      {/* Somente espaçamento interno reduzido. */}
       <View
         style={[
           styles.conteiner,
-          { gap: 9, paddingTop: 8, paddingBottom: 14 },
+          {
+            gap: 9,
+            paddingTop: 8,
+            paddingBottom: 14,
+          },
         ]}
       >
         {error ? (
@@ -93,19 +126,24 @@ export default function Escolha() {
         ) : null}
 
         <AceiteCadastroGoogle
-          aceito={aceiteGoogle}
-          onChange={setAceiteGoogle}
+          aceito={confirmouRequisitos}
+          onChange={(marcado) => {
+            setConfirmouRequisitos(marcado);
+            clearError();
+          }}
           disabled={busy}
         />
 
         <Button
           variante="primario"
           titulo="Email"
-          disabled={busy}
-          onPress={() => roteador.push("/cadastro")}
+          disabled={busy || !confirmouRequisitos}
+          onPress={continuarEmail}
           icone={
             <Image
-              source={require("../../../assets/icones/email2.png")}
+              source={require(
+                "../../../assets/icones/email2.png"
+              )}
               style={{
                 width: 20,
                 height: 20,
@@ -120,10 +158,12 @@ export default function Escolha() {
           variante="outline"
           titulo={busy ? "Aguarde..." : "Google"}
           onPress={entrarGoogle}
-          disabled={busy}
+          disabled={busy || !confirmouRequisitos}
           icone={
             <Image
-              source={require("../../../assets/icones/google.png")}
+              source={require(
+                "../../../assets/icones/google.png"
+              )}
               style={{
                 width: 20,
                 height: 20,

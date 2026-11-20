@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AceiteCadastroGoogle } from "../../shared/components/AceiteCadastroGoogle";
 
@@ -23,7 +24,7 @@ import { styles as loginStyles } from "../../styles/loginStyles";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
 
-import { useAction } from "../../shared/hooks/useAction";
+import { useAuthAction } from "../../shared/hooks/useAuthAction";
 import { useAuth } from "../../features/authContext";
 import { googleIdToken } from "../../services/google";
 
@@ -36,14 +37,14 @@ import {
 const inputIconStyle = {
   width: 24,
   height: 24,
-  resizeMode: "contain",
+  resizeMode: "contain" as const,
 };
 
 const googleIconStyle = {
   width: 22,
   height: 22,
   marginRight: 8,
-  resizeMode: "contain",
+  resizeMode: "contain" as const,
 };
 
 export default function Login() {
@@ -53,33 +54,56 @@ export default function Login() {
   const [email, setEmail] = useState(
     typeof params.email === "string" ? params.email : ""
   );
+
   const [senha, setSenha] = useState("");
-  const [aceiteGoogle, setAceiteGoogle] = useState(false);
+
+  const [confirmouRequisitos, setConfirmouRequisitos] =
+    useState(false);
 
   const { login, googleLogin } = useAuth();
-  const { busy, error, run } = useAction();
 
+  const { busy, error, run, clearError } = useAuthAction();
+
+  // LOGIN POR E-MAIL
   function entrar() {
     void run(async () => {
+      if (!confirmouRequisitos) {
+        throw new Error(
+          "Confirme sua maioridade e a leitura dos documentos legais antes de entrar."
+        );
+      }
+
       const normalized = normalizeEmail(email);
 
       if (!validEmail(normalized) || !senha) {
         throw new Error("Preencha e-mail e senha.");
       }
 
-      // Contas existentes já devem ter passado pela verificação no cadastro.
-      await login(normalized, senha);
+      // Envia a confirmação para o AuthContext.
+      await login(
+        normalized,
+        senha,
+        confirmouRequisitos
+      );
     });
   }
 
+  // LOGIN COM GOOGLE
   function google() {
     void run(async () => {
+      if (!confirmouRequisitos) {
+        throw new Error(
+          "Confirme que tem 18 anos ou mais e que leu os documentos legais."
+        );
+      }
+
       const idToken = await googleIdToken();
 
       if (idToken) {
-        // O backend impede a CRIAÇÃO de conta Google sem aceite;
-        // contas Google existentes podem entrar sem aceitar de novo.
-        await googleLogin(idToken, aceiteGoogle);
+        await googleLogin(
+          idToken,
+          confirmouRequisitos
+        );
       }
     });
   }
@@ -104,29 +128,33 @@ export default function Login() {
         </View>
       }
       footer={
-        // Apenas os intervalos mudaram. Fonte, botões e estilos originais preservados.
         <View style={{ gap: 10 }}>
+          <AceiteCadastroGoogle
+            aceito={confirmouRequisitos}
+            onChange={(marcado) => {
+              setConfirmouRequisitos(marcado);
+              clearError();
+            }}
+            disabled={busy}
+          />
+
           <Button
             titulo={busy ? "Aguarde..." : "Entrar"}
             variante="primario"
             onPress={entrar}
-            disabled={busy}
-          />
-
-          <AceiteCadastroGoogle
-            aceito={aceiteGoogle}
-            onChange={setAceiteGoogle}
-            disabled={busy}
+            disabled={busy || !confirmouRequisitos}
           />
 
           <Button
             titulo="Entrar com Google"
             variante="primario"
             onPress={google}
-            disabled={busy}
+            disabled={busy || !confirmouRequisitos}
             icone={
               <Image
-                source={require("../../../assets/icones/google.png")}
+                source={require(
+                  "../../../assets/icones/google.png"
+                )}
                 style={googleIconStyle}
               />
             }
@@ -145,8 +173,8 @@ export default function Login() {
             }}
             style={({ pressed }) => ({
               alignSelf: "center",
-              paddingVertical: 4, // antes: 10
-              marginBottom: 0,   // antes: 12
+              paddingVertical: 4,
+              marginBottom: 0,
               opacity: busy ? 0.5 : pressed ? 0.7 : 1,
             })}
           >
@@ -163,8 +191,14 @@ export default function Login() {
           <Button
             titulo="Criar uma conta"
             variante="primario"
-            onPress={() => router.push("/cadastro")}
-            disabled={busy}
+            onPress={() => {
+              if (busy || !confirmouRequisitos) {
+                return;
+              }
+
+              router.push("/cadastro");
+            }}
+            disabled={busy || !confirmouRequisitos}
           />
         </View>
       }
@@ -185,13 +219,18 @@ export default function Login() {
         label="E-mail"
         placeholder="Digite seu e-mail"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={(valor) => {
+          setEmail(valor);
+          clearError();
+        }}
         keyboardType="email-address"
         autoComplete="email"
         editable={!busy}
         icone={
           <Image
-            source={require("../../../assets/icones/email3.png")}
+            source={require(
+              "../../../assets/icones/email3.png"
+            )}
             style={inputIconStyle}
           />
         }
@@ -201,13 +240,18 @@ export default function Login() {
         label="Senha"
         placeholder="Digite sua senha"
         value={senha}
-        onChangeText={setSenha}
+        onChangeText={(valor) => {
+          setSenha(valor);
+          clearError();
+        }}
         secureTextEntry
         autoComplete="current-password"
         editable={!busy}
         icone={
           <Image
-            source={require("../../../assets/icones/senha.png")}
+            source={require(
+              "../../../assets/icones/senha.png"
+            )}
             style={inputIconStyle}
           />
         }
