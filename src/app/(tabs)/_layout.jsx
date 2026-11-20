@@ -96,11 +96,12 @@ export default function TabsLayout() {
 
       <Tabs.Screen name="PlanoB" />
 
-      <Tabs.Screen name="MetasDetalhes" options={{ href: null }} />
-      <Tabs.Screen name="MetasFrame" options={{ href: null }} />
-      <Tabs.Screen name="MetasFuturas" options={{ href: null }} />
-      <Tabs.Screen name="MetasHistorico" options={{ href: null }} />
-      <Tabs.Screen name="MetasAnalises" options={{ href: null }} />
+      
+<Tabs.Screen name="MetasDetalhes" />
+<Tabs.Screen name="MetasFrame" />
+<Tabs.Screen name="MetasFuturas" />
+<Tabs.Screen name="MetasHistorico" />
+<Tabs.Screen name="MetasAnalises" />
     </Tabs>
   )
 }
