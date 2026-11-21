@@ -1,5 +1,6 @@
+import { useIdioma } from "@/features/idioma";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import {
   View,
@@ -41,12 +42,12 @@ const GRADIENTE_CARD: [string, string] = [
   "rgba(33, 18, 53, 0.94)",
 ];
 
-const formatoDataSessao = new Intl.DateTimeFormat("pt-BR", {
-  dateStyle: "short",
-  timeStyle: "short",
-});
-
 export default function Seguranca() {
+  const { idioma, t } = useIdioma();
+  const formatoDataSessao = useMemo(() => new Intl.DateTimeFormat(idioma, {
+    dateStyle: "short",
+    timeStyle: "short",
+  }), [idioma]);
   const router = useRouter();
   const { confirmarAlteracao2FA } = useAuth();
   const [duasEtapas, setDuasEtapas] = useState<EstadoDuasEtapas | null>(null);
@@ -103,7 +104,7 @@ export default function Seguranca() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno titulo="Segurança" />
+        <HeaderInterno titulo={t("Segurança")} />
 
         <View style={styles.lista}>
           {error ? (
@@ -114,7 +115,7 @@ export default function Seguranca() {
               onPress={() => void run(carregar)}
             >
               <Text style={[styles.descricaoCard, styles.textosCabecalho]} accessibilityRole="alert">
-                {error} Toque para atualizar.
+                {error} {t("Toque para atualizar.")}
               </Text>
             </TouchableOpacity>
           ) : null}
@@ -133,11 +134,11 @@ export default function Seguranca() {
 
               <View style={styles.textosCabecalho}>
                 <Text style={styles.tituloCard}>
-                  Alterar senha
+                  {t("Alterar senha")}
                 </Text>
 
                 <Text style={styles.descricaoCard}>
-                  Atualize sua senha para proteger sua conta.
+                  {t("Atualize sua senha para proteger sua conta.")}
                 </Text>
               </View>
             </View>
@@ -150,7 +151,7 @@ export default function Seguranca() {
               }
             >
               <Text style={styles.textoBotao}>
-                Trocar senha
+                {t("Trocar senha")}
               </Text>
 
               <ChevronRight
@@ -175,20 +176,20 @@ export default function Seguranca() {
 
               <View style={styles.textoContainer2fa}>
                 <Text style={styles.tituloCard}>
-                  Autenticação em duas etapas
+                  {t("Autenticação em duas etapas")}
                 </Text>
 
                 <Text style={styles.descricaoCard}>
                   {duasEtapas?.disponivel
-                    ? "Receba um código por e-mail ao entrar."
+                    ? t("Receba um código por e-mail ao entrar.")
                     : duasEtapas
-                      ? "O envio de códigos está indisponível."
-                      : busy ? "Carregando…" : "Status indisponível."}
+                      ? t("O envio de códigos está indisponível.")
+                      : busy ? t("Carregando…") : t("Status indisponível.")}
                 </Text>
               </View>
 
               <Switch
-                accessibilityLabel="Autenticação em duas etapas"
+                accessibilityLabel={t("Autenticação em duas etapas")}
                 value={duasEtapas?.ativa ?? false}
                 disabled={busy || !duasEtapas?.disponivel}
                 onValueChange={solicitarDuasEtapas}
@@ -215,13 +216,13 @@ export default function Seguranca() {
               </View>
 
               <Text style={styles.tituloCard}>
-                Dispositivos conectados
+                {t("Dispositivos conectados")}
               </Text>
             </View>
 
             {!dispositivos?.length && (
               <Text style={styles.descricaoCard}>
-                {dispositivos ? "Nenhuma sessão ativa." : busy ? "Carregando…" : "Sessões indisponíveis."}
+                {dispositivos ? t("Nenhuma sessão ativa.") : busy ? t("Carregando…") : t("Sessões indisponíveis.")}
               </Text>
             )}
             {dispositivos?.map(
@@ -258,26 +259,26 @@ export default function Seguranca() {
                       {atual && (
                         <View style={styles.selo}>
                           <Text style={styles.seloTexto}>
-                            Este aparelho
+                            {t("Este aparelho")}
                           </Text>
                         </View>
                       )}
                     </View>
 
                     <Text style={styles.dispositivoLocal}>
-                      Acesso iniciado em {formatoDataSessao.format(new Date(criadaEm))}
+                      {t("Acesso iniciado em {data}", { data: formatoDataSessao.format(new Date(criadaEm)) })}
                     </Text>
                   </View>
 
                   {!atual && (
                     <TouchableOpacity
                       accessibilityRole="button"
-                      accessibilityLabel={`Desconectar ${dispositivo}`}
+                      accessibilityLabel={t("Desconectar {dispositivo}", { dispositivo })}
                       disabled={busy}
                       hitSlop={8}
                       onPress={() => desconectar(id)}
                     >
-                      <Text style={styles.desconectar}>Desconectar</Text>
+                      <Text style={styles.desconectar}>{t("Desconectar")}</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -302,11 +303,11 @@ export default function Seguranca() {
 
             <View style={styles.textosPerigo}>
               <Text style={styles.tituloPerigo}>
-                Excluir conta
+                {t("Excluir conta")}
               </Text>
 
               <Text style={styles.descricaoPerigo}>
-                Apagar permanentemente os dados da conta.
+                {t("Apagar permanentemente os dados da conta.")}
               </Text>
             </View>
 
@@ -321,8 +322,8 @@ export default function Seguranca() {
       {desafio && (
         <ModalCodigoSeguranca
           key={desafio.challengeId}
-          titulo={desafio.ativar ? "Ativar verificação em duas etapas" : "Desativar verificação em duas etapas"}
-          instrucao="Digite o código recebido por e-mail. Ao confirmar, as outras sessões serão encerradas."
+          titulo={desafio.ativar ? t("Ativar verificação em duas etapas") : t("Desativar verificação em duas etapas")}
+          instrucao={t("Digite o código recebido por e-mail. Ao confirmar, as outras sessões serão encerradas.")}
           onConfirmar={confirmarDuasEtapas}
           onCancelar={() => setDesafio(null)}
         />

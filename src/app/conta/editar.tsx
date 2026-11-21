@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useIdioma } from "@/features/idioma";
 import {
   View,
   Text,
@@ -47,6 +48,7 @@ function brParaIso(br: string) {
 // Ela também é usada como "Complete seu perfil": o app/index.jsx manda pra cá
 // quem ainda não completou o cadastro (user.profileComplete === false).
 export default function Editar() {
+  const { t } = useIdioma();
   const router = useRouter();
 
   const {
@@ -131,18 +133,14 @@ export default function Editar() {
               No primeiro preenchimento a seta de voltar some, pra pessoa
               não pular o cadastro do perfil */}
           <HeaderInterno
-            titulo={
-              perfilCompleto
-                ? "Editar conta"
-                : "Complete seu perfil"
-            }
+            titulo={t(perfilCompleto ? "Editar conta" : "Complete seu perfil")}
             mostrarVoltar={perfilCompleto}
           />
 
           {/* Formulário (logo abaixo do cabeçalho) */}
           <View style={styles.formulario}>
             <Input
-              label="Nome"
+              label={t("Nome")}
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
@@ -151,14 +149,14 @@ export default function Editar() {
 
             {/* E-mail só para consulta: a API (PATCH /me) não aceita alterar o e-mail */}
             <Input
-              label="E-mail"
+              label={t("E-mail")}
               value={user?.email ?? ""}
               keyboardType="email-address"
               editable={false}
             />
 
             <Input
-              label="Telefone"
+              label={t("Telefone")}
               value={phone}
               onChangeText={(texto) => setPhone(mascararTelefone(texto))}
               placeholder="(00) 00000-0000"
@@ -169,7 +167,7 @@ export default function Editar() {
 
             {/* Data no formato brasileiro: as barras entram sozinhas enquanto digita */}
             <Input
-              label="Data de nascimento"
+              label={t("Data de nascimento")}
               placeholder="DD/MM/AAAA"
               value={birth}
               onChangeText={(texto) => setBirth(mascararData(texto))}
@@ -189,11 +187,7 @@ export default function Editar() {
             ) : null}
 
             <Button
-              titulo={
-                busy
-                  ? "Salvando..."
-                  : "Salvar alterações"
-              }
+              titulo={t(busy ? "Salvando..." : "Salvar alterações")}
               onPress={save}
               disabled={busy}
             />
@@ -202,7 +196,7 @@ export default function Editar() {
                 (no fluxo normal o "Sair da conta" fica no Perfil) */}
             {!perfilCompleto ? (
               <Button
-                titulo="Sair da conta"
+                titulo={t("Sair da conta")}
                 variante="outline"
                 onPress={() => void run(logout)}
                 disabled={busy}

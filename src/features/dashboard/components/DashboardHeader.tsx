@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react-native';
 import { useCallback, useState } from "react";
 import { Image, TouchableOpacity, View } from 'react-native';
 import { Text } from '@/shared/components/Texto';
+import { useIdioma } from '@/features/idioma';
 import { styles } from './DashboardHeaderStyles';
 
 import { api } from "../../../services/api";
@@ -17,12 +18,19 @@ type Props = {
   aoPressMes?: () => void
   onPremium?: () => void
   onNotificacao?: () => void
+  totalNaoLidas?: number
   onPerfil?: () => void
 }
 
 // Topo da Home: avatar, mês no centro e coroa + sino (igual às outras telas)
-export function DashboardHeader({ nome, mes, aoPressMes, onPremium, onNotificacao, onPerfil }: Props) {
+export function DashboardHeader({ nome, mes, aoPressMes, onPremium, onNotificacao, totalNaoLidas = 0, onPerfil }: Props) {
   const { user } = useAuth();
+  const { t } = useIdioma();
+  const rotuloNotificacoes = totalNaoLidas === 0
+    ? t("Abrir notificações")
+    : totalNaoLidas === 1
+      ? t("Abrir notificações, 1 não lida")
+      : t("Abrir notificações, {total} não lidas", { total: totalNaoLidas });
 
 const [fotoPerfil, setFotoPerfil] =
   useState<string | null>(null);
@@ -69,10 +77,10 @@ useFocusEffect(
     onPress={onPerfil}
     activeOpacity={0.8}
     accessibilityRole="button"
-    accessibilityLabel="Abrir perfil"
+    accessibilityLabel={t("Abrir perfil")}
   >
     <Avatar
-      name={user?.name ?? nome ?? "Usuário"}
+      name={user?.name ?? nome ?? t("Usuário")}
       image={fotoPerfil ?? undefined}
       size={50}
       semBorda
@@ -86,7 +94,7 @@ useFocusEffect(
         disabled={!aoPressMes}
         activeOpacity={0.85}
         accessibilityRole="button"
-        accessibilityLabel={`Mês selecionado: ${mes}. Toque para trocar`}
+        accessibilityLabel={t("Mês selecionado: {mes}. Toque para trocar", { mes })}
       >
         <Text style={styles.mesTexto} numberOfLines={1}>{mes}</Text>
         <ChevronDown size={22} color={Cores.base.branco} />
@@ -94,13 +102,27 @@ useFocusEffect(
 
       <View style={styles.icones}>
         {/* Coroa — leva pra tela Premium */}
-        <TouchableOpacity onPress={onPremium} activeOpacity={0.75} accessibilityLabel="Abrir Premium">
+        <TouchableOpacity onPress={onPremium} activeOpacity={0.75} accessibilityLabel={t("Abrir Premium")}>
           <Image source={require('../../../../assets/icones/coroa.png')} style={styles.icone} />
         </TouchableOpacity>
 
         {/* Sino — leva pra tela de Notificações */}
-        <TouchableOpacity onPress={onNotificacao} activeOpacity={0.75} accessibilityLabel="Abrir notificações">
+        <TouchableOpacity
+          style={styles.sino}
+          onPress={onNotificacao}
+          activeOpacity={0.75}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={rotuloNotificacoes}
+        >
           <Image source={require('../../../../assets/icones/sino.png')} style={styles.icone} />
+          {totalNaoLidas > 0 && (
+            <View style={styles.contador} pointerEvents="none" importantForAccessibility="no-hide-descendants">
+              <Text style={styles.contadorTexto} allowFontScaling={false} numberOfLines={1}>
+                {totalNaoLidas > 99 ? '99+' : totalNaoLidas}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
     </View>

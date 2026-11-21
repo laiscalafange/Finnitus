@@ -2,21 +2,14 @@ import { View } from 'react-native'
 import Svg, { Circle } from 'react-native-svg'
 import { Cores } from '@/shared/constants/Cores'
 import { Text } from '@/shared/components/Texto'
-import { useExibirValores } from '@/features/configuracoesContext'
+import { useMoedaVisivel } from '@/features/configuracoesContext'
+import { useIdioma } from '@/features/idioma'
 import { EconomiaResumo } from '../../types'
 import { styles } from './styles'
 
 type Props = {
   dados?: EconomiaResumo
 }
-
-// R$ 208 (sem centavos quando o valor é inteiro) ou R$ 208,50
-const moeda = (valor: number) =>
-  valor.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    minimumFractionDigits: valor % 1 === 0 ? 0 : 2,
-  })
 
 const TAMANHO = 100
 const RAIO = 34
@@ -25,12 +18,13 @@ const CIRCUNFERENCIA = 2 * Math.PI * RAIO
 // Card "Economia mensal": quanto foi guardado nas metas no mês selecionado.
 // É só informativo: não é clicável (não leva a nenhuma outra tela).
 export function CardEconomia({ dados }: Props) {
-  const exibir = useExibirValores()
+  const moedaVisivel = useMoedaVisivel()
+  const { t } = useIdioma()
   const percentual = Math.min(100, Math.max(0, dados?.percentual ?? 0))
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Economia mensal</Text>
+      <Text style={styles.titulo}>{t('Economia mensal')}</Text>
 
       <View style={styles.card}>
         <View style={styles.medidor}>
@@ -58,15 +52,15 @@ export function CardEconomia({ dados }: Props) {
         </View>
 
         <View style={styles.textos}>
-          <Text style={styles.rotulo}>Você economizou</Text>
+          <Text style={styles.rotulo}>{t('Você economizou')}</Text>
           <View style={styles.valorLinha}>
-            <Text style={styles.valor}>{exibir(moeda(dados?.economizado ?? 0))}</Text>
-            <Text style={styles.valorSufixo}>este mês</Text>
+            <Text style={styles.valor}>{moedaVisivel(dados?.economizado ?? 0)}</Text>
+            <Text style={styles.valorSufixo}>{t('este mês')}</Text>
           </View>
           <Text style={styles.mensagem}>
             {dados?.metaMensal !== undefined
-              ? `Sua meta é economizar ${exibir(moeda(dados.metaMensal))} por mês.`
-              : 'Mesmo um pequeno esforço já faz uma grande diferença no futuro!'}
+              ? t('Sua meta é economizar {valor} por mês.', { valor: moedaVisivel(dados.metaMensal) })
+              : t('Mesmo um pequeno esforço já faz uma grande diferença no futuro!')}
           </Text>
         </View>
       </View>

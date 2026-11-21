@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 
 import {
   View,
@@ -69,6 +70,7 @@ const GRADIENTE_CARD: [string, string] = [
 ];
 
 export default function AlertasNotificacoes() {
+  const { t } = useIdioma();
   const { configuracoes, carregando, salvando, atualizar } = useConfiguracoes();
 
   return (
@@ -79,7 +81,7 @@ export default function AlertasNotificacoes() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno titulo="Alertas e notificações" />
+        <HeaderInterno titulo={t("Alertas e notificações")} />
 
         <View style={styles.lista}>
           <EstadoConfiguracoes />
@@ -106,16 +108,16 @@ export default function AlertasNotificacoes() {
 
                   <View style={styles.textosItem}>
                     <Text style={styles.tituloItem}>
-                      {label}
+                      {t(label)}
                     </Text>
 
                     <Text style={styles.descricaoItem}>
-                      {descricao}
+                      {t(descricao)}
                     </Text>
                   </View>
 
                   <Switch
-                    accessibilityLabel={label}
+                    accessibilityLabel={t(label)}
                     disabled={!configuracoes || carregando || salvando}
                     value={configuracoes?.[id] === true}
                     onValueChange={(value) => void atualizar({ [id]: value })}

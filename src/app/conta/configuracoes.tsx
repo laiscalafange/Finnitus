@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 
 import {
   View,
@@ -44,6 +45,7 @@ const ITENS = [
 ] as const;
 
 export default function Configuracoes() {
+  const { t } = useIdioma();
   const router = useRouter();
 
   return (
@@ -54,7 +56,7 @@ export default function Configuracoes() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno titulo="Configurações" />
+        <HeaderInterno titulo={t("Configurações")} />
 
         <View style={styles.lista}>
           {ITENS.map(({ id, label, icon: Icone, rota }) => (
@@ -79,7 +81,7 @@ export default function Configuracoes() {
                   </View>
 
                   <Text style={styles.rotulo}>
-                    {label}
+                    {t(label)}
                   </Text>
 
                   <ChevronRight

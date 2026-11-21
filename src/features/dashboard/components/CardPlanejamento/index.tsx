@@ -1,9 +1,9 @@
 import { Image, View } from 'react-native'
 import { Text } from '@/shared/components/Texto'
-import { useExibirValores } from '@/features/configuracoesContext'
+import { useMoedaVisivel } from '@/features/configuracoesContext'
+import { useIdioma } from '@/features/idioma'
 import { Progress } from '@/shared/components/Progress'
 import { Cores } from '@/shared/constants/Cores'
-import { formatarMoeda } from '@/features/menuMais/utils'
 import { PlanejamentoResumo } from '../../types'
 import { BotaoPilula, CardSecao } from '../CardSecao'
 import { styles } from './styles'
@@ -16,9 +16,10 @@ type Props = {
 
 // Card "Metas" da Home (antigo "Planejamento"; separado do card "Eventos")
 export function CardPlanejamento({ dados, onPress }: Props) {
-  const exibir = useExibirValores()
+  const moedaVisivel = useMoedaVisivel()
+  const { t } = useIdioma()
   return (
-    <CardSecao titulo="Metas" aoVerTodos={onPress} textoVerTodos="Ver todas">
+    <CardSecao titulo={t('Metas')} aoVerTodos={onPress} textoVerTodos={t('Ver todas')}>
       {dados ? (
         <View style={styles.meta}>
           <View style={styles.bolha}>
@@ -26,7 +27,7 @@ export function CardPlanejamento({ dados, onPress }: Props) {
           </View>
 
           <View style={styles.textos}>
-            <Text style={styles.label}>META</Text>
+            <Text style={styles.label}>{t('META')}</Text>
             <Text style={styles.nome} numberOfLines={1}>{dados.titulo}</Text>
 
             <View style={styles.linhaProgresso}>
@@ -42,15 +43,17 @@ export function CardPlanejamento({ dados, onPress }: Props) {
             </View>
 
             <Text style={styles.faltam}>
-              Faltam {exibir(formatarMoeda(dados.faltam))} de {exibir(formatarMoeda(dados.total))}
+              {t('Faltam {restante} de {total}', {
+                restante: moedaVisivel(dados.faltam), total: moedaVisivel(dados.total),
+              })}
             </Text>
           </View>
 
-          <BotaoPilula titulo="Ver meta" aoPress={onPress} />
+          <BotaoPilula titulo={t('Ver meta')} aoPress={onPress} />
         </View>
       ) : (
         <View style={styles.vazio}>
-          <Text style={styles.vazioTexto}>Crie uma meta para acompanhar seu progresso.</Text>
+          <Text style={styles.vazioTexto}>{t('Crie uma meta para acompanhar seu progresso.')}</Text>
         </View>
       )}
     </CardSecao>

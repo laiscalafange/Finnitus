@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 import {
   useEffect,
   useState,
@@ -30,6 +31,7 @@ import { styles } from "../../styles/trocarSenhaCodigo";
 // confirmado na etapa anterior. Mesmo componente FourInput usado no
 // fluxo "Esqueci minha senha".
 export default function TrocarSenhaCodigo() {
+  const { t } = useIdioma();
   const router = useRouter();
 
   const { recoveryEmail, setResetToken } = useAuth();
@@ -56,7 +58,7 @@ export default function TrocarSenhaCodigo() {
   function validar() {
     void run(async () => {
       if (!/^\d{4}$/.test(codigo)) {
-        throw new Error("Informe os quatro dígitos.");
+        throw new Error(t("Informe os quatro dígitos."));
       }
 
       const result = await authService.verify(recoveryEmail, codigo);
@@ -84,11 +86,11 @@ export default function TrocarSenhaCodigo() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno titulo="Trocar senha" />
+        <HeaderInterno titulo={t("Trocar senha")} />
 
         <View style={styles.formulario}>
           <Text style={styles.texto}>
-            {`Confira o e-mail ${recoveryEmail}. O código expira em 15 minutos.`}
+            {t("Confira o e-mail {email}. O código expira em 15 minutos.", { email: recoveryEmail })}
           </Text>
 
           <FourInput
@@ -108,7 +110,7 @@ export default function TrocarSenhaCodigo() {
 
           <View style={styles.espacoBotoes}>
             <Button
-              titulo={busy ? "Aguarde..." : "Validar código"}
+              titulo={busy ? t("Aguarde...") : t("Validar código")}
               variante="terciario"
               disabled={busy || codigo.length !== 4}
               onPress={validar}
@@ -117,8 +119,8 @@ export default function TrocarSenhaCodigo() {
             <Button
               titulo={
                 remaining > 0
-                  ? `Reenviar em ${remaining}s`
-                  : "Reenviar código"
+                  ? t("Reenviar em {segundos}s", { segundos: remaining })
+                  : t("Reenviar código")
               }
               variante="outline"
               disabled={busy || remaining > 0}
@@ -126,12 +128,11 @@ export default function TrocarSenhaCodigo() {
             />
 
             <Text style={styles.aviso}>
-              A API permite até cinco tentativas por código. Um novo
-              pedido invalida o código anterior.
+              {t("A API permite até cinco tentativas por código. Um novo pedido invalida o código anterior.")}
             </Text>
 
             <Button
-              titulo="Voltar"
+              titulo={t("Voltar")}
               variante="outline"
               disabled={busy}
               onPress={() => router.replace("/conta/trocarSenhaEmail")}

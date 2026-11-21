@@ -62,6 +62,7 @@ export const styles = StyleSheet.create({
   },
 
   label: {
+    flexShrink: 1,
     fontFamily: FONTS.quicksand.bold,
     fontSize: 13,
     lineHeight: 18,

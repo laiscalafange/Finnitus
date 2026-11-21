@@ -1,7 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
 import { Text } from '@/shared/components/Texto'
-import { useExibirValores, useMoedaVisivel } from '@/features/configuracoesContext'
+import { useMoedaVisivel } from '@/features/configuracoesContext'
 import Svg, { Circle } from 'react-native-svg'
 import { LinearGradient } from 'expo-linear-gradient'
 
@@ -28,13 +28,6 @@ interface RotasCardProps {
   styles: any
 }
 
-function formatarMoeda(valor: number) {
-  return valor.toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
-}
-
 export function RotasCard({
   titulo,
   total,
@@ -44,7 +37,6 @@ export function RotasCard({
   vazio,
   styles,
 }: RotasCardProps) {
-  const exibir = useExibirValores()
   const moedaVisivel = useMoedaVisivel()
 
   const radius = 50
@@ -143,7 +135,7 @@ export function RotasCard({
 
         <View style={styles.rotasGaugeValor}>
           <Text style={styles.gaugeLabel}>
-            {exibir(formatarMoeda(total))}
+            {moedaVisivel(total)}
           </Text>
         </View>
       </View>
@@ -177,7 +169,7 @@ export function RotasCard({
               </View>
 
               <Text style={styles.rotasCategoriaValor}>
-                {exibir(formatarMoeda(categoria.valor))}
+                {moedaVisivel(categoria.valor)}
               </Text>
 
               <Text style={styles.rotasCategoriaPercentual}>

@@ -3,9 +3,14 @@ import { useFocusEffect } from "expo-router";
 import { errorMessage } from "../../services/api";
 import { notificacoesApi, type Notificacao } from "../../services/notificacoes.api";
 
+const SEM_AVISOS: { notificacoes: Notificacao[]; totalNaoLidas: number } = {
+  notificacoes: [],
+  totalNaoLidas: 0,
+};
+
 /** Os dados e a leitura vêm sempre da conta autenticada no servidor. */
 export function useNotificacoes() {
-  const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
+  const [avisos, setAvisos] = useState(SEM_AVISOS);
   const [carregando, setCarregando] = useState(true);
   const [atualizando, setAtualizando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -14,12 +19,12 @@ export function useNotificacoes() {
     setAtualizando(true);
     try {
       const resposta = await notificacoesApi.listar({ limite: 100, pagina: 1 });
-      setNotificacoes(resposta.notificacoes);
+      setAvisos({ notificacoes: resposta.notificacoes, totalNaoLidas: resposta.totalNaoLidas });
       setErro(null);
     } catch (error) {
       setErro(errorMessage(error));
       // Não manter informações de uma conta anterior após falha de autenticação.
-      setNotificacoes([]);
+      setAvisos(SEM_AVISOS);
     } finally {
       setCarregando(false);
       setAtualizando(false);
@@ -33,7 +38,13 @@ export function useNotificacoes() {
   const marcarLida = useCallback(async (id: number) => {
     try {
       const atualizada = await notificacoesApi.marcarLida(id);
-      setNotificacoes(lista => lista.map(item => item.id_Notificacao === id ? atualizada : item));
+      setAvisos(lista => {
+        const eraNaoLida = lista.notificacoes.some(item => item.id_Notificacao === id && !item.lida);
+        return {
+          notificacoes: lista.notificacoes.map(item => item.id_Notificacao === id ? atualizada : item),
+          totalNaoLidas: Math.max(0, lista.totalNaoLidas - Number(eraNaoLida)),
+        };
+      });
       setErro(null);
     } catch (error) {
       setErro(errorMessage(error));
@@ -44,7 +55,11 @@ export function useNotificacoes() {
   const marcarTodasLidas = useCallback(async () => {
     try {
       await notificacoesApi.marcarTodasLidas();
-      setNotificacoes(lista => lista.map(item => ({ ...item, lida: true, lidaEm: item.lidaEm ?? new Date().toISOString() })));
+      const agora = new Date().toISOString();
+      setAvisos(lista => ({
+        notificacoes: lista.notificacoes.map(item => ({ ...item, lida: true, lidaEm: item.lidaEm ?? agora })),
+        totalNaoLidas: 0,
+      }));
       setErro(null);
     } catch (error) {
       setErro(errorMessage(error));
@@ -52,5 +67,5 @@ export function useNotificacoes() {
     }
   }, []);
 
-  return { notificacoes, carregando, atualizando, erro, carregar, marcarLida, marcarTodasLidas };
+  return { ...avisos, carregando, atualizando, erro, carregar, marcarLida, marcarTodasLidas };
 }

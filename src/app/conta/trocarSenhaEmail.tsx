@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 import { useState } from "react";
 import {
   View,
@@ -33,6 +34,7 @@ import { styles } from "../../styles/trocarSenhaEmail";
 // Reaproveita o mesmo authService (forgot/verify/reset) e o mesmo
 // estado de recuperação do AuthContext que aquele fluxo já usa.
 export default function TrocarSenhaEmail() {
+  const { t } = useIdioma();
   const router = useRouter();
 
   const { user, startRecovery } = useAuth();
@@ -46,11 +48,11 @@ export default function TrocarSenhaEmail() {
       const normalized = normalizeEmail(email);
 
       if (!validEmail(normalized)) {
-        throw new Error("Informe um e-mail válido.");
+        throw new Error(t("Informe um e-mail válido."));
       }
 
       if (!user || normalized !== normalizeEmail(user.email)) {
-        throw new Error("Informe o e-mail da sua conta.");
+        throw new Error(t("Informe o e-mail da sua conta."));
       }
 
       await authService.forgot(normalized);
@@ -73,16 +75,15 @@ export default function TrocarSenhaEmail() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.conteudo}
         >
-          <HeaderInterno titulo="Trocar senha" />
+          <HeaderInterno titulo={t("Trocar senha")} />
 
           <View style={styles.formulario}>
             <Text style={styles.texto}>
-              Confirme seu e-mail: vamos enviar um código pra garantir
-              que é você antes de trocar a senha.
+              {t("Confirme seu e-mail: vamos enviar um código pra garantir que é você antes de trocar a senha.")}
             </Text>
 
             <Input
-              label="E-mail"
+              label={t("E-mail")}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -96,14 +97,14 @@ export default function TrocarSenhaEmail() {
             ) : null}
 
             <Button
-              titulo={busy ? "Enviando..." : "Enviar código"}
+              titulo={busy ? t("Enviando...") : t("Enviar código")}
               variante="terciario"
               onPress={enviar}
               disabled={busy}
             />
 
             <Button
-              titulo="Cancelar"
+              titulo={t("Cancelar")}
               variante="outline"
               disabled={busy}
               onPress={() => router.dismissTo("/conta/seguranca")}

@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 import { useState } from "react";
 import { KeyboardAvoidingView, Modal, Platform, StyleSheet, Text, View } from "react-native";
 import { Button } from "../Button";
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export function ModalCodigoSeguranca({ titulo, instrucao, onConfirmar, onCancelar }: Props) {
+  const { t } = useIdioma();
   const [codigo, setCodigo] = useState("");
   const { busy, error, run, clearError } = useAuthAction();
 
@@ -31,8 +33,8 @@ export function ModalCodigoSeguranca({ titulo, instrucao, onConfirmar, onCancela
           <Text accessibilityRole="header" style={styles.titulo}>{titulo}</Text>
           <Text style={styles.instrucao}>{instrucao}</Text>
           <Input
-            label="Código de verificação"
-            placeholder="6 dígitos"
+            label={t("Código de verificação")}
+            placeholder={t("6 dígitos")}
             keyboardType="number-pad"
             autoComplete="one-time-code"
             value={codigo}
@@ -45,11 +47,11 @@ export function ModalCodigoSeguranca({ titulo, instrucao, onConfirmar, onCancela
             erro={error}
           />
           <Button
-            titulo={busy ? "Confirmando..." : "Confirmar"}
+            titulo={busy ? t("Confirmando...") : t("Confirmar")}
             disabled={busy || codigo.length !== 6}
             onPress={() => void run(() => onConfirmar(codigo))}
           />
-          <Button titulo="Cancelar" variante="outline" disabled={busy} onPress={cancelar} />
+          <Button titulo={t("Cancelar")} variante="outline" disabled={busy} onPress={cancelar} />
         </View>
       </KeyboardAvoidingView>
     </Modal>

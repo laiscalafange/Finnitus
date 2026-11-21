@@ -16,11 +16,12 @@ import { ModalCartao } from "@/features/contas/components/ContaUI";
 import { styles as ui } from "@/features/contas/styles";
 import { useNotificacoes } from "@/features/contas/useNotificacoes";
 import { useConfiguracoes } from "@/features/configuracoesContext";
+import { useIdioma, type ChaveIdioma } from "@/features/idioma";
 import { categoriaNotificacao, dataNotificacao, tempoNotificacao, tipoCardNotificacao, type CategoriaNotificacao } from "@/features/contas/notificacoesReais";
 import type { Notificacao } from "@/services/notificacoes.api";
 
 type Filtro = "todas" | CategoriaNotificacao;
-const OPCOES: { id: Filtro; rotulo: string }[] = [
+const OPCOES: { id: Filtro; rotulo: ChaveIdioma }[] = [
   { id: "todas", rotulo: "Todas" },
   { id: "contas", rotulo: "Contas" },
   { id: "metas", rotulo: "Metas" },
@@ -30,11 +31,11 @@ const OPCOES: { id: Filtro; rotulo: string }[] = [
 export default function Notificacoes() {
   const router = useRouter();
   const { configuracoes } = useConfiguracoes();
-  const { notificacoes, carregando, atualizando, erro, carregar, marcarLida, marcarTodasLidas } = useNotificacoes();
+  const { idioma, t } = useIdioma();
+  const { notificacoes, totalNaoLidas, carregando, atualizando, erro, carregar, marcarLida, marcarTodasLidas } = useNotificacoes();
   const [filtro, setFiltro] = useState<Filtro>("todas");
   const [aberta, setAberta] = useState<Notificacao | null>(null);
   const lista = notificacoes.filter(item => filtro === "todas" || categoriaNotificacao(item) === filtro);
-  const naoLidas = notificacoes.filter(item => !item.lida).length;
 
   async function abrir(item: Notificacao) {
     setAberta(item);
@@ -67,25 +68,26 @@ export default function Notificacoes() {
       <BackgroundGradient variante="funcional" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.conteudo}
         refreshControl={<RefreshControl refreshing={atualizando && !carregando} onRefresh={() => void carregar()} />}>
-        <HeaderInterno titulo="Notificações" />
+        <HeaderInterno titulo={t("Notificações")} />
         <View style={styles.conteudoLista}>
-          <AlternadorTipo<Filtro> valor={filtro} aoMudar={setFiltro} opcoes={OPCOES} />
+          <AlternadorTipo<Filtro> valor={filtro} aoMudar={setFiltro}
+            opcoes={OPCOES.map(opcao => ({ ...opcao, rotulo: t(opcao.rotulo) }))} />
           <View style={styles.linhaMarcarTodas}>
-            <TouchableOpacity onPress={() => void lerTodas()} disabled={naoLidas === 0} accessibilityRole="button">
-              <Text style={styles.marcarTodas}>Marcar todas como lidas ({naoLidas})</Text>
+            <TouchableOpacity onPress={() => void lerTodas()} disabled={totalNaoLidas === 0} accessibilityRole="button">
+              <Text style={styles.marcarTodas}>{t("Marcar todas como lidas ({total})", { total: totalNaoLidas })}</Text>
             </TouchableOpacity>
           </View>
           {erro ? <Text style={ui.vazio} accessibilityRole="alert">{erro}</Text> : null}
           {carregando && notificacoes.length === 0 ? <ActivityIndicator color={Cores.destaque.limao} /> : null}
-          {!carregando && lista.length === 0 && !erro ? <Text style={ui.vazio}>Nenhuma notificação por aqui.</Text> : null}
+          {!carregando && lista.length === 0 && !erro ? <Text style={ui.vazio}>{t("Nenhuma notificação por aqui.")}</Text> : null}
           {lista.map(item => (
             <CardNotificacao
               key={item.id_Notificacao}
               tipo={tipoCardNotificacao(item)}
               mensagem={item.titulo}
               tempo={configuracoes?.mostrarValores
-                ? `${item.mensagem} · ${tempoNotificacao(item.criadaEm)}`
-                : tempoNotificacao(item.criadaEm)}
+                ? `${item.mensagem} · ${tempoNotificacao(item.criadaEm, idioma)}`
+                : tempoNotificacao(item.criadaEm, idioma)}
               lida={item.lida}
               onPress={() => void abrir(item)}
             />
@@ -99,14 +101,14 @@ export default function Notificacoes() {
           {configuracoes?.mostrarValores ? <Text style={ui.modalSubtitulo}>{aberta.mensagem}</Text> : null}
           <View style={ui.modalData}>
             <CalendarDays size={20} color={Cores.texto.claro} />
-            <Text style={ui.modalDataTexto}>{dataNotificacao(aberta.criadaEm)}</Text>
+            <Text style={ui.modalDataTexto}>{dataNotificacao(aberta.criadaEm, idioma)}</Text>
           </View>
           <View style={ui.modalBotoes}>
-            {categoriaAberta === "metas" ? <Button titulo="Ver meta" onPress={() =>
+            {categoriaAberta === "metas" ? <Button titulo={t("Ver meta")} onPress={() =>
               aberta.relacionadoId ? ir("/MetasDetalhes", { id: String(aberta.relacionadoId) }) : ir("/metas")
             } /> : null}
-            {categoriaAberta === "eventos" ? <Button titulo="Abrir calendário" onPress={() => ir("/calendario")} /> : null}
-            {categoriaAberta === "contas" ? <Button titulo="Ver movimentações" onPress={() => ir("/Contas/Movimentacoes")} /> : null}
+            {categoriaAberta === "eventos" ? <Button titulo={t("Abrir calendário")} onPress={() => ir("/calendario")} /> : null}
+            {categoriaAberta === "contas" ? <Button titulo={t("Ver movimentações")} onPress={() => ir("/Contas/Movimentacoes")} /> : null}
           </View>
         </> : null}
       </ModalCartao>

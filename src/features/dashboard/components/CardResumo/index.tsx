@@ -2,7 +2,8 @@ import { TouchableOpacity, View, useWindowDimensions } from 'react-native'
 import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react-native'
 import { Cores } from '@/shared/constants/Cores'
 import { Text } from '@/shared/components/Texto'
-import { useConfiguracoes, useExibirValores } from '@/features/configuracoesContext'
+import { useConfiguracoes, useMoedaExibicao, useMoedaVisivel } from '@/features/configuracoesContext'
+import { useIdioma } from '@/features/idioma'
 import { MEDIDAS, styles } from './styles'
 
 type Props = {
@@ -11,32 +12,6 @@ type Props = {
   // Tocar em Receitas ou Despesas abre a tela Movimentações
   onPressReceitas?: () => void
   onPressDespesas?: () => void
-}
-
-// Sem valor preenchido, mostra R$ 0,00 (nunca traços). Valor real não é alterado.
-const moeda = (valor?: number) =>
-  (valor ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-
-// A partir de 1 milhão o valor aparece abreviado (R$ 1,25 mi) só aqui no
-// cabeçalho, pra caber sempre no card sem quebrar. O valor real não muda e
-// continua completo nas telas de movimentações.
-function moedaResumo(valor?: number) {
-  const numero = valor ?? 0
-  const abs = Math.abs(numero)
-
-  if (abs < 1_000_000) return moeda(numero)
-
-  const [divisor, sufixo] =
-    abs >= 1_000_000_000_000 ? [1_000_000_000_000, 'tri']
-    : abs >= 1_000_000_000 ? [1_000_000_000, 'bi']
-    : [1_000_000, 'mi']
-
-  const abreviado = (numero / divisor).toLocaleString('pt-BR', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-
-  return `R$ ${abreviado} ${sufixo}`
 }
 
 // ─── Tamanho da fonte do valor ────────────────────────────────────────────
@@ -85,7 +60,10 @@ function Valor({ texto, corEstilo, larguraDisponivel, fator }: ValorProps) {
 
 // Receitas e Despesas lado a lado (ficam dentro do header roxo da Home)
 export function CardResumo({ receitas, despesas, onPressReceitas, onPressDespesas }: Props) {
-  const exibir = useExibirValores()
+  const moedaVisivel = useMoedaVisivel()
+  const moedaCompacta = useMoedaVisivel(true)
+  const { taxa } = useMoedaExibicao()
+  const { t } = useIdioma()
   const { configuracoes } = useConfiguracoes()
   const { width } = useWindowDimensions()
 
@@ -98,8 +76,10 @@ export function CardResumo({ receitas, despesas, onPressReceitas, onPressDespesa
   const metade = (width - MEDIDAS.linhaPadding * 2 - MEDIDAS.linhaGap) / 2
   const larguraDisponivel = metade - MEDIDAS.itemPadding * 2 - MEDIDAS.bolha - MEDIDAS.itemGap
 
-  const textoReceitas = exibir(moedaResumo(receitas))
-  const textoDespesas = exibir(moedaResumo(despesas))
+  // Abrevia valores a partir de um milhão na moeda de exibição.
+  const moedaResumo = (valor = 0) => Math.abs(valor * taxa) >= 1_000_000
+    ? moedaCompacta(valor)
+    : moedaVisivel(valor)
 
   return (
     <View style={styles.linha}>
@@ -109,18 +89,18 @@ export function CardResumo({ receitas, despesas, onPressReceitas, onPressDespesa
         disabled={!onPressReceitas}
         activeOpacity={0.8}
         accessibilityRole="button"
-        accessibilityLabel="Ver movimentações de receitas"
+        accessibilityLabel={t('Ver movimentações de receitas')}
       >
         <View style={[styles.bolha, styles.bolhaReceita]}>
           <ArrowUp size={26} color={Cores.texto.contraste} />
         </View>
         <View style={styles.textos}>
           <View style={styles.rotuloLinha}>
-            <Text style={styles.label}>Receitas</Text>
+            <Text style={styles.label} numberOfLines={1} adjustsFontSizeToFit>{t('Receitas')}</Text>
             {onPressReceitas && <ChevronRight size={16} color={Cores.texto.claro} />}
           </View>
           <Valor
-            texto={textoReceitas}
+            texto={moedaResumo(receitas)}
             corEstilo={styles.valorReceita}
             larguraDisponivel={larguraDisponivel}
             fator={fator}
@@ -134,18 +114,18 @@ export function CardResumo({ receitas, despesas, onPressReceitas, onPressDespesa
         disabled={!onPressDespesas}
         activeOpacity={0.8}
         accessibilityRole="button"
-        accessibilityLabel="Ver movimentações de despesas"
+        accessibilityLabel={t('Ver movimentações de despesas')}
       >
         <View style={[styles.bolha, styles.bolhaDespesa]}>
           <ArrowDown size={26} color={Cores.base.branco} />
         </View>
         <View style={styles.textos}>
           <View style={styles.rotuloLinha}>
-            <Text style={styles.label}>Despesas</Text>
+            <Text style={styles.label} numberOfLines={1} adjustsFontSizeToFit>{t('Despesas')}</Text>
             {onPressDespesas && <ChevronRight size={16} color={Cores.texto.claro} />}
           </View>
           <Valor
-            texto={textoDespesas}
+            texto={moedaResumo(despesas)}
             corEstilo={styles.valorDespesa}
             larguraDisponivel={larguraDisponivel}
             fator={fator}

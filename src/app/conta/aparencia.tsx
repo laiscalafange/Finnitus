@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 
 import { useState } from "react";
 
@@ -23,11 +24,11 @@ import { useConfiguracoes, type TamanhoTexto } from "@/features/configuracoesCon
 import { Cores } from "../../shared/constants/Cores";
 import { styles } from "../../styles/aparencia";
 
-const TAMANHOS_TEXTO: Record<TamanhoTexto, string> = {
+const TAMANHOS_TEXTO = {
   PEQUENO: "Pequeno",
   MEDIO: "Médio",
   GRANDE: "Grande",
-};
+} as const satisfies Record<TamanhoTexto, string>;
 
 const GRADIENTE_CARD: [string, string] = [
   "rgba(44, 27, 67, 0.94)",
@@ -35,6 +36,7 @@ const GRADIENTE_CARD: [string, string] = [
 ];
 
 export default function Aparencia() {
+  const { t } = useIdioma();
   const { configuracoes, carregando, salvando, atualizar } = useConfiguracoes();
   const tamanhoTexto = configuracoes?.tamanhoTexto;
   const bloqueado = !configuracoes || carregando || salvando;
@@ -54,7 +56,7 @@ export default function Aparencia() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno titulo="Aparência" />
+        <HeaderInterno titulo={t("Aparência")} />
 
         <View style={styles.lista}>
           <EstadoConfiguracoes />
@@ -72,11 +74,11 @@ export default function Aparencia() {
 
               <View style={styles.textosTitulo}>
                 <Text style={styles.rotuloItem}>
-                  Tamanho dos textos
+                  {t("Tamanho dos textos")}
                 </Text>
 
                 <Text style={styles.descricaoItem}>
-                  Escolha o tamanho de texto que prefere.
+                  {t("Escolha o tamanho de texto que prefere.")}
                 </Text>
               </View>
             </View>
@@ -99,7 +101,7 @@ export default function Aparencia() {
               }}
             >
               <Text style={styles.valorSelecionado}>
-                {tamanhoTexto ? TAMANHOS_TEXTO[tamanhoTexto] : "—"}
+                {tamanhoTexto ? t(TAMANHOS_TEXTO[tamanhoTexto]) : "—"}
               </Text>
 
               <ChevronDown
@@ -141,7 +143,7 @@ export default function Aparencia() {
                           styles.textoOpcaoAtiva,
                       ]}
                     >
-                      {TAMANHOS_TEXTO[opcao]}
+                      {t(TAMANHOS_TEXTO[opcao])}
                     </Text>
 
                     {tamanhoTexto === opcao && (

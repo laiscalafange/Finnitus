@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 import React from "react";
 import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Text } from "@/shared/components/Texto";
@@ -10,6 +11,7 @@ import { Rotas } from "../../../shared/constants/Rotas";
 import { BotaoVoltar } from "../BotaoVoltar";
 
 export function HeaderPerfil() {
+  const { t } = useIdioma();
   // Hook de navegação do Expo Router
   const router = useRouter();
 
@@ -25,8 +27,8 @@ export function HeaderPerfil() {
         <BotaoVoltar />
 
         <View>
-          <Text style={styles.titulo}>Perfil</Text>
-          <Text style={styles.subtitulo}>Pessoal</Text>
+          <Text style={styles.titulo}>{t("Perfil")}</Text>
+          <Text style={styles.subtitulo}>{t("Pessoal")}</Text>
         </View>
       </View>
 
@@ -35,7 +37,8 @@ export function HeaderPerfil() {
       <View style={styles.icones}>
 
         {/* Sino — leva pra tela de notificações */}
-        <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={t("Abrir notificações")}
+          onPress={() => router.push(Rotas.notificacao)}>
           <Image
             source={require("../../../../assets/icones/sino.png")}
             style={styles.sino}

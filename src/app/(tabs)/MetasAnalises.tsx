@@ -23,8 +23,7 @@ import { Cores } from "../../shared/constants/Cores";
 import { FONTS } from "../../shared/constants/Tipografia";
 
 import { CATEGORIAS_POR_ID } from "@/features/menuMais/constants";
-import { formatarMoeda } from "@/features/menuMais/utils";
-import { useExibirValores, useMoedaVisivel } from "@/features/configuracoesContext";
+import { useMoedaVisivel } from "@/features/configuracoesContext";
 import { useFinanceiro } from "@/features/financeiroContext";
 import {
   habitoGuardar,
@@ -44,35 +43,9 @@ const ROXO = "#A357FF";
 
 const PERCENTUAL_DESTAQUE = 75;
 
-function moedaSegura(valor: unknown): string {
-  const numero = Number(valor);
-
-  if (!Number.isFinite(numero)) {
-    return "—";
-  }
-
-  return formatarMoeda(numero);
-}
-
-function valorCompacto(valor: number): string {
-  if (valor >= 1000000) {
-    return `R$ ${(valor / 1000000)
-      .toFixed(1)
-      .replace(".", ",")} mi`;
-  }
-
-  if (valor >= 1000) {
-    return `R$ ${(valor / 1000)
-      .toFixed(1)
-      .replace(".", ",")} mil`;
-  }
-
-  return `R$ ${Math.round(valor).toLocaleString("pt-BR")}`;
-}
-
 export default function MetasAnalises() {
-  const exibir = useExibirValores();
   const moedaVisivel = useMoedaVisivel();
+  const moedaCompacta = useMoedaVisivel(true);
   const { width: larguraTela } = useWindowDimensions();
   const { metas } = useFinanceiro();
 
@@ -319,12 +292,12 @@ export default function MetasAnalises() {
 
                     <View style={styles.linhaValoresMeta}>
                       <Text style={styles.valorGuardado}>
-                        {exibir(moedaSegura(meta.valorAtual))}
+                        {moedaVisivel(meta.valorAtual)}
                       </Text>
 
                       <Text style={styles.valorObjetivo}>
                         {meta.valorObjetivo !== null
-                          ? `de ${exibir(moedaSegura(meta.valorObjetivo))}`
+                          ? `de ${moedaVisivel(meta.valorObjetivo)}`
                           : "Objetivo indisponível"}
                       </Text>
                     </View>
@@ -412,7 +385,7 @@ export default function MetasAnalises() {
                       }}
                       labels={({ datum }) =>
                         datum.y > 0
-                          ? exibir(valorCompacto(datum.y))
+                          ? moedaCompacta(datum.y)
                           : ""
                       }
                       labelComponent={

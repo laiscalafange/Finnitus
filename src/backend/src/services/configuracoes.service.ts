@@ -6,10 +6,12 @@ const booleanos = [
   "mostrarValores", "vencimento", "gastos", "calendario", "planoB", "resumo", "metas",
 ] as const;
 const tamanhos: readonly TamanhoTexto[] = ["PEQUENO", "MEDIO", "GRANDE"];
+const idiomas = ["pt-BR", "en", "es"] as const;
+const moedas = ["BRL", "USD", "EUR"] as const;
 
 type Configuracao = Record<(typeof booleanos)[number], boolean> & {
-  idioma: string;
-  moeda: string;
+  idioma: (typeof idiomas)[number];
+  moeda: (typeof moedas)[number];
   tamanhoTexto: TamanhoTexto;
 };
 
@@ -40,10 +42,16 @@ const campos = {
 } as const;
 
 export async function buscarConfiguracaoUsuario(id: number): Promise<Configuracao> {
-  return (await prisma.configuracaoUsuario.findUnique({
+  const configuracao = await prisma.configuracaoUsuario.findUnique({
     where: { id_Usuario: id },
     select: campos,
-  })) ?? padrao;
+  });
+  if (!configuracao) return padrao;
+  return {
+    ...configuracao,
+    idioma: idiomas.find(idioma => idioma === configuracao.idioma) ?? padrao.idioma,
+    moeda: moedas.find(moeda => moeda === configuracao.moeda) ?? padrao.moeda,
+  };
 }
 
 export function validarConfiguracao(body: unknown): Partial<Configuracao> {
@@ -57,8 +65,8 @@ export function validarConfiguracao(body: unknown): Partial<Configuracao> {
 
   for (const [chave, valor] of valores) {
     const valido =
-      (chave === "moeda" && valor === "BRL") ||
-      (chave === "idioma" && valor === "pt-BR") ||
+      (chave === "moeda" && moedas.some(moeda => moeda === valor)) ||
+      (chave === "idioma" && idiomas.some(idioma => idioma === valor)) ||
       (chave === "tamanhoTexto" && tamanhos.some((tamanho) => tamanho === valor)) ||
       (booleanos.some((campo) => campo === chave) && typeof valor === "boolean");
     if (!valido) {
