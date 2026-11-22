@@ -1,6 +1,8 @@
 import express from "express";
 import type { ErrorRequestHandler } from "express";
 
+import categoriaPersonalizadaRoutes from "../routes/categoriaPersonalizada.routes.js";
+
 import routes from "../routes/index.js";
 import { HttpError } from "../utils/errors.js";
 import { env } from "../config/env.js";
@@ -24,7 +26,12 @@ const allowedOrigins = new Set(
     .filter(Boolean)
 );
 
+app.use(
+  "/categorias-personalizadas",
+  categoriaPersonalizadaRoutes
+);
 app.use((req, res, next) => {
+
   const origin = req.headers.origin;
 
   if (origin) {

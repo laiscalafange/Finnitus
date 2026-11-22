@@ -1,10 +1,16 @@
-import { useState } from "react";
-
-import { Pressable, Text, View } from "react-native";
-
+import { useEffect, useRef, useState } from "react";
+import { Alert, Pressable, Text, View } from "react-native";
 import { Tag } from "lucide-react-native";
 
 import { Cores } from "@/shared/constants/Cores";
+import { useAuth } from "@/features/authContext";
+import {
+  criarCategoriaPersonalizadaApi,
+  listarCategoriasPersonalizadasApi,
+  type CategoriaPersonalizadaApi,
+  type TipoCategoriaApi,
+} from "@/services/categoriasPersonalizadasApi";
+import { errorMessage } from "@/services/api";
 
 import type { CategoriaItem } from "../../types";
 import {
@@ -15,26 +21,23 @@ import {
 import { styles } from "./styles";
 
 type Props = {
-  // Título acima da grade (padrão: "Categoria")
   rotulo?: string;
   categorias: CategoriaItem[];
-  // id da categoria marcada (null = nenhuma)
   selecionada: string | null;
-  // Recebe também o item escolhido (útil pra guardar o nome de uma
-  // categoria criada). Quem só usa o id pode ignorar o 2º parâmetro.
   aoSelecionar: (id: string, categoria: CategoriaItem) => void;
-  // Textos do modal "Outros" (padrão: textos de categoria)
   textos?: TextosCategoria;
-  // Opcional: quem usa guarda as categorias criadas (ex.: pra não perder ao
-  // fechar a tela). Passe as já criadas em "criadas" e receba cada nova em
-  // "aoCriar". Sem "aoCriar", o seletor guarda as criadas sozinho.
+  // Uso legado: se um pai administra categorias, ele continua responsável
+  // por carregar/salvar; a integração automática não é acionada.
   criadas?: CategoriaItem[];
   aoCriar?: (nova: CategoriaItem) => void;
+  // Passe RECEITA ou DESPESA para ligar a persistência no Neon.
+  tipo?: TipoCategoriaApi;
+  // Permite impedir que a tela avance antes da resposta do POST.
+  aoAlterarSalvamento?: (salvando: boolean) => void;
 };
 
 const TAMANHO_ICONE = 22;
 
-// Tira acento e maiúsculas pra comparar nomes ("Educação" = "educacao")
 function normalizar(texto: string): string {
   return texto
     .trim()
@@ -43,9 +46,16 @@ function normalizar(texto: string): string {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-// Grade de categorias (3 por linha) usada em Novo gasto e Novo imprevisto.
-// O card "Outros" abre um modal com mais categorias e com a opção de criar
-// uma nova.
+function converterCategoria(registro: CategoriaPersonalizadaApi): CategoriaItem {
+  return {
+    // Prefixo evita colisão com IDs das categorias fixas da interface.
+    // Também permite reconhecer esse ID ao enviar receitas/despesas ao backend.
+    id: `personalizada-${registro.id_CategoriaPersonalizada}`,
+    rotulo: registro.nome,
+    icone: Tag,
+  };
+}
+
 export function SeletorCategoria({
   rotulo = "Categoria",
   categorias,
@@ -54,66 +64,144 @@ export function SeletorCategoria({
   textos = TEXTOS_CATEGORIA,
   criadas: criadasDeFora,
   aoCriar,
+  tipo,
+  aoAlterarSalvamento,
 }: Props) {
+  const { user } = useAuth();
+  const usuarioAtualRef = useRef(user?.id);
+  usuarioAtualRef.current = user?.id;
+  const tipoAtualRef = useRef(tipo);
+  tipoAtualRef.current = tipo;
+  const selecionadaAtualRef = useRef(selecionada);
+  selecionadaAtualRef.current = selecionada;
+
   const [modalAberto, setModalAberto] = useState(false);
-
-  // Categorias criadas pela pessoa, separadas por card "Outros" (gasto e
-  // entrada têm listas diferentes).
-  // TODO (backend): quando existir endpoint de categorias, salvar aqui
   const [criadas, setCriadas] = useState<Record<string, CategoriaItem[]>>({});
+  const [carregando, setCarregando] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const salvandoRef = useRef(false);
 
-  // Card "Outros" (o único que tem a lista de extras)
   const itemOutros = categorias.find((c) => c.extras !== undefined);
+  const chave = `${tipo ?? "LOCAL"}:${itemOutros?.id ?? "outros"}`;
+
+  // Busca as categorias pertencentes à conta atual. As rotas já exigem JWT.
+  useEffect(() => {
+    if (!tipo || !itemOutros || aoCriar || !user?.id) {
+      if (!user?.id) setCriadas({});
+      return;
+    }
+
+    let ativo = true;
+    setCarregando(true);
+    setCriadas((atual) => ({ ...atual, [chave]: [] }));
+
+    void listarCategoriasPersonalizadasApi()
+      .then((registros) => {
+        if (!ativo) return;
+        const lista = registros
+          .filter((registro) => registro.tipo === tipo)
+          .map(converterCategoria);
+        setCriadas((atual) => ({ ...atual, [chave]: lista }));
+      })
+      .catch((erro: unknown) => {
+        if (ativo) {
+          Alert.alert("Categorias", errorMessage(erro));
+        }
+      })
+      .finally(() => {
+        if (ativo) setCarregando(false);
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [tipo, itemOutros?.id, aoCriar, user?.id, chave]);
 
   const opcoesOutros: CategoriaItem[] = itemOutros
     ? [
         ...(itemOutros.extras ?? []),
-        ...(aoCriar ? (criadasDeFora ?? []) : (criadas[itemOutros.id] ?? [])),
+        ...(aoCriar ? (criadasDeFora ?? []) : (criadas[chave] ?? [])),
       ]
     : [];
 
-  // Categoria escolhida dentro do modal (null = nenhuma)
   const escolhidaOutros =
     opcoesOutros.find((o) => o.id === selecionada) ?? null;
 
-  // Cria a categoria, já deixa ela marcada e fecha o modal.
-  // Retorna a mensagem de erro, ou null se deu certo.
+  // ModalOutrasCategorias usa retorno sincrono (string | null).
+  // O modal pode fechar imediatamente, mas só selecionamos a nova categoria
+  // DEPOIS de o banco confirmar a criação; não usamos um ID temporário.
   function criarCategoria(nome: string): string | null {
-    if (!itemOutros) {
-      return textos.falhou;
-    }
-
+    if (!itemOutros) return textos.falhou;
     const nomeLimpo = nome.trim();
-
-    if (!nomeLimpo) {
-      return textos.semNome;
-    }
+    if (!nomeLimpo) return textos.semNome;
+    if (nomeLimpo.length > 100) return "A categoria pode ter até 100 caracteres.";
+    if (salvandoRef.current) return "Aguarde a categoria anterior ser salva.";
+    if (carregando && tipo && !aoCriar) return "Aguarde as categorias carregarem.";
 
     const jaExiste = [...categorias, ...opcoesOutros].some(
-      (c) => normalizar(c.rotulo) === normalizar(nomeLimpo)
+      (c) => normalizar(c.rotulo) === normalizar(nomeLimpo),
     );
+    if (jaExiste) return textos.jaExiste;
 
-    if (jaExiste) {
-      return textos.jaExiste;
+    if (!tipo || aoCriar) {
+      // Mantém o comportamento anterior em usos que não passam 'tipo'.
+      const nova: CategoriaItem = {
+        id: `criada-${Date.now()}`,
+        rotulo: nomeLimpo,
+        icone: Tag,
+      };
+      if (aoCriar) {
+        aoCriar(nova);
+      } else {
+        setCriadas((atual) => ({
+          ...atual,
+          [chave]: [...(atual[chave] ?? []), nova],
+        }));
+      }
+      aoSelecionar(nova.id, nova);
+      setModalAberto(false);
+      return null;
     }
 
-    const nova: CategoriaItem = {
-      id: `criada-${Date.now()}`,
-      rotulo: nomeLimpo,
-      icone: Tag,
-    };
+    if (!user?.id) return "Entre na sua conta para criar categorias.";
+    const idUsuarioDaCriacao = user.id;
+    const selecionadaAntesDeCriar = selecionada;
 
-    if (aoCriar) {
-      aoCriar(nova);
-    } else {
-      setCriadas((atual) => ({
-        ...atual,
-        [itemOutros.id]: [...(atual[itemOutros.id] ?? []), nova],
-      }));
-    }
-
-    aoSelecionar(nova.id, nova);
+    salvandoRef.current = true;
+    setSalvando(true);
+    aoAlterarSalvamento?.(true);
     setModalAberto(false);
+
+    void criarCategoriaPersonalizadaApi(nomeLimpo, tipo)
+      .then((registro) => {
+        // Se a sessão mudou durante a chamada, não exibe dados na outra conta.
+        if (
+          usuarioAtualRef.current !== idUsuarioDaCriacao ||
+          tipoAtualRef.current !== tipo
+        ) return;
+        const nova = converterCategoria(registro);
+        setCriadas((atual) => ({
+          ...atual,
+          [chave]: [
+            ...(atual[chave] ?? []).filter((item) => item.id !== nova.id),
+            nova,
+          ].sort((a, b) => a.rotulo.localeCompare(b.rotulo, "pt-BR")),
+        }));
+        // Não substitui uma escolha feita pelo usuário enquanto aguardava a API.
+        if (selecionadaAtualRef.current === selecionadaAntesDeCriar) {
+          aoSelecionar(nova.id, nova);
+        }
+      })
+      .catch((erro: unknown) => {
+        if (usuarioAtualRef.current === idUsuarioDaCriacao) {
+          Alert.alert("Não foi possível criar a categoria", errorMessage(erro));
+        }
+      })
+      .finally(() => {
+        salvandoRef.current = false;
+        setSalvando(false);
+        aoAlterarSalvamento?.(false);
+      });
 
     return null;
   }
@@ -125,16 +213,11 @@ export function SeletorCategoria({
       <View style={styles.grade}>
         {categorias.map((categoria) => {
           const ehOutros = categoria.extras !== undefined;
-
-          // Se escolheu algo no modal, o card "Outros" passa a mostrar
-          // o ícone e o nome da categoria escolhida
           const exibida =
             ehOutros && escolhidaOutros ? escolhidaOutros : categoria;
-
           const ativa = ehOutros
             ? escolhidaOutros !== null
             : selecionada === categoria.id;
-
           const Icone = exibida.icone;
 
           return (
@@ -150,7 +233,6 @@ export function SeletorCategoria({
               style={[styles.item, ativa && styles.itemAtivo]}
             >
               <Icone size={TAMANHO_ICONE} color={Cores.destaque.limao} />
-
               <Text
                 numberOfLines={1}
                 style={[styles.nome, ativa && styles.nomeAtivo]}
@@ -162,6 +244,12 @@ export function SeletorCategoria({
         })}
       </View>
 
+      {salvando ? (
+        <Text accessibilityRole="text" style={styles.rotulo}>
+          Salvando categoria...
+        </Text>
+      ) : null}
+
       {itemOutros ? (
         <ModalOutrasCategorias
           visivel={modalAberto}
@@ -170,11 +258,7 @@ export function SeletorCategoria({
           aoFechar={() => setModalAberto(false)}
           aoSelecionar={(id) => {
             const escolhida = opcoesOutros.find((o) => o.id === id);
-
-            if (escolhida) {
-              aoSelecionar(id, escolhida);
-            }
-
+            if (escolhida) aoSelecionar(id, escolhida);
             setModalAberto(false);
           }}
           aoCriar={criarCategoria}

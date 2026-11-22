@@ -20,4 +20,4 @@ router.get("/:id", buscarReceita);
 router.put("/:id", atualizarReceita);
 router.delete("/:id", excluirReceita);
 
-export default router;
+export default router; 
