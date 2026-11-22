@@ -87,6 +87,10 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(183, 255, 0, 0.09)",
   },
 
+  opcaoBloqueada: {
+    opacity: 0.55,
+  },
+
   textoOpcao: {
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 14,

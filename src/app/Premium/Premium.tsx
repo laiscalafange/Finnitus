@@ -6,7 +6,7 @@ import { useRouter } from "expo-router";
 import { HeaderMP } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
 import { Rotas } from "../../shared/constants/Rotas";
-import { PLANOS } from "@/features/planosData";
+import { PLANO_PADRAO_ID, PLANOS } from "@/features/planosData";
 import { styles } from "@/styles/premium";
 
 
@@ -20,9 +20,9 @@ export default function Premium() {
   // quando o usuário clica numa aba em vez de arrastar
   const scrollRef = useRef<ScrollViewInstance>(null);
 
-  // Índice do plano ativo no carrossel (0 = Básico, 1 = Mega finn, 2 = Infinitos)
-  // Começa em 1 porque o Mega finn é o plano "mais popular", já vem selecionado
-  const [indiceAtivo, setIndiceAtivo] = useState(0);
+  const [indiceAtivo, setIndiceAtivo] = useState(
+    () => PLANOS.findIndex((plano) => plano.id === PLANO_PADRAO_ID)
+  );
 
   // Quando clica numa aba (Básico/Mega finn/Infinitos), rola o carrossel até ela
   function irParaPlano(indice: number) {
@@ -46,9 +46,6 @@ export default function Premium() {
     setIndiceAtivo(indice);
   }
 
-  // Ao clicar em "Obter Agora": leva pra tela de Pagamento,
-  // passando o id do plano escolhido como parâmetro de rota.
-  // O plano Básico é grátis (não tem pagamento), então só volta pra tela anterior.
   function aoConfirmarPlano(planoId: string) {
     router.push({
       pathname: Rotas.pagamento,
@@ -70,12 +67,11 @@ export default function Premium() {
     >
       {/* Cabeçalho da tela, com título e subtítulo */}
       <HeaderMP
-        titulo="Planos demonstrativos"
-        subtitulo="TCC · sem pagamentos"
+        titulo="Seja Premium!"
+        subtitulo="Detalhes"
         mostrarPremium={false}
       />
 
-      {/* Os planos abaixo são uma simulação acadêmica, sem cobrança. */}
       {/* Seletor de plano (abas Básico / Mega finn / Infinitos) */}
       <View style={styles.abas}>
         {PLANOS.map((plano, indice) => (
@@ -107,6 +103,10 @@ export default function Premium() {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={aoTerminarSwipe}
+        onLayout={() => scrollRef.current?.scrollTo({
+          x: indiceAtivo * width,
+          animated: false,
+        })}
         contentOffset={{
           x: indiceAtivo * width,
           y: 0,
@@ -151,6 +151,11 @@ export default function Premium() {
                   )}
                 </Text>
 
+                {plano.teste && <Text style={styles.teste}>{plano.teste}</Text>}
+                {plano.periodo && (
+                  <Text style={styles.teste}>Valores demonstrativos, sem cobrança.</Text>
+                )}
+
                 {/* Linha divisória com o texto "Benefícios" no meio */}
                 <View style={styles.divisor}>
                   <View style={styles.linha} />
@@ -178,9 +183,8 @@ export default function Premium() {
                   </View>
                 ))}
 
-                {/* Navega para explicação sem cobrança real */}
                 <Button
-                  titulo="Conhecer plano"
+                  titulo="Obter Agora"
                   variante="terciario"
                   onPress={() => aoConfirmarPlano(plano.id)}
                 />
