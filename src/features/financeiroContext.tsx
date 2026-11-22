@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useCallback,
@@ -42,7 +41,6 @@ import {
 } from './contas/contasData'
 
 import { perfilFinanceiroService } from "../services/perfilFinanceiro"
-
 
 export type FinanceiroState = {
   rendaFixa?: number
@@ -213,7 +211,7 @@ function converterMetaApi(meta: MetaApi): Meta {
 
     valorTotal: Number(meta.Mvalor_objetivo),
 
-    configurada: true,
+    configurada: meta.Mconfigurada,
 
     dataLimite: dataBackendParaTela(meta.Mprazo),
 
@@ -282,20 +280,19 @@ export function FinanceiroProvider({
   // Recupera os dados financeiros salvos no banco
   const carregarPerfilFinanceiro = useCallback(async (): Promise<void> => {
     try {
-      console.log("Buscando perfil financeiro...")
+      console.log("Buscando dados financeiros...")
 
       const perfil = await perfilFinanceiroService.buscar()
 
-      console.log("Perfil recebido da API:", perfil)
+      console.log("Dados financeiros recebidos da API:", perfil)
 
       if (!perfil) {
-        console.log("Nenhum perfil financeiro encontrado.")
-
         setRendaFixa(undefined)
         setRendaVariavel(undefined)
         setSalario(undefined)
         setDespesas(undefined)
-
+        setEconomiaFutura(undefined)
+        setTempoEconomia(undefined)
         return
       }
 
@@ -314,16 +311,35 @@ export function FinanceiroProvider({
       setRendaFixa(fixa)
       setRendaVariavel(variavel)
       setSalario(total > 0 ? total : undefined)
-      setDespesas(Number(perfil.despesas_mensais ?? 0))
+
+      setDespesas(
+        perfil.despesas_mensais == null
+          ? undefined
+          : Number(perfil.despesas_mensais)
+      )
+
+      setEconomiaFutura(
+        perfil.economia_futura == null
+          ? undefined
+          : Number(perfil.economia_futura)
+      )
+
+      setTempoEconomia(
+        perfil.tempo_economia == null
+          ? undefined
+          : Number(perfil.tempo_economia)
+      )
 
       console.log("Dados financeiros atualizados:", {
-        fixa,
-        variavel,
+        rendaFixa: fixa,
+        rendaVariavel: variavel,
         salario: total,
         despesas: perfil.despesas_mensais,
+        economiaFutura: perfil.economia_futura,
+        tempoEconomia: perfil.tempo_economia,
       })
     } catch (error) {
-      console.error("Erro ao buscar perfil financeiro:", error)
+      console.error("Erro ao buscar dados financeiros:", error)
       throw error
     }
   }, [])
@@ -594,20 +610,22 @@ export function FinanceiroProvider({
     })
   }, [user?.id, carregarMetas])
 
-  // Recupera o perfil financeiro do usuário autenticado
+  // Recupera os dados financeiros do usuário autenticado
   useEffect(() => {
     if (!user?.id) {
       setRendaFixa(undefined)
       setRendaVariavel(undefined)
       setSalario(undefined)
       setDespesas(undefined)
+      setEconomiaFutura(undefined)
+      setTempoEconomia(undefined)
       return
     }
 
     void carregarPerfilFinanceiro().catch((error) => {
       console.error(
-        "Erro ao recuperar perfil financeiro:",
-        error,
+        "Erro ao recuperar dados financeiros:",
+        error
       )
     })
   }, [user?.id, carregarPerfilFinanceiro])
