@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ActivityIndicator, RefreshControl, View, TouchableOpacity, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { CalendarDays, Target, Wallet } from "lucide-react-native";
 
 import { HeaderInterno } from "../../shared/components/Header";
@@ -36,6 +36,10 @@ export default function Notificacoes() {
   const [filtro, setFiltro] = useState<Filtro>("todas");
   const [aberta, setAberta] = useState<Notificacao | null>(null);
   const lista = notificacoes.filter(item => filtro === "todas" || categoriaNotificacao(item) === filtro);
+
+  useFocusEffect(useCallback(() => {
+    void carregar();
+  }, [carregar]));
 
   async function abrir(item: Notificacao) {
     setAberta(item);

@@ -36,7 +36,7 @@ import {
   validarCampos,
 } from '../../shared/components/PlanoB/ImprevistoUI'
 import coroaIcon from '../../../assets/icones/coroa.png'
-import sinoIcon from '../../../assets/icones/sino.png'
+import { SinoNotificacoes } from '@/shared/components/SinoNotificacoes'
 
 import { useFinanceiro } from '../../features/financeiroContext'
 import { calcularSumario } from '../../features/sumarioData'
@@ -342,14 +342,7 @@ export default function PlanoBScreen() {
                   />
                 </TouchableOpacity>
 
-                {/* Sino — leva pra tela de Notificações */}
-                <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
-                  <Image
-                    source={sinoIcon}
-                    style={styles.headerPlanoBIconeImagem}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
+                <SinoNotificacoes estiloIcone={styles.headerPlanoBIconeImagem} />
               </View>
             </View>
 

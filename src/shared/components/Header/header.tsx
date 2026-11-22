@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { GRADIENTS } from '../../constants/Gradientes'
 import { styles } from './HeaderStyles'
 import { HeaderProps } from "./HeaderTypes";
+import { SinoNotificacoes } from "@/shared/components/SinoNotificacoes";
 
 export function Header({ 
   titulo, 
@@ -22,9 +23,7 @@ export function Header({
           {subtitulo && <Text style={styles.subtitulo}>{subtitulo}</Text>}
         </View>
         <View style={styles.icones}>
-          <TouchableOpacity onPress={onNotificacao}>
-            <Text style={styles.icone}>🔔</Text>
-          </TouchableOpacity>
+          <SinoNotificacoes onPress={onNotificacao} />
           <TouchableOpacity onPress={onMenu}>
             <Text style={styles.icone}>☰</Text>
           </TouchableOpacity>

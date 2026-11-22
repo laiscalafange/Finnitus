@@ -199,7 +199,7 @@ export default function PaginaInicial() {
 
   } = useFinanceiro()
 
-  const { notificacoes: notificacoesReais, totalNaoLidas } = useNotificacoes()
+  const { notificacoes: notificacoesReais } = useNotificacoes()
 
   // Mês que a Home está mostrando (começa no mês atual)
 
@@ -409,8 +409,6 @@ export default function PaginaInicial() {
             mes={mesTexto}
             aoPressMes={() => setModalMes(true)}
             onPremium={() => router.push(Rotas.premium)}
-            onNotificacao={() => router.push(Rotas.notificacao)}
-            totalNaoLidas={totalNaoLidas}
             onPerfil={() => router.push('/perfil')}
 
           />

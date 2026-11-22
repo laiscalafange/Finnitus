@@ -35,7 +35,7 @@ import { styles } from '../../styles/dashboardstyle'
 import { styles as stylesPlanoB } from '../../styles/Planobstyle'
 
 import coroaIcon from '../../../assets/icones/coroa.png'
-import sinoIcon from '../../../assets/icones/sino.png'
+import { SinoNotificacoes } from '@/shared/components/SinoNotificacoes'
 
 const DIAS_SEMANA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom']
 const LETRAS_DIAS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
@@ -220,10 +220,7 @@ export default function Dashboard() {
                 <Image source={coroaIcon} style={styles.headerIcone} />
               </TouchableOpacity>
 
-              {/* Sino — leva pra tela de Notificações */}
-              <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
-                <Image source={sinoIcon} style={styles.headerIcone} />
-              </TouchableOpacity>
+              <SinoNotificacoes estiloIcone={styles.headerIcone} />
             </View>
           </View>
 

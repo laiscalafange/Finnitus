@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
+import { SinoNotificacoes } from '@/shared/components/SinoNotificacoes'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useState } from 'react'
 import { useRouter } from 'expo-router'
@@ -108,16 +109,7 @@ export function CalendarioSemana({
                             />
                         </TouchableOpacity>
 
-                        {/* Sino — mesma lógica: usa "aoPressSino" se vier por prop,
-                            senão leva pra tela de Notificações por padrão. */}
-                        <TouchableOpacity
-                            onPress={aoPressSino ?? (() => router.push(Rotas.notificacao))}
-                        >
-                            <Image
-                                source={require('../../../../assets/icones/sino.png')}
-                                style={styles.icone}
-                            />
-                        </TouchableOpacity>
+                        <SinoNotificacoes estiloIcone={styles.icone} onPress={aoPressSino} />
                     </View>
                 </View>
 

@@ -3,6 +3,7 @@ import { useFocusEffect } from "expo-router";
 import { ChevronDown } from 'lucide-react-native';
 import { useCallback, useState } from "react";
 import { Image, TouchableOpacity, View } from 'react-native';
+import { SinoNotificacoes } from '@/shared/components/SinoNotificacoes';
 import { Text } from '@/shared/components/Texto';
 import { useIdioma } from '@/features/idioma';
 import { styles } from './DashboardHeaderStyles';
@@ -17,20 +18,13 @@ type Props = {
   mes: string
   aoPressMes?: () => void
   onPremium?: () => void
-  onNotificacao?: () => void
-  totalNaoLidas?: number
   onPerfil?: () => void
 }
 
 // Topo da Home: avatar, mês no centro e coroa + sino (igual às outras telas)
-export function DashboardHeader({ nome, mes, aoPressMes, onPremium, onNotificacao, totalNaoLidas = 0, onPerfil }: Props) {
+export function DashboardHeader({ nome, mes, aoPressMes, onPremium, onPerfil }: Props) {
   const { user } = useAuth();
   const { t } = useIdioma();
-  const rotuloNotificacoes = totalNaoLidas === 0
-    ? t("Abrir notificações")
-    : totalNaoLidas === 1
-      ? t("Abrir notificações, 1 não lida")
-      : t("Abrir notificações, {total} não lidas", { total: totalNaoLidas });
 
 const [fotoPerfil, setFotoPerfil] =
   useState<string | null>(null);
@@ -106,24 +100,7 @@ useFocusEffect(
           <Image source={require('../../../../assets/icones/coroa.png')} style={styles.icone} />
         </TouchableOpacity>
 
-        {/* Sino — leva pra tela de Notificações */}
-        <TouchableOpacity
-          style={styles.sino}
-          onPress={onNotificacao}
-          activeOpacity={0.75}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel={rotuloNotificacoes}
-        >
-          <Image source={require('../../../../assets/icones/sino.png')} style={styles.icone} />
-          {totalNaoLidas > 0 && (
-            <View style={styles.contador} pointerEvents="none" importantForAccessibility="no-hide-descendants">
-              <Text style={styles.contadorTexto} allowFontScaling={false} numberOfLines={1}>
-                {totalNaoLidas > 99 ? '99+' : totalNaoLidas}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
+        <SinoNotificacoes estiloIcone={styles.icone} />
       </View>
     </View>
   )

@@ -49,25 +49,4 @@ export const styles = StyleSheet.create({
     height: 25,
     resizeMode: 'contain',
   },
-  sino: {
-    position: 'relative',
-  },
-  contador: {
-    position: 'absolute',
-    right: -8,
-    top: -8,
-    minWidth: 19,
-    minHeight: 19,
-    paddingHorizontal: 3,
-    borderRadius: 12,
-    backgroundColor: Cores.destaque.limao,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  contadorTexto: {
-    fontFamily: FONTS.quicksand.bold,
-    color: Cores.base.preto,
-    fontSize: 10,
-    lineHeight: 13,
-  },
 })
