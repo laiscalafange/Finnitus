@@ -5,6 +5,7 @@ export interface Plano {
   descricao: string;
   preco: string;
   periodo?: string;
+  teste?: string;
   badge?: string;
   beneficios: string[];
 }
@@ -13,39 +14,47 @@ export const PLANOS: Plano[] = [
   {
     id: "basico",
     nome: "Básico",
-    descricao: "Experiência de organização financeira apresentada no TCC.",
-    preco: "Gratuito",
+    descricao: "Para quem está começando a organizar as finanças",
+    preco: "Grátis",
     beneficios: [
-      "Registro de receitas e despesas",
-      "Acompanhamento de metas financeiras",
-      "Visualização de calendário financeiro",
+      "Controle de gastos",
+      "Até 3 metas ativas",
+      "Relatório mensal simples",
     ],
   },
   {
     id: "mega-finn",
-    nome: "Mega Finn",
-    descricao: "Protótipo conceitual de uma possível modalidade futura.",
-    preco: "Simulação — R$ 0,00",
+    nome: "Mega finn",
+    badge: "Mais popular",
+    descricao: "Para quem deseja ter controle sobre o próprio futuro",
+    preco: "R$15,95",
+    periodo: "/mês",
+    teste: "7 dias de teste grátis!",
     beneficios: [
-      "Visualização demonstrativa de recursos do Finnitus",
-      "Exploração do Plano B para simular imprevistos",
-      "Nenhuma assinatura ou cobrança é criada",
+      "Tudo do Básico",
+      "Metas ilimitadas",
+      "Plano-B completo (simulação de imprevistos)",
+      "Calendário inteligente de contas e vencimentos",
+      "Relatórios e gráficos avançados",
     ],
   },
   {
     id: "infinitos",
     nome: "Infinitos",
-    descricao: "Conceito de evolução futura, ainda não disponível comercialmente.",
-    preco: "Simulação — R$ 0,00",
+    descricao: "Para quem quer o máximo de recursos e liberdade",
+    preco: "R$29,90",
+    periodo: "/mês",
     beneficios: [
-      "Conceito de funções futuras (não implementadas)",
-      "Sem consultoria financeira profissional incluída",
-      "Sem coleta de dados de pagamento",
+      "Tudo do Mega Finn",
+      "Consultoria financeira mensal",
+      "Metas compartilhadas em família",
+      "Suporte prioritário",
     ],
   },
 ];
 
 export const PLANO_PADRAO_ID = "mega-finn";
+
 export function buscarPlanoPago(id?: string): Plano {
   return PLANOS.find((plano) => plano.id === id) ?? PLANOS[1];
 }

@@ -22,13 +22,13 @@ const GRADIENTE_CARD: [string, string] = [
 const CONFIRMACAO = "RECOMEÇAR";
 
 function SeletorPreferencia<Valor extends string>({
-  rotulo, valor, opcoes, aberto, inativo, aoAlternar, aoEscolher,
+  rotulo, valor, opcoes, aberto, opcoesBloqueadas, aoAlternar, aoEscolher,
 }: {
   rotulo: string;
   valor: Valor;
   opcoes: Record<Valor, string>;
   aberto: boolean;
-  inativo: boolean;
+  opcoesBloqueadas: boolean;
   aoAlternar: () => void;
   aoEscolher: (valor: Valor) => void;
 }) {
@@ -39,8 +39,7 @@ function SeletorPreferencia<Valor extends string>({
         accessibilityRole="button"
         accessibilityLabel={rotulo}
         accessibilityValue={{ text: opcoes[valor] }}
-        accessibilityState={{ expanded: aberto, disabled: inativo }}
-        disabled={inativo}
+        accessibilityState={{ expanded: aberto }}
         onPress={aoAlternar}
       >
         <Text style={styles.valorSelecionado}>{opcoes[valor]}</Text>
@@ -53,10 +52,14 @@ function SeletorPreferencia<Valor extends string>({
             return (
               <TouchableOpacity
                 key={opcao}
-                style={[styles.opcao, selecionada && styles.opcaoAtiva]}
+                style={[
+                  styles.opcao,
+                  selecionada && styles.opcaoAtiva,
+                  opcoesBloqueadas && styles.opcaoBloqueada,
+                ]}
                 accessibilityRole="button"
-                accessibilityState={{ selected: selecionada, disabled: inativo }}
-                disabled={inativo}
+                accessibilityState={{ selected: selecionada, disabled: opcoesBloqueadas }}
+                disabled={opcoesBloqueadas}
                 onPress={() => aoEscolher(opcao)}
               >
                 <Text style={[styles.textoOpcao, selecionada && styles.textoOpcaoAtiva]}>{opcoes[opcao]}</Text>
@@ -133,7 +136,7 @@ export default function Preferencias() {
               rotulo={t("Idioma")}
               valor={idioma}
               opcoes={IDIOMAS}
-              inativo={bloqueado}
+              opcoesBloqueadas={bloqueado}
               aberto={seletor === "idioma"}
               aoAlternar={() => setSeletor(atual => atual === "idioma" ? null : "idioma")}
               aoEscolher={novoIdioma => {
@@ -150,7 +153,7 @@ export default function Preferencias() {
               rotulo={t("Moeda utilizada")}
               valor={moeda}
               opcoes={moedas}
-              inativo={bloqueado}
+              opcoesBloqueadas={bloqueado}
               aberto={seletor === "moeda"}
               aoAlternar={() => setSeletor(atual => atual === "moeda" ? null : "moeda")}
               aoEscolher={novaMoeda => {
