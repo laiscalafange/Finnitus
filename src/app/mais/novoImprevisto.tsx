@@ -107,10 +107,11 @@ export default function NovoImprevisto() {
             />
 
             <SeletorCategoria
-              categorias={CATEGORIAS_GASTO}
-              selecionada={categoria}
-              aoSelecionar={setCategoria}
-            />
+  categorias={CATEGORIAS_GASTO}
+  selecionada={categoria}
+  aoSelecionar={setCategoria}
+  tipo="DESPESA"
+/>
 
             <Input
               label="Data do pagamento"
