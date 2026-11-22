@@ -139,7 +139,6 @@ model Usuario {
   desafios2FA            Desafio2FA[]
   Divida                 Divida[]
   ReservaFinanceira      ReservaFinanceira?
-  PerfilFinanceiro PerfilFinanceiro?
   Notificacoes Notificacao[]
   configuracao ConfiguracaoUsuario?
 
@@ -161,29 +160,6 @@ model ConfiguracaoUsuario {
   Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
 }
 
-// Armazena os dados financeiros iniciais do usuário.
-model PerfilFinanceiro {
-  id_PerfilFinanceiro Int      @id @default(autoincrement())
-  id_Usuario          Int      @unique
-
-  // Dados de renda e despesas mensais.
-  renda_fixa       Decimal? @db.Decimal(10, 2)
-  renda_variavel   Decimal? @db.Decimal(10, 2)
-  despesas_mensais Decimal  @db.Decimal(10, 2)
-
-  // Dados da reserva de emergência.
-  economia_futura Decimal? @db.Decimal(10, 2)
-  tempo_economia  Int?
-
-  // Datas de controle.
-  criado_em     DateTime @default(now())
-  atualizado_em DateTime @updatedAt
-
-  // Relacionamento com o usuário.
-  Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
-
-  @@index([id_Usuario])
-}
 
 model RedefinicaoSenha {
   id_Redefinicao Int      @id @default(autoincrement())
@@ -194,6 +170,7 @@ model RedefinicaoSenha {
   criado_em      DateTime @default(now())
   tentativas     Int      @default(0)
   verificado     Boolean  @default(false)
+  
 
   Usuario Usuario @relation(fields: [id_Usuario], references: [id_Usuario], onDelete: Cascade)
 }
@@ -469,6 +446,7 @@ model ReservaFinanceira {
   valor_desejado Decimal @default(0) @db.Decimal(10, 2)
   objetivo       String? @db.VarChar(255)
   localizacao    String? @db.VarChar(255)
+  tempo_economia Int?
 
   Usuario       Usuario               @relation(fields: [id_Usuario], references: [id_Usuario])
   movimentacoes MovimentacaoReserva[]

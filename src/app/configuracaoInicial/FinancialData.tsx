@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Text,
   View,
   Image,
   ScrollView,
+  Alert,
 } from "react-native";
 
 import { useRouter } from "expo-router";
@@ -26,27 +27,24 @@ import {
   mascararMoeda,
   moedaParaNumero,
 } from "../../features/menuMais/utils";
-import { Alert } from "react-native";
+
 import { perfilFinanceiroService } from "../../services/perfilFinanceiro";
 
-// Limita o aumento de fonte do sistema para evitar
-// que os textos ultrapassem os campos.
+// Limita o aumento de fonte do sistema.
 const LIMITE_FONTE = 1.1;
 
 // Converte o texto digitado em número.
-// Se o campo estiver vazio, retorna undefined.
 function paraNumero(texto: string): number | undefined {
   return texto.trim() ? moedaParaNumero(texto) : undefined;
 }
 
-// Converte um valor numérico para o formato monetário brasileiro.
+// Converte um número para o formato monetário brasileiro.
 function paraTexto(valor?: number): string {
   return valor === undefined
     ? ""
     : formatarCentavos(Math.round(valor * 100));
 }
 
-// Valida os campos financeiros.
 type Erros = {
   fixa?: string;
   variavel?: string;
@@ -56,7 +54,6 @@ type Erros = {
 export default function FinancialData() {
   const roteador = useRouter();
 
-  // Recupera os dados financeiros armazenados no contexto.
   const {
     rendaFixa: fixaSalva,
     rendaVariavel: variavelSalva,
@@ -67,19 +64,32 @@ export default function FinancialData() {
     setDespesas,
   } = useFinanceiro();
 
-  // Valores dos campos.
   const [fixa, setFixa] = useState(paraTexto(fixaSalva));
   const [variavel, setVariavel] = useState(paraTexto(variavelSalva));
   const [despesas, setDespesasLocal] = useState(paraTexto(despesasSalvas));
 
-  // Opções para quem não possui renda fixa ou variável.
   const [semFixa, setSemFixa] = useState(false);
   const [semVariavel, setSemVariavel] = useState(false);
 
-  // Mensagens de validação.
   const [erros, setErros] = useState<Erros>({});
+  const [salvando, setSalvando] = useState(false);
 
-  // Limpa o erro de um campo quando ele é alterado.
+  // Atualiza os campos caso os dados sejam carregados do contexto
+  // depois que a tela já tiver sido aberta.
+  useEffect(() => {
+    if (fixaSalva !== undefined) {
+      setFixa(paraTexto(fixaSalva));
+    }
+
+    if (variavelSalva !== undefined) {
+      setVariavel(paraTexto(variavelSalva));
+    }
+
+    if (despesasSalvas !== undefined) {
+      setDespesasLocal(paraTexto(despesasSalvas));
+    }
+  }, [fixaSalva, variavelSalva, despesasSalvas]);
+
   function limparErro(campo: keyof Erros) {
     setErros((atual) => ({
       ...atual,
@@ -87,76 +97,89 @@ export default function FinancialData() {
     }));
   }
 
-  // Salva os dados no contexto financeiro e avança para a próxima tela.
-  // Salva os dados no banco, atualiza o contexto e avança.
-async function salvarESeguir() {
-  try {
-    // Converte os valores digitados para números.
-    const valorFixa = semFixa ? null : paraNumero(fixa) ?? null;
+  // Salva os dados no backend e atualiza o contexto.
+  async function salvarESeguir() {
+    if (salvando) return;
 
-    const valorVariavel = semVariavel
-      ? null
-      : paraNumero(variavel) ?? null;
+    setSalvando(true);
 
-    const valorDespesas = paraNumero(despesas);
+    try {
+      const valorFixa = semFixa ? null : paraNumero(fixa) ?? null;
 
-    // Envia os dados para o backend.
-    // O usuário será identificado pelo token de autenticação.
-    await perfilFinanceiroService.salvar({
-      renda_fixa: valorFixa,
-      renda_variavel: valorVariavel,
-      despesas_mensais: valorDespesas ?? 0,
-    });
+      const valorVariavel = semVariavel
+        ? null
+        : paraNumero(variavel) ?? null;
 
-    // Calcula a renda total para utilizar no contexto.
-    const total = (valorFixa ?? 0) + (valorVariavel ?? 0);
+      const valorDespesas = paraNumero(despesas);
 
-    // Atualiza o contexto financeiro do aplicativo.
-    setRendaFixa(valorFixa ?? undefined);
-    setRendaVariavel(valorVariavel ?? undefined);
-    setSalario(total > 0 ? total : undefined);
-    setDespesas(valorDespesas);
+      if (valorDespesas === undefined) {
+        Alert.alert(
+          "Atenção",
+          "Informe suas despesas mensais."
+        );
+        return;
+      }
 
-    // Só avança depois que o banco confirmar o salvamento.
-    roteador.push("/configuracaoInicial/FutureSavings");
+      // Envia os dados para a API.
+      // O usuário é identificado pelo token de autenticação.
+      await perfilFinanceiroService.salvar({
+        renda_fixa: valorFixa,
+        renda_variavel: valorVariavel,
+        despesas_mensais: valorDespesas,
+      });
 
-  } catch (erro) {
-    // Informa o usuário caso a API não consiga salvar os dados.
-    console.error("Erro ao salvar perfil financeiro:", erro);
+      // Calcula a renda total.
+      const total = (valorFixa ?? 0) + (valorVariavel ?? 0);
 
-    Alert.alert(
-      "Não foi possível salvar",
-      "Ocorreu um erro ao salvar seus dados financeiros. Verifique sua conexão e tente novamente."
-    );
+      // Atualiza os dados do contexto financeiro.
+      setRendaFixa(valorFixa ?? undefined);
+      setRendaVariavel(valorVariavel ?? undefined);
+      setSalario(total > 0 ? total : undefined);
+      setDespesas(valorDespesas);
+
+      // Avança somente depois da confirmação da API.
+      roteador.push("/configuracaoInicial/FutureSavings");
+    } catch (erro) {
+      console.error("Erro ao salvar perfil financeiro:", erro);
+
+      Alert.alert(
+        "Não foi possível salvar",
+        "Ocorreu um erro ao salvar seus dados financeiros. Verifique sua conexão e tente novamente."
+      );
+    } finally {
+      setSalvando(false);
+    }
   }
-}
 
-  // Valida os campos antes de permitir o avanço.
   function continuar() {
+    if (salvando) return;
+
     const novosErros: Erros = {};
 
-    // Renda fixa: obrigatória se a pessoa não marcar que não possui.
+    // Validação da renda fixa.
     if (!semFixa) {
       if (!fixa.trim()) {
-        novosErros.fixa = "Informe sua renda fixa ou marque a opção correspondente.";
+        novosErros.fixa =
+          "Informe sua renda fixa ou marque a opção correspondente.";
       } else if (moedaParaNumero(fixa) <= 0) {
         novosErros.fixa = "Digite um valor maior que zero.";
       }
     }
 
-    // Renda variável: obrigatória se a pessoa não marcar que não possui.
+    // Validação da renda variável.
     if (!semVariavel) {
       if (!variavel.trim()) {
-        novosErros.variavel = "Informe sua renda variável ou marque a opção correspondente.";
+        novosErros.variavel =
+          "Informe sua renda variável ou marque a opção correspondente.";
       } else if (moedaParaNumero(variavel) <= 0) {
         novosErros.variavel = "Digite um valor maior que zero.";
       }
     }
 
-    // Despesas: o usuário precisa informar o valor.
-    // Caso não tenha despesas, pode informar 0,00.
+    // Despesas são obrigatórias, mas podem ser zero.
     if (!despesas.trim()) {
-      novosErros.despesas = "Informe suas despesas mensais. Se não tiver, digite 0,00.";
+      novosErros.despesas =
+        "Informe suas despesas mensais. Se não tiver, digite 0,00.";
     }
 
     if (Object.keys(novosErros).length > 0) {
@@ -168,7 +191,6 @@ async function salvarESeguir() {
     void salvarESeguir();
   }
 
-  // Ícone utilizado nos campos de renda.
   const iconeSalario = (
     <Image
       source={require("../../../assets/icones/salario.png")}
@@ -187,10 +209,8 @@ async function salvarESeguir() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Indica que esta é a primeira etapa do onboarding. */}
           <ProgressDots total={4} atual={1} />
 
-          {/* Título da tela. */}
           <Text
             style={styles.titulo}
             maxFontSizeMultiplier={LIMITE_FONTE}
@@ -278,7 +298,6 @@ async function salvarESeguir() {
             erro={erros.despesas}
           />
 
-          {/* Explicação sobre os valores solicitados. */}
           <Text
             style={styles.subtitulo}
             maxFontSizeMultiplier={LIMITE_FONTE}
@@ -288,10 +307,9 @@ async function salvarESeguir() {
           </Text>
         </ScrollView>
 
-        {/* Botão para validar os dados e avançar. */}
         <Button
           variante="primario"
-          titulo="Continuar"
+          titulo={salvando ? "Salvando..." : "Continuar"}
           onPress={continuar}
         />
       </View>

@@ -35,6 +35,7 @@ export type MetaApi = {
 
   Mprioridade: "BAIXA" | "MEDIA" | "ALTA";
   Mstatus: StatusMetaApi;
+  Mconfigurada: boolean;
 
   Mdata_criacao: string;
   Mdata_conclusao?: string | null;
