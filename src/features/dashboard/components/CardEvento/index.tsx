@@ -2,6 +2,7 @@ import {
   View,
 } from 'react-native'
 import { Text } from '@/shared/components/Texto'
+import { useIdioma } from '@/features/idioma'
 
 import {
   Cake,
@@ -34,6 +35,7 @@ export function CardEvento({
   evento,
   onPress,
 }: Props) {
+  const { t } = useIdioma()
   const Icone =
     evento &&
     /anivers/i.test(evento.titulo)
@@ -42,8 +44,9 @@ export function CardEvento({
 
   return (
     <CardSecao
-      titulo="Eventos"
+      titulo={t('Eventos')}
       aoVerTodos={onPress}
+      textoVerTodos={t('Ver todos')}
     >
       {evento ? (
         <View style={styles.evento}>
@@ -58,7 +61,7 @@ export function CardEvento({
 
           <View style={styles.textos}>
             <Text style={styles.label}>
-              EVENTO
+              {t('EVENTO')}
             </Text>
 
             <Text
@@ -74,7 +77,7 @@ export function CardEvento({
           </View>
 
           <BotaoPilula
-            titulo="Ver evento"
+            titulo={t('Ver evento')}
             aoPress={onPress}
           />
         </View>
@@ -83,14 +86,13 @@ export function CardEvento({
           <Text
             style={styles.vazioTitulo}
           >
-            Próximo evento
+            {t('Próximo evento')}
           </Text>
 
           <Text
             style={styles.vazioTexto}
           >
-            Nenhum próximo evento
-            encontrado no calendário.
+            {t('Nenhum próximo evento encontrado no calendário.')}
           </Text>
         </View>
       )}

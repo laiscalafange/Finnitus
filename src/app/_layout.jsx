@@ -43,6 +43,7 @@ import {
 } from "../shared/components/Button";
 
 import { ConfiguracoesProvider, useConfiguracoes } from "../features/configuracoesContext";
+import { NotificacoesProvider } from "../features/contas/useNotificacoes";
 
 // Mantém a splash screen enquanto as fontes carregam.
 SplashScreen.preventAutoHideAsync().catch(
@@ -181,7 +182,8 @@ function SessionNavigator() {
 function NavegacaoProtegida({ user }) {
   const { revisaoFinanceira } = useConfiguracoes();
   return (
-    <FinanceiroProvider key={revisaoFinanceira}>
+    <NotificacoesProvider key={revisaoFinanceira} usuarioId={user?.id}>
+      <FinanceiroProvider>
       <Stack
         screenOptions={{
           headerShown: false,
@@ -212,6 +214,7 @@ function NavegacaoProtegida({ user }) {
           <Stack.Screen name="Notificacao/Notificacao" />
         </Stack.Protected>
       </Stack>
-    </FinanceiroProvider>
+      </FinanceiroProvider>
+    </NotificacoesProvider>
   );
 }

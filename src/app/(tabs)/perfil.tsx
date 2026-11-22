@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 
 import { useEffect, useState } from "react";
 import {
@@ -26,6 +27,7 @@ import { Rotas } from "../../shared/constants/Rotas";
 import { api } from "../../services/api";
 
 export default function Perfil() {
+  const { t } = useIdioma();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -270,7 +272,7 @@ export default function Perfil() {
             }
           >
             <Avatar
-              name={user?.name ?? "Usuário"}
+              name={user?.name ?? t("Usuário")}
               image={fotoPerfil ?? undefined}
               size={164}
             />
@@ -283,7 +285,7 @@ export default function Perfil() {
                 marginTop: 10,
               }}
             >
-              Salvando foto...
+              {t("Salvando foto...")}
             </Text>
           )}
 
@@ -300,7 +302,7 @@ export default function Perfil() {
           )}
 
           <Text style={styles.nome}>
-            {user?.name ?? "Usuário"}
+            {user?.name ?? t("Usuário")}
           </Text>
 
           <Text style={styles.usuario}>
@@ -332,7 +334,7 @@ export default function Perfil() {
               <Text
                 style={styles.premiumTitulo}
               >
-                Seja{" "}
+                {t("Seja")}{" "}
                 <Text
                   style={styles.premiumVerde}
                 >
@@ -344,9 +346,9 @@ export default function Perfil() {
             <Text
               style={styles.premiumTexto}
             >
-              Desbloqueie recursos exclusivos e
+              {t("Desbloqueie recursos exclusivos e")}
               {"\n"}
-              relatórios avançados
+              {t("relatórios avançados")}
             </Text>
 
             <TouchableOpacity
@@ -359,7 +361,7 @@ export default function Perfil() {
               <Text
                 style={styles.botaoTexto}
               >
-                Assine já
+                {t("Assine já")}
               </Text>
             </TouchableOpacity>
           </Card>
@@ -377,7 +379,7 @@ export default function Perfil() {
             <Text
               style={styles.tituloSecao}
             >
-              Configurações
+              {t("Configurações")}
             </Text>
 
             {/* EDITAR CONTA */}
@@ -397,7 +399,7 @@ export default function Perfil() {
               <Text
                 style={styles.itemTexto}
               >
-                Editar conta
+                {t("Editar conta")}
               </Text>
             </TouchableOpacity>
 
@@ -420,7 +422,7 @@ export default function Perfil() {
               <Text
                 style={styles.itemTexto}
               >
-                Configurar
+                {t("Configurar")}
               </Text>
             </TouchableOpacity>
 
@@ -443,7 +445,7 @@ export default function Perfil() {
               <Text
                 style={styles.itemTexto}
               >
-                Segurança
+                {t("Segurança")}
               </Text>
             </TouchableOpacity>
 
@@ -451,7 +453,7 @@ export default function Perfil() {
             <Text
               style={styles.tituloSecao}
             >
-              Suporte
+              {t("Suporte")}
             </Text>
 
             <TouchableOpacity
@@ -472,7 +474,7 @@ export default function Perfil() {
               <Text
                 style={styles.itemTexto}
               >
-                Contate-nos
+                {t("Contate-nos")}
               </Text>
             </TouchableOpacity>
 
@@ -494,7 +496,7 @@ export default function Perfil() {
               <Text
                 style={styles.itemTexto}
               >
-                Ajuda
+                {t("Ajuda")}
               </Text>
             </TouchableOpacity>
           </Card>
@@ -507,7 +509,7 @@ export default function Perfil() {
             }}
           >
             <Button
-              titulo="Sair da conta"
+              titulo={t("Sair da conta")}
               variante="terciario"
               onPress={() =>
                 setModalSairVisible(true)
@@ -515,7 +517,7 @@ export default function Perfil() {
             />
 
             <Button
-              titulo="Excluir conta"
+              titulo={t("Excluir conta")}
               variante="terciario"
               onPress={() =>
                 router.push(

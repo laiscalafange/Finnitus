@@ -12,6 +12,7 @@ import {
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import { useIdioma } from "@/features/idioma";
 
 import { Card } from "../Cards";
 import { FONTS } from "../../constants/Tipografia";
@@ -41,6 +42,7 @@ export function ModalFotoPerfil({
   onRemove,
   hasImage,
 }: Props) {
+  const { t } = useIdioma();
   const insets = useSafeAreaInsets();
 
   async function abrirGaleria() {
@@ -59,8 +61,8 @@ export function ModalFotoPerfil({
       console.error("Erro ao abrir galeria:", erro);
 
       Alert.alert(
-        "Não foi possível abrir a galeria",
-        "Tente novamente."
+        t("Não foi possível abrir a galeria"),
+        t("Tente novamente."),
       );
     }
   }
@@ -72,8 +74,8 @@ export function ModalFotoPerfil({
 
       if (!permissao.granted) {
         Alert.alert(
-          "Permissão necessária",
-          "Autorize o acesso à câmera para tirar uma foto."
+          t("Permissão necessária"),
+          t("Autorize o acesso à câmera para tirar uma foto."),
         );
         return;
       }
@@ -92,8 +94,8 @@ export function ModalFotoPerfil({
       console.error("Erro ao abrir câmera:", erro);
 
       Alert.alert(
-        "Não foi possível abrir a câmera",
-        "Tente novamente."
+        t("Não foi possível abrir a câmera"),
+        t("Tente novamente."),
       );
     }
   }
@@ -136,11 +138,11 @@ export function ModalFotoPerfil({
             <View style={styles.indicador} />
 
             <Text style={styles.titulo}>
-              Alterar foto de perfil
+              {t("Alterar foto de perfil")}
             </Text>
 
             <Text style={styles.subtitulo}>
-              Escolha como deseja adicionar sua foto.
+              {t("Escolha como deseja adicionar sua foto.")}
             </Text>
 
             {/* CÂMERA */}
@@ -151,12 +153,12 @@ export function ModalFotoPerfil({
             >
               <View style={styles.iconeContainer}>
                 <Text style={styles.icone}>
-                  Câmera
+                  {t("Câmera")}
                 </Text>
               </View>
 
               <Text style={styles.textoOpcao}>
-                Tirar uma foto
+                {t("Tirar uma foto")}
               </Text>
             </TouchableOpacity>
 
@@ -168,12 +170,12 @@ export function ModalFotoPerfil({
             >
               <View style={styles.iconeContainer}>
                 <Text style={styles.icone}>
-                  Galeria
+                  {t("Galeria")}
                 </Text>
               </View>
 
               <Text style={styles.textoOpcao}>
-                Escolher da galeria
+                {t("Escolher da galeria")}
               </Text>
             </TouchableOpacity>
 
@@ -185,7 +187,7 @@ export function ModalFotoPerfil({
                 onPress={removerFoto}
               >
                 <Text style={styles.textoRemover}>
-                  Remover foto
+                  {t("Remover foto")}
                 </Text>
               </TouchableOpacity>
             )}
@@ -197,7 +199,7 @@ export function ModalFotoPerfil({
               onPress={onClose}
             >
               <Text style={styles.textoCancelar}>
-                Cancelar
+                {t("Cancelar")}
               </Text>
             </TouchableOpacity>
           </ScrollView>

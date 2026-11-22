@@ -8,6 +8,7 @@ import {
   validarConfiguracao,
 } from "../services/configuracoes.service.js";
 import { HttpError } from "../utils/errors.js";
+import { buscarCotacao } from "../services/cotacoes.service.js";
 
 const router = Router();
 
@@ -18,6 +19,10 @@ router.get("/me/configuracoes", authMiddleware, async (req, res) => {
 router.patch("/me/configuracoes", authMiddleware, async (req, res) => {
   const dados = validarConfiguracao(req.body);
   res.json(await salvarConfiguracaoUsuario(req.userId!, dados));
+});
+
+router.get("/me/cotacoes", authMiddleware, async (_req, res) => {
+  res.json(await buscarCotacao());
 });
 
 router.delete("/me/dados-financeiros", sensitiveLimiter, authMiddleware, async (req, res) => {

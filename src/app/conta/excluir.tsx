@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 
 import React, { useState } from "react";
 
@@ -21,6 +22,7 @@ import { authService } from "../../services/auth";
 import { useAuth } from "../../features/authContext";
 
 export default function ExcluirConta() {
+  const { t } = useIdioma();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { clearSession } = useAuth();
@@ -87,7 +89,7 @@ export default function ExcluirConta() {
           />
 
           <Text style={styles.voltarTexto}>
-            Voltar
+            {t("Voltar")}
           </Text>
         </TouchableOpacity>
 
@@ -105,12 +107,11 @@ export default function ExcluirConta() {
             </View>
 
             <Text style={styles.titulo}>
-              Excluir sua conta?
+              {t("Excluir sua conta?")}
             </Text>
 
             <Text style={styles.descricao}>
-              Tem certeza de que deseja excluir
-              sua conta do Finnitus?
+              {t("Tem certeza de que deseja excluir sua conta do Finnitus?")}
             </Text>
 
             <View style={styles.alertaContainer}>
@@ -122,21 +123,18 @@ export default function ExcluirConta() {
               />
 
               <Text style={styles.alerta}>
-                Todos os seus dados financeiros,
-                metas, reservas e movimentações
-                serão apagados permanentemente.
-                Esta ação não pode ser desfeita.
+                {t("Todos os seus dados financeiros, metas, reservas e movimentações serão apagados permanentemente. Esta ação não pode ser desfeita.")}
               </Text>
             </View>
 
             <View style={styles.formulario}>
               <Text style={styles.label}>
-                Senha atual
+                {t("Senha atual")}
               </Text>
 
               <TextInput
                 style={styles.input}
-                placeholder="Digite sua senha"
+                placeholder={t("Digite sua senha")}
                 placeholderTextColor="#A998C4"
                 value={senha}
                 onChangeText={setSenha}
@@ -146,7 +144,7 @@ export default function ExcluirConta() {
               />
 
               <Text style={styles.label}>
-                Digite EXCLUIR para confirmar
+                {t("Digite EXCLUIR para confirmar")}
               </Text>
 
               <TextInput
@@ -180,7 +178,7 @@ export default function ExcluirConta() {
                 <ActivityIndicator color="#FF7777" />
               ) : (
                 <Text style={styles.textoExcluir}>
-                  Excluir minha conta
+                  {t("Excluir minha conta")}
                 </Text>
               )}
             </TouchableOpacity>
@@ -192,7 +190,7 @@ export default function ExcluirConta() {
               activeOpacity={0.8}
             >
               <Text style={styles.textoCancelar}>
-                Cancelar
+                {t("Cancelar")}
               </Text>
             </TouchableOpacity>
           </LinearGradient>

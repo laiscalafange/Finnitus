@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "expo-router";
@@ -53,6 +54,7 @@ export function ModalConfirmarAcao({
   acao,
   onClose,
 }: Props) {
+  const { t } = useIdioma();
   const {
     pergunta,
     descricao,
@@ -141,11 +143,11 @@ export function ModalConfirmarAcao({
           </View>
 
           <Text style={styles.pergunta}>
-            {pergunta}
+            {t(pergunta)}
           </Text>
 
           <Text style={styles.descricao}>
-            {descricao}
+            {t(descricao)}
           </Text>
 
           {error ? (
@@ -162,10 +164,10 @@ export function ModalConfirmarAcao({
               <Button
                 titulo={
                   busy
-                    ? "Aguarde..."
+                    ? t("Aguarde...")
                     : restante > 0
-                      ? `${confirmar} (${restante}s)`
-                      : confirmar
+                      ? `${t(confirmar)} (${restante}s)`
+                      : t(confirmar)
                 }
                 variante={variante}
                 disabled={busy || restante > 0}
@@ -175,7 +177,7 @@ export function ModalConfirmarAcao({
 
             <View style={styles.botaoContainer}>
               <Button
-                titulo="Cancelar"
+                titulo={t("Cancelar")}
                 variante="outline"
                 disabled={busy}
                 onPress={fechar}

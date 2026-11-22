@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 
 import { useState } from "react";
 import {
@@ -79,6 +80,7 @@ const FAQS = [
 ] as const;
 
 export default function Ajuda() {
+  const { t } = useIdioma();
   const router = useRouter();
 
   const [aberta, setAberta] = useState<string | null>(null);
@@ -95,11 +97,11 @@ export default function Ajuda() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.conteudo}
       >
-        <HeaderInterno titulo="Ajuda" />
+        <HeaderInterno titulo={t("Ajuda")} />
 
         <View style={styles.lista}>
           <Text style={styles.tituloSecao}>
-            Perguntas frequentes
+            {t("Perguntas frequentes")}
           </Text>
 
           {FAQS.map(({ id, pergunta, resposta }) => {
@@ -128,7 +130,7 @@ export default function Ajuda() {
                   </View>
 
                   <Text style={styles.perguntaTexto}>
-                    {pergunta}
+                    {t(pergunta)}
                   </Text>
 
                   {aberto ? (
@@ -149,7 +151,7 @@ export default function Ajuda() {
                     <View style={styles.divisor} />
 
                     <Text style={styles.respostaTexto}>
-                      {resposta}
+                      {t(resposta)}
                     </Text>
                   </View>
                 )}
@@ -159,15 +161,15 @@ export default function Ajuda() {
 
           <View style={styles.suporte}>
             <Text style={styles.suporteTitulo}>
-              Ainda precisa de ajuda?
+              {t("Ainda precisa de ajuda?")}
             </Text>
 
             <Text style={styles.suporteDescricao}>
-              Entre em contato com o nosso suporte.
+              {t("Entre em contato com o nosso suporte.")}
             </Text>
 
             <Button
-              titulo="Falar com o suporte"
+              titulo={t("Falar com o suporte")}
               variante="outline"
               onPress={() =>
                 router.push("/conta/contato")

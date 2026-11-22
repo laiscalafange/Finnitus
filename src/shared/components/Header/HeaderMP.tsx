@@ -1,4 +1,5 @@
 import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { SinoNotificacoes } from "@/shared/components/SinoNotificacoes";
 import { Text } from "@/shared/components/Texto";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -63,16 +64,7 @@ export function HeaderMP({
           </TouchableOpacity>
         )}
 
-        {/* Sino — leva pra tela de notificações
-            (não aparece na própria tela de Notificação) */}
-        {mostrarNotificacao && (
-          <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
-            <Image
-              source={require("../../../../assets/icones/sino.png")}
-              style={styles.icone}
-            />
-          </TouchableOpacity>
-        )}
+        {mostrarNotificacao && <SinoNotificacoes estiloIcone={styles.icone} />}
 
       </View>
     </LinearGradient>

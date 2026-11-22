@@ -113,7 +113,7 @@ export const env = {
     ""
   ),
 
-  CONTACT_EMAIL: getEnvVarOptional("CONTACT_EMAIL", "").trim(),
+  CONTACT_EMAIL: getEnvVarOptional("CONTACT_EMAIL", "").trim() || "finnitus.contato@gmail.com",
 };
 
 // ============================================

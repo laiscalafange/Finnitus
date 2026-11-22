@@ -5,19 +5,29 @@ import { env } from "../config/env.js";
 
 let transporter: Transporter | null = null;
 
+export function invalidEmailSettings() {
+  const valid = {
+    EMAIL_HOST: Boolean(env.EMAIL_HOST.trim()),
+    EMAIL_PORT: Number.isInteger(env.EMAIL_PORT) && env.EMAIL_PORT > 0 && env.EMAIL_PORT <= 65535,
+    EMAIL_USER: Boolean(env.EMAIL_USER.trim()),
+    EMAIL_PASSWORD: Boolean(env.EMAIL_PASSWORD.trim()),
+    EMAIL_FROM: Boolean(env.EMAIL_FROM.trim()),
+  };
+
+  return Object.entries(valid)
+    .filter(([, isValid]) => !isValid)
+    .map(([setting]) => setting);
+}
+
 function getTransporter(): Transporter {
-  if (
-    !env.EMAIL_USER ||
-    !env.EMAIL_PASSWORD ||
-    !env.EMAIL_FROM
-  ) {
+  if (invalidEmailSettings().length > 0) {
     throw new Error("SMTP não configurado.");
   }
 
   if (!transporter) {
     transporter = nodemailer.createTransport({
       host: env.EMAIL_HOST,
-      port: Number(env.EMAIL_PORT),
+      port: env.EMAIL_PORT,
       secure: env.EMAIL_SECURE,
 
       auth: {

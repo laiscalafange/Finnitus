@@ -54,7 +54,7 @@ import {
 import { ModalMesAno } from "../../features/calendar/components/ModalMesAno";
 import { chaveDia } from "../../shared/components/CalendarioSemana/CalendarioSemana";
 import coroaIcon from "../../../assets/icones/coroa.png";
-import sinoIcon from "../../../assets/icones/sino.png";
+import { SinoNotificacoes } from "@/shared/components/SinoNotificacoes";
 
 // ─────────────────────────────────────────────
 
@@ -1164,20 +1164,7 @@ const percentualRestanteMes =
                 />
 
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  router.push(
-                    Rotas.notificacao
-                  )
-                }
-              >
-
-                <Image
-                  source={sinoIcon}
-                  style={styles.headerIcone}
-                />
-
-              </TouchableOpacity>
+              <SinoNotificacoes estiloIcone={styles.headerIcone} />
             </View>
           </View>
 

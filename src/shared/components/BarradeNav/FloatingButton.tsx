@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import MaskedView from '@react-native-masked-view/masked-view'
 import Svg, { Defs, Mask, Rect, Circle } from 'react-native-svg'
 import { ArrowDown, ArrowUp, User } from 'lucide-react-native'
+import { useIdioma } from '@/features/idioma'
 
 import { Cores } from '../../constants/Cores'
 import { getStyles } from './FloatingButtonStyles'
@@ -20,26 +21,32 @@ const BAR_H = 80
 const ABAS = [
   {
     chave: 'home',
+    rotulo: 'Início',
     icone: require("../../../../assets/icones/casa.png"),
   },
   {
     chave: 'dashboard',
+    rotulo: 'Visão geral',
     icone: require("../../../../assets/icones/economia2.png"),
   },
   {
     chave: 'metas',
+    rotulo: 'Metas',
     icone: require("../../../../assets/icones/check.png"),
   },
   {
     chave: 'fab',
+    rotulo: 'Abrir ações rápidas',
     icone: '+',
   },
   {
     chave: 'calendario',
+    rotulo: 'Calendário',
     icone: require("../../../../assets/icones/calendar2.png"),
   },
   {
     chave: 'planoB',
+    rotulo: 'Plano B',
     icone: require("../../../../assets/icones/B.png"),
   },
   {
@@ -47,9 +54,10 @@ const ABAS = [
     // O desenho é o ícone User do lucide, preenchido (ver mais abaixo),
     // por isso aqui o "icone" é só um marcador.
     chave: 'perfil',
+    rotulo: 'Perfil',
     icone: 'perfil',
   },
-]
+] as const
 
 // Ações do menu que abre ao tocar no +.
 // "chave" é o que chega em aoPress — a navegação de cada uma
@@ -59,13 +67,14 @@ const ACOES = [
   { chave: 'novaDespesa', IconeSeta: ArrowDown, rotulo: 'Despesas' },
   { chave: 'novoEvento', icone: require("../../../../assets/icones/calendar2.png"), rotulo: 'Novo evento' },
   { chave: 'reservaEmergencia', icone: require("../../../../assets/icones/saco.png"), rotulo: 'Reserva de emergência' },
-]
+] as const
 
 export function FloatingButton({
   abaAtiva,
   aoPress,
 }: FloatingButtonProps) {
 
+  const { t } = useIdioma()
   const insets = useSafeAreaInsets()
 
   const insetExtra = insets.bottom > 24 ? insets.bottom : 0
@@ -115,7 +124,8 @@ export function FloatingButton({
         animationType="fade"
         onRequestClose={() => setMenuAberto(false)}
       >
-        <Pressable style={styles.backdrop} onPress={() => setMenuAberto(false)} />
+        <Pressable style={styles.backdrop} onPress={() => setMenuAberto(false)}
+          accessibilityRole="button" accessibilityLabel={t('Fechar ações rápidas')} />
 
         {ACOES.map((acao, indice) => {
           const { raio, angulo } = POSICOES_ARCO[indice]
@@ -137,6 +147,8 @@ export function FloatingButton({
               ]}
               onPress={() => acionarMenu(acao.chave)}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={t(acao.rotulo)}
             >
               <View style={styles.menuCirculo}>
                 {'IconeSeta' in acao && acao.IconeSeta ? (
@@ -151,7 +163,7 @@ export function FloatingButton({
                   <Image source={acao.icone} style={styles.menuIcone} />
                 ) : null}
               </View>
-              <Text style={styles.menuTexto}>{acao.rotulo}</Text>
+              <Text style={styles.menuTexto}>{t(acao.rotulo)}</Text>
             </TouchableOpacity>
           )
         })}
@@ -226,6 +238,9 @@ export function FloatingButton({
               style={styles.aba}
               onPress={() => aoPress(aba.chave)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={t(aba.rotulo)}
+              accessibilityState={{ selected: abaAtiva === aba.chave }}
             >
 
               <Image
@@ -263,6 +278,9 @@ export function FloatingButton({
               style={styles.aba}
               onPress={() => aoPress(aba.chave)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={t(aba.rotulo)}
+              accessibilityState={{ selected: abaAtiva === aba.chave }}
             >
 
               {aba.chave === 'perfil' ? (
@@ -314,6 +332,8 @@ export function FloatingButton({
         style={styles.fab}
         onPress={() => setMenuAberto(true)}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={t('Abrir ações rápidas')}
       >
 
         <Text style={styles.fabIcone}>

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { ScrollView, View, TouchableOpacity } from 'react-native'
 
@@ -21,6 +21,7 @@ import { Rotas } from '../../shared/constants/Rotas'
 
 import { Text } from '@/shared/components/Texto'
 import { useConfiguracoes, useMoedaVisivel } from '@/features/configuracoesContext'
+import { useIdioma, type Idioma } from '@/features/idioma'
 
 import {
   CardSaldo,
@@ -54,13 +55,10 @@ import {
   listarItensCalendario,
 
 } from '../../features/calendar/services/calendarService'
-const MESES = [
-
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-
-]
-
-const MESES_CURTOS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+function nomeMes(idioma: Idioma, mes: number, formato: 'short' | 'long') {
+  const nome = new Intl.DateTimeFormat(idioma, { month: formato }).format(new Date(2026, mes, 1))
+  return nome.charAt(0).toLocaleUpperCase(idioma) + nome.slice(1)
+}
 
 type EventoHome = {
   titulo: string
@@ -106,20 +104,15 @@ function formatarDataEventoHome(
   dataInicio: string,
 
   diaInteiro: boolean,
+  idioma: Idioma,
+  textoDiaInteiro: string,
 
 ) {
 
   if (diaInteiro) {
 
-    const [ano, mes, dia] =
-
-      dataInicio
-
-        .slice(0, 10)
-
-        .split('-')
-
-    return `${dia}/${mes}/${ano} • Dia inteiro`
+    const data = new Date(`${dataInicio.slice(0, 10)}T00:00:00Z`)
+    return `${data.toLocaleDateString(idioma, { dateStyle: 'short', timeZone: 'UTC' })} • ${textoDiaInteiro}`
 
   }
 
@@ -129,7 +122,7 @@ function formatarDataEventoHome(
 
     data.toLocaleDateString(
 
-      'pt-BR',
+      idioma,
 
       {
 
@@ -147,7 +140,7 @@ function formatarDataEventoHome(
 
     data.toLocaleTimeString(
 
-      'pt-BR',
+      idioma,
 
       {
 
@@ -171,7 +164,9 @@ export default function PaginaInicial() {
 
   const { user } = useAuth()
   const { configuracoes } = useConfiguracoes()
+  const { idioma, t } = useIdioma()
   const moedaVisivel = useMoedaVisivel()
+  const mesesCurtos = useMemo(() => Array.from({ length: 12 }, (_, mes) => nomeMes(idioma, mes, 'short')), [idioma])
 
   const [
 
@@ -228,9 +223,9 @@ export default function PaginaInicial() {
 
     referencia.ano === new Date().getFullYear()
 
-      ? MESES[referencia.mes]
+      ? nomeMes(idioma, referencia.mes, 'long')
 
-      : `${MESES[referencia.mes]} ${referencia.ano}`
+      : `${nomeMes(idioma, referencia.mes, 'long')} ${referencia.ano}`
 
   // Contas (fixas e avulsas) do mês selecionado
 
@@ -352,6 +347,8 @@ export default function PaginaInicial() {
             data: formatarDataEventoHome(
               dataInicio,
               proximo.diaInteiro ?? false,
+              idioma,
+              t('Dia inteiro'),
             ),
           })
         } catch (error) {
@@ -371,7 +368,7 @@ export default function PaginaInicial() {
       return () => {
         telaAtiva = false
       }
-    }, []),
+    }, [idioma, t]),
   )
 
   return (
@@ -412,7 +409,6 @@ export default function PaginaInicial() {
             mes={mesTexto}
             aoPressMes={() => setModalMes(true)}
             onPremium={() => router.push(Rotas.premium)}
-            onNotificacao={() => router.push(Rotas.notificacao)}
             onPerfil={() => router.push('/perfil')}
 
           />
@@ -449,7 +445,7 @@ export default function PaginaInicial() {
             onPress={() => setResumoVisivel(visivel => !visivel)}
             activeOpacity={0.8}
             accessibilityRole="button"
-            accessibilityLabel={resumoVisivel ? 'Esconder receitas e despesas' : 'Mostrar receitas e despesas'}
+            accessibilityLabel={resumoVisivel ? t('Esconder receitas e despesas') : t('Mostrar receitas e despesas')}
 
           >
 
@@ -485,8 +481,8 @@ export default function PaginaInicial() {
           {/* DESPESAS FIXAS */}
 
           <CardSecao
-            titulo="Despesas fixas"
-            textoVerTodos="Ver todas"
+            titulo={t('Despesas fixas')}
+            textoVerTodos={t('Ver todas')}
             aoVerTodos={() => router.push(Rotas.contasFixas)}
           >
 
@@ -497,7 +493,7 @@ export default function PaginaInicial() {
                     key={`${conta.transacaoId}-${conta.competencia}`}
                     icone={conta.icone}
                     titulo={conta.nome}
-                    subtitulo={`Vencimento ${diaMes(conta.dataVencimento)}  ·  ${moedaVisivel(conta.valorRealizado ?? conta.valorPrevisto)}  ·  ${rotuloStatus(conta)}`}
+                    subtitulo={`${t('Vencimento {data}', { data: diaMes(conta.dataVencimento) })}  ·  ${moedaVisivel(conta.valorRealizado ?? conta.valorPrevisto)}  ·  ${rotuloStatus(conta)}`}
 
                     aoPress={() =>
 
@@ -521,7 +517,7 @@ export default function PaginaInicial() {
 
               <Text style={styles.vazio}>
 
-                Registre um gasto com “repetir mensalmente” e ele aparece aqui.
+                {t('Registre um gasto com “repetir mensalmente” e ele aparece aqui.')}
 
               </Text>
 
@@ -533,9 +529,9 @@ export default function PaginaInicial() {
 
           <CardSecao
 
-            titulo="Atenção"
+            titulo={t('Atenção')}
 
-            textoVerTodos="Ver todas"
+            textoVerTodos={t('Ver todas')}
 
             aoVerTodos={() => router.push(Rotas.notificacao)}
 
@@ -554,7 +550,8 @@ export default function PaginaInicial() {
                             : TriangleAlert
                     }
                     titulo={item.titulo}
-                    subtitulo={configuracoes?.mostrarValores ? item.mensagem : tempoNotificacao(item.criadaEm)}
+                    subtitulo={configuracoes?.mostrarValores
+                      ? item.mensagem : tempoNotificacao(item.criadaEm, idioma)}
                     aoPress={() => router.push(Rotas.notificacao)}
                   />
 
@@ -564,7 +561,7 @@ export default function PaginaInicial() {
 
             ) : (
 
-              <Text style={styles.vazio}>Tudo certo por aqui! Nenhum aviso no momento.</Text>
+              <Text style={styles.vazio}>{t('Tudo certo por aqui! Nenhum aviso no momento.')}</Text>
 
             )}
 
@@ -588,7 +585,7 @@ export default function PaginaInicial() {
 
         ano={referencia.ano}
 
-        nomesMeses={MESES_CURTOS}
+        nomesMeses={mesesCurtos}
 
         aoFechar={() => setModalMes(false)}
 

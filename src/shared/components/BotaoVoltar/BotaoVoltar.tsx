@@ -1,6 +1,7 @@
 import { TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
+import { useIdioma } from "@/features/idioma";
 
 import { Cores } from "../../constants/Cores";
 import { Rotas } from "../../constants/Rotas";
@@ -13,6 +14,7 @@ export function BotaoVoltar({
   cor = Cores.texto.contraste, // roxo escuro (#3B176B)
   tamanho = 28,
 }: BotaoVoltarProps) {
+  const { t } = useIdioma();
   // Hook de navegação do Expo Router
   const router = useRouter();
 
@@ -39,7 +41,7 @@ export function BotaoVoltar({
       activeOpacity={0.7}
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       accessibilityRole="button"
-      accessibilityLabel="Voltar"
+      accessibilityLabel={t("Voltar")}
     >
       <ArrowLeft size={tamanho} color={cor} strokeWidth={3} />
     </TouchableOpacity>

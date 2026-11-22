@@ -1,17 +1,15 @@
-import React from "react";
-import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { useIdioma } from "@/features/idioma";
+import { View, StyleSheet } from "react-native";
+import { SinoNotificacoes } from "@/shared/components/SinoNotificacoes";
 import { Text } from "@/shared/components/Texto";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
 import { FONTS } from "../../../shared/constants/Tipografia";
 import { Cores } from "../../../shared/constants/Cores";
 import { GRADIENTS } from "../../../shared/constants/Gradientes";
-import { Rotas } from "../../../shared/constants/Rotas";
 import { BotaoVoltar } from "../BotaoVoltar";
 
 export function HeaderPerfil() {
-  // Hook de navegação do Expo Router
-  const router = useRouter();
+  const { t } = useIdioma();
 
   return (
     <LinearGradient
@@ -25,23 +23,15 @@ export function HeaderPerfil() {
         <BotaoVoltar />
 
         <View>
-          <Text style={styles.titulo}>Perfil</Text>
-          <Text style={styles.subtitulo}>Pessoal</Text>
+          <Text style={styles.titulo}>{t("Perfil")}</Text>
+          <Text style={styles.subtitulo}>{t("Pessoal")}</Text>
         </View>
       </View>
 
       {/* Ícone do canto superior direito (só o sino — a coroa foi removida
           porque o card "Assine já" já leva pra tela Premium) */}
       <View style={styles.icones}>
-
-        {/* Sino — leva pra tela de notificações */}
-        <TouchableOpacity onPress={() => router.push(Rotas.notificacao)}>
-          <Image
-            source={require("../../../../assets/icones/sino.png")}
-            style={styles.sino}
-          />
-        </TouchableOpacity>
-
+        <SinoNotificacoes estiloIcone={styles.sino} />
       </View>
     </LinearGradient>
   );

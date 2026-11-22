@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 import { View, Text, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { HeaderInterno } from "../../shared/components/Header";
@@ -7,22 +8,21 @@ import { styles } from "../../styles/dadosBancarios";
 
 /** Não solicitar dados bancários sem finalidade implementada e armazenamento seguro. */
 export default function DadosBancarios() {
+  const { t } = useIdioma();
   const router = useRouter();
   return (
     <View style={styles.container}>
       <BackgroundGradient variante="funcional" />
       <ScrollView contentContainerStyle={styles.conteudo}>
-        <HeaderInterno titulo="Dados bancários" />
+        <HeaderInterno titulo={t("Dados bancários")} />
         <View style={styles.formulario}>
           <Text style={[styles.rotuloTipo, { marginBottom: 14 }]}>
-            Recurso não disponível nesta versão acadêmica.
+            {t("Recurso não disponível nesta versão acadêmica.")}
           </Text>
           <Text style={[styles.rotuloTipo, { marginBottom: 24 }]}>
-            O Finnitus não se conecta a bancos e não precisa do seu número
-            de agência, conta ou chave Pix para organizar suas finanças.
-            Não insira essas informações no aplicativo.
+            {t("O Finnitus não se conecta a bancos e não precisa do seu número de agência, conta ou chave Pix para organizar suas finanças. Não insira essas informações no aplicativo.")}
           </Text>
-          <Button titulo="Voltar ao perfil" onPress={() => router.back()} />
+          <Button titulo={t("Voltar ao perfil")} onPress={() => router.back()} />
         </View>
       </ScrollView>
     </View>

@@ -3,13 +3,14 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
 import { AppState } from "react-native";
 import { api, errorMessage } from "@/services/api";
-import { formatarMoeda } from "@/features/menuMais/utils";
+import type { Idioma } from "@/features/idioma";
 import {
   cancelarLembretesFinanceiros,
   sincronizarLembretesEventos,
@@ -17,10 +18,13 @@ import {
 
 export type TamanhoTexto = "PEQUENO" | "MEDIO" | "GRANDE";
 export type AlertaId = "vencimento" | "gastos" | "calendario" | "planoB" | "resumo" | "metas";
+export type Moeda = "BRL" | "USD" | "EUR";
+
+type Cotacao = { data: string; taxas: { USD: number; EUR: number } };
 
 type Configuracoes = Record<AlertaId, boolean> & {
-  idioma: "pt-BR";
-  moeda: "BRL";
+  idioma: Idioma;
+  moeda: Moeda;
   mostrarValores: boolean;
   tamanhoTexto: TamanhoTexto;
 };
@@ -31,6 +35,7 @@ type ValorContexto = {
   salvando: boolean;
   erro: string;
   revisaoFinanceira: number;
+  cotacao: Cotacao | false | null;
   carregar: () => Promise<void>;
   atualizar: (dados: Partial<Configuracoes>) => Promise<void>;
   recomecar: (confirmacao: string) => Promise<void>;
@@ -43,6 +48,7 @@ const Contexto = createContext<ValorContexto>({
   salvando: false,
   erro: "",
   revisaoFinanceira: 0,
+  cotacao: null,
   carregar: noop,
   atualizar: noop,
   recomecar: noop,
@@ -57,6 +63,7 @@ export function ConfiguracoesProvider({ usuarioId, children }: {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [revisaoFinanceira, setRevisaoFinanceira] = useState(0);
+  const [cotacao, setCotacao] = useState<Cotacao | false | null>(null);
   const leitura = useRef<AbortController | null>(null);
   const meioDeSalvamento = useRef(false);
   const pedidoReset = useRef(false);
@@ -99,6 +106,45 @@ export function ConfiguracoesProvider({ usuarioId, children }: {
     });
   }, [usuarioId, calendario]);
 
+  const precisaCotacao = configuracoes?.moeda === "USD" || configuracoes?.moeda === "EUR";
+  useEffect(() => {
+    if (!usuarioId || !precisaCotacao) {
+      setCotacao(null);
+      return;
+    }
+
+    const pedido = new AbortController();
+    let consultando = false;
+    async function consultar() {
+      if (consultando) return;
+      consultando = true;
+      try {
+        const { data } = await api.get<Cotacao>("/me/cotacoes", { signal: pedido.signal });
+        const valida = /^\d{4}-\d{2}-\d{2}$/.test(data?.data) &&
+          Number.isFinite(data?.taxas?.USD) && data.taxas.USD > 0 &&
+          Number.isFinite(data?.taxas?.EUR) && data.taxas.EUR > 0;
+        if (!pedido.signal.aborted) setCotacao(valida ? data : false);
+      } catch {
+        if (!pedido.signal.aborted) setCotacao(false);
+      } finally {
+        consultando = false;
+      }
+    }
+
+    void consultar();
+    const listener = AppState.addEventListener("change", (estado) => {
+      if (estado === "active") void consultar();
+    });
+    const intervalo = setInterval(() => {
+      if (AppState.currentState === "active") void consultar();
+    }, 15 * 60 * 1000);
+    return () => {
+      pedido.abort();
+      listener.remove();
+      clearInterval(intervalo);
+    };
+  }, [usuarioId, precisaCotacao]);
+
   async function atualizar(dados: Partial<Configuracoes>) {
     if (!configuracoes || meioDeSalvamento.current) return;
     meioDeSalvamento.current = true;
@@ -136,7 +182,7 @@ export function ConfiguracoesProvider({ usuarioId, children }: {
 
   return (
     <Contexto.Provider value={{
-      configuracoes, carregando, salvando, erro, revisaoFinanceira, carregar, atualizar, recomecar,
+      configuracoes, carregando, salvando, erro, revisaoFinanceira, cotacao, carregar, atualizar, recomecar,
     }}>
       {children}
     </Contexto.Provider>
@@ -156,7 +202,38 @@ export function useExibirValores() {
   );
 }
 
-export function useMoedaVisivel() {
+export function useMoedaVisivel(compacta = false) {
   const exibir = useExibirValores();
-  return useCallback((valor: number) => exibir(formatarMoeda(valor)), [exibir]);
+  const { configuracoes } = useConfiguracoes();
+  const { efetiva, taxa } = useMoedaExibicao();
+  const idioma = configuracoes?.idioma === "en" || configuracoes?.idioma === "es"
+    ? configuracoes.idioma : "pt-BR";
+  const formatador = useMemo(() => new Intl.NumberFormat(idioma, {
+    style: "currency", currency: efetiva,
+    ...(compacta && { notation: "compact", maximumFractionDigits: 1 }),
+  }), [idioma, efetiva, compacta]);
+
+  return useCallback((valor: number) => {
+    const convertido = valor * taxa;
+    return Number.isFinite(convertido) ? exibir(formatador.format(convertido)) : "—";
+  }, [exibir, formatador, taxa]);
+}
+
+type MoedaExibicao = {
+  escolhida: Moeda;
+  efetiva: Moeda;
+  estado: "base" | "carregando" | "pronta" | "indisponivel";
+  dataReferencia?: string;
+  taxa: number;
+};
+
+export function useMoedaExibicao(): MoedaExibicao {
+  const { configuracoes, cotacao } = useConfiguracoes();
+  const escolhida = configuracoes?.moeda === "USD" || configuracoes?.moeda === "EUR"
+    ? configuracoes.moeda : "BRL";
+  if (escolhida === "BRL") return { escolhida, efetiva: "BRL", estado: "base", taxa: 1 };
+  if (!cotacao) {
+    return { escolhida, efetiva: "BRL", estado: cotacao === null ? "carregando" : "indisponivel", taxa: 1 };
+  }
+  return { escolhida, efetiva: escolhida, estado: "pronta", dataReferencia: cotacao.data, taxa: cotacao.taxas[escolhida] };
 }

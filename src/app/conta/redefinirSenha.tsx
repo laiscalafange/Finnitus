@@ -1,3 +1,4 @@
+import { useIdioma } from "@/features/idioma";
 import { useState } from "react";
 import {
   View,
@@ -23,6 +24,7 @@ import { validatePassword } from "../../shared/utils/formValidation";
 import { styles } from "../../styles/redefinirSenha";
 
 export default function RedefinirSenha() {
+  const { t } = useIdioma();
   const { resetToken, clearSession, senhaRedefinida } = useAuth();
 
   const [senha, setSenha] = useState("");
@@ -60,12 +62,12 @@ export default function RedefinirSenha() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.conteudo}
         >
-          <HeaderInterno titulo="Redefinir senha" />
+          <HeaderInterno titulo={t("Redefinir senha")} />
 
           <View style={styles.formulario}>
             <Input
-              label="Nova senha"
-              placeholder="Mín. 8 caracteres"
+              label={t("Nova senha")}
+              placeholder={t("Mín. 8 caracteres")}
               secureTextEntry
               value={senha}
               onChangeText={setSenha}
@@ -73,8 +75,8 @@ export default function RedefinirSenha() {
             />
 
             <Input
-              label="Confirmar nova senha"
-              placeholder="Repita a nova senha"
+              label={t("Confirmar nova senha")}
+              placeholder={t("Repita a nova senha")}
               secureTextEntry
               value={confirmacao}
               onChangeText={setConfirmacao}
@@ -88,7 +90,7 @@ export default function RedefinirSenha() {
             ) : null}
 
             <Button
-              titulo={busy ? "Salvando..." : "Salvar nova senha"}
+              titulo={busy ? t("Salvando...") : t("Salvar nova senha")}
               variante="terciario"
               onPress={salvar}
               disabled={busy}
