@@ -26,6 +26,18 @@ const allowedOrigins = new Set(
     .filter(Boolean)
 );
 
+
+app.use((req, res, next) => {
+  if (req.originalUrl.includes("categorias-personalizadas")) {
+    console.log("CATEGORIAS - REQUISIÇÃO:", {
+      metodo: req.method,
+      rota: req.originalUrl,
+    });
+  }
+
+  next();
+});
+
 app.use(
   "/categorias-personalizadas",
   categoriaPersonalizadaRoutes

@@ -125,10 +125,11 @@ export default function NovoGasto() {
 
             {/* Categorias de despesa ou de receita, conforme o botão usado */}
             <SeletorCategoria
-              categorias={categorias}
-              selecionada={categoria}
-              aoSelecionar={setCategoria}
-            />
+  categorias={categorias}
+  selecionada={categoria}
+  aoSelecionar={setCategoria}
+  tipo={ehReceita ? "RECEITA" : "DESPESA"}
+/>
 
             <Input
               label="Data"
