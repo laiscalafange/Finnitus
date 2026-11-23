@@ -1,42 +1,42 @@
-import { ScrollView, View, TouchableOpacity, Image } from 'react-native'
-import { Text } from '@/shared/components/Texto'
 import { useExibirValores, useMoedaVisivel } from '@/features/configuracoesContext'
+import { Text } from '@/shared/components/Texto'
 import { LinearGradient } from 'expo-linear-gradient'
-import { BackgroundGradient } from '../../shared/components/backgroundGradient'
-import { GRADIENTS } from '../../shared/constants/Gradientes'
-import { VictoryArea, VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
-import Svg, { Circle } from 'react-native-svg'
-import { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router'
-import { Cores } from '../../shared/constants/Cores'
-import { FONTS } from '../../shared/constants/Tipografia'
-import { Rotas } from '../../shared/constants/Rotas'
+import { useEffect, useState } from 'react'
+import { Image, ScrollView, TouchableOpacity, View } from 'react-native'
+import Svg, { Circle } from 'react-native-svg'
+import { VictoryArea, VictoryAxis, VictoryBar, VictoryChart, VictoryLine } from 'victory-native'
 import { buscarDashboardApi } from '../../services/dashboardApi'
+import { BackgroundGradient } from '../../shared/components/backgroundGradient'
+import { Cores } from '../../shared/constants/Cores'
+import { GRADIENTS } from '../../shared/constants/Gradientes'
+import { Rotas } from '../../shared/constants/Rotas'
+import { FONTS } from '../../shared/constants/Tipografia'
 
 import {
+  DADOS_AREA_COMPARACAO_MOCK,
+  DADOS_AREA_MOCK,
   DASHBOARD_MOCK,
   ESTATISTICAS_MOCK,
+  PERFORMANCE_MOCK,
   PLANOB_MOCK,
   SALDO_MOCK,
-  DADOS_AREA_MOCK,
-  DADOS_AREA_COMPARACAO_MOCK,
-  PERFORMANCE_MOCK,
 } from '../../shared/components/Mocks'
 
-import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
-import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
-import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
-import { PerformanceGauge } from '../../shared/components/PlanoB/PerformanceGauge'
-import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
 import { useFinanceiro } from '../../features/financeiroContext'
 import { calcularRotas, montarCardsRotas } from '../../features/rotasDatas'
-import { calcularSumario, calcularAtividade } from '../../features/sumarioData'
+import { calcularAtividade, calcularSumario } from '../../features/sumarioData'
+import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
+import { PerformanceGauge } from '../../shared/components/PlanoB/PerformanceGauge'
+import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
+import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
+import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
 import { styles } from '../../styles/dashboardstyle'
 // Estilos dos cards que vieram do Plano-B (gráficos, Performance e Rotas)
 import { styles as stylesPlanoB } from '../../styles/Planobstyle'
 
-import coroaIcon from '../../../assets/icones/coroa.png'
 import { SinoNotificacoes } from '@/shared/components/SinoNotificacoes'
+import coroaIcon from '../../../assets/icones/coroa.png'
 
 const DIAS_SEMANA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom']
 const LETRAS_DIAS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
@@ -167,7 +167,7 @@ export default function Dashboard() {
   )
   const [semanaOffset, setSemanaOffset] = useState(0)
   const [mesOffset, setMesOffset] = useState(0)
-  const [dashboard, setDashboard] = useState<Awaited<ReturnType<typeof buscarDashboardApi>> | null>(null)
+  const [dashboard, setDashboard] = useState(null);
   const [carregandoDashboard, setCarregandoDashboard] = useState(false)
   const [erroDashboard, setErroDashboard] = useState<string | null>(null)
 
@@ -181,7 +181,7 @@ export default function Dashboard() {
     dataExibida.setMonth(dataExibida.getMonth() + mesOffset)
   }
 
-  const periodoApi: 'SEMANAL' | 'MENSAL' = periodo === 'semanal' ? 'SEMANAL' : 'MENSAL'
+  const periodoApi = periodo === 'semanal' ? 'SEMANAL' : 'MENSAL';
   const dataReferencia = formatarDataApi(dataExibida)
   const diasSemana = getDiasSemana(dataExibida)
   const mesAtual = formatarMes(dataExibida)
