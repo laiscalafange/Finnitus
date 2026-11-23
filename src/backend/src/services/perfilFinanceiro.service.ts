@@ -4,51 +4,40 @@ import { HttpError } from "../utils/errors.js";
 
 // Dados recebidos da tela FinancialData.
 type DadosPerfilFinanceiro = {
-  renda_fixa: number | null;
-  renda_variavel: number | null;
-  despesas_mensais: number;
+  renda_fixa: unknown;
+  renda_variavel: unknown;
+  despesas_mensais: unknown;
 };
 
 // Dados recebidos da tela FutureSavings.
 type DadosReservaFinanceira = {
-  economia_futura: number | null;
-  tempo_economia: number | null;
+  economia_futura: unknown;
+  tempo_economia: unknown;
 };
+
+function valorMonetarioValido(valor: unknown): valor is number {
+  return typeof valor === "number" && Number.isFinite(valor) && valor >= 0 && valor <= 99_999_999.99;
+}
 
 // Salva ou atualiza os dados iniciais do perfil.
 export async function salvarPerfilFinanceiro(
   idUsuario: number,
   dados: DadosPerfilFinanceiro
 ) {
-  const valores = [
-    dados.renda_fixa,
-    dados.renda_variavel,
-    dados.despesas_mensais,
-  ];
-
-  for (const valor of valores) {
-    if (
-      valor === undefined ||
-      (valor !== null &&
-        (!Number.isFinite(valor) || valor < 0))
-    ) {
-      throw new HttpError(400, "Informe valores financeiros válidos.");
-    }
+  const { renda_fixa, renda_variavel, despesas_mensais } = dados;
+  if (
+    (renda_fixa !== null && !valorMonetarioValido(renda_fixa)) ||
+    (renda_variavel !== null && !valorMonetarioValido(renda_variavel)) ||
+    !valorMonetarioValido(despesas_mensais)
+  ) {
+    throw new HttpError(400, "Informe valores financeiros válidos.");
   }
 
+  const valores = { renda_fixa, renda_variavel, despesas_mensais };
   return prisma.perfilFinanceiro.upsert({
     where: { id_Usuario: idUsuario },
-    create: {
-      id_Usuario: idUsuario,
-      renda_fixa: dados.renda_fixa,
-      renda_variavel: dados.renda_variavel,
-      despesas_mensais: dados.despesas_mensais,
-    },
-    update: {
-      renda_fixa: dados.renda_fixa,
-      renda_variavel: dados.renda_variavel,
-      despesas_mensais: dados.despesas_mensais,
-    },
+    create: { id_Usuario: idUsuario, ...valores },
+    update: valores,
   });
 }
 
@@ -57,28 +46,26 @@ export async function atualizarReservaFinanceira(
   idUsuario: number,
   dados: DadosReservaFinanceira
 ) {
-  if (
-    dados.economia_futura !== null &&
-    (!Number.isFinite(dados.economia_futura) ||
-      dados.economia_futura < 0)
-  ) {
+  const { economia_futura, tempo_economia } = dados;
+  if (economia_futura !== null && !valorMonetarioValido(economia_futura)) {
     throw new HttpError(400, "Informe um valor válido para a reserva.");
   }
 
   if (
-    dados.tempo_economia !== null &&
-    (!Number.isInteger(dados.tempo_economia) ||
-      dados.tempo_economia < 1)
+    tempo_economia !== null &&
+    (typeof tempo_economia !== "number" ||
+      !Number.isInteger(tempo_economia) ||
+      tempo_economia < 1 ||
+      tempo_economia > 2_147_483_647)
   ) {
     throw new HttpError(400, "Informe um prazo válido.");
   }
 
-  return prisma.perfilFinanceiro.update({
+  const valores = { economia_futura, tempo_economia };
+  return prisma.perfilFinanceiro.upsert({
     where: { id_Usuario: idUsuario },
-    data: {
-      economia_futura: dados.economia_futura,
-      tempo_economia: dados.tempo_economia,
-    },
+    create: { id_Usuario: idUsuario, despesas_mensais: 0, ...valores },
+    update: valores,
   });
 }
 

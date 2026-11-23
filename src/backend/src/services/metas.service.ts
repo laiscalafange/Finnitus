@@ -731,6 +731,9 @@ export async function atualizarMeta(
     },
     });
 
+    if (!meta.Mconfigurada && atualizada.Mconfigurada) {
+      await notificarMetaCriada(tx, atualizada);
+    }
     if (meta.Mstatus !== "CONCLUIDA" && atualizada.Mstatus === "CONCLUIDA") {
       await notificarMetaConcluida(tx, atualizada);
     }

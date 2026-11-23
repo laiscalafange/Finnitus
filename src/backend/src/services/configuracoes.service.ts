@@ -87,34 +87,35 @@ export function salvarConfiguracaoUsuario(id: number, dados: Partial<Configuraca
 
 export async function excluirDadosFinanceiros(id: number) {
   const where = { id_Usuario: id };
-  try {
-    await prisma.$transaction(async (tx) => {
-      await tx.evento.deleteMany({
-        where: {
-          ...where,
-          OR: [
-            { tipo: { in: ["RECEBIMENTO", "PAGAMENTO", "META"] } },
-            { status_financeiro: "CONFIRMADO" },
-            { valor_relacionado: { not: null } },
-            { id_Receita: { not: null } },
-            { id_Despesa: { not: null } },
-          ],
-        },
-      });
-      await tx.receita.deleteMany({ where });
-      await tx.despesa.deleteMany({ where });
-      await tx.divida.deleteMany({ where });
-      await tx.meta.deleteMany({ where });
-      await tx.imprevisto.deleteMany({ where });
-      await tx.reservaFinanceira.deleteMany({ where });
-      await tx.perfilFinanceiro.deleteMany({ where });
-      await tx.categoriaPersonalizada.deleteMany({ where });
-      await tx.notificacao.deleteMany({ where });
-    }, { isolationLevel: "Serializable" });
-  } catch (error) {
-    if ((error as { code?: string }).code === "P2034") {
-      throw new HttpError(409, "Houve outra alteração nos seus dados. Tente novamente.");
+  for (let tentativa = 0; tentativa < 3; tentativa++) {
+    try {
+      await prisma.$transaction(async (tx) => {
+        await tx.evento.deleteMany({
+          where: {
+            ...where,
+            OR: [
+              { tipo: { in: ["RECEBIMENTO", "PAGAMENTO", "META"] } },
+              { status_financeiro: { in: ["SUSPEITO", "CONFIRMADO"] } },
+              { valor_relacionado: { not: null } },
+              { id_Receita: { not: null } },
+              { id_Despesa: { not: null } },
+            ],
+          },
+        });
+        await tx.receita.deleteMany({ where });
+        await tx.despesa.deleteMany({ where });
+        await tx.divida.deleteMany({ where });
+        await tx.meta.deleteMany({ where });
+        await tx.imprevisto.deleteMany({ where });
+        await tx.reservaFinanceira.deleteMany({ where });
+        await tx.perfilFinanceiro.deleteMany({ where });
+        await tx.categoriaPersonalizada.deleteMany({ where });
+        await tx.notificacao.deleteMany({ where });
+      }, { isolationLevel: "Serializable" });
+      return;
+    } catch (error) {
+      if ((error as { code?: string }).code !== "P2034") throw error;
     }
-    throw error;
   }
+  throw new HttpError(409, "Houve outra alteração nos seus dados. Tente novamente.");
 }

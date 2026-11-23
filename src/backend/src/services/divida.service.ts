@@ -1,5 +1,5 @@
 import { assertOwnedCategory } from "./ownership.service.js";
-
+import { notificarDividaCriada, notificarDividaQuitada } from "./notificacoes.gatilhos.js";
 import { prisma } from "../lib/prisma.js";
 
 export async function criarDivida(dados: {
@@ -15,22 +15,25 @@ export async function criarDivida(dados: {
   taxa_juros?: number | null;
   status?: "ATIVA" | "QUITADA" | "ATRASADA";
 }) {
-  await assertOwnedCategory(dados.id_Usuario, dados.id_CategoriaPersonalizada);
-  return prisma.divida.create({
-    data: {
-      id_Usuario: dados.id_Usuario,
-      id_Categoria: dados.id_Categoria ?? null,
-      id_CategoriaPersonalizada:
-        dados.id_CategoriaPersonalizada ?? null,
-      nome: dados.nome,
-      valor_total: dados.valor_total,
-      valor_parcela: dados.valor_parcela,
-      quantidade_parcelas: dados.quantidade_parcelas,
-      parcelas_restantes: dados.parcelas_restantes,
-      data_vencimento: new Date(dados.data_vencimento),
-      taxa_juros: dados.taxa_juros ?? null,
-      status: dados.status ?? "ATIVA",
-    },
+  return prisma.$transaction(async (tx) => {
+    await assertOwnedCategory(tx, dados.id_Usuario, dados.id_CategoriaPersonalizada, "DESPESA");
+    const divida = await tx.divida.create({
+      data: {
+        id_Usuario: dados.id_Usuario,
+        id_Categoria: dados.id_Categoria ?? null,
+        id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada ?? null,
+        nome: dados.nome,
+        valor_total: dados.valor_total,
+        valor_parcela: dados.valor_parcela,
+        quantidade_parcelas: dados.quantidade_parcelas,
+        parcelas_restantes: dados.parcelas_restantes,
+        data_vencimento: new Date(dados.data_vencimento),
+        taxa_juros: dados.taxa_juros ?? null,
+        status: dados.status ?? "ATIVA",
+      },
+    });
+    await notificarDividaCriada(tx, divida);
+    return divida;
   });
 }
 
@@ -66,32 +69,37 @@ export async function atualizarDivida(
     status?: "ATIVA" | "QUITADA" | "ATRASADA";
   },
 ) {
-  const existente = await buscarDivida(id_Divida, id_Usuario);
+  return prisma.$transaction(async (tx) => {
+    await assertOwnedCategory(tx, id_Usuario, dados.id_CategoriaPersonalizada, "DESPESA");
+    const [anterior] = await tx.$queryRaw<{ status: "ATIVA" | "QUITADA" | "ATRASADA" }[]>`
+      SELECT "status" FROM "Divida"
+      WHERE "id_Divida" = ${id_Divida} AND "id_Usuario" = ${id_Usuario}
+      FOR UPDATE
+    `;
+    if (!anterior) return null;
 
-  if (!existente) return null;
-
-  await assertOwnedCategory(id_Usuario, dados.id_CategoriaPersonalizada);
-
-  const atualizado = await prisma.divida.updateMany({
-    where: { id_Divida, id_Usuario },
-    data: {
-      id_Categoria: dados.id_Categoria,
-      id_CategoriaPersonalizada:
-        dados.id_CategoriaPersonalizada,
-      nome: dados.nome,
-      valor_total: dados.valor_total,
-      valor_parcela: dados.valor_parcela,
-      quantidade_parcelas: dados.quantidade_parcelas,
-      parcelas_restantes: dados.parcelas_restantes,
-      data_vencimento: dados.data_vencimento
-        ? new Date(dados.data_vencimento)
-        : undefined,
-      taxa_juros: dados.taxa_juros,
-      status: dados.status,
-    },
+    const divida = await tx.divida.update({
+      where: { id_Divida, id_Usuario },
+      data: {
+        id_Categoria: dados.id_Categoria,
+        id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
+        nome: dados.nome,
+        valor_total: dados.valor_total,
+        valor_parcela: dados.valor_parcela,
+        quantidade_parcelas: dados.quantidade_parcelas,
+        parcelas_restantes: dados.parcelas_restantes,
+        data_vencimento: dados.data_vencimento
+          ? new Date(dados.data_vencimento)
+          : undefined,
+        taxa_juros: dados.taxa_juros,
+        status: dados.status,
+      },
+    });
+    if (anterior.status !== "QUITADA" && divida.status === "QUITADA") {
+      await notificarDividaQuitada(tx, divida);
+    }
+    return divida;
   });
-  if (atualizado.count !== 1) return null;
-  return buscarDivida(id_Divida, id_Usuario);
 }
 
 export async function excluirDivida(

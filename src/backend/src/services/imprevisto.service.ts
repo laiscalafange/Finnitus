@@ -1,5 +1,6 @@
 
 import { prisma } from "../lib/prisma.js";
+import { notificarImprevistoCriado } from "./notificacoes.gatilhos.js";
 
 type DadosImprevisto = {
   id_Usuario: number;
@@ -17,17 +18,21 @@ type DadosImprevisto = {
 };
 
 export async function criarImprevisto(dados: DadosImprevisto) {
-  return await prisma.imprevisto.create({
-    data: {
-      id_Usuario: dados.id_Usuario,
-      Inome: dados.Inome,
-      Ivalor: dados.Ivalor,
-      Idata: new Date(dados.Idata),
-      duracao_meses: dados.duracao_meses,
-      solucao_escolhida: dados.solucao_escolhida,
-      Idescricao: dados.Idescricao,
-      tipo: dados.tipo,
-    },
+  return prisma.$transaction(async (tx) => {
+    const imprevisto = await tx.imprevisto.create({
+      data: {
+        id_Usuario: dados.id_Usuario,
+        Inome: dados.Inome,
+        Ivalor: dados.Ivalor,
+        Idata: new Date(dados.Idata),
+        duracao_meses: dados.duracao_meses,
+        solucao_escolhida: dados.solucao_escolhida,
+        Idescricao: dados.Idescricao,
+        tipo: dados.tipo,
+      },
+    });
+    await notificarImprevistoCriado(tx, imprevisto);
+    return imprevisto;
   });
 }
 

@@ -1,5 +1,6 @@
 
 import { prisma } from "../lib/prisma.js";
+import { obterDiaFinanceiro, somarMovimentacoesRealizadas } from "./gestaoFinanceira.totais.js";
 
 /*
  * Define os períodos disponíveis para consultar os indicadores.
@@ -23,23 +24,6 @@ type IntervaloFinanceiro = {
   inicio: Date;
   fim: Date;
 };
-
-/*
- * Obtém a data atual no formato YYYY-MM-DD,
- * utilizando a data local do servidor.
- *
- * Isso evita que o dia de referência mude por causa
- * da conversão automática para UTC do toISOString().
- */
-function obterDataLocal(): string {
-  const agora = new Date();
-
-  const ano = agora.getFullYear();
-  const mes = String(agora.getMonth() + 1).padStart(2, "0");
-  const dia = String(agora.getDate()).padStart(2, "0");
-
-  return `${ano}-${mes}-${dia}`;
-}
 
 /*
  * Converte valores financeiros do Prisma para number.
@@ -190,7 +174,7 @@ function calcularIntervalo(
 export async function obterResumoFinanceiro(
   id_Usuario: number,
   periodo: PeriodoFinanceiro = "MENSAL",
-  dataReferencia: string = obterDataLocal(),
+  dataReferencia: string = obterDiaFinanceiro(),
 ) {
   /*
    * Valida o identificador para impedir consultas
@@ -208,27 +192,10 @@ export async function obterResumoFinanceiro(
     dataReferencia,
   );
 
-  /*
-   * Consulta as receitas já recebidas no período.
-   *
-   * O filtro id_Usuario garante que somente as receitas
-   * pertencentes ao usuário autenticado sejam consideradas.
-   *
-   * A data utilizada é data_recebimento.
-   */
-  const receitasRecebidas = await prisma.receita.findMany({
-    where: {
-      id_Usuario,
-      status: "RECEBIDA",
-      data_recebimento: {
-        gte: inicio,
-        lt: fim,
-      },
-    },
-    select: {
-      valor: true,
-    },
-  });
+  const {
+    receitas: totalReceitasRecebidas,
+    despesas: totalDespesasPagas,
+  } = await somarMovimentacoesRealizadas(prisma, id_Usuario, inicio, fim);
 
   /*
    * Consulta as receitas que ainda estão pendentes.
@@ -244,28 +211,6 @@ export async function obterResumoFinanceiro(
       id_Usuario,
       status: "PENDENTE",
       data_recebimento: {
-        gte: inicio,
-        lt: fim,
-      },
-    },
-    select: {
-      valor: true,
-    },
-  });
-
-  /*
-   * Consulta as despesas que já foram pagas no período.
-   *
-   * Utiliza data_pagamento, pois ela representa
-   * quando a despesa foi efetivamente paga.
-   *
-   * Despesas sem data_pagamento não entram nesta consulta.
-   */
-  const despesasPagas = await prisma.despesa.findMany({
-    where: {
-      id_Usuario,
-      status: "PAGA",
-      data_pagamento: {
         gte: inicio,
         lt: fim,
       },
@@ -297,32 +242,11 @@ export async function obterResumoFinanceiro(
   });
 
   /*
-   * Soma somente as receitas recebidas.
-   *
-   * O valor inicial zero permite que o cálculo funcione
-   * mesmo quando a consulta não encontrar registros.
-   */
-  const totalReceitasRecebidas = receitasRecebidas.reduce(
-    (total, receita) =>
-      total + converterParaNumero(receita.valor),
-    0,
-  );
-
-  /*
    * Soma as receitas que ainda estão pendentes.
    */
   const totalReceitasPendentes = receitasPendentes.reduce(
     (total, receita) =>
       total + converterParaNumero(receita.valor),
-    0,
-  );
-
-  /*
-   * Soma as despesas efetivamente pagas no período.
-   */
-  const totalDespesasPagas = despesasPagas.reduce(
-    (total, despesa) =>
-      total + converterParaNumero(despesa.valor),
     0,
   );
 
@@ -415,7 +339,7 @@ export async function obterResumoTelaInicial(
   return obterResumoFinanceiro(
     id_Usuario,
     "MENSAL",
-    obterDataLocal(),
+    obterDiaFinanceiro(),
   );
 }
 
@@ -433,7 +357,7 @@ export async function obterResumoTelaInicial(
 export async function obterDadosDashboard(
   id_Usuario: number,
   periodo: PeriodoFinanceiro = "MENSAL",
-  dataReferencia: string = obterDataLocal(),
+  dataReferencia: string = obterDiaFinanceiro(),
 ) {
   return obterResumoFinanceiro(
     id_Usuario,

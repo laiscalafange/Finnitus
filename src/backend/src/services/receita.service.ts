@@ -1,11 +1,11 @@
 import { assertOwnedCategory } from "./ownership.service.js";
-
+import { notificarReceitaCriada, notificarReceitaRecebida } from "./notificacoes.gatilhos.js";
 import { prisma } from "../lib/prisma.js";
 
 export async function criarReceita(dados: {
   id_Usuario: number;
-  id_Categoria: number;
-  id_CategoriaPersonalizada?: number;
+  id_Categoria?: number | null;
+  id_CategoriaPersonalizada?: number | null;
   descricao: string;
   valor: number;
   data_recebimento: string;
@@ -14,20 +14,24 @@ export async function criarReceita(dados: {
   frequencia: "UNICA" | "SEMANAL" | "QUINZENAL" | "MENSAL" | "ANUAL";
   observacao?: string;
 }) {
-  await assertOwnedCategory(dados.id_Usuario, dados.id_CategoriaPersonalizada);
-  return prisma.receita.create({
-    data: {
-      id_Usuario: dados.id_Usuario,
-      id_Categoria: dados.id_Categoria,
-      id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
-      descricao: dados.descricao,
-      valor: dados.valor,
-      data_recebimento: new Date(dados.data_recebimento),
-      tipo: dados.tipo,
-      status: dados.status,
-      frequencia: dados.frequencia,
-      observacao: dados.observacao,
-    },
+  return prisma.$transaction(async (tx) => {
+    await assertOwnedCategory(tx, dados.id_Usuario, dados.id_CategoriaPersonalizada, "RECEITA");
+    const receita = await tx.receita.create({
+      data: {
+        id_Usuario: dados.id_Usuario,
+        id_Categoria: dados.id_Categoria,
+        id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
+        descricao: dados.descricao,
+        valor: dados.valor,
+        data_recebimento: new Date(dados.data_recebimento),
+        tipo: dados.tipo,
+        status: dados.status,
+        frequencia: dados.frequencia,
+        observacao: dados.observacao,
+      },
+    });
+    await notificarReceitaCriada(tx, receita);
+    return receita;
   });
 }
 
@@ -65,32 +69,37 @@ export async function atualizarReceita(
     observacao?: string | null;
   }
 ) {
-  const existente = await buscarReceita(id_Receita, id_Usuario);
+  return prisma.$transaction(async (tx) => {
+    await assertOwnedCategory(tx, id_Usuario, dados.id_CategoriaPersonalizada, "RECEITA");
+    // Usa o status imediatamente anterior à alteração, inclusive em requisições concorrentes.
+    const [anterior] = await tx.$queryRaw<{ status: "RECEBIDA" | "PENDENTE" }[]>`
+      SELECT "status" FROM "Receita"
+      WHERE "id_Receita" = ${id_Receita} AND "id_Usuario" = ${id_Usuario}
+      FOR UPDATE
+    `;
+    if (!anterior) return null;
 
-  if (!existente) {
-    return null;
-  }
-
-  await assertOwnedCategory(id_Usuario, dados.id_CategoriaPersonalizada);
-
-  const atualizado = await prisma.receita.updateMany({
-    where: { id_Receita, id_Usuario },
-    data: {
-      id_Categoria: dados.id_Categoria,
-      id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
-      descricao: dados.descricao,
-      valor: dados.valor,
-      data_recebimento: dados.data_recebimento
-        ? new Date(dados.data_recebimento)
-        : undefined,
-      tipo: dados.tipo,
-      frequencia: dados.frequencia,
-      status: dados.status,
-      observacao: dados.observacao,
-    },
+    const receita = await tx.receita.update({
+      where: { id_Receita, id_Usuario },
+      data: {
+        id_Categoria: dados.id_Categoria,
+        id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
+        descricao: dados.descricao,
+        valor: dados.valor,
+        data_recebimento: dados.data_recebimento
+          ? new Date(dados.data_recebimento)
+          : undefined,
+        tipo: dados.tipo,
+        frequencia: dados.frequencia,
+        status: dados.status,
+        observacao: dados.observacao,
+      },
+    });
+    if (anterior.status === "PENDENTE" && receita.status === "RECEBIDA") {
+      await notificarReceitaRecebida(tx, receita);
+    }
+    return receita;
   });
-  if (atualizado.count !== 1) return null;
-  return buscarReceita(id_Receita, id_Usuario);
 }
 
 export async function excluirReceita(

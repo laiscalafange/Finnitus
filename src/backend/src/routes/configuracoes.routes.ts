@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
-import { sensitiveLimiter } from "../middlewares/rateLimit.middleware.js";
+import { rateLimit } from "../middlewares/rateLimit.middleware.js";
 import {
   buscarConfiguracaoUsuario,
   excluirDadosFinanceiros,
@@ -11,6 +11,7 @@ import { HttpError } from "../utils/errors.js";
 import { buscarCotacao } from "../services/cotacoes.service.js";
 
 const router = Router();
+const limiteReinicio = rateLimit(10, 15 * 60000, (req) => `reinicio:${req.userId}`);
 
 router.get("/me/configuracoes", authMiddleware, async (req, res) => {
   res.json(await buscarConfiguracaoUsuario(req.userId!));
@@ -25,7 +26,7 @@ router.get("/me/cotacoes", authMiddleware, async (_req, res) => {
   res.json(await buscarCotacao());
 });
 
-router.delete("/me/dados-financeiros", sensitiveLimiter, authMiddleware, async (req, res) => {
+router.delete("/me/dados-financeiros", authMiddleware, limiteReinicio, async (req, res) => {
   if (req.body?.confirmacao !== "RECOMEÇAR") {
     throw new HttpError(400, "Digite RECOMEÇAR para confirmar a exclusão dos dados financeiros.");
   }

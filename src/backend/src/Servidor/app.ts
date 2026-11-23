@@ -1,8 +1,6 @@
 import express from "express";
 import type { ErrorRequestHandler } from "express";
 
-import categoriaPersonalizadaRoutes from "../routes/categoriaPersonalizada.routes.js";
-
 import routes from "../routes/index.js";
 import { HttpError } from "../utils/errors.js";
 import { env } from "../config/env.js";
@@ -26,24 +24,7 @@ const allowedOrigins = new Set(
     .filter(Boolean)
 );
 
-
 app.use((req, res, next) => {
-  if (req.originalUrl.includes("categorias-personalizadas")) {
-    console.log("CATEGORIAS - REQUISIÇÃO:", {
-      metodo: req.method,
-      rota: req.originalUrl,
-    });
-  }
-
-  next();
-});
-
-app.use(
-  "/categorias-personalizadas",
-  categoriaPersonalizadaRoutes
-);
-app.use((req, res, next) => {
-
   const origin = req.headers.origin;
 
   if (origin) {
@@ -111,7 +92,7 @@ const errorHandler: ErrorRequestHandler = (
   res,
   _next
 ) => {
-  if (err instanceof HttpError && ((err.status >= 400 && err.status < 500) || err.status === 503)) {
+  if (err instanceof HttpError && ((err.status >= 400 && err.status < 500) || err.status === 502 || err.status === 503)) {
     res.status(err.status).json({
       error: err.message,
     });

@@ -1,5 +1,5 @@
 import { Router, type Request, type RequestHandler, type Response } from "express";
-import type { PrismaClient } from "../../generated/prisma/client.js";
+import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 import { registrarAvisosPeriodicos } from "../services/notificacoes.periodicas.js";
 
 type Dependencias = {
@@ -7,35 +7,24 @@ type Dependencias = {
   autenticar: RequestHandler;
 };
 
-/** Evita conflito entre req.user e tipos globais do Express/Passport. */
-function comoObjeto(valor: unknown): Record<string, unknown> {
-  return valor !== null && typeof valor === "object"
-    ? (valor as Record<string, unknown>)
-    : {};
-}
-
 function inteiroPositivo(valor: unknown): number | null {
   if (typeof valor !== "string" && typeof valor !== "number") return null;
   if (typeof valor === "string" && !/^\d+$/.test(valor)) return null;
 
   const numero = Number(valor);
-  return Number.isSafeInteger(numero) && numero > 0 ? numero : null;
+  return Number.isInteger(numero) && numero > 0 && numero <= 2147483647 ? numero : null;
 }
 
-function obterUsuarioId(req: Request): number | null {
-  const requisicao = comoObjeto(req);
-  const perfil = comoObjeto(requisicao.user ?? requisicao.usuario);
-
-  const candidato =
-    requisicao.userId ??
-    requisicao.usuarioId ??
-    requisicao.id_Usuario ??
-    perfil.id_Usuario ??
-    perfil.id ??
-    perfil.idUsuario;
-
-  return inteiroPositivo(candidato);
-}
+const categorias: Record<string, Prisma.NotificacaoWhereInput> = {
+  contas: {
+    OR: [
+      { relacionadoTipo: null },
+      { relacionadoTipo: { notIn: ["META", "EVENTO"] } },
+    ],
+  },
+  metas: { relacionadoTipo: "META" },
+  eventos: { relacionadoTipo: "EVENTO" },
+};
 
 const camposPublicos = {
   id_Notificacao: true,
@@ -54,7 +43,7 @@ export function criarRotasNotificacoes({ prisma, autenticar }: Dependencias) {
   const notificacao = prisma.notificacao;
 
   router.get("/", autenticar, async (req: Request, res: Response): Promise<void> => {
-    const idUsuario = obterUsuarioId(req);
+    const idUsuario = inteiroPositivo(req.userId);
     if (idUsuario === null) {
       res.status(401).json({ erro: "Usuário não autenticado." });
       return;
@@ -69,20 +58,15 @@ export function criarRotasNotificacoes({ prisma, autenticar }: Dependencias) {
       ? Math.min(10000, Math.max(1, paginaInformada))
       : 1;
     const apenasNaoLidas = req.query.apenasNaoLidas === "true";
-    const categorias = {
-      contas: ["RECEITA", "DESPESA"],
-      metas: ["META"],
-      eventos: ["EVENTO"],
-    };
     const categoria = req.query.categoria;
-    const tiposRelacionados = categoria === "contas" || categoria === "metas" || categoria === "eventos"
+    const filtroCategoria = categoria === "contas" || categoria === "metas" || categoria === "eventos"
       ? categorias[categoria]
-      : undefined;
+      : {};
 
     const where = {
       id_Usuario: idUsuario,
       ...(apenasNaoLidas ? { lida: false } : {}),
-      ...(tiposRelacionados ? { relacionadoTipo: { in: tiposRelacionados } } : {}),
+      ...filtroCategoria,
     };
 
     try {
@@ -112,7 +96,7 @@ export function criarRotasNotificacoes({ prisma, autenticar }: Dependencias) {
   });
 
   router.patch("/ler-todas", autenticar, async (req: Request, res: Response): Promise<void> => {
-    const idUsuario = obterUsuarioId(req);
+    const idUsuario = inteiroPositivo(req.userId);
     if (idUsuario === null) {
       res.status(401).json({ erro: "Usuário não autenticado." });
       return;
@@ -131,7 +115,7 @@ export function criarRotasNotificacoes({ prisma, autenticar }: Dependencias) {
   });
 
   async function alterarLeitura(req: Request, res: Response, lida: boolean): Promise<void> {
-    const idUsuario = obterUsuarioId(req);
+    const idUsuario = inteiroPositivo(req.userId);
     if (idUsuario === null) {
       res.status(401).json({ erro: "Usuário não autenticado." });
       return;
@@ -144,20 +128,17 @@ export function criarRotasNotificacoes({ prisma, autenticar }: Dependencias) {
     }
 
     try {
-      const resultado = await notificacao.updateMany({
+      const [notificacaoAtualizada] = await notificacao.updateManyAndReturn({
         where: { id_Notificacao: idNotificacao, id_Usuario: idUsuario },
         data: { lida, lidaEm: lida ? new Date() : null },
+        select: camposPublicos,
       });
 
-      if (resultado.count === 0) {
+      if (!notificacaoAtualizada) {
         res.status(404).json({ erro: "Notificação não encontrada." });
         return;
       }
 
-      const notificacaoAtualizada = await notificacao.findFirst({
-        where: { id_Notificacao: idNotificacao, id_Usuario: idUsuario },
-        select: camposPublicos,
-      });
       res.status(200).json({ notificacao: notificacaoAtualizada });
     } catch (erro) {
       console.error("Erro ao alterar a leitura da notificação:", erro);
