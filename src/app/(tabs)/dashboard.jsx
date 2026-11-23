@@ -1,42 +1,42 @@
-import { ScrollView, View, TouchableOpacity, Image } from 'react-native'
-import { Text } from '@/shared/components/Texto'
 import { useExibirValores, useMoedaVisivel } from '@/features/configuracoesContext'
+import { Text } from '@/shared/components/Texto'
 import { LinearGradient } from 'expo-linear-gradient'
-import { BackgroundGradient } from '../../shared/components/backgroundGradient'
-import { GRADIENTS } from '../../shared/constants/Gradientes'
-import { VictoryArea, VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
-import Svg, { Circle } from 'react-native-svg'
-import { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router'
-import { Cores } from '../../shared/constants/Cores'
-import { FONTS } from '../../shared/constants/Tipografia'
-import { Rotas } from '../../shared/constants/Rotas'
+import { useEffect, useState } from 'react'
+import { Image, ScrollView, TouchableOpacity, View } from 'react-native'
+import Svg, { Circle } from 'react-native-svg'
+import { VictoryArea, VictoryAxis, VictoryBar, VictoryChart, VictoryLine } from 'victory-native'
 import { buscarDashboardApi } from '../../services/dashboardApi'
+import { BackgroundGradient } from '../../shared/components/backgroundGradient'
+import { Cores } from '../../shared/constants/Cores'
+import { GRADIENTS } from '../../shared/constants/Gradientes'
+import { Rotas } from '../../shared/constants/Rotas'
+import { FONTS } from '../../shared/constants/Tipografia'
 
 import {
+  DADOS_AREA_COMPARACAO_MOCK,
+  DADOS_AREA_MOCK,
   DASHBOARD_MOCK,
   ESTATISTICAS_MOCK,
+  PERFORMANCE_MOCK,
   PLANOB_MOCK,
   SALDO_MOCK,
-  DADOS_AREA_MOCK,
-  DADOS_AREA_COMPARACAO_MOCK,
-  PERFORMANCE_MOCK,
 } from '../../shared/components/Mocks'
 
-import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
-import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
-import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
-import { PerformanceGauge } from '../../shared/components/PlanoB/PerformanceGauge'
-import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
 import { useFinanceiro } from '../../features/financeiroContext'
 import { calcularRotas, montarCardsRotas } from '../../features/rotasDatas'
-import { calcularSumario, calcularAtividade } from '../../features/sumarioData'
+import { calcularAtividade, calcularSumario } from '../../features/sumarioData'
+import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
+import { PerformanceGauge } from '../../shared/components/PlanoB/PerformanceGauge'
+import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
+import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
+import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
 import { styles } from '../../styles/dashboardstyle'
 // Estilos dos cards que vieram do Plano-B (gráficos, Performance e Rotas)
 import { styles as stylesPlanoB } from '../../styles/Planobstyle'
 
-import coroaIcon from '../../../assets/icones/coroa.png'
 import { SinoNotificacoes } from '@/shared/components/SinoNotificacoes'
+import coroaIcon from '../../../assets/icones/coroa.png'
 
 const DIAS_SEMANA = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom']
 const LETRAS_DIAS = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
@@ -61,7 +61,7 @@ function getDiasSemana(data) {
       data: dia,
       letra: LETRAS_DIAS[i],
       numero: String(dia.getDate()).padStart(2, '0'),
-      chave: dia.toISOString().split('T')[0],
+      chave: formatarDataApi(dia),
     }
   })
 }
@@ -163,15 +163,28 @@ export default function Dashboard() {
 
   const [periodo, setPeriodo] = useState('semanal')
   const [diaSelecionado, setDiaSelecionado] = useState(
-    new Date(DASHBOARD_MOCK.periodoInicial)
+    new Date()
   )
   const [semanaOffset, setSemanaOffset] = useState(0)
+  const [mesOffset, setMesOffset] = useState(0)
+  const [dashboard, setDashboard] = useState(null);
+  const [carregandoDashboard, setCarregandoDashboard] = useState(false)
+  const [erroDashboard, setErroDashboard] = useState<string | null>(null)
 
-  const inicioSemana = getInicioSemana(diaSelecionado)
-  inicioSemana.setDate(inicioSemana.getDate() + semanaOffset * 7)
+  // Uma única data de referência controla o filtro e o calendário.
+  const dataExibida = new Date(diaSelecionado)
+  if (periodo === 'semanal') {
+    dataExibida.setDate(dataExibida.getDate() + semanaOffset * 7)
+  } else {
+    // Usar o primeiro dia evita que 31/jan pule fevereiro.
+    dataExibida.setDate(1)
+    dataExibida.setMonth(dataExibida.getMonth() + mesOffset)
+  }
 
-  const diasSemana = getDiasSemana(inicioSemana)
-  const mesAtual = formatarMes(diasSemana[3].data)
+  const periodoApi = periodo === 'semanal' ? 'SEMANAL' : 'MENSAL';
+  const dataReferencia = formatarDataApi(dataExibida)
+  const diasSemana = getDiasSemana(dataExibida)
+  const mesAtual = formatarMes(dataExibida)
 
   const dadosBarras = ESTATISTICAS_MOCK.semanaAtual.map((y, i) => ({
     x: i + 1,
@@ -196,15 +209,70 @@ export default function Dashboard() {
   function selecionarDia(dia) {
     setDiaSelecionado(dia.data)
     setSemanaOffset(0)
+    setMesOffset(0)
+  }
+
+  useEffect(() => {
+    let ativo = true
+
+    async function carregarDashboard() {
+      try {
+        setCarregandoDashboard(true)
+        setErroDashboard(null)
+
+        const dados = await buscarDashboardApi(
+          periodoApi,
+          dataReferencia
+        )
+
+        if (ativo) {
+          setDashboard(dados)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar Dashboard:', error)
+
+        if (ativo) {
+          setErroDashboard(
+            'Não foi possível carregar os dados financeiros.'
+          )
+        }
+      } finally {
+        if (ativo) {
+          setCarregandoDashboard(false)
+        }
+      }
+    }
+
+    carregarDashboard()
+
+    return () => {
+      ativo = false
+    }
+  }, [periodoApi, dataReferencia])
+
+
+   function alterarPeriodo(novoPeriodo) {
+    setPeriodo(novoPeriodo)
+    setSemanaOffset(0)
+    setMesOffset(0)
   }
 
   function semanaAnterior() {
-    setSemanaOffset(prev => prev - 1)
+    if (periodo === 'semanal') {
+      setSemanaOffset(prev => prev - 1)
+    } else {
+      setMesOffset(prev => prev - 1)
+    }
   }
 
   function proximaSemana() {
-    setSemanaOffset(prev => prev + 1)
+    if (periodo === 'semanal') {
+      setSemanaOffset(prev => prev + 1)
+    } else {
+      setMesOffset(prev => prev + 1)
+    }
   }
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -238,7 +306,7 @@ export default function Dashboard() {
               <TouchableOpacity
                 key={p}
                 style={[styles.pill, periodo === p && styles.pillAtivo]}
-                onPress={() => setPeriodo(p)}
+                onPress={() => alterarPeriodo(p)}
               >
                 <Text
                   style={[
@@ -269,7 +337,7 @@ export default function Dashboard() {
           <View style={styles.weekStrip}>
             {diasSemana.map(dia => {
               const selecionado =
-                dia.chave === diaSelecionado.toISOString().split('T')[0]
+                dia.chave === formatarDataApi(dataExibida)
 
               return (
                 <TouchableOpacity
@@ -320,7 +388,12 @@ export default function Dashboard() {
 </View>
 
         <View style={styles.conteudo}>
-          <Text style={styles.secaoTitulo}>Visão semanal</Text>
+          <Text style={styles.secaoTitulo}>{periodo === 'semanal' ? 'Visão semanal' : 'Visão mensal'}</Text>
+          {carregandoDashboard && <Text style={styles.legendaTexto}>Carregando dados financeiros...</Text>}
+          {erroDashboard && <Text style={styles.legendaTexto}>{erroDashboard}</Text>}
+          {!carregandoDashboard && !erroDashboard && dashboard != null && (
+            <Text style={styles.legendaTexto}>Dados da API carregados. Gráficos ilustrativos enquanto não forem conectados aos dados reais.</Text>
+          )}
 
           <LinearGradient
             colors={['#3c1e75', '#30096e']}
