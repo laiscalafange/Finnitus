@@ -1,40 +1,22 @@
-import { useExibirValores, useMoedaVisivel } from '@/features/configuracoesContext'
+import { useMoedaVisivel } from '@/features/configuracoesContext'
 import { Text } from '@/shared/components/Texto'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { Image, ScrollView, TouchableOpacity, View } from 'react-native'
-import Svg, { Circle } from 'react-native-svg'
-import { VictoryArea, VictoryAxis, VictoryBar, VictoryChart, VictoryLine } from 'victory-native'
+import { VictoryAxis, VictoryBar, VictoryChart, VictoryLine } from 'victory-native'
 import { buscarDashboardApi } from '../../services/dashboardApi'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { Cores } from '../../shared/constants/Cores'
 import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { Rotas } from '../../shared/constants/Rotas'
 import { FONTS } from '../../shared/constants/Tipografia'
-
-import {
-  DADOS_AREA_COMPARACAO_MOCK,
-  DADOS_AREA_MOCK,
-  DASHBOARD_MOCK,
-  ESTATISTICAS_MOCK,
-  PERFORMANCE_MOCK,
-  PLANOB_MOCK,
-  SALDO_MOCK,
-} from '../../shared/components/Mocks'
-
+import { DASHBOARD_MOCK, ESTATISTICAS_MOCK } from '../../shared/components/Mocks'
 import { useFinanceiro } from '../../features/financeiroContext'
-import { calcularRotas, montarCardsRotas } from '../../features/rotasDatas'
 import { calcularAtividade, calcularSumario } from '../../features/sumarioData'
 import { HeatmapCard } from '../../shared/components/PlanoB/AtividadeHeatmap'
-import { PerformanceGauge } from '../../shared/components/PlanoB/PerformanceGauge'
-import { PlanoBCard } from '../../shared/components/PlanoB/PlanoBCard'
-import { RotasCard } from '../../shared/components/PlanoB/RotasCard'
 import { SumarioCard } from '../../shared/components/PlanoB/SumarioCard'
 import { styles } from '../../styles/dashboardstyle'
-// Estilos dos cards que vieram do Plano-B (gráficos, Performance e Rotas)
-import { styles as stylesPlanoB } from '../../styles/Planobstyle'
-
 import { SinoNotificacoes } from '@/shared/components/SinoNotificacoes'
 import coroaIcon from '../../../assets/icones/coroa.png'
 
@@ -81,137 +63,68 @@ function formatarDataApi(data) {
   return `${ano}-${mes}-${dia}`
 }
 
-function GaugeCircular({
-  label,
-  sublabel,
-  tamanho = 130,
-  segmentos,
-}) {
-  const r = (tamanho - 18) / 2
-  const cx = tamanho / 2
-  const cy = tamanho / 2
-  const circunferencia = 2 * Math.PI * r
-
-  return (
-    <View style={{ width: tamanho, height: tamanho, position: 'relative' }}>
-      <Svg
-        width={tamanho}
-        height={tamanho}
-        style={{ transform: [{ rotate: '-90deg' }] }}
-      >
-        <Circle
-          cx={cx}
-          cy={cy}
-          r={r}
-          fill="none"
-          stroke="#ffffff15"
-          strokeWidth={15}
-        />
-
-        {segmentos?.map((seg, i) => {
-          const len = (seg.pct / 100) * circunferencia
-          const offset = segmentos
-            .slice(0, i)
-            .reduce((acc, s) => acc + (s.pct / 100) * circunferencia, 0)
-
-          return (
-            <Circle
-              key={i}
-              cx={cx}
-              cy={cy}
-              r={r}
-              fill="none"
-              stroke={seg.cor}
-              strokeWidth={14}
-              strokeDasharray={`${len} ${circunferencia - len}`}
-              strokeDashoffset={-offset}
-              strokeLinecap="round"
-            />
-          )
-        })}
-      </Svg>
-
-      <View
-        style={{
-          position: 'absolute',
-          inset: 0,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        {label && <Text style={styles.gaugeLabel}>{label}</Text>}
-        {sublabel && <Text style={styles.gaugeSubLabel}>{sublabel}</Text>}
-      </View>
-    </View>
-  )
-}
-
 export default function Dashboard() {
-  const exibir = useExibirValores()
-  const moedaVisivel = useMoedaVisivel()
-  // Hook de navegação do Expo Router
   const router = useRouter()
+  const moedaVisivel = useMoedaVisivel()
 
-  // Sumário e Atividade calculados com o que a pessoa registrou no Novo gasto
-  // e nas Metas
+  // [DADOS FINANCEIROS] Preservados conforme a integração existente.
+  // As funções recebem transações, metas e salário do contexto financeiro.
+  // A persistência/sincronização desses dados é responsabilidade do provider.
   const { transacoes, salario, metas } = useFinanceiro()
   const sumario = calcularSumario(transacoes, metas, salario)
   const atividade = calcularAtividade(transacoes, metas)
 
-  // Rotas calculadas com o que a pessoa registrou no Novo gasto
-  const cardsRotas = montarCardsRotas(calcularRotas(transacoes, salario))
-
-  const [periodo, setPeriodo] = useState('semanal')
-  const [diaSelecionado, setDiaSelecionado] = useState(
-    new Date()
-  )
+  // Somente a visão semanal permanece no dashboard.
+  const [diaSelecionado, setDiaSelecionado] = useState(new Date())
   const [semanaOffset, setSemanaOffset] = useState(0)
-  const [mesOffset, setMesOffset] = useState(0)
-  const [dashboard, setDashboard] = useState(null);
+  const [dashboard, setDashboard] = useState(null)
   const [carregandoDashboard, setCarregandoDashboard] = useState(false)
-  const [erroDashboard, setErroDashboard] = useState<string | null>(null)
+  const [erroDashboard, setErroDashboard] = useState(null)
 
-  // Uma única data de referência controla o filtro e o calendário.
   const dataExibida = new Date(diaSelecionado)
-  if (periodo === 'semanal') {
-    dataExibida.setDate(dataExibida.getDate() + semanaOffset * 7)
-  } else {
-    // Usar o primeiro dia evita que 31/jan pule fevereiro.
-    dataExibida.setDate(1)
-    dataExibida.setMonth(dataExibida.getMonth() + mesOffset)
-  }
-
-  const periodoApi = periodo === 'semanal' ? 'SEMANAL' : 'MENSAL';
+  dataExibida.setDate(dataExibida.getDate() + semanaOffset * 7)
   const dataReferencia = formatarDataApi(dataExibida)
   const diasSemana = getDiasSemana(dataExibida)
   const mesAtual = formatarMes(dataExibida)
 
-  const dadosBarras = ESTATISTICAS_MOCK.semanaAtual.map((y, i) => ({
-    x: i + 1,
-    y,
-  }))
+  // [MOCK — VISÃO SEMANAL]
+  // Estas séries AINDA NÃO representam despesas do usuário.
+  // Substituição futura: ler o formato real retornado por buscarDashboardApi,
+  // calcular os totais diários da semana atual e da semana anterior,
+  // e montar arrays [{ x: 1, y: totalSegunda }, ..., { x: 7, y: totalDomingo }].
+  // Não somar deslocamentos artificiais aos valores financeiros.
+  const dadosBarras = ESTATISTICAS_MOCK.semanaAtual.map((y, i) => ({ x: i + 1, y }))
+  const dadosBarrasPassadas = ESTATISTICAS_MOCK.semanaPassada.map((y, i) => ({ x: i + 1.15, y }))
+  const dadosLinha = ESTATISTICAS_MOCK.semanaPassada.map((y, i) => ({ x: i + 1.10, y: y + 7 }))
+  const dadosLinhaVerde = ESTATISTICAS_MOCK.semanaAtual.map((y, i) => ({ x: i + 1, y: y + 8 }))
 
-  const dadosBarrasPassadas = ESTATISTICAS_MOCK.semanaPassada.map((y, i) => ({
-    x: i + 1.15,
-    y,
-  }))
-
-  const dadosLinha = ESTATISTICAS_MOCK.semanaPassada.map((y, i) => ({
-    x: i + 1.10,
-    y: y + 7,
-  }))
-
-  const dadosLinhaVerde = ESTATISTICAS_MOCK.semanaAtual.map((y, i) => ({
-    x: i + 1,
-    y: y + 8,
-  }))
+  // [MOCK — PLANEJAMENTOS]
+  // O primeiro planejamento ainda é demonstrativo, NÃO é uma meta real.
+  // Para integrar: identificar no contrato de metas o nome, valor-alvo,
+  // valor acumulado e ícone. Calcular faltam = max(0, alvo - acumulado),
+  // e progresso = alvo > 0 ? min(100, acumulado / alvo * 100) : 0.
+  // Após validar o formato de metas, remover DASHBOARD_MOCK.
+  const planejamentoMock = DASHBOARD_MOCK.planejamentos[0]
+  const progressoPlanejamento = planejamentoMock.valorTotal > 0
+    ? Math.max(0, Math.min(100, (planejamentoMock.valorAtual / planejamentoMock.valorTotal) * 100))
+    : 0
 
   function selecionarDia(dia) {
     setDiaSelecionado(dia.data)
     setSemanaOffset(0)
-    setMesOffset(0)
   }
 
+  function semanaAnterior() {
+    setSemanaOffset(prev => prev - 1)
+  }
+
+  function proximaSemana() {
+    setSemanaOffset(prev => prev + 1)
+  }
+
+  // [API REAL — CONSULTA EXISTENTE]
+  // Consulta o endpoint semanal, mas a resposta ainda NÃO alimenta o gráfico.
+  // A integração visual exige conferir o payload real do dashboardApi.
   useEffect(() => {
     let ativo = true
 
@@ -219,60 +132,22 @@ export default function Dashboard() {
       try {
         setCarregandoDashboard(true)
         setErroDashboard(null)
-
-        const dados = await buscarDashboardApi(
-          periodoApi,
-          dataReferencia
-        )
-
-        if (ativo) {
-          setDashboard(dados)
-        }
+        const dados = await buscarDashboardApi('SEMANAL', dataReferencia)
+        if (ativo) setDashboard(dados)
       } catch (error) {
         console.error('Erro ao carregar Dashboard:', error)
-
         if (ativo) {
-          setErroDashboard(
-            'Não foi possível carregar os dados financeiros.'
-          )
+          setErroDashboard('Não foi possível carregar os dados financeiros.')
+          setDashboard(null)
         }
       } finally {
-        if (ativo) {
-          setCarregandoDashboard(false)
-        }
+        if (ativo) setCarregandoDashboard(false)
       }
     }
 
     carregarDashboard()
-
-    return () => {
-      ativo = false
-    }
-  }, [periodoApi, dataReferencia])
-
-
-   function alterarPeriodo(novoPeriodo) {
-    setPeriodo(novoPeriodo)
-    setSemanaOffset(0)
-    setMesOffset(0)
-  }
-
-  function semanaAnterior() {
-    if (periodo === 'semanal') {
-      setSemanaOffset(prev => prev - 1)
-    } else {
-      setMesOffset(prev => prev - 1)
-    }
-  }
-
-  function proximaSemana() {
-    if (periodo === 'semanal') {
-      setSemanaOffset(prev => prev + 1)
-    } else {
-      setMesOffset(prev => prev + 1)
-    }
-  }
-
+    return () => { ativo = false }
+  }, [dataReferencia])
 
   return (
     <View style={{ flex: 1 }}>
@@ -299,25 +174,6 @@ export default function Dashboard() {
 
               <SinoNotificacoes estiloIcone={styles.headerIcone} />
             </View>
-          </View>
-
-          <View style={styles.toggle}>
-            {['semanal', 'mensal'].map(p => (
-              <TouchableOpacity
-                key={p}
-                style={[styles.pill, periodo === p && styles.pillAtivo]}
-                onPress={() => alterarPeriodo(p)}
-              >
-                <Text
-                  style={[
-                    styles.pillTexto,
-                    periodo === p && styles.pillTextoAtivo,
-                  ]}
-                >
-                  {p === 'semanal' ? 'Semanal' : 'Mensal'}
-                </Text>
-              </TouchableOpacity>
-            ))}
           </View>
 
           <View style={styles.weekHeader}>
@@ -388,13 +244,21 @@ export default function Dashboard() {
 </View>
 
         <View style={styles.conteudo}>
-          <Text style={styles.secaoTitulo}>{periodo === 'semanal' ? 'Visão semanal' : 'Visão mensal'}</Text>
-          {carregandoDashboard && <Text style={styles.legendaTexto}>Carregando dados financeiros...</Text>}
-          {erroDashboard && <Text style={styles.legendaTexto}>{erroDashboard}</Text>}
+          <Text style={styles.secaoTitulo}>Visão semanal</Text>
+          {/* A consulta é real, mas os gráficos abaixo continuam simulados. */}
+          {carregandoDashboard && (
+            <Text style={styles.legendaTexto}>Consultando dados financeiros...</Text>
+          )}
+          {erroDashboard && (
+            <Text style={styles.legendaTexto}>{erroDashboard}</Text>
+          )}
           {!carregandoDashboard && !erroDashboard && dashboard != null && (
-            <Text style={styles.legendaTexto}>Dados da API carregados. Gráficos ilustrativos enquanto não forem conectados aos dados reais.</Text>
+            <Text style={styles.legendaTexto}>
+              API consultada. Gráfico semanal demonstrativo até a integração dos valores reais.
+            </Text>
           )}
 
+          {/* [MOCK] Gráfico semanal ainda usa ESTATISTICAS_MOCK. */}
           <LinearGradient
             colors={['#3c1e75', '#30096e']}
             style={styles.card}
@@ -501,11 +365,8 @@ export default function Dashboard() {
             </VictoryChart>
           </LinearGradient>
 
-          {/* =====================================================
-              SUMÁRIO + ATIVIDADE
-              COMPONENTES ORIGINAIS DO PLANO-B
-          ===================================================== */}
-
+          {/* [DADOS DO CONTEXTO] SumarioCard e HeatmapCard recebem sumario/atividade
+              calculados com useFinanceiro; não usam valores das constantes MOCK. */}
           <View style={styles.duploRow}>
             {/* Toque no card Sumário abre o Sumário detalhado */}
             <TouchableOpacity
@@ -546,7 +407,7 @@ export default function Dashboard() {
             <View style={styles.planejamentoItem}>
               <View style={styles.planejamentoIcone}>
   <Image
-    source={DASHBOARD_MOCK.planejamentos[0].icone}
+    source={planejamentoMock.icone}
     style={styles.planejamentoIconeImagem}
     resizeMode="contain"
   />
@@ -554,17 +415,17 @@ export default function Dashboard() {
 
               <View style={{ flex: 1 }}>
                 <Text style={styles.planejamentoNome}>
-                  {DASHBOARD_MOCK.planejamentos[0].nome}
+                  {planejamentoMock.nome}
                 </Text>
 
                 <Text style={styles.planejamentoFaltam}>
-                  Faltam {moedaVisivel(DASHBOARD_MOCK.planejamentos[0].faltam)}
+                  Faltam {moedaVisivel(planejamentoMock.faltam)}
                 </Text>
               </View>
 
               <Text style={styles.planejamentoValor}>
-                {moedaVisivel(DASHBOARD_MOCK.planejamentos[0].valorAtual)} de{' '}
-                {moedaVisivel(DASHBOARD_MOCK.planejamentos[0].valorTotal)}
+                {moedaVisivel(planejamentoMock.valorAtual)} de{' '}
+                {moedaVisivel(planejamentoMock.valorTotal)}
               </Text>
             </View>
 
@@ -573,303 +434,15 @@ export default function Dashboard() {
                 style={[
                   styles.barraPreenchida,
                   {
-                    width: `${
-                      (DASHBOARD_MOCK.planejamentos[0].valorAtual /
-                        DASHBOARD_MOCK.planejamentos[0].valorTotal) *
-                      100
-                    }%`,
+                    width: `${progressoPlanejamento}%`,
                   },
                 ]}
               />
             </View>
           </LinearGradient>
 
-          <Text style={styles.secaoTitulo}>Gastos da semana</Text>
-
-          <LinearGradient
-            colors={['#3c1e75', '#30096e']}
-            style={styles.card}
-          >
-            <View style={styles.gastosCorpo}>
-              <GaugeCircular
-                tamanho={130}
-                label={moedaVisivel(DASHBOARD_MOCK.gastosSemana.restante)}
-                sublabel="Restante"
-                segmentos={DASHBOARD_MOCK.gastosSemana.segmentos.map(
-                  segmento => ({
-                    cor: segmento.cor,
-                    pct: segmento.porcentagem,
-                  })
-                )}
-              />
-
-              <View style={styles.gastosList}>
-                {DASHBOARD_MOCK.gastosSemana.indicadores.map(item => (
-                  <View key={item.id} style={styles.gastosItem}>
-                    <Text style={styles.gastosItemLabel}>
-                      {item.label}
-                    </Text>
-
-                    <Text
-                      style={[
-                        styles.gastosItemValor,
-                        { color: item.cor },
-                      ]}
-                    >
-                      {exibir(item.valor)}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <View style={styles.gastosLegendaRow}>
-              {DASHBOARD_MOCK.gastosSemana.legenda.map(l => (
-                <View key={l.label} style={styles.legendaItem}>
-                  <View
-                    style={[
-                      styles.legendaPonto,
-                      { backgroundColor: l.cor },
-                    ]}
-                  />
-
-                  <Text style={styles.legendaTexto}>
-                    {l.label}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </LinearGradient>
-
-          {/* COMPONENTE ORIGINAL DO PLANO-B */}
-
-          <Text style={styles.secaoTitulo}>Plano-B</Text>
-
-          <PlanoBCard
-            limite={PLANOB_MOCK.limite}
-            gastoAtual={PLANOB_MOCK.gastoAtual}
-            restante={PLANOB_MOCK.restante}
-            categorias={PLANOB_MOCK.categorias}
-          />
-
-          {/* =====================================================
-              COMPONENTES QUE ERAM DA TELA PLANO-B ANTIGA
-              (Sumário, Atividade e o card Plano-B já existiam aqui,
-              por isso não foram repetidos)
-          ===================================================== */}
-
-          {/* MINI GRÁFICOS */}
-
-          <View style={stylesPlanoB.areaRow}>
-            <LinearGradient
-              colors={['#3c1e75bd', '#30096e']}
-              style={stylesPlanoB.areaCard}
-            >
-              <Text style={stylesPlanoB.areaValor}>
-                Restante: {moedaVisivel(SALDO_MOCK.maximoDisponivel)}
-              </Text>
-
-              <VictoryArea
-                data={DADOS_AREA_MOCK}
-                style={{
-                  data: {
-                    fill: Cores.destaque.limao,
-                    fillOpacity: 0.4,
-                    stroke: Cores.destaque.limao,
-                    strokeWidth: 2,
-                  },
-                }}
-                height={80}
-                width={197}
-                padding={0}
-              />
-            </LinearGradient>
-
-            <LinearGradient
-              colors={['#3c1e75bd', '#30096e']}
-              style={stylesPlanoB.areaCard}
-            >
-              <Text style={stylesPlanoB.areaValor}>
-                Gastos: {moedaVisivel(SALDO_MOCK.atual)}
-              </Text>
-
-              <VictoryArea
-                data={DADOS_AREA_COMPARACAO_MOCK}
-                style={{
-                  data: {
-                    fill: '#FF8800',
-                    fillOpacity: 0.4,
-                    stroke: '#FF8800',
-                    strokeWidth: 2,
-                  },
-                }}
-                height={80}
-                width={197}
-                padding={0}
-              />
-            </LinearGradient>
-          </View>
-
-          {/* PERFORMANCE */}
-
-          <Text style={styles.secaoTitulo}>Performance</Text>
-
-          <LinearGradient
-            colors={['#3c1e75bd', '#30096e']}
-            style={stylesPlanoB.card}
-          >
-            <View style={stylesPlanoB.performanceHeader}>
-              {/* MÊS ATUAL */}
-              <View style={stylesPlanoB.performanceMes}>
-                <Text style={stylesPlanoB.performanceSub}>
-                  {PERFORMANCE_MOCK.atual.label}
-                </Text>
-
-                <Text style={stylesPlanoB.performanceData}>
-                  {PERFORMANCE_MOCK.atual.periodo}
-                </Text>
-              </View>
-
-              {/* MÊS ANTERIOR */}
-              <View style={stylesPlanoB.performanceMes}>
-                <Text style={stylesPlanoB.performanceSub}>
-                  {PERFORMANCE_MOCK.anterior.label}
-                </Text>
-
-                <Text style={stylesPlanoB.performanceData}>
-                  {PERFORMANCE_MOCK.anterior.periodo}
-                </Text>
-              </View>
-            </View>
-
-            <View style={stylesPlanoB.performanceInfo}>
-              {/* MÊS ATUAL */}
-              <View style={stylesPlanoB.performanceItem}>
-                <PerformanceGauge
-                  label={PERFORMANCE_MOCK.atual.status}
-                  percentual={PERFORMANCE_MOCK.atual.percentualGauge}
-                  cor={PERFORMANCE_MOCK.atual.cor}
-                  variacao={PERFORMANCE_MOCK.atual.variacaoGastos}
-                  styles={stylesPlanoB}
-                />
-
-                <Text
-                  style={[
-                    stylesPlanoB.performanceValor,
-                    { color: PERFORMANCE_MOCK.atual.cor },
-                  ]}
-                >
-                  Gastos{' '}
-                  :{PERFORMANCE_MOCK.atual.gastos > 0 ? '+' : ''}
-                  {PERFORMANCE_MOCK.atual.gastos}%
-                </Text>
-
-                <Text
-                  style={[
-                    stylesPlanoB.performanceValor,
-                    { color: PERFORMANCE_MOCK.atual.cor },
-                  ]}
-                >
-                  Economias{' '}
-                  : {PERFORMANCE_MOCK.atual.economias > 0 ? '+' : ''}
-                  {PERFORMANCE_MOCK.atual.economias}%
-                </Text>
-              </View>
-
-              <View style={stylesPlanoB.divisorVertical} />
-
-              {/* MÊS PASSADO */}
-              <View style={stylesPlanoB.performanceItem}>
-                <PerformanceGauge
-                  label={PERFORMANCE_MOCK.anterior.status}
-                  percentual={PERFORMANCE_MOCK.anterior.percentualGauge}
-                  cor={PERFORMANCE_MOCK.anterior.cor}
-                  variacao={PERFORMANCE_MOCK.anterior.variacaoGastos}
-                  styles={stylesPlanoB}
-                />
-
-                <Text
-                  style={[
-                    stylesPlanoB.performanceValor,
-                    { color: PERFORMANCE_MOCK.anterior.cor },
-                  ]}
-                >
-                  Gastos{' '}
-                  {PERFORMANCE_MOCK.anterior.gastos > 0 ? '+' : ''}
-                  :  {PERFORMANCE_MOCK.anterior.gastos}%
-                </Text>
-
-                <Text
-                  style={[
-                    stylesPlanoB.performanceValor,
-                    { color: PERFORMANCE_MOCK.anterior.cor },
-                  ]}
-                >
-                  Economias{' '}
-                  : {PERFORMANCE_MOCK.anterior.economias > 0 ? '+' : ''}
-                  {PERFORMANCE_MOCK.anterior.economias}%
-                </Text>
-              </View>
-            </View>
-          </LinearGradient>
-
-          {/* ROTAS */}
-
-          <Text style={styles.secaoTitulo}>Rotas</Text>
-
-          <View style={stylesPlanoB.duploRow}>
-            {/* Toque no card Gastos atuais abre a tela Rotas de gastos
-                já na versão "Gastos atuais" */}
-            <TouchableOpacity
-              style={{ flex: 1 }}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel="Abrir rotas de gastos atuais"
-              onPress={() =>
-                router.push({
-                  pathname: Rotas.rotasGastos,
-                  params: { versao: 'atuais' },
-                })
-              }
-            >
-              <RotasCard
-                titulo={cardsRotas.atuais.titulo}
-                total={cardsRotas.atuais.total}
-                categorias={cardsRotas.atuais.categorias}
-                sobra={cardsRotas.atuais.sobra}
-                sobraTexto={cardsRotas.atuais.sobraTexto}
-                vazio={cardsRotas.atuais.vazio}
-                styles={stylesPlanoB}
-              />
-            </TouchableOpacity>
-
-            {/* Toque no card Recomendado abre a tela Rotas de gastos
-                já na versão "Recomendado" */}
-            <TouchableOpacity
-              style={{ flex: 1 }}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel="Abrir rotas de gastos recomendados"
-              onPress={() =>
-                router.push({
-                  pathname: Rotas.rotasGastos,
-                  params: { versao: 'recomendado' },
-                })
-              }
-            >
-              <RotasCard
-                titulo={cardsRotas.recomendado.titulo}
-                total={cardsRotas.recomendado.total}
-                categorias={cardsRotas.recomendado.categorias}
-                sobra={cardsRotas.recomendado.sobra}
-                sobraTexto={cardsRotas.recomendado.sobraTexto}
-                vazio={cardsRotas.recomendado.vazio}
-                styles={stylesPlanoB}
-              />
-            </TouchableOpacity>
-          </View>
         </View>
       </ScrollView>
-  </View>
+    </View>
   )
 }
