@@ -3,8 +3,6 @@ import {
   type BancoNotificacoes,
 } from "./notificacoes.service.js";
 
-// Contratos mínimos baseados nos campos REAIS do schema.prisma enviado.
-// Objetos devolvidos pelo Prisma (com campos extras) são compatíveis.
 type ValorMonetario = string | number | { toString(): string };
 
 type ReceitaBase = {
@@ -38,6 +36,26 @@ type EventoBase = {
   id_Evento: number;
   id_Usuario: number;
   Enome: string;
+};
+
+type DividaBase = {
+  id_Divida: number;
+  id_Usuario: number;
+  nome: string;
+  valor_total: ValorMonetario;
+};
+
+type MovimentoReservaBase = {
+  id_Movimentacao: number;
+  id_Reserva: number;
+  tipo: "DEPOSITO" | "RETIRADA";
+  valor: ValorMonetario;
+};
+
+type ImprevistoBase = {
+  id_Imprevisto: number;
+  id_Usuario: number;
+  Inome: string;
 };
 
 const formatarValor = (valor: ValorMonetario): string => {
@@ -170,5 +188,58 @@ export function notificarEventoCriado(banco: BancoNotificacoes, evento: EventoBa
     chaveEvento: `evento:${evento.id_Evento}:criado`,
     relacionadoTipo: "EVENTO",
     relacionadoId: evento.id_Evento,
+  });
+}
+
+export function notificarDividaCriada(banco: BancoNotificacoes, divida: DividaBase) {
+  return registrarNotificacao(banco, {
+    idUsuario: divida.id_Usuario,
+    tipo: "DIVIDA_CRIADA",
+    titulo: "Dívida registrada",
+    mensagem: `${nomeCurto(divida.nome)}: ${formatarValor(divida.valor_total)}.`,
+    chaveEvento: `divida:${divida.id_Divida}:criada`,
+    relacionadoTipo: "DIVIDA",
+    relacionadoId: divida.id_Divida,
+  });
+}
+
+export function notificarDividaQuitada(banco: BancoNotificacoes, divida: DividaBase) {
+  return registrarNotificacao(banco, {
+    idUsuario: divida.id_Usuario,
+    tipo: "DIVIDA_QUITADA",
+    titulo: "Dívida quitada",
+    mensagem: `${nomeCurto(divida.nome)} foi quitada.`,
+    chaveEvento: `divida:${divida.id_Divida}:quitada`,
+    relacionadoTipo: "DIVIDA",
+    relacionadoId: divida.id_Divida,
+  });
+}
+
+export function notificarMovimentoReserva(
+  banco: BancoNotificacoes,
+  idUsuario: number,
+  movimento: MovimentoReservaBase,
+) {
+  const deposito = movimento.tipo === "DEPOSITO";
+  return registrarNotificacao(banco, {
+    idUsuario,
+    tipo: deposito ? "RESERVA_DEPOSITO" : "RESERVA_RETIRADA",
+    titulo: deposito ? "Depósito na reserva" : "Retirada da reserva",
+    mensagem: `${formatarValor(movimento.valor)} ${deposito ? "adicionados à" : "retirados da"} reserva de emergência.`,
+    chaveEvento: `reserva:${movimento.id_Reserva}:movimento:${movimento.id_Movimentacao}`,
+    relacionadoTipo: "RESERVA",
+    relacionadoId: movimento.id_Reserva,
+  });
+}
+
+export function notificarImprevistoCriado(banco: BancoNotificacoes, imprevisto: ImprevistoBase) {
+  return registrarNotificacao(banco, {
+    idUsuario: imprevisto.id_Usuario,
+    tipo: "IMPREVISTO_CRIADO",
+    titulo: "Imprevisto registrado",
+    mensagem: `${nomeCurto(imprevisto.Inome)} foi registrado no Plano B.`,
+    chaveEvento: `imprevisto:${imprevisto.id_Imprevisto}:criado`,
+    relacionadoTipo: "IMPREVISTO",
+    relacionadoId: imprevisto.id_Imprevisto,
   });
 }

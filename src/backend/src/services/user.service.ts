@@ -219,7 +219,7 @@ export async function deleteUser(
     throw new HttpError(400, "Senha atual incorreta.");
   }
 
-  await prisma.$transaction(async (tx) => {
+  const usuarioExcluido = await prisma.$transaction(async (tx) => {
     // Protege contra alterações concorrentes na conta.
     const bloqueio = await tx.usuario.updateMany({
       where: {
@@ -268,17 +268,18 @@ export async function deleteUser(
     await tx.redefinicaoSenha.deleteMany({ where });
 
     // 9. Excluir a conta por último.
-    await tx.usuario.delete({
+    return tx.usuario.delete({
       where: { id_Usuario: id },
+      select: { fotoPerfilPublicId: true },
     });
   });
 
   // Remover a foto armazenada no Cloudinary.
   // A conta já foi excluída do banco neste momento.
-  if (user.fotoPerfilPublicId) {
+  if (usuarioExcluido.fotoPerfilPublicId) {
     try {
       await cloudinary.uploader.destroy(
-        user.fotoPerfilPublicId,
+        usuarioExcluido.fotoPerfilPublicId,
         { invalidate: true },
       );
     } catch (error) {

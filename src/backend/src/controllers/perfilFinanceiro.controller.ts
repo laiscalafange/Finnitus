@@ -8,6 +8,7 @@ import {
 } from "../services/perfilFinanceiro.service.js";
 
 import { HttpError } from "../utils/errors.js";
+import { objectBody } from "../utils/validation.js";
 
 // Salva os dados da tela FinancialData.
 export async function salvarPerfil(
@@ -20,15 +21,7 @@ export async function salvarPerfil(
     throw new HttpError(401, "Usuário não autenticado.");
   }
 
-  const { renda_fixa, renda_variavel, despesas_mensais } = req.body;
-
-  if (
-    renda_fixa === undefined ||
-    renda_variavel === undefined ||
-    typeof despesas_mensais !== "number"
-  ) {
-    throw new HttpError(400, "Dados financeiros incompletos.");
-  }
+  const { renda_fixa, renda_variavel, despesas_mensais } = objectBody(req.body);
 
   const perfil = await salvarPerfilFinanceiro(idUsuario, {
     renda_fixa,
@@ -53,18 +46,7 @@ export async function salvarReserva(
     throw new HttpError(401, "Usuário não autenticado.");
   }
 
-  const { economia_futura, tempo_economia } = req.body;
-
-  if (
-    economia_futura === undefined ||
-    tempo_economia === undefined ||
-    (economia_futura !== null &&
-      typeof economia_futura !== "number") ||
-    (tempo_economia !== null &&
-      !Number.isInteger(tempo_economia))
-  ) {
-    throw new HttpError(400, "Dados da reserva inválidos.");
-  }
+  const { economia_futura, tempo_economia } = objectBody(req.body);
 
   const perfil = await atualizarReservaFinanceira(idUsuario, {
     economia_futura,

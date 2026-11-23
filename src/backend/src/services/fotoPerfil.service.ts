@@ -33,20 +33,20 @@ async function enviarImagem(
     );
   }
 
-  return new Promise((resolve, reject) => {
+  const { cloud_name, api_key, api_secret } = cloudinary.config();
+  if (!cloud_name || !api_key || !api_secret) {
+    throw new HttpError(503, "O armazenamento de fotos de perfil está indisponível.");
+  }
+
+  return new Promise<FotoEnviada>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: "finnitus/fotos-perfil",
         resource_type: "image",
       },
       (erro, resultado) => {
-        if (erro || !resultado) {
-          reject(
-            new HttpError(
-              502,
-              "Não foi possível armazenar a foto.",
-            ),
-          );
+        if (erro || !resultado?.secure_url || !resultado.public_id) {
+          reject(erro);
           return;
         }
 
@@ -57,17 +57,20 @@ async function enviarImagem(
       },
     );
 
-    stream.on("error", () => {
-      reject(
-        new HttpError(
-          502,
-          "Falha no envio da imagem.",
-        ),
-      );
-    });
-
+    stream.on("error", reject);
     stream.end(imagem);
+  }).catch(() => {
+    throw new HttpError(502, "Não foi possível armazenar a foto.");
   });
+}
+
+async function excluirImagem(publicId: string | null) {
+  if (!publicId) return;
+  try {
+    await cloudinary.uploader.destroy(publicId, { invalidate: true });
+  } catch {
+    console.error("Não foi possível remover uma foto de perfil do Cloudinary.");
+  }
 }
 
 // Consultar foto existente
@@ -108,54 +111,29 @@ export async function salvarFotoPerfil(
     throw new HttpError(404, "Usuário não encontrado.");
   }
 
-  const fotoAntiga = usuario.fotoPerfilPublicId;
-
   const fotoNova = await enviarImagem(arquivo);
 
-  let fotoPerfilUrl: string | null;
-
   try {
-    const atualizado = await prisma.usuario.update({
+    const atualizado = await prisma.usuario.updateMany({
       where: {
         id_Usuario: idUsuario,
+        fotoPerfilPublicId: usuario.fotoPerfilPublicId,
       },
       data: {
         fotoPerfilUrl: fotoNova.url,
         fotoPerfilPublicId: fotoNova.publicId,
       },
-      select: {
-        fotoPerfilUrl: true,
-      },
     });
-
-    fotoPerfilUrl = atualizado.fotoPerfilUrl;
+    if (atualizado.count === 0) {
+      throw new HttpError(409, "A foto foi alterada em outra solicitação. Tente novamente.");
+    }
   } catch (erro) {
-    // Evita deixar a imagem recém-enviada sem uso
-    await cloudinary.uploader
-      .destroy(fotoNova.publicId)
-      .catch((erroExclusao) => {
-        console.error(
-          "Erro ao limpar upload:",
-          erroExclusao,
-        );
-      });
-
+    await excluirImagem(fotoNova.publicId);
     throw erro;
   }
 
-  // Excluir a foto anterior somente após salvar a nova
-  if (fotoAntiga) {
-    await cloudinary.uploader
-      .destroy(fotoAntiga, { invalidate: true })
-      .catch((erro) => {
-        console.error(
-          "Erro ao excluir foto antiga:",
-          erro,
-        );
-      });
-  }
-
-  return fotoPerfilUrl;
+  await excluirImagem(usuario.fotoPerfilPublicId);
+  return fotoNova.url;
 }
 
 // Remover foto de perfil
@@ -175,9 +153,10 @@ export async function removerFotoPerfil(
     throw new HttpError(404, "Usuário não encontrado.");
   }
 
-  await prisma.usuario.update({
+  const removida = await prisma.usuario.updateMany({
     where: {
       id_Usuario: idUsuario,
+      fotoPerfilPublicId: usuario.fotoPerfilPublicId,
     },
     data: {
       fotoPerfilUrl: null,
@@ -185,16 +164,8 @@ export async function removerFotoPerfil(
     },
   });
 
-  if (usuario.fotoPerfilPublicId) {
-    await cloudinary.uploader
-      .destroy(usuario.fotoPerfilPublicId, {
-        invalidate: true,
-      })
-      .catch((erro) => {
-        console.error(
-          "Erro ao remover imagem do Cloudinary:",
-          erro,
-        );
-      });
+  if (removida.count === 0) {
+    throw new HttpError(409, "A foto foi alterada em outra solicitação. Tente novamente.");
   }
+  await excluirImagem(usuario.fotoPerfilPublicId);
 }

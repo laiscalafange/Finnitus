@@ -1,5 +1,6 @@
-import { notificarEventoConfirmado } from "./notificacoes.gatilhos.js";
+import { notificarDespesaCriada, notificarEventoConfirmado, notificarReceitaCriada } from "./notificacoes.gatilhos.js";
 import { prisma } from "../lib/prisma.js";
+import type { Prisma } from "../../generated/prisma/client.js";
 
 type DadosEventoExterno = {
   id_Usuario: number;
@@ -28,6 +29,17 @@ type ConfirmarEventoFinanceiroInput =
     data: string;
   };
 
+async function buscarEventoParaClassificar(tx: Prisma.TransactionClient, dados: DadosEventoExterno) {
+  // Serializa classificações da mesma conta mesmo quando o evento ainda não existe.
+  await tx.$queryRaw`
+    SELECT "id_Usuario" FROM "Usuario" WHERE "id_Usuario" = ${dados.id_Usuario}
+    FOR NO KEY UPDATE
+  `;
+  return tx.evento.findFirst({
+    where: { id_Usuario: dados.id_Usuario, id_evento_externo: dados.idEventoExterno },
+  });
+}
+
 /*
  * =====================================================
  * MARCAR EVENTO COMO NÃO FINANCEIRO
@@ -37,130 +49,33 @@ type ConfirmarEventoFinanceiroInput =
 export async function marcarEventoNaoFinanceiro(
   dados: DadosEventoExterno
 ) {
-  const eventoExistente =
-    await prisma.evento.findFirst({
-      where: {
-        id_Usuario:
-          dados.id_Usuario,
+  return prisma.$transaction(async (tx) => {
+    const eventoExistente = await buscarEventoParaClassificar(tx, dados);
+    if (eventoExistente?.status_financeiro === "CONFIRMADO" || eventoExistente?.id_Receita || eventoExistente?.id_Despesa) {
+      throw new Error("Este evento já foi confirmado como movimentação financeira.");
+    }
 
-        id_evento_externo:
-          dados.idEventoExterno,
-      },
+    const data = {
+      Enome: dados.tituloEvento,
+      data_inicio: new Date(dados.dataInicio),
+      data_fim: dados.dataFim ? new Date(dados.dataFim) : null,
+      dia_inteiro: dados.diaInteiro ?? false,
+      tipo: "OUTRO",
+      origem: "DISPOSITIVO",
+      status_financeiro: "NAO_FINANCEIRO",
+      valor_relacionado: null,
+    } as const;
+
+    if (eventoExistente) {
+      return tx.evento.update({
+        where: { id_Evento: eventoExistente.id_Evento, id_Usuario: dados.id_Usuario },
+        data,
+      });
+    }
+
+    return tx.evento.create({
+      data: { ...data, id_Usuario: dados.id_Usuario, id_evento_externo: dados.idEventoExterno },
     });
-
-  /*
-   * Se já foi confirmado como movimentação,
-   * não podemos simplesmente transformar em
-   * não financeiro, pois existe Receita/Despesa
-   * relacionada.
-   */
-  if (
-    eventoExistente?.status_financeiro ===
-      "CONFIRMADO" ||
-    eventoExistente?.id_Receita ||
-    eventoExistente?.id_Despesa
-  ) {
-    throw new Error(
-      "Este evento já foi confirmado como movimentação financeira."
-    );
-  }
-
-  /*
-   * Se já existe no banco, atualizamos.
-   */
-  if (eventoExistente) {
-    return prisma.evento.update({
-      where: {
-        id_Evento:
-          eventoExistente.id_Evento,
-        id_Usuario: dados.id_Usuario,
-      },
-
-      data: {
-        Enome:
-          dados.tituloEvento,
-
-        data_inicio:
-          new Date(
-            dados.dataInicio
-          ),
-
-        data_fim:
-          dados.dataFim
-            ? new Date(
-                dados.dataFim
-              )
-            : null,
-
-        dia_inteiro:
-          dados.diaInteiro ??
-          false,
-
-        tipo:
-          "OUTRO",
-
-        origem:
-          "DISPOSITIVO",
-
-        status_financeiro:
-          "NAO_FINANCEIRO",
-
-        valor_relacionado:
-          null,
-
-        id_Receita:
-          null,
-
-        id_Despesa:
-          null,
-      },
-    });
-  }
-
-  /*
-   * Caso seja a primeira decisão do usuário,
-   * criamos o evento apenas para registrar que
-   * ele foi classificado como não financeiro.
-   */
-  return prisma.evento.create({
-    data: {
-      id_Usuario:
-        dados.id_Usuario,
-
-      Enome:
-        dados.tituloEvento,
-
-      data_inicio:
-        new Date(
-          dados.dataInicio
-        ),
-
-      data_fim:
-        dados.dataFim
-          ? new Date(
-              dados.dataFim
-            )
-          : null,
-
-      dia_inteiro:
-        dados.diaInteiro ??
-        false,
-
-      tipo:
-        "OUTRO",
-
-      origem:
-        "DISPOSITIVO",
-
-      id_evento_externo:
-        dados.idEventoExterno,
-
-      status_financeiro:
-        "NAO_FINANCEIRO",
-
-      valor_relacionado:
-        null,
-    },
   });
 }
 
@@ -175,16 +90,7 @@ export async function confirmarEventoFinanceiro(
 ) {
   return prisma.$transaction(
     async (tx) => {
-      const eventoExistente =
-        await tx.evento.findFirst({
-          where: {
-            id_Usuario:
-              dados.id_Usuario,
-
-            id_evento_externo:
-              dados.idEventoExterno,
-          },
-        });
+      const eventoExistente = await buscarEventoParaClassificar(tx, dados);
 
       /*
        * Evento que já virou Receita ou Despesa
@@ -347,6 +253,7 @@ export async function confirmarEventoFinanceiro(
             });
         }
 
+        await notificarDespesaCriada(tx, despesa);
         await notificarEventoConfirmado(tx, evento);
         return {
           tipo: "DESPESA",
@@ -491,6 +398,7 @@ export async function confirmarEventoFinanceiro(
           });
       }
 
+      await notificarReceitaCriada(tx, receita);
       await notificarEventoConfirmado(tx, evento);
       return {
         tipo: "RECEITA",

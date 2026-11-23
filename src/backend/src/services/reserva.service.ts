@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma.js";
+import { notificarMovimentoReserva } from "./notificacoes.gatilhos.js";
 
 export class ErroReserva extends Error {
   constructor(
@@ -123,13 +124,14 @@ export async function depositarReserva(idUsuario: number, valor: unknown) {
       data: { valor_atual: { increment: valorDecimal } },
     });
 
-    await tx.movimentacaoReserva.create({
+    const movimento = await tx.movimentacaoReserva.create({
       data: {
         id_Reserva: reserva.id_Reserva,
         tipo: "DEPOSITO",
         valor: valorDecimal,
       },
     });
+    await notificarMovimentoReserva(tx, idUsuario, movimento);
   });
 
   return consultarReserva(idUsuario);
@@ -162,13 +164,14 @@ export async function retirarReserva(idUsuario: number, valor: unknown) {
       throw new ErroReserva(409, "Saldo insuficiente para esta retirada.");
     }
 
-    await tx.movimentacaoReserva.create({
+    const movimento = await tx.movimentacaoReserva.create({
       data: {
         id_Reserva: reserva.id_Reserva,
         tipo: "RETIRADA",
         valor: valorDecimal,
       },
     });
+    await notificarMovimentoReserva(tx, idUsuario, movimento);
   });
 
   return consultarReserva(idUsuario);

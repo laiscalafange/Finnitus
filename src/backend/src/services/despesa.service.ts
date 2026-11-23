@@ -1,10 +1,11 @@
 import { assertOwnedCategory } from "./ownership.service.js";
+import { notificarDespesaCriada, notificarDespesaPaga } from "./notificacoes.gatilhos.js";
 import { prisma } from "../lib/prisma.js";
 
 export async function criarDespesa(dados: {
   id_Usuario: number;
-  id_Categoria: number;
-  id_CategoriaPersonalizada?: number;
+  id_Categoria?: number | null;
+  id_CategoriaPersonalizada?: number | null;
   descricao: string;
   valor: number;
   data_vencimento: string;
@@ -13,28 +14,29 @@ export async function criarDespesa(dados: {
   frequencia: "UNICA" | "SEMANAL" | "QUINZENAL" | "MENSAL" | "ANUAL";
   forma_pagamento: "DINHEIRO" | "PIX" | "DEBITO" | "CREDITO" | "BOLETO"
   status: "PAGA" | "PENDENTE";
-  observacao?: string;          
-  
+  observacao?: string;
 }) {
-  await assertOwnedCategory(dados.id_Usuario, dados.id_CategoriaPersonalizada);
-  const despesa = await prisma.despesa.create({
-    data: {
-      id_Usuario: dados.id_Usuario,
-      id_Categoria: dados.id_Categoria,
-      id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
-      descricao: dados.descricao,
-      valor: dados.valor,
-      data_vencimento: new Date(dados.data_vencimento),
-      data_pagamento: dados.data_pagamento ? new Date(dados.data_pagamento) : null,
-      tipo: dados.tipo,
-      frequencia: dados.frequencia,
-      forma_pagamento: dados.forma_pagamento,
-      status: dados.status,
-      observacao: dados.observacao,
-    },
+  return prisma.$transaction(async (tx) => {
+    await assertOwnedCategory(tx, dados.id_Usuario, dados.id_CategoriaPersonalizada, "DESPESA");
+    const despesa = await tx.despesa.create({
+      data: {
+        id_Usuario: dados.id_Usuario,
+        id_Categoria: dados.id_Categoria,
+        id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
+        descricao: dados.descricao,
+        valor: dados.valor,
+        data_vencimento: new Date(dados.data_vencimento),
+        data_pagamento: dados.data_pagamento ? new Date(dados.data_pagamento) : null,
+        tipo: dados.tipo,
+        frequencia: dados.frequencia,
+        forma_pagamento: dados.forma_pagamento,
+        status: dados.status,
+        observacao: dados.observacao,
+      },
+    });
+    await notificarDespesaCriada(tx, despesa);
+    return despesa;
   });
-
-  return despesa;
 }
 
 
@@ -74,39 +76,43 @@ export async function atualizarDespesa(
     observacao?: string | null;
   }
 ) {
-  const existente = await buscarDespesa(id_Despesa, id_Usuario);
+  return prisma.$transaction(async (tx) => {
+    await assertOwnedCategory(tx, id_Usuario, dados.id_CategoriaPersonalizada, "DESPESA");
+    const [anterior] = await tx.$queryRaw<{ status: "PAGA" | "PENDENTE" }[]>`
+      SELECT "status" FROM "Despesa"
+      WHERE "id_Despesa" = ${id_Despesa} AND "id_Usuario" = ${id_Usuario}
+      FOR UPDATE
+    `;
+    if (!anterior) return null;
 
-  if (!existente) {
-    return null;
-  }
-
-  await assertOwnedCategory(id_Usuario, dados.id_CategoriaPersonalizada);
-
-  const atualizado = await prisma.despesa.updateMany({
-    where: { id_Despesa, id_Usuario },
-    data: {
-      id_Categoria: dados.id_Categoria,
-      id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
-      descricao: dados.descricao,
-      valor: dados.valor,
-      data_vencimento: dados.data_vencimento
-        ? new Date(dados.data_vencimento)
-        : undefined,
-      data_pagamento:
-        dados.data_pagamento === undefined
-          ? undefined
-          : dados.data_pagamento === null
-            ? null
-            : new Date(dados.data_pagamento),
-      tipo: dados.tipo,
-      frequencia: dados.frequencia,
-      forma_pagamento: dados.forma_pagamento,
-      status: dados.status,
-      observacao: dados.observacao,
-    },
+    const despesa = await tx.despesa.update({
+      where: { id_Despesa, id_Usuario },
+      data: {
+        id_Categoria: dados.id_Categoria,
+        id_CategoriaPersonalizada: dados.id_CategoriaPersonalizada,
+        descricao: dados.descricao,
+        valor: dados.valor,
+        data_vencimento: dados.data_vencimento
+          ? new Date(dados.data_vencimento)
+          : undefined,
+        data_pagamento:
+          dados.data_pagamento === undefined
+            ? undefined
+            : dados.data_pagamento === null
+              ? null
+              : new Date(dados.data_pagamento),
+        tipo: dados.tipo,
+        frequencia: dados.frequencia,
+        forma_pagamento: dados.forma_pagamento,
+        status: dados.status,
+        observacao: dados.observacao,
+      },
+    });
+    if (anterior.status === "PENDENTE" && despesa.status === "PAGA") {
+      await notificarDespesaPaga(tx, despesa);
+    }
+    return despesa;
   });
-  if (atualizado.count !== 1) return null;
-  return buscarDespesa(id_Despesa, id_Usuario);
 }
 
 export async function excluirDespesa(

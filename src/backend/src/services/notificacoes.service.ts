@@ -11,13 +11,19 @@ export type TipoNotificacao =
   | "META_APORTE"
   | "META_RETIRADA"
   | "META_CONCLUIDA"
+  | "META_PRAZO"
   | "EVENTO_CONFIRMADO"
   | "EVENTO_CRIADO"
+  | "DIVIDA_CRIADA"
+  | "DIVIDA_QUITADA"
+  | "RESERVA_DEPOSITO"
+  | "RESERVA_RETIRADA"
+  | "IMPREVISTO_CRIADO"
   | "CONTA_VENCIMENTO"
   | "PLANO_B"
   | "RESUMO_MENSAL";
 
-export type RelacionadoTipo = "RECEITA" | "DESPESA" | "META" | "EVENTO";
+export type RelacionadoTipo = "RECEITA" | "DESPESA" | "DIVIDA" | "RESERVA" | "IMPREVISTO" | "META" | "EVENTO";
 
 const preferenciaPorTipo = {
   RECEITA_CRIADA: "resumo",
@@ -28,8 +34,14 @@ const preferenciaPorTipo = {
   META_APORTE: "metas",
   META_RETIRADA: "metas",
   META_CONCLUIDA: "metas",
+  META_PRAZO: "metas",
   EVENTO_CONFIRMADO: "calendario",
   EVENTO_CRIADO: "calendario",
+  DIVIDA_CRIADA: "gastos",
+  DIVIDA_QUITADA: "gastos",
+  RESERVA_DEPOSITO: "metas",
+  RESERVA_RETIRADA: "metas",
+  IMPREVISTO_CRIADO: "planoB",
   CONTA_VENCIMENTO: "vencimento",
   PLANO_B: "planoB",
   RESUMO_MENSAL: "resumo",

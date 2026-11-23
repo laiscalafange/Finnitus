@@ -698,6 +698,8 @@ if (!respostaEstruturada) {
       titulo: "Análise do Plano B disponível",
       mensagem: `Confira as alternativas para ${imprevistoSalvo.Inome} no Plano B.`,
       chaveEvento: `plano-b:${imprevistoSalvo.id_Imprevisto}`,
+      relacionadoTipo: "IMPREVISTO",
+      relacionadoId: imprevistoSalvo.id_Imprevisto,
     });
     return imprevistoSalvo;
   });

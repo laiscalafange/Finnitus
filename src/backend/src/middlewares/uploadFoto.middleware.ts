@@ -61,7 +61,9 @@ export function uploadFotoPerfil(
     }
 
     if (erro) {
-      return next(erro);
+      return next(
+        erro instanceof HttpError ? erro : new HttpError(400, "Envio da foto inválido."),
+      );
     }
 
     next();
