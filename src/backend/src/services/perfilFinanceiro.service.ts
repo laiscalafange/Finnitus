@@ -1,77 +1,379 @@
 
 import { prisma } from "../lib/prisma.js";
-import { HttpError } from "../utils/errors.js";
 
-// Dados recebidos da tela FinancialData.
 type DadosPerfilFinanceiro = {
   renda_fixa: unknown;
   renda_variavel: unknown;
   despesas_mensais: unknown;
 };
 
-// Dados recebidos da tela FutureSavings.
 type DadosReservaFinanceira = {
   economia_futura: unknown;
   tempo_economia: unknown;
 };
 
-function valorMonetarioValido(valor: unknown): valor is number {
-  return typeof valor === "number" && Number.isFinite(valor) && valor >= 0 && valor <= 99_999_999.99;
+// VALIDAÇÕES
+
+function validarValorMonetario(
+  valor: unknown,
+  campo: string
+): number {
+  if (
+    typeof valor !== "number" ||
+    !Number.isFinite(valor) ||
+    valor < 0 ||
+    valor > 99_999_999.99
+  ) {
+    throw new Error(`O valor de ${campo} é inválido.`);
+  }
+
+  return valor;
 }
 
-// Salva ou atualiza os dados iniciais do perfil.
+function validarValorOpcional(
+  valor: unknown,
+  campo: string
+): number | null {
+  if (valor === null) {
+    return null;
+  }
+
+  return validarValorMonetario(valor, campo);
+}
+
+function validarPrazoReserva(valor: unknown): number | null {
+  if (valor === null) {
+    return null;
+  }
+
+  if (
+    typeof valor !== "number" ||
+    !Number.isInteger(valor) ||
+    valor < 1 ||
+    valor > 2_147_483_647
+  ) {
+    throw new Error("O prazo da reserva é inválido.");
+  }
+
+  return valor;
+}
+
+function dataAtualSemHorario() {
+  const agora = new Date();
+
+  return new Date(
+    Date.UTC(
+      agora.getFullYear(),
+      agora.getMonth(),
+      agora.getDate()
+    )
+  );
+}
+
+// SALVAR RENDA FIXA, RENDA VARIÁVEL E DESPESAS
+
 export async function salvarPerfilFinanceiro(
   idUsuario: number,
   dados: DadosPerfilFinanceiro
 ) {
-  const { renda_fixa, renda_variavel, despesas_mensais } = dados;
-  if (
-    (renda_fixa !== null && !valorMonetarioValido(renda_fixa)) ||
-    (renda_variavel !== null && !valorMonetarioValido(renda_variavel)) ||
-    !valorMonetarioValido(despesas_mensais)
-  ) {
-    throw new HttpError(400, "Informe valores financeiros válidos.");
-  }
+  const rendaFixa = validarValorOpcional(
+    dados.renda_fixa,
+    "renda fixa"
+  );
 
-  const valores = { renda_fixa, renda_variavel, despesas_mensais };
-  return prisma.perfilFinanceiro.upsert({
-    where: { id_Usuario: idUsuario },
-    create: { id_Usuario: idUsuario, ...valores },
-    update: valores,
+  const rendaVariavel = validarValorOpcional(
+    dados.renda_variavel,
+    "renda variável"
+  );
+
+  const despesasMensais = validarValorMonetario(
+    dados.despesas_mensais,
+    "despesas mensais"
+  );
+
+  return prisma.$transaction(async (tx) => {
+    // CATEGORIAS DO ONBOARDING
+
+    const categoriaRendaFixa = await tx.categoria.upsert({
+      where: {
+        nome_tipo: {
+          nome: "Renda fixa",
+          tipo: "RECEITA",
+        },
+      },
+      create: {
+        nome: "Renda fixa",
+        tipo: "RECEITA",
+      },
+      update: {},
+    });
+
+    const categoriaRendaVariavel = await tx.categoria.upsert({
+      where: {
+        nome_tipo: {
+          nome: "Renda variável",
+          tipo: "RECEITA",
+        },
+      },
+      create: {
+        nome: "Renda variável",
+        tipo: "RECEITA",
+      },
+      update: {},
+    });
+
+    const categoriaDespesa = await tx.categoria.upsert({
+      where: {
+        nome_tipo: {
+          nome: "Despesas mensais",
+          tipo: "DESPESA",
+        },
+      },
+      create: {
+        nome: "Despesas mensais",
+        tipo: "DESPESA",
+      },
+      update: {},
+    });
+
+    const dataAtual = dataAtualSemHorario();
+
+    // RENDA FIXA
+
+    const rendaFixaExistente = await tx.receita.findFirst({
+      where: {
+        id_Usuario: idUsuario,
+        id_Categoria: categoriaRendaFixa.id_Categoria,
+        descricao: "Renda fixa mensal",
+      },
+    });
+
+    if (rendaFixa !== null && rendaFixa > 0) {
+      if (rendaFixaExistente) {
+        await tx.receita.update({
+          where: {
+            id_Receita: rendaFixaExistente.id_Receita,
+          },
+          data: {
+            valor: rendaFixa,
+          },
+        });
+      } else {
+        await tx.receita.create({
+          data: {
+            id_Usuario: idUsuario,
+            id_Categoria: categoriaRendaFixa.id_Categoria,
+            descricao: "Renda fixa mensal",
+            valor: rendaFixa,
+            data_recebimento: dataAtual,
+            tipo: "FIXA",
+            status: "PENDENTE",
+            frequencia: "MENSAL",
+          },
+        });
+      }
+    } else if (rendaFixaExistente) {
+      await tx.receita.update({
+        where: {
+          id_Receita: rendaFixaExistente.id_Receita,
+        },
+        data: {
+          valor: 0,
+        },
+      });
+    }
+
+    // RENDA VARIÁVEL
+
+    const rendaVariavelExistente = await tx.receita.findFirst({
+      where: {
+        id_Usuario: idUsuario,
+        id_Categoria: categoriaRendaVariavel.id_Categoria,
+        descricao: "Renda variável mensal",
+      },
+    });
+
+    if (rendaVariavel !== null && rendaVariavel > 0) {
+      if (rendaVariavelExistente) {
+        await tx.receita.update({
+          where: {
+            id_Receita: rendaVariavelExistente.id_Receita,
+          },
+          data: {
+            valor: rendaVariavel,
+          },
+        });
+      } else {
+        await tx.receita.create({
+          data: {
+            id_Usuario: idUsuario,
+            id_Categoria: categoriaRendaVariavel.id_Categoria,
+            descricao: "Renda variável mensal",
+            valor: rendaVariavel,
+            data_recebimento: dataAtual,
+            tipo: "VARIAVEL",
+            status: "PENDENTE",
+            frequencia: "MENSAL",
+          },
+        });
+      }
+    } else if (rendaVariavelExistente) {
+      await tx.receita.update({
+        where: {
+          id_Receita: rendaVariavelExistente.id_Receita,
+        },
+        data: {
+          valor: 0,
+        },
+      });
+    }
+
+    // DESPESAS MENSAIS
+
+    const despesaExistente = await tx.despesa.findFirst({
+      where: {
+        id_Usuario: idUsuario,
+        id_Categoria: categoriaDespesa.id_Categoria,
+        descricao: "Despesas mensais",
+      },
+    });
+
+    if (despesasMensais > 0) {
+      if (despesaExistente) {
+        await tx.despesa.update({
+          where: {
+            id_Despesa: despesaExistente.id_Despesa,
+          },
+          data: {
+            valor: despesasMensais,
+          },
+        });
+      } else {
+        await tx.despesa.create({
+          data: {
+            id_Usuario: idUsuario,
+            id_Categoria: categoriaDespesa.id_Categoria,
+            descricao: "Despesas mensais",
+            valor: despesasMensais,
+            data_vencimento: dataAtual,
+            data_pagamento: null,
+            tipo: "FIXA",
+            frequencia: "MENSAL",
+            status: "PENDENTE",
+          },
+        });
+      }
+    } else if (despesaExistente) {
+      await tx.despesa.update({
+        where: {
+          id_Despesa: despesaExistente.id_Despesa,
+        },
+        data: {
+          valor: 0,
+        },
+      });
+    }
+
+    return {
+      renda_fixa: rendaFixa,
+      renda_variavel: rendaVariavel,
+      despesas_mensais: despesasMensais,
+    };
   });
 }
 
-// Atualiza somente os dados da reserva de emergência.
+// SALVAR META E PRAZO DA RESERVA
+
 export async function atualizarReservaFinanceira(
   idUsuario: number,
   dados: DadosReservaFinanceira
 ) {
-  const { economia_futura, tempo_economia } = dados;
-  if (economia_futura !== null && !valorMonetarioValido(economia_futura)) {
-    throw new HttpError(400, "Informe um valor válido para a reserva.");
-  }
+  const economiaFutura = validarValorOpcional(
+    dados.economia_futura,
+    "reserva"
+  );
 
-  if (
-    tempo_economia !== null &&
-    (typeof tempo_economia !== "number" ||
-      !Number.isInteger(tempo_economia) ||
-      tempo_economia < 1 ||
-      tempo_economia > 2_147_483_647)
-  ) {
-    throw new HttpError(400, "Informe um prazo válido.");
-  }
+  const tempoEconomia = validarPrazoReserva(
+    dados.tempo_economia
+  );
 
-  const valores = { economia_futura, tempo_economia };
-  return prisma.perfilFinanceiro.upsert({
-    where: { id_Usuario: idUsuario },
-    create: { id_Usuario: idUsuario, despesas_mensais: 0, ...valores },
-    update: valores,
+  const reserva = await prisma.reservaFinanceira.upsert({
+    where: {
+      id_Usuario: idUsuario,
+    },
+    create: {
+      id_Usuario: idUsuario,
+      valor_atual: 0,
+      valor_desejado: economiaFutura ?? 0,
+      tempo_economia: tempoEconomia,
+    },
+    update: {
+      ...(economiaFutura !== null && {
+        valor_desejado: economiaFutura,
+      }),
+      ...(tempoEconomia !== null && {
+        tempo_economia: tempoEconomia,
+      }),
+    },
   });
+
+  return reserva;
 }
 
-// Busca o perfil financeiro do usuário.
+// BUSCAR DADOS FINANCEIROS
+
 export async function buscarPerfilFinanceiro(idUsuario: number) {
-  return prisma.perfilFinanceiro.findUnique({
-    where: { id_Usuario: idUsuario },
-  });
+  const [
+    rendaFixa,
+    rendaVariavel,
+    despesas,
+    reserva,
+  ] = await Promise.all([
+    prisma.receita.findFirst({
+      where: {
+        id_Usuario: idUsuario,
+        descricao: "Renda fixa mensal",
+      },
+    }),
+
+    prisma.receita.findFirst({
+      where: {
+        id_Usuario: idUsuario,
+        descricao: "Renda variável mensal",
+      },
+    }),
+
+    prisma.despesa.findFirst({
+      where: {
+        id_Usuario: idUsuario,
+        descricao: "Despesas mensais",
+      },
+    }),
+
+    prisma.reservaFinanceira.findUnique({
+      where: {
+        id_Usuario: idUsuario,
+      },
+    }),
+  ]);
+
+  return {
+    renda_fixa: rendaFixa
+      ? Number(rendaFixa.valor)
+      : null,
+
+    renda_variavel: rendaVariavel
+      ? Number(rendaVariavel.valor)
+      : null,
+
+    despesas_mensais: despesas
+      ? Number(despesas.valor)
+      : 0,
+
+    economia_futura: reserva
+      ? Number(reserva.valor_desejado)
+      : null,
+
+    tempo_economia: reserva?.tempo_economia ?? null,
+  };
 }

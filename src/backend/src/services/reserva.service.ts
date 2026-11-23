@@ -187,3 +187,36 @@ export async function excluirReserva(idUsuario: number) {
 
   return { mensagem: "Reserva excluída com sucesso." };
 }
+export async function atualizarMetaReserva(
+  idUsuario: number,
+  valor: number | null,
+  tempoEconomia: number | null
+) {
+  if (valor !== null && (!Number.isFinite(valor) || valor < 0)) {
+    throw new ErroReserva(400, "Informe um valor válido para a reserva.");
+  }
+
+  if (
+    tempoEconomia !== null &&
+    (!Number.isInteger(tempoEconomia) || tempoEconomia < 1)
+  ) {
+    throw new ErroReserva(400, "Informe um prazo válido.");
+  }
+
+  await prisma.reservaFinanceira.upsert({
+    where: { id_Usuario: idUsuario },
+    create: {
+      id_Usuario: idUsuario,
+      valor_desejado: valor ?? 0,
+      tempo_economia: tempoEconomia,
+    },
+    update: {
+      valor_desejado: valor ?? 0,
+      tempo_economia: tempoEconomia,
+    },
+  });
+
+  return prisma.reservaFinanceira.findUnique({
+    where: { id_Usuario: idUsuario },
+  });
+}
