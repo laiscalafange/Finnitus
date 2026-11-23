@@ -2,11 +2,11 @@ import { useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, ScrollView, type ScrollViewInstance, Text, TouchableOpacity, View, useWindowDimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { useRouter, type Href } from "expo-router";
 import { HeaderMP } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
-import { Rotas } from "../../shared/constants/Rotas";
-import { PLANO_PADRAO_ID, PLANOS } from "@/features/planosData";
+import { PreviaPlano } from "@/features/PreviaPlano";
+import { PLANO_PADRAO_ID, PLANOS, type Plano } from "@/features/planosData";
 import { styles } from "@/styles/premium";
 
 
@@ -23,6 +23,7 @@ export default function Premium() {
   const [indiceAtivo, setIndiceAtivo] = useState(
     () => PLANOS.findIndex((plano) => plano.id === PLANO_PADRAO_ID)
   );
+  const [planoSelecionado, setPlanoSelecionado] = useState<Plano | null>(null);
 
   // Quando clica numa aba (Básico/Mega finn/Infinitos), rola o carrossel até ela
   function irParaPlano(indice: number) {
@@ -46,11 +47,9 @@ export default function Premium() {
     setIndiceAtivo(indice);
   }
 
-  function aoConfirmarPlano(planoId: string) {
-    router.push({
-      pathname: Rotas.pagamento,
-      params: { plano: planoId },
-    });
+  function abrirRecurso(rota: Href) {
+    setPlanoSelecionado(null);
+    router.push(rota);
   }
 
   // Ao clicar em "Não obrigado": só fecha a oferta e volta pra tela anterior
@@ -72,11 +71,13 @@ export default function Premium() {
         mostrarPremium={false}
       />
 
-      {/* Seletor de plano (abas Básico / Mega finn / Infinitos) */}
+      {/* Seletor de plano */}
       <View style={styles.abas}>
         {PLANOS.map((plano, indice) => (
           <TouchableOpacity
             key={plano.id}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: indice === indiceAtivo }}
             style={[
               styles.aba,
               // Aplica o estilo de "ativa" só na aba correspondente ao plano atual
@@ -186,7 +187,7 @@ export default function Premium() {
                 <Button
                   titulo="Obter Agora"
                   variante="terciario"
-                  onPress={() => aoConfirmarPlano(plano.id)}
+                  onPress={() => setPlanoSelecionado(plano)}
                 />
 
                 {/* Botão somente texto — recusa a oferta e volta pra tela anterior */}
@@ -201,6 +202,13 @@ export default function Premium() {
           </View>
         ))}
       </ScrollView>
+      {planoSelecionado && (
+        <PreviaPlano
+          plano={planoSelecionado}
+          aoFechar={() => setPlanoSelecionado(null)}
+          aoAbrirRecurso={abrirRecurso}
+        />
+      )}
     </LinearGradient>
   );
 }
