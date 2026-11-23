@@ -6,11 +6,12 @@ import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { VictoryArea, VictoryBar, VictoryLine, VictoryChart, VictoryAxis } from 'victory-native'
 import Svg, { Circle } from 'react-native-svg'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router'
 import { Cores } from '../../shared/constants/Cores'
 import { FONTS } from '../../shared/constants/Tipografia'
 import { Rotas } from '../../shared/constants/Rotas'
+import { buscarDashboardApi } from '../../services/dashboardApi'
 
 import {
   DASHBOARD_MOCK,
@@ -70,6 +71,14 @@ function formatarMes(data) {
     month: 'long',
     year: 'numeric',
   })
+}
+
+function formatarDataApi(data) {
+  const ano = data.getFullYear()
+  const mes = String(data.getMonth() + 1).padStart(2, '0')
+  const dia = String(data.getDate()).padStart(2, '0')
+
+  return `${ano}-${mes}-${dia}`
 }
 
 function GaugeCircular({
