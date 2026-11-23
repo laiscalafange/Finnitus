@@ -108,7 +108,6 @@ export async function excluirDadosFinanceiros(id: number) {
         await tx.meta.deleteMany({ where });
         await tx.imprevisto.deleteMany({ where });
         await tx.reservaFinanceira.deleteMany({ where });
-        await tx.perfilFinanceiro.deleteMany({ where });
         await tx.categoriaPersonalizada.deleteMany({ where });
         await tx.notificacao.deleteMany({ where });
       }, { isolationLevel: "Serializable" });

@@ -503,7 +503,7 @@ export async function obterDadosDashboard(
 export async function obterComparativoDashboard(
   id_Usuario: number,
   periodo: PeriodoDashboard,
-  dataReferencia: string = obterDataLocal(),
+  dataReferencia: string = obterDiaFinanceiro(),
 ) {
   if (!Number.isInteger(id_Usuario) || id_Usuario <= 0) {
     throw new Error("Identificador do usuário inválido.");
@@ -599,7 +599,7 @@ export async function obterComparativoDashboard(
 export async function obterDistribuicaoDespesas(
   id_Usuario: number,
   periodo: PeriodoDashboard,
-  dataReferencia: string = obterDataLocal(),
+  dataReferencia: string = obterDiaFinanceiro(),
 ) {
   if (!Number.isInteger(id_Usuario) || id_Usuario <= 0) {
     throw new Error("Identificador do usuário inválido.");
@@ -695,7 +695,7 @@ export async function obterDistribuicaoDespesas(
 export async function obterComprometimentoRenda(
   id_Usuario: number,
   periodo: PeriodoDashboard,
-  dataReferencia: string = obterDataLocal(),
+  dataReferencia: string = obterDiaFinanceiro(),
 ) {
   if (!Number.isInteger(id_Usuario) || id_Usuario <= 0) {
     throw new Error("Identificador do usuário inválido.");
@@ -751,7 +751,7 @@ export async function obterComprometimentoRenda(
 export async function obterEvolucaoEconomia(
   id_Usuario: number,
   periodo: PeriodoDashboard,
-  dataReferencia: string = obterDataLocal(),
+  dataReferencia: string = obterDiaFinanceiro(),
 ) {
   if (!Number.isInteger(id_Usuario) || id_Usuario <= 0) {
     throw new Error("Identificador do usuário inválido.");
@@ -1012,7 +1012,7 @@ export async function obterResumoPlanejamentos(id_Usuario: number) {
 export async function obterDashboardCompleto(
   id_Usuario: number,
   periodo: PeriodoDashboard,
-  dataReferencia: string = obterDataLocal(),
+  dataReferencia: string = obterDiaFinanceiro(),
 ) {
   if (!Number.isInteger(id_Usuario) || id_Usuario <= 0) {
     throw new Error("Identificador do usuário inválido.");
