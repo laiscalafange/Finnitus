@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { Href } from "expo-router";
 
 import {
   KeyboardAvoidingView,
@@ -10,6 +11,9 @@ import {
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
+import { RFValue } from "react-native-responsive-fontsize";
+import { Cores } from "../constants/Cores";
+import { FONTS } from "../constants/Tipografia";
 import { AuthBackground } from "./AuthBackground";
 import { BotaoVoltarAuth } from "./BotaoVoltar";
 
@@ -28,6 +32,7 @@ type AuthFormProps = {
 
   // seta verde de voltar no topo (padrão: aparece)
   mostrarVoltar?: boolean;
+  voltarPara?: Href;
 };
 
 export function AuthForm({
@@ -39,12 +44,13 @@ export function AuthForm({
   children,
   layout = "centro",
   mostrarVoltar = true,
+  voltarPara,
 }: AuthFormProps) {
   const cabecalho = (
     <View style={styles.header}>
       {header ?? (
         <>
-          <Text style={styles.title}>{title}</Text>
+          <Text accessibilityRole="header" style={styles.title}>{title}</Text>
 
           {subtitle ? (
             <Text style={formStyles.text}>
@@ -76,7 +82,7 @@ export function AuthForm({
       <AuthBackground />
 
       <SafeAreaView style={styles.screen}>
-        {mostrarVoltar ? <BotaoVoltarAuth /> : null}
+        {mostrarVoltar ? <BotaoVoltarAuth voltarPara={voltarPara} /> : null}
 
         <KeyboardAvoidingView
           style={styles.screen}
@@ -123,14 +129,17 @@ export function AuthForm({
 
 export const formStyles = StyleSheet.create({
   text: {
-    color: "#e8dcfa",
-    fontSize: 16,
-    lineHeight: 23,
+    color: Cores.texto.principal,
+    fontFamily: FONTS.quicksand.regular,
+    fontSize: RFValue(19),
+    lineHeight: 26,
+    marginBottom: 20,
   },
 
   error: {
     color: "#ffacb8",
     fontSize: 15,
+    fontFamily: FONTS.quicksand.semibold,
   },
 
   link: {
@@ -196,9 +205,10 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    color: "#fff",
-    fontSize: 32,
-    fontFamily: "Raleway_700Bold",
+    color: Cores.destaque.limao,
+    fontSize: RFValue(34),
+    fontFamily: FONTS.raleway.extrabold,
+    marginBottom: 8,
   },
 
   errorSpacing: {

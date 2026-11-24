@@ -113,3 +113,7 @@ export const PLANOS: readonly Plano[] = [
 ];
 
 export const PLANO_PADRAO_ID = "mega-finn";
+
+export function buscarPlano(id: string | undefined) {
+  return PLANOS.find((plano) => plano.id === id);
+}

@@ -5,6 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, type Href } from "expo-router";
 import { HeaderMP } from "../../shared/components/Header";
 import { Button } from "../../shared/components/Button";
+import { Rotas } from "../../shared/constants/Rotas";
 import { PreviaPlano } from "@/features/PreviaPlano";
 import { PLANO_PADRAO_ID, PLANOS, type Plano } from "@/features/planosData";
 import { styles } from "@/styles/premium";
@@ -50,6 +51,11 @@ export default function Premium() {
   function abrirRecurso(rota: Href) {
     setPlanoSelecionado(null);
     router.push(rota);
+  }
+
+  function abrirSimulacao(plano: Plano) {
+    setPlanoSelecionado(null);
+    router.push({ pathname: Rotas.pagamento, params: { plano: plano.id } });
   }
 
   // Ao clicar em "Não obrigado": só fecha a oferta e volta pra tela anterior
@@ -185,8 +191,14 @@ export default function Premium() {
                 ))}
 
                 <Button
-                  titulo="Obter Agora"
+                  titulo={plano.periodo ? "Simular compra" : "Simular plano"}
                   variante="terciario"
+                  onPress={() => abrirSimulacao(plano)}
+                />
+
+                <Button
+                  titulo="Conhecer recursos"
+                  variante="outline"
                   onPress={() => setPlanoSelecionado(plano)}
                 />
 
@@ -207,6 +219,7 @@ export default function Premium() {
           plano={planoSelecionado}
           aoFechar={() => setPlanoSelecionado(null)}
           aoAbrirRecurso={abrirRecurso}
+          aoSimular={() => abrirSimulacao(planoSelecionado)}
         />
       )}
     </LinearGradient>

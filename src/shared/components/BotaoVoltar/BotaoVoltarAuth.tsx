@@ -1,5 +1,5 @@
 import { StyleSheet, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, type Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Cores } from "../../constants/Cores";
@@ -10,22 +10,20 @@ type BotaoVoltarAuthProps = {
   // true: fica fixa no canto superior esquerdo (telas com layout absoluto).
   // false: ocupa uma linha no topo (telas que usam o AuthForm).
   absoluto?: boolean;
+  voltarPara?: Href;
 };
 
 // Seta verde de "voltar" das telas de autenticação (pasta app/(auth)).
 // Reutiliza o BotaoVoltar, só muda a cor e pra onde vai se não houver histórico.
-export function BotaoVoltarAuth({ absoluto = false }: BotaoVoltarAuthProps) {
+export function BotaoVoltarAuth({ absoluto = false, voltarPara = Rotas.inicie }: BotaoVoltarAuthProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
   function voltar() {
-    // Volta pra tela anterior; se não tiver nenhuma no histórico,
-    // leva pra primeira tela do fluxo (/inicie).
-    // Não usa a página inicial porque ela só abre com o usuário logado.
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace(Rotas.inicie);
+      router.replace(voltarPara);
     }
   }
 
