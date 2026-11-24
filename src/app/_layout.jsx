@@ -210,6 +210,8 @@ function NavegacaoProtegida({ user }) {
           <Stack.Screen name="conta" />
 
           <Stack.Screen name="Premium/Premium" />
+          <Stack.Screen name="Premium/Pagamento" />
+          <Stack.Screen name="Premium/PremiumAtivo" />
 
           <Stack.Screen name="Notificacao/Notificacao" />
         </Stack.Protected>

@@ -1,52 +1,25 @@
-import { useIdioma } from "@/features/idioma";
 import { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-
 import { useRouter } from "expo-router";
 
-import { HeaderInterno } from "../../shared/components/Header";
-import { BackgroundGradient } from "@/shared/components/backgroundGradient";
-import { Input } from "../../shared/components/Input";
-import { Button } from "../../shared/components/Button";
-
-import { authService } from "../../services/auth";
+import { useIdioma } from "@/features/idioma";
 import { useAuth } from "../../features/authContext";
+import { authService } from "../../services/auth";
+import { AuthForm } from "../../shared/components/AuthForm";
+import { Button } from "../../shared/components/Button";
+import { Input } from "../../shared/components/Input";
 import { useAction } from "../../shared/hooks/useAction";
+import { normalizeEmail, validEmail } from "../../shared/utils/formValidation";
 
-import {
-  normalizeEmail,
-  validEmail,
-} from "../../shared/utils/formValidation";
-
-import { styles } from "../../styles/trocarSenhaEmail";
-
-// 1ª etapa de "Trocar senha": confirma o e-mail da conta antes de mandar
-// o código. Fica dentro de app/conta (grupo só de usuário logado) porque
-// a pasta (auth) — onde mora o fluxo "Esqueci minha senha" — só existe
-// pra quem está deslogado (guard={!user} no _layout raiz). Navegar pra
-// lá com o usuário logado não fazia nada, por isso essa tela própria.
-// Reaproveita o mesmo authService (forgot/verify/reset) e o mesmo
-// estado de recuperação do AuthContext que aquele fluxo já usa.
 export default function TrocarSenhaEmail() {
   const { t } = useIdioma();
   const router = useRouter();
-
   const { user, startRecovery } = useAuth();
-
   const [email, setEmail] = useState(user?.email ?? "");
-
   const { busy, error, run } = useAction();
 
   function enviar() {
     void run(async () => {
       const normalized = normalizeEmail(email);
-
       if (!validEmail(normalized)) {
         throw new Error(t("Informe um e-mail válido."));
       }
@@ -56,62 +29,46 @@ export default function TrocarSenhaEmail() {
       }
 
       await authService.forgot(normalized);
-
       startRecovery(normalized);
-
       router.push("/conta/trocarSenhaCodigo");
     });
   }
 
   return (
-    <View style={styles.container}>
-      <BackgroundGradient variante="funcional" />
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.conteudo}
-        >
-          <HeaderInterno titulo={t("Trocar senha")} />
+    <AuthForm
+      layout="topo"
+      title={t("Trocar senha")}
+      subtitle={t("Confirme seu e-mail: vamos enviar um código pra garantir que é você antes de trocar a senha.")}
+      error={error}
+      voltarPara="/conta/seguranca"
+      footer={
+        <>
+          <Button
+            titulo={busy ? t("Enviando...") : t("Enviar código")}
+            variante="primario"
+            onPress={enviar}
+            disabled={busy}
+          />
 
-          <View style={styles.formulario}>
-            <Text style={styles.texto}>
-              {t("Confirme seu e-mail: vamos enviar um código pra garantir que é você antes de trocar a senha.")}
-            </Text>
-
-            <Input
-              label={t("E-mail")}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              editable={!busy}
-            />
-
-            {error ? (
-              <Text style={styles.erro} accessibilityRole="alert">
-                {error}
-              </Text>
-            ) : null}
-
-            <Button
-              titulo={busy ? t("Enviando...") : t("Enviar código")}
-              variante="terciario"
-              onPress={enviar}
-              disabled={busy}
-            />
-
-            <Button
-              titulo={t("Cancelar")}
-              variante="outline"
-              disabled={busy}
-              onPress={() => router.dismissTo("/conta/seguranca")}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+          <Button
+            titulo={t("Cancelar")}
+            variante="outline"
+            disabled={busy}
+            onPress={() => router.dismissTo("/conta/seguranca")}
+          />
+        </>
+      }
+    >
+      <Input
+        label={t("E-mail")}
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoComplete="email"
+        autoCapitalize="none"
+        autoCorrect={false}
+        editable={!busy}
+      />
+    </AuthForm>
   );
 }

@@ -75,18 +75,6 @@ export const styles = StyleSheet.create({
     fontFamily: FONTS.quicksand.bold,
     fontSize: 15,
   },
-  status: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingVertical: 12,
-  },
-  statusTexto: {
-    flexShrink: 1,
-    color: Cores.destaque.limao,
-    fontFamily: FONTS.quicksand.bold,
-    fontSize: 15,
-  },
   secao: {
     color: Cores.base.branco,
     fontFamily: FONTS.raleway.bold,

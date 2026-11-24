@@ -1,45 +1,24 @@
+import { useEffect, useState } from "react";
+import { Text } from "react-native";
+import { Redirect, useRouter } from "expo-router";
+
 import { useIdioma } from "@/features/idioma";
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import {
-  View,
-  Text,
-  ScrollView,
-} from "react-native";
-
-import {
-  Redirect,
-  useRouter,
-} from "expo-router";
-
-
-import { HeaderInterno } from "../../shared/components/Header";
-import { BackgroundGradient } from "@/shared/components/backgroundGradient";
-import { FourInput } from "../../shared/components/Four";
-import { Button } from "../../shared/components/Button";
-
-import { authService } from "../../services/auth";
 import { useAuth } from "../../features/authContext";
+import { authService } from "../../services/auth";
+import { AuthForm } from "../../shared/components/AuthForm";
+import { Button } from "../../shared/components/Button";
+import { FourInput } from "../../shared/components/Four";
 import { useAction } from "../../shared/hooks/useAction";
-
 import { styles } from "../../styles/trocarSenhaCodigo";
 
-// 2ª etapa de "Trocar senha": código de 4 dígitos enviado pro e-mail
-// confirmado na etapa anterior. Mesmo componente FourInput usado no
-// fluxo "Esqueci minha senha".
 export default function TrocarSenhaCodigo() {
   const { t } = useIdioma();
   const router = useRouter();
-
   const { recoveryEmail, setResetToken } = useAuth();
 
   const [codigo, setCodigo] = useState("");
   const [remaining, setRemaining] = useState(60);
   const [attempt, setAttempt] = useState(0);
-
   const { busy, error, run, clearError } = useAction();
 
   useEffect(() => {
@@ -50,7 +29,6 @@ export default function TrocarSenhaCodigo() {
     return () => clearInterval(timer);
   }, []);
 
-  // Sem e-mail confirmado, essa tela não faz sentido sozinha
   if (!recoveryEmail) {
     return <Redirect href="/conta/trocarSenhaEmail" />;
   }
@@ -62,9 +40,7 @@ export default function TrocarSenhaCodigo() {
       }
 
       const result = await authService.verify(recoveryEmail, codigo);
-
       setResetToken(result.resetToken);
-
       router.replace("/conta/redefinirSenha");
     });
   }
@@ -72,7 +48,6 @@ export default function TrocarSenhaCodigo() {
   function reenviar() {
     void run(async () => {
       await authService.forgot(recoveryEmail);
-
       setRemaining(60);
       setCodigo("");
       setAttempt((value) => value + 1);
@@ -80,66 +55,52 @@ export default function TrocarSenhaCodigo() {
   }
 
   return (
-    <View style={styles.container}>
-      <BackgroundGradient variante="funcional" />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.conteudo}
-      >
-        <HeaderInterno titulo={t("Trocar senha")} />
-
-        <View style={styles.formulario}>
-          <Text style={styles.texto}>
-            {t("Confira o e-mail {email}. O código expira em 15 minutos.", { email: recoveryEmail })}
-          </Text>
-
-          <FourInput
-            key={attempt}
-            erro={Boolean(error)}
-            onCodigoCompleto={(value) => {
-              setCodigo(value);
-              clearError();
-            }}
+    <AuthForm
+      title={t("Trocar senha")}
+      subtitle={t("Confira o e-mail {email}. O código expira em 15 minutos.", { email: recoveryEmail })}
+      error={error}
+      voltarPara="/conta/trocarSenhaEmail"
+      footer={
+        <>
+          <Button
+            titulo={busy ? t("Aguarde...") : t("Validar código")}
+            variante="primario"
+            disabled={busy || codigo.length !== 4}
+            onPress={validar}
           />
 
-          {error ? (
-            <Text style={styles.erro} accessibilityRole="alert">
-              {error}
-            </Text>
-          ) : null}
+          <Button
+            titulo={
+              remaining > 0
+                ? t("Reenviar em {segundos}s", { segundos: remaining })
+                : t("Reenviar código")
+            }
+            variante="outline"
+            disabled={busy || remaining > 0}
+            onPress={reenviar}
+          />
 
-          <View style={styles.espacoBotoes}>
-            <Button
-              titulo={busy ? t("Aguarde...") : t("Validar código")}
-              variante="terciario"
-              disabled={busy || codigo.length !== 4}
-              onPress={validar}
-            />
+          <Text style={styles.aviso}>
+            {t("A API permite até cinco tentativas por código. Um novo pedido invalida o código anterior.")}
+          </Text>
 
-            <Button
-              titulo={
-                remaining > 0
-                  ? t("Reenviar em {segundos}s", { segundos: remaining })
-                  : t("Reenviar código")
-              }
-              variante="outline"
-              disabled={busy || remaining > 0}
-              onPress={reenviar}
-            />
-
-            <Text style={styles.aviso}>
-              {t("A API permite até cinco tentativas por código. Um novo pedido invalida o código anterior.")}
-            </Text>
-
-            <Button
-              titulo={t("Voltar")}
-              variante="outline"
-              disabled={busy}
-              onPress={() => router.replace("/conta/trocarSenhaEmail")}
-            />
-          </View>
-        </View>
-      </ScrollView>
-    </View>
+          <Button
+            titulo={t("Voltar")}
+            variante="outline"
+            disabled={busy}
+            onPress={() => router.replace("/conta/trocarSenhaEmail")}
+          />
+        </>
+      }
+    >
+      <FourInput
+        key={attempt}
+        erro={Boolean(error)}
+        onCodigoCompleto={(value) => {
+          setCodigo(value);
+          clearError();
+        }}
+      />
+    </AuthForm>
   );
 }
