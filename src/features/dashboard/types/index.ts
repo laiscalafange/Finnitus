@@ -28,15 +28,9 @@ export type PlanejamentoResumo = {
 }
 
 // Economia do mês selecionado (quanto foi guardado nas metas)
-export type EconomiaResumo = {
-  // Guardado nas metas no mês (depósitos - retiradas, nunca negativo)
-  economizado: number
-  // Quanto isso representa das receitas do mês (0 a 100)
-  percentual: number
-  // Meta mensal informada na configuração inicial (opcional)
-  metaMensal?: number
-}
+import type { EvolucaoEconomia } from '../../../services/dashboardApi'
 
+export type EconomiaResumo = EvolucaoEconomia
 // Receitas, despesas e saldo do mês selecionado
 export type ResumoMes = {
   receitas?: number

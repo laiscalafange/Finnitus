@@ -5,6 +5,10 @@ import { ScrollView, View, TouchableOpacity } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 
 import { useFocusEffect, useRouter } from 'expo-router'
+import {
+  buscarDashboardApi,
+  type EvolucaoEconomia,
+} from '../../services/dashboardApi'
 
 import { ChevronDown, ChevronUp, CalendarDays, Target, TriangleAlert } from 'lucide-react-native'
 
@@ -179,6 +183,9 @@ export default function PaginaInicial() {
   undefined
 
 )
+const [economia, setEconomia] = useState<EvolucaoEconomia | undefined>(
+  undefined
+)
 
   const {
 
@@ -235,7 +242,6 @@ export default function PaginaInicial() {
 
   const resumo = obterResumoMes(contas, salario, despesas, transacoes.length > 0)
 
-  const economia = obterEconomiaMes(metas, resumo.receitas, competencia, economiaFutura, tempoEconomia)
 
   // Despesas fixas: só algumas, as mais relevantes primeiro (atrasadas e
 
