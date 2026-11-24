@@ -50,6 +50,7 @@ import {
   salvarTipoCriado,
   type DadosImprevisto,
   type Estrategia,
+  type Impacto,
   type Imprevisto,
   type StatusImprevisto,
   type TipoImprevisto,
@@ -448,11 +449,47 @@ export function StatusBadge({ status }: { status: StatusImprevisto }) {
 // ESTRATÉGIA
 // ---------------------------------------------------------------------
 
-const COR_TOM = {
+// Cor do rótulo (e da bolinha) de cada grupo de impacto
+const COR_ROTULO = {
   positivo: Cores.destaque.limao,
   alerta: Cores.estado.perigo,
-  neutro: Cores.base.branco,
+  // Azul-claro: não se mistura com o lilás do texto, nem com o verde e o laranja
+  neutro: "#9a2ffe",
 } as const;
+
+type GrupoImpacto = {
+  chave: string;
+  rotulo: string;
+  tom: keyof typeof COR_ROTULO;
+  textos: string[];
+};
+
+// A IA manda várias "Vantagem" e vários "Risco" por estratégia. Aqui eles são
+// agrupados pelo rótulo: o título aparece uma vez só e os textos viram uma lista.
+function agruparImpactos(impactos: Impacto[]): GrupoImpacto[] {
+  const grupos: GrupoImpacto[] = [];
+
+  for (const impacto of impactos) {
+    const tom = impacto.tom ?? "neutro";
+    const chave = `${impacto.rotulo}|${tom}`;
+    const existente = grupos.find((grupo) => grupo.chave === chave);
+
+    if (existente) {
+      existente.textos.push(impacto.valor);
+    } else {
+      grupos.push({ chave, rotulo: impacto.rotulo, tom, textos: [impacto.valor] });
+    }
+  }
+
+  return grupos;
+}
+
+// "Vantagem" vira "Vantagens" quando há mais de uma
+function rotuloDoGrupo(grupo: GrupoImpacto): string {
+  const plural = grupo.textos.length > 1 && !/s$/i.test(grupo.rotulo);
+
+  return plural ? `${grupo.rotulo}s` : grupo.rotulo;
+}
 
 type EstrategiaCardProps = {
   estrategia: Estrategia;
@@ -494,18 +531,27 @@ export function EstrategiaCard({
 
       <Text style={estilos.estrategiaDescricao}>{estrategia.descricao}</Text>
 
-      {estrategia.impactos.map((impacto) => (
-        <View key={impacto.rotulo} style={estilos.impactoLinha}>
-          <Text style={estilos.impactoRotulo}>{impacto.rotulo}</Text>
-
-          <Text
-            style={[
-              estilos.impactoValor,
-              { color: COR_TOM[impacto.tom ?? "neutro"] },
-            ]}
-          >
-            {impacto.valor}
+      {/* Rótulo em cima e texto embaixo (lado a lado o texto longo esmagava o rótulo) */}
+      {agruparImpactos(estrategia.impactos).map((grupo) => (
+        <View key={grupo.chave} style={estilos.impactoGrupo}>
+          <Text style={[estilos.impactoRotulo, { color: COR_ROTULO[grupo.tom] }]}>
+            {rotuloDoGrupo(grupo)}
           </Text>
+
+          {grupo.textos.map((texto, indice) => (
+            <View key={indice} style={estilos.impactoItem}>
+              {grupo.textos.length > 1 ? (
+                <View
+                  style={[
+                    estilos.impactoPonto,
+                    { backgroundColor: COR_ROTULO[grupo.tom] },
+                  ]}
+                />
+              ) : null}
+
+              <Text style={estilos.impactoTexto}>{texto}</Text>
+            </View>
+          ))}
         </View>
       ))}
 
@@ -615,7 +661,9 @@ const estilos = StyleSheet.create({
   },
 
   estrategia: {
-    padding: 16,
+    // flexGrow: no carrossel todos os cards ficam com a altura do maior
+    flexGrow: 1,
+    padding: 14,
     marginBottom: 10,
     borderWidth: 1.5,
     borderColor: "rgba(168, 130, 255, 0.45)",
@@ -666,26 +714,40 @@ const estilos = StyleSheet.create({
     color: Cores.texto.claro,
   },
 
-  impactoLinha: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 10,
-    paddingVertical: 4,
+  // Um bloco por rótulo (Por que essa opção / Vantagens / Riscos)
+  impactoGrupo: {
+    marginTop: 10,
+    paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: Cores.overlay.suave,
   },
 
   impactoRotulo: {
-    flex: 1,
-    fontFamily: FONTS.quicksand.semibold,
-    fontSize: 13,
-    color: Cores.texto.claro,
+    marginBottom: 4,
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 12,
   },
 
-  impactoValor: {
-    fontFamily: FONTS.raleway.bold,
-    fontSize: 14,
+  impactoItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+    marginTop: 2,
+  },
+
+  impactoPonto: {
+    width: 6,
+    height: 6,
+    marginTop: 7,
+    borderRadius: 3,
+  },
+
+  impactoTexto: {
+    flex: 1,
+    fontFamily: FONTS.quicksand.medium,
+    fontSize: 13,
+    lineHeight: 19,
+    color: Cores.texto.principal,
   },
 
   acao: {

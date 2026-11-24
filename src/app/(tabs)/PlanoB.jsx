@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   UIManager,
   View,
+  useWindowDimensions,
 } from 'react-native'
 import { Text } from '@/shared/components/Texto'
 import { useFocusEffect, useRouter } from 'expo-router'
@@ -23,6 +24,7 @@ import { GRADIENTS } from '../../shared/constants/Gradientes'
 import { Rotas } from '../../shared/constants/Rotas'
 import { BackgroundGradient } from '../../shared/components/backgroundGradient'
 import { Progress } from '../../shared/components/Progress'
+import { ProgressDots } from '../../shared/components/ProgressDots/ProgressDots'
 import {
   BotaoPlano,
   CardVidro,
@@ -65,6 +67,91 @@ if (Platform.OS === 'android') {
 // ---------------------------------------------------------------------
 const PREVIA_ANALISE = false
 
+// Quantas estratégias aparecem na prévia: 1 (card único), 2 ou 3 (carrossel)
+const PREVIA_QUANTIDADE_ESTRATEGIAS = 3
+
+// Mesmo formato que a IA devolve: uma justificativa, várias vantagens e
+// vários riscos (cada um com o mesmo rótulo)
+const ESTRATEGIAS_PREVIA = [
+  {
+    id: 'previa-0',
+    titulo: 'Utilização total da reserva financeira',
+    descricao:
+      'Utilizar os R$ 10,00 disponíveis na sua reserva para abater uma pequena parte do valor necessário para o conserto ou troca do celular.',
+    impactos: [
+      {
+        rotulo: 'Por que essa opção',
+        valor:
+          'É o único recurso financeiro próprio disponível no momento, embora cubra apenas uma fração muito pequena do valor total necessário.',
+      },
+      {
+        rotulo: 'Vantagem',
+        valor: 'Uso imediato do único recurso disponível sem gerar novas dívidas.',
+        tom: 'positivo',
+      },
+      {
+        rotulo: 'Vantagem',
+        valor: 'Não depende de aprovação de crédito.',
+        tom: 'positivo',
+      },
+      {
+        rotulo: 'Risco',
+        valor: 'Deixa a reserva de emergência zerada e sem proteção para outros imprevistos.',
+        tom: 'alerta',
+      },
+      {
+        rotulo: 'Risco',
+        valor: 'O valor cobre só uma parte do conserto.',
+        tom: 'alerta',
+      },
+    ],
+  },
+  {
+    id: 'previa-1',
+    titulo: 'Parcelamento do custo do conserto ou novo aparelho',
+    descricao:
+      'Verificar junto à assistência técnica ou loja a possibilidade de parcelar o valor de R$ 500,00 em até 2 meses, conforme a duração estimada do impacto.',
+    impactos: [
+      {
+        rotulo: 'Por que essa opção',
+        valor:
+          'Como sua renda atual é de R$ 0,00 e a reserva é insuficiente, distribuir o pagamento no tempo pode adequar-se à sua capacidade futura de geração de receita.',
+      },
+      {
+        rotulo: 'Vantagem',
+        valor: 'Evita a necessidade de pagamento integral imediato com recursos que você não possui.',
+        tom: 'positivo',
+      },
+      {
+        rotulo: 'Risco',
+        valor: 'Gera compromissos financeiros futuros que exigirão receitas que ainda não constam nos dados atuais.',
+        tom: 'alerta',
+      },
+    ],
+  },
+  {
+    id: 'previa-2',
+    titulo: 'Adiar o conserto e usar o aparelho antigo',
+    descricao: 'Manter o celular atual por mais um ou dois meses até a renda se estabilizar.',
+    impactos: [
+      {
+        rotulo: 'Por que essa opção',
+        valor: 'Não exige nenhum gasto agora e dá tempo para juntar o valor.',
+      },
+      {
+        rotulo: 'Vantagem',
+        valor: 'Nenhum custo imediato e nenhum compromisso futuro.',
+        tom: 'positivo',
+      },
+      {
+        rotulo: 'Risco',
+        valor: 'O celular pode piorar e o conserto ficar mais caro.',
+        tom: 'alerta',
+      },
+    ],
+  },
+]
+
 const RESULTADO_PREVIA = {
   imprevisto: {
     id: 'previa',
@@ -78,31 +165,82 @@ const RESULTADO_PREVIA = {
   },
   analise: {
     texto:
-      'O conserto de R$ 500,00 cabe no seu mês, mas reduz bastante a sua margem livre.\n\nPrioridades:\n1. Resolver o celular, que é uma ferramenta de trabalho.\n2. Evitar mexer na reserva de emergência.',
+      'O conserto de R$ 500,00 não cabe na sua margem livre atual e a reserva cobre só uma parte.\n\nPrioridades:\n1. Resolver o celular sem criar uma dívida difícil de pagar.\n2. Evitar zerar a reserva de emergência.',
     situacao: {},
-    estrategias: [
-      {
-        id: 'previa-0',
-        titulo: 'Pagar com a margem livre do mês',
-        descricao: 'Usa só o que sobrou da renda, sem tocar na reserva.',
-        impactos: [
-          { rotulo: 'Por que essa opção', valor: 'Mantém a reserva intacta.' },
-          { rotulo: 'Vantagem', valor: 'Sem juros e sem dívida.', tom: 'positivo' },
-          { rotulo: 'Risco', valor: 'A margem do mês fica apertada.', tom: 'alerta' },
-        ],
-      },
-      {
-        id: 'previa-1',
-        titulo: 'Parcelar em 2 vezes',
-        descricao: 'Divide o valor entre este mês e o próximo.',
-        impactos: [
-          { rotulo: 'Por que essa opção', valor: 'Alivia o caixa agora.' },
-          { rotulo: 'Vantagem', valor: 'Parcelas menores.', tom: 'positivo' },
-          { rotulo: 'Risco', valor: 'Compromete parte da renda futura.', tom: 'alerta' },
-        ],
-      },
-    ],
+    estrategias: ESTRATEGIAS_PREVIA.slice(0, PREVIA_QUANTIDADE_ESTRATEGIAS),
   },
+}
+
+// ---------------------------------------------------------------------
+// Carrossel das estratégias (mesma ideia da tela Premium: desliza pro lado)
+// Usado só quando a IA devolve mais de uma estratégia.
+// ---------------------------------------------------------------------
+
+// Mesmo padding horizontal do styles.conteudo
+const MARGEM_CONTEUDO = 20
+const ESPACO_CARDS = 12
+// Quanto do próximo card aparece na lateral (avisa que dá pra deslizar)
+const PEDACO_PROXIMO = 28
+
+function CarrosselEstrategias({
+  estrategias,
+  idSelecionado,
+  aoSelecionar,
+  desabilitado,
+}) {
+  const { width } = useWindowDimensions()
+  const [indice, setIndice] = useState(0)
+
+  const larguraCard = width - MARGEM_CONTEUDO * 2 - PEDACO_PROXIMO
+  // Quanto o carrossel anda por card
+  const passo = larguraCard + ESPACO_CARDS
+
+  // Ao parar de deslizar, descobre qual card ficou na frente
+  function aoTerminarDeslizar(evento) {
+    const novo = Math.round(evento.nativeEvent.contentOffset.x / passo)
+    setIndice(Math.max(0, Math.min(estrategias.length - 1, novo)))
+  }
+
+  return (
+    <View>
+      <Text style={local.dicaCarrossel}>
+        Opção {indice + 1} de {estrategias.length} · deslize para o lado
+      </Text>
+
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={passo}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        disableIntervalMomentum
+        onMomentumScrollEnd={aoTerminarDeslizar}
+        style={local.carrossel}
+        contentContainerStyle={local.carrosselConteudo}
+      >
+        {estrategias.map((estrategia, posicao) => (
+          <View
+            key={estrategia.id}
+            style={{
+              width: larguraCard,
+              marginRight: posicao < estrategias.length - 1 ? ESPACO_CARDS : 0,
+            }}
+          >
+            <EstrategiaCard
+              estrategia={estrategia}
+              selecionada={estrategia.id === idSelecionado}
+              desabilitado={desabilitado}
+              aoSelecionar={() => aoSelecionar(estrategia.id)}
+            />
+          </View>
+        ))}
+      </ScrollView>
+
+      <View style={local.carrosselPontos}>
+        <ProgressDots total={estrategias.length} atual={indice + 1} />
+      </View>
+    </View>
+  )
 }
 
 // Tela Plano-B. Ordem dos blocos (não mudar):
@@ -146,6 +284,10 @@ export default function PlanoBScreen() {
   const [estrategiaId, setEstrategiaId] = useState(null)
   const [salvando, setSalvando] = useState(false)
   const [erroEstrategia, setErroEstrategia] = useState('')
+
+  const estrategias = resultado?.analise.estrategias ?? []
+  // Com uma única estratégia, ela já vem selecionada
+  const idEfetivo = estrategias.length === 1 ? estrategias[0].id : estrategiaId
 
   // ----- Histórico (API real) -----
   const [historico, setHistorico] = useState([])
@@ -252,9 +394,7 @@ export default function PlanoBScreen() {
   // Escolher a estratégia só salva a escolha no imprevisto. Nenhum dinheiro
   // é movimentado da reserva.
   async function confirmarEstrategia() {
-    const estrategia = resultado?.analise.estrategias.find(
-      (item) => item.id === estrategiaId,
-    )
+    const estrategia = estrategias.find((item) => item.id === idEfetivo)
 
     if (!resultado || !estrategia || ocupado.current) return
 
@@ -632,22 +772,32 @@ export default function PlanoBScreen() {
                   <TextoAnalise texto={resultado.analise.texto} />
                 </CardVidro>
 
-                {/* Se a IA não achou estratégia viável, o título avisa */}
+                {/* Título conforme a quantidade de estratégias */}
                 <Text style={local.subtitulo}>
-                  {resultado.analise.estrategias.length
+                  {estrategias.length > 1
                     ? 'Escolha uma estratégia'
-                    : 'Nenhuma estratégia viável identificada'}
+                    : estrategias.length === 1
+                      ? 'Estratégia sugerida'
+                      : 'Nenhuma estratégia viável identificada'}
                 </Text>
 
-                {resultado.analise.estrategias.map((estrategia) => (
+                {estrategias.length === 1 ? (
+                  // Só uma: card único, já selecionado
                   <EstrategiaCard
-                    key={estrategia.id}
-                    estrategia={estrategia}
-                    selecionada={estrategia.id === estrategiaId}
+                    estrategia={estrategias[0]}
+                    selecionada
                     desabilitado={salvando}
-                    aoSelecionar={() => setEstrategiaId(estrategia.id)}
+                    aoSelecionar={() => setEstrategiaId(estrategias[0].id)}
                   />
-                ))}
+                ) : estrategias.length > 1 ? (
+                  // Várias: carrossel que desliza pro lado
+                  <CarrosselEstrategias
+                    estrategias={estrategias}
+                    idSelecionado={estrategiaId}
+                    aoSelecionar={setEstrategiaId}
+                    desabilitado={salvando}
+                  />
+                ) : null}
 
                 <Text style={local.aviso}>
                   Recomendações geradas pelo Gemini com base
@@ -663,7 +813,7 @@ export default function PlanoBScreen() {
 
                 <BotaoPlano
                   titulo={salvando ? 'Salvando...' : 'Confirmar estratégia'}
-                  disabled={!estrategiaId || salvando}
+                  disabled={!idEfetivo || salvando}
                   onPress={confirmarEstrategia}
                 />
               </View>
@@ -964,7 +1114,7 @@ const local = StyleSheet.create({
     marginBottom: 10,
     fontFamily: FONTS.raleway.bold,
     fontSize: 18,
-    color: Cores.base.branco,
+    color: Cores.destaque.limao,
   },
 
   aviso: {
@@ -980,6 +1130,28 @@ const local = StyleSheet.create({
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 14,
     color: '#ffb4b4',
+  },
+
+  // Carrossel: sangra até as bordas da tela, mas o 1º card alinha com o conteúdo
+  carrossel: {
+    marginHorizontal: -MARGEM_CONTEUDO,
+  },
+
+  carrosselConteudo: {
+    paddingHorizontal: MARGEM_CONTEUDO,
+  },
+
+  carrosselPontos: {
+    alignItems: 'center',
+    marginTop: 2,
+    marginBottom: 6,
+  },
+
+  dicaCarrossel: {
+    marginBottom: 10,
+    fontFamily: FONTS.quicksand.semibold,
+    fontSize: 13,
+    color: Cores.texto.claro,
   },
 
   // ----- Seus imprevistos -----
