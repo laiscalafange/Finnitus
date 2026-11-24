@@ -4,8 +4,7 @@ const baseURL = process.env.EXPO_PUBLIC_API_URL?.trim();
 
 export const api = axios.create({
   baseURL,
-  timeout: 15000,
-
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
