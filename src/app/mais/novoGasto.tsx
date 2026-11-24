@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   View,
@@ -6,8 +7,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Switch,
+  TouchableOpacity,
 } from "react-native";
 
+import type { CategoriaItem } from "@/features/menuMais/types";
 import { useLocalSearchParams } from "expo-router";
 
 import { HeaderInterno } from "../../shared/components/Header";
@@ -33,163 +36,367 @@ import {
 import type { TipoTransacao } from "@/features/menuMais/types";
 import { styles } from "@/features/menuMais/styles/formulario";
 
-// Tela de registro aberta pelos botões "Despesas" e "Receitas" do menu do +.
-// O tipo chega pela rota (?tipo=gasto ou ?tipo=entrada) e não pode ser
-// trocado dentro da tela: cada botão abre o seu próprio registro.
-// Sem parâmetro, abre como despesa.
+type StatusReceita = "RECEBIDA" | "PENDENTE";
+type StatusDespesa = "PAGA" | "PENDENTE";
+type TipoCadastro = "FIXA" | "VARIAVEL";
+
+type FormaPagamento =
+  | "DINHEIRO"
+  | "PIX"
+  | "DEBITO"
+  | "CREDITO"
+  | "BOLETO";
+
+const FORMAS_PAGAMENTO: { label: string; value: FormaPagamento }[] = [
+  { label: "Dinheiro", value: "DINHEIRO" },
+  { label: "Pix", value: "PIX" },
+  { label: "Débito", value: "DEBITO" },
+  { label: "Crédito", value: "CREDITO" },
+  { label: "Boleto", value: "BOLETO" },
+];
+
 export default function NovoGasto() {
   const voltar = useVoltar();
   const { adicionarTransacao } = useFinanceiro();
 
-  // Tipo da transação: "entrada" = receita, "gasto" = despesa
   const { tipo: tipoParam } = useLocalSearchParams<{ tipo?: string }>();
-  const tipo: TipoTransacao = tipoParam === "entrada" ? "entrada" : "gasto";
+  const tipo: TipoTransacao =
+    tipoParam === "entrada" ? "entrada" : "gasto";
+
   const ehReceita = tipo === "entrada";
 
-  // Textos e categorias de cada tipo
-  const categorias = ehReceita ? CATEGORIAS_ENTRADA : CATEGORIAS_GASTO;
+  const categorias = ehReceita
+    ? CATEGORIAS_ENTRADA
+    : CATEGORIAS_GASTO;
+
   const titulo = ehReceita ? "Nova receita" : "Nova despesa";
   const nomeItem = ehReceita ? "receita" : "despesa";
+
   const exemploDescricao = ehReceita
     ? "Ex: Pagamento de projeto"
     : "Ex: Almoço em família";
 
-  // Campos do formulário
   const [valor, setValor] = useState("");
-  const [categoria, setCategoria] = useState<string | null>(null);
+  const [categoriaSelecionada, setCategoriaSelecionada] =
+  useState<CategoriaItem | null>(null);
   const [data, setData] = useState(hojeFormatado());
   const [descricao, setDescricao] = useState("");
   const [repetir, setRepetir] = useState(false);
 
-  // Mensagem de erro de validação
-  const [erro, setErro] = useState("");
+  const [tipoCadastro, setTipoCadastro] =
+    useState<TipoCadastro>("VARIAVEL");
 
-  function salvar() {
+  const [statusReceita, setStatusReceita] =
+    useState<StatusReceita>("PENDENTE");
+
+  const [statusDespesa, setStatusDespesa] =
+    useState<StatusDespesa>("PENDENTE");
+
+  const [dataPagamento, setDataPagamento] =
+    useState(hojeFormatado());
+
+  const [formaPagamento, setFormaPagamento] =
+    useState<FormaPagamento | null>(null);
+
+  const [erro, setErro] = useState("");
+  const [salvando, setSalvando] = useState(false);
+
+  async function salvar() {
+    if (salvando) return;
+
     if (moedaParaNumero(valor) <= 0) {
       setErro(`Informe o valor da ${nomeItem}.`);
       return;
     }
 
-    if (!categoria) {
-      setErro("Escolha uma categoria.");
-      return;
-    }
+    if (!categoriaSelecionada) {
+  setErro("Escolha uma categoria.");
+  return;
+}
 
     if (!dataValida(data)) {
       setErro("Informe uma data válida (DD/MM/AAAA).");
       return;
     }
 
+    if (!ehReceita && !formaPagamento) {
+      setErro("Escolha a forma de pagamento.");
+      return;
+    }
+
+    if (
+      !ehReceita &&
+      statusDespesa === "PAGA" &&
+      !dataValida(dataPagamento)
+    ) {
+      setErro("Informe uma data de pagamento válida.");
+      return;
+    }
+
     setErro("");
+    setSalvando(true);
 
-    // Guarda como "gasto" (despesa) ou "entrada" (receita), igual a antes,
-    // então Sumário, Rotas, Contas fixas e Movimentações continuam funcionando
-    adicionarTransacao({
-      tipo,
-      valor: moedaParaNumero(valor),
-      categoriaId: categoria,
-      data,
-      descricao: descricao.trim() || undefined,
-      repetirMensalmente: repetir,
-    });
+    try {
+      await adicionarTransacao({
+        tipo,
+        valor: moedaParaNumero(valor),
+        categoriaId: categoriaSelecionada.id,
+        categoriaNome: categoriaSelecionada.rotulo, 
+        data,
+        descricao: descricao.trim() || undefined,
+        repetirMensalmente: repetir,
+        tipoCadastro,
+        status: ehReceita ? statusReceita : statusDespesa,
+        ...(ehReceita
+          ? {}
+          : {
+              formaPagamento: formaPagamento!,
+              dataPagamento:
+                statusDespesa === "PAGA"
+                  ? dataPagamento
+                  : undefined,
+            }),
+      });
 
-    voltar();
+      voltar();
+    } catch (error: any) {
+      setErro(
+        error?.response?.data?.message ||
+          error?.message ||
+          `Não foi possível cadastrar a ${nomeItem}.`
+      );
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  function opcao<T extends string>(
+    label: string,
+    value: T,
+    selecionado: boolean,
+    onPress: () => void
+  ) {
+    return (
+      <TouchableOpacity
+        key={value}
+        onPress={onPress}
+        style={{
+          flex: 1,
+          paddingVertical: 12,
+          paddingHorizontal: 8,
+          borderRadius: 10,
+          borderWidth: 1,
+          borderColor: selecionado ? "#B7FF00" : "#555",
+          backgroundColor: selecionado
+            ? "#2B1454"
+            : "transparent",
+          alignItems: "center",
+        }}
+      >
+        <Text
+          style={{
+            color: selecionado ? "#B7FF00" : "#FFFFFF",
+            fontWeight: selecionado ? "bold" : "normal",
+            fontSize: 13,
+          }}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
   }
 
   return (
-    <View style={styles.container}>
-      <BackgroundGradient variante="funcional" />
-
-      {/* Empurra o formulário pra cima quando o teclado abre */}
+    <BackgroundGradient>
       <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+        <HeaderInterno titulo={titulo} />
+
         <ScrollView
-          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            padding: 20,
+            paddingBottom: 40,
+          }}
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.conteudo}
         >
-          {/* Cabeçalho: só a seta de voltar e o título do tipo */}
-          <HeaderInterno titulo={titulo} />
+          <Input
+            label="Valor"
+            value={valor}
+            onChangeText={(texto: string) =>
+              setValor(mascararMoeda(texto))
+            }
+            placeholder="R$ 0,00"
+            keyboardType="numeric"
+          />
 
-          <View style={styles.formulario}>
-            <Input
-              label="Valor"
-              placeholder="0,00"
-              keyboardType="numeric"
-              value={valor}
-              onChangeText={(texto) => setValor(mascararMoeda(texto))}
-              icone={<Text style={styles.prefixoMoeda}>R$</Text>}
-            />
+          <Text style={styles.label}>Categoria</Text>
 
-            {/* Categorias de despesa ou de receita, conforme o botão usado */}
-            <SeletorCategoria
-  categorias={categorias}
-  selecionada={categoria}
-  aoSelecionar={setCategoria}
-  tipo={ehReceita ? "RECEITA" : "DESPESA"}
-/>
+          <SeletorCategoria
+          tipo={ehReceita ? "RECEITA" : "DESPESA"}
+          categorias={categorias}
+          selecionada={categoriaSelecionada?.id ?? null}
+          aoSelecionar={(id, categoria) => {
+            setCategoriaSelecionada(categoria);
+          }}
+          />
 
-            <Input
-              label="Data"
-              placeholder="DD/MM/AAAA"
-              keyboardType="numeric"
-              maxLength={10}
-              value={data}
-              onChangeText={(texto) => setData(mascararData(texto))}
-            />
+          <Input
+            label="Data"
+            value={data}
+            onChangeText={(texto: string) =>
+              setData(mascararData(texto))
+            }
+            placeholder="DD/MM/AAAA"
+            keyboardType="numeric"
+          />
 
-            <Input
-              label="Descrição (opcional)"
-              placeholder={exemploDescricao}
-              value={descricao}
-              onChangeText={setDescricao}
-              autoCapitalize="sentences"
-              maxLength={120}
-            />
+          <Input
+            label="Descrição"
+            value={descricao}
+            onChangeText={setDescricao}
+            placeholder={exemploDescricao}
+          />
 
-            <View style={styles.linhaSwitch}>
-              <Text style={styles.textoSwitch}>Repetir mensalmente</Text>
+          <Text style={styles.label}>Tipo de cadastro</Text>
 
-              <Switch
-                value={repetir}
-                onValueChange={setRepetir}
-                trackColor={{
-                  false: Cores.overlay.forte,
-                  true: Cores.roxo.claro,
-                }}
-                thumbColor={
-                  repetir ? Cores.destaque.limao : Cores.texto.claro
-                }
-              />
-            </View>
-
-            {erro ? (
-              <Text style={styles.erro} accessibilityRole="alert">
-                {erro}
-              </Text>
-            ) : null}
-
-            <View style={styles.linhaBotoes}>
-              <View style={styles.colunaBotao}>
-                <Button
-                  titulo="Cancelar"
-                  variante="outline"
-                  onPress={voltar}
-                />
-              </View>
-
-              <View style={styles.colunaBotao}>
-                <Button
-                  titulo={`Salvar ${nomeItem}`}
-                  onPress={salvar}
-                />
-              </View>
-            </View>
+          <View style={{ flexDirection: "row", gap: 10 }}>
+            {opcao(
+              "Fixa",
+              "FIXA",
+              tipoCadastro === "FIXA",
+              () => setTipoCadastro("FIXA")
+            )}
+            {opcao(
+              "Variável",
+              "VARIAVEL",
+              tipoCadastro === "VARIAVEL",
+              () => setTipoCadastro("VARIAVEL")
+            )}
           </View>
+
+          {ehReceita ? (
+            <>
+              <Text style={styles.label}>Situação da receita</Text>
+
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                {opcao(
+                  "Recebida",
+                  "RECEBIDA",
+                  statusReceita === "RECEBIDA",
+                  () => setStatusReceita("RECEBIDA")
+                )}
+                {opcao(
+                  "Pendente",
+                  "PENDENTE",
+                  statusReceita === "PENDENTE",
+                  () => setStatusReceita("PENDENTE")
+                )}
+              </View>
+            </>
+          ) : (
+            <>
+              <Text style={styles.label}>Situação da despesa</Text>
+
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                {opcao(
+                  "Paga",
+                  "PAGA",
+                  statusDespesa === "PAGA",
+                  () => setStatusDespesa("PAGA")
+                )}
+                {opcao(
+                  "Pendente",
+                  "PENDENTE",
+                  statusDespesa === "PENDENTE",
+                  () => setStatusDespesa("PENDENTE")
+                )}
+              </View>
+
+              <Text style={styles.label}>Forma de pagamento</Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  gap: 10,
+                }}
+              >
+                {FORMAS_PAGAMENTO.map((forma) => (
+                  <View
+                    key={forma.value}
+                    style={{ minWidth: "30%", flexGrow: 1 }}
+                  >
+                    {opcao(
+                      forma.label,
+                      forma.value,
+                      formaPagamento === forma.value,
+                      () => setFormaPagamento(forma.value)
+                    )}
+                  </View>
+                ))}
+              </View>
+
+              {statusDespesa === "PAGA" && (
+                <Input
+                  label="Data do pagamento"
+                  value={dataPagamento}
+                  onChangeText={(texto: string) =>
+                    setDataPagamento(mascararData(texto))
+                  }
+                  placeholder="DD/MM/AAAA"
+                  keyboardType="numeric"
+                />
+              )}
+            </>
+          )}
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginTop: 20,
+              marginBottom: 15,
+            }}
+          >
+            <Text style={styles.label}>Repetir mensalmente</Text>
+            <Switch
+              value={repetir}
+              onValueChange={setRepetir}
+              trackColor={{
+                false: "#555",
+                true: "#482287",
+              }}
+              thumbColor={repetir ? "#B7FF00" : "#FFFFFF"}
+            />
+          </View>
+
+          {!!erro && (
+            <Text
+              style={{
+                color: "#FF6B6B",
+                marginBottom: 15,
+              }}
+            >
+              {erro}
+            </Text>
+          )}
+
+          <Button
+            title="Cancelar"
+            onPress={voltar}
+            variant="secondary"
+          />
+
+          <Button
+            title={salvando ? "Salvando..." : "Salvar"}
+            onPress={salvar}
+            disabled={salvando}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </BackgroundGradient>
   );
 }
