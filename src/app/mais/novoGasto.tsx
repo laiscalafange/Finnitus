@@ -10,22 +10,28 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import type { CategoriaItem } from "@/features/menuMais/types";
 import { useLocalSearchParams } from "expo-router";
+
+import type {
+  CategoriaItem,
+  TipoTransacao,
+} from "@/features/menuMais/types";
 
 import { HeaderInterno } from "../../shared/components/Header";
 import { BackgroundGradient } from "@/shared/components/backgroundGradient";
 import { Input } from "../../shared/components/Input";
 import { Button } from "../../shared/components/Button";
-import { Cores } from "../../shared/constants/Cores";
 
 import { SeletorCategoria } from "@/features/menuMais/components/SeletorCategoria";
+
 import {
   CATEGORIAS_ENTRADA,
   CATEGORIAS_GASTO,
 } from "@/features/menuMais/constants";
+
 import { useFinanceiro } from "@/features/financeiroContext";
 import { useVoltar } from "@/features/menuMais/useVoltar";
+
 import {
   dataValida,
   hojeFormatado,
@@ -33,7 +39,7 @@ import {
   mascararMoeda,
   moedaParaNumero,
 } from "@/features/menuMais/utils";
-import type { TipoTransacao } from "@/features/menuMais/types";
+
 import { styles } from "@/features/menuMais/styles/formulario";
 
 type StatusReceita = "RECEBIDA" | "PENDENTE";
@@ -47,7 +53,10 @@ type FormaPagamento =
   | "CREDITO"
   | "BOLETO";
 
-const FORMAS_PAGAMENTO: { label: string; value: FormaPagamento }[] = [
+const FORMAS_PAGAMENTO: {
+  label: string;
+  value: FormaPagamento;
+}[] = [
   { label: "Dinheiro", value: "DINHEIRO" },
   { label: "Pix", value: "PIX" },
   { label: "Débito", value: "DEBITO" },
@@ -59,7 +68,10 @@ export default function NovoGasto() {
   const voltar = useVoltar();
   const { adicionarTransacao } = useFinanceiro();
 
-  const { tipo: tipoParam } = useLocalSearchParams<{ tipo?: string }>();
+  const { tipo: tipoParam } = useLocalSearchParams<{
+    tipo?: string;
+  }>();
+
   const tipo: TipoTransacao =
     tipoParam === "entrada" ? "entrada" : "gasto";
 
@@ -77,8 +89,10 @@ export default function NovoGasto() {
     : "Ex: Almoço em família";
 
   const [valor, setValor] = useState("");
+
   const [categoriaSelecionada, setCategoriaSelecionada] =
-  useState<CategoriaItem | null>(null);
+    useState<CategoriaItem | null>(null);
+
   const [data, setData] = useState(hojeFormatado());
   const [descricao, setDescricao] = useState("");
   const [repetir, setRepetir] = useState(false);
@@ -101,6 +115,44 @@ export default function NovoGasto() {
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
 
+  const estiloLabel = {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600" as const,
+    marginTop: 15,
+    marginBottom: 10,
+  };
+
+  const estiloLinha = {
+    flexDirection: "row" as const,
+    gap: 10,
+    marginBottom: 8,
+  };
+
+  const estiloOpcoesPagamento = {
+    flexDirection: "row" as const,
+    flexWrap: "wrap" as const,
+    gap: 10,
+  };
+
+  const estiloItemPagamento = {
+    minWidth: "30%" as const,
+    flexGrow: 1,
+  };
+
+  const estiloLinhaRepetir = {
+    flexDirection: "row" as const,
+    alignItems: "center" as const,
+    justifyContent: "space-between" as const,
+    marginTop: 20,
+    marginBottom: 15,
+  };
+
+  const estiloErro = {
+    color: "#FF6B6B",
+    marginBottom: 15,
+  };
+
   async function salvar() {
     if (salvando) return;
 
@@ -110,9 +162,9 @@ export default function NovoGasto() {
     }
 
     if (!categoriaSelecionada) {
-  setErro("Escolha uma categoria.");
-  return;
-}
+      setErro("Escolha uma categoria.");
+      return;
+    }
 
     if (!dataValida(data)) {
       setErro("Informe uma data válida (DD/MM/AAAA).");
@@ -141,7 +193,7 @@ export default function NovoGasto() {
         tipo,
         valor: moedaParaNumero(valor),
         categoriaId: categoriaSelecionada.id,
-        categoriaNome: categoriaSelecionada.rotulo, 
+        categoriaNome: categoriaSelecionada.rotulo,
         data,
         descricao: descricao.trim() || undefined,
         repetirMensalmente: repetir,
@@ -180,8 +232,10 @@ export default function NovoGasto() {
       <TouchableOpacity
         key={value}
         onPress={onPress}
+        activeOpacity={0.7}
         style={{
           flex: 1,
+          minHeight: 44,
           paddingVertical: 12,
           paddingHorizontal: 8,
           borderRadius: 10,
@@ -191,6 +245,7 @@ export default function NovoGasto() {
             ? "#2B1454"
             : "transparent",
           alignItems: "center",
+          justifyContent: "center",
         }}
       >
         <Text
@@ -207,196 +262,194 @@ export default function NovoGasto() {
   }
 
   return (
-    <BackgroundGradient>
+    <View style={styles.container}>
+      <BackgroundGradient variante="funcional" />
+
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <HeaderInterno titulo={titulo} />
-
         <ScrollView
-          contentContainerStyle={{
-            padding: 20,
-            paddingBottom: 40,
-          }}
+          showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.conteudo}
         >
-          <Input
-            label="Valor"
-            value={valor}
-            onChangeText={(texto: string) =>
-              setValor(mascararMoeda(texto))
-            }
-            placeholder="R$ 0,00"
-            keyboardType="numeric"
-          />
+          <HeaderInterno titulo={titulo} />
 
-          <Text style={styles.label}>Categoria</Text>
+          <View style={styles.formulario}>
+            <Input
+              label="Valor"
+              value={valor}
+              onChangeText={(texto: string) =>
+                setValor(mascararMoeda(texto))
+              }
+              placeholder="R$ 0,00"
+              keyboardType="numeric"
+            />
 
-          <SeletorCategoria
-          tipo={ehReceita ? "RECEITA" : "DESPESA"}
-          categorias={categorias}
-          selecionada={categoriaSelecionada?.id ?? null}
-          aoSelecionar={(id, categoria) => {
-            setCategoriaSelecionada(categoria);
-          }}
-          />
+            <Text style={estiloLabel}>Categoria</Text>
 
-          <Input
-            label="Data"
-            value={data}
-            onChangeText={(texto: string) =>
-              setData(mascararData(texto))
-            }
-            placeholder="DD/MM/AAAA"
-            keyboardType="numeric"
-          />
-
-          <Input
-            label="Descrição"
-            value={descricao}
-            onChangeText={setDescricao}
-            placeholder={exemploDescricao}
-          />
-
-          <Text style={styles.label}>Tipo de cadastro</Text>
-
-          <View style={{ flexDirection: "row", gap: 10 }}>
-            {opcao(
-              "Fixa",
-              "FIXA",
-              tipoCadastro === "FIXA",
-              () => setTipoCadastro("FIXA")
-            )}
-            {opcao(
-              "Variável",
-              "VARIAVEL",
-              tipoCadastro === "VARIAVEL",
-              () => setTipoCadastro("VARIAVEL")
-            )}
-          </View>
-
-          {ehReceita ? (
-            <>
-              <Text style={styles.label}>Situação da receita</Text>
-
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                {opcao(
-                  "Recebida",
-                  "RECEBIDA",
-                  statusReceita === "RECEBIDA",
-                  () => setStatusReceita("RECEBIDA")
-                )}
-                {opcao(
-                  "Pendente",
-                  "PENDENTE",
-                  statusReceita === "PENDENTE",
-                  () => setStatusReceita("PENDENTE")
-                )}
-              </View>
-            </>
-          ) : (
-            <>
-              <Text style={styles.label}>Situação da despesa</Text>
-
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                {opcao(
-                  "Paga",
-                  "PAGA",
-                  statusDespesa === "PAGA",
-                  () => setStatusDespesa("PAGA")
-                )}
-                {opcao(
-                  "Pendente",
-                  "PENDENTE",
-                  statusDespesa === "PENDENTE",
-                  () => setStatusDespesa("PENDENTE")
-                )}
-              </View>
-
-              <Text style={styles.label}>Forma de pagamento</Text>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                  gap: 10,
-                }}
-              >
-                {FORMAS_PAGAMENTO.map((forma) => (
-                  <View
-                    key={forma.value}
-                    style={{ minWidth: "30%", flexGrow: 1 }}
-                  >
-                    {opcao(
-                      forma.label,
-                      forma.value,
-                      formaPagamento === forma.value,
-                      () => setFormaPagamento(forma.value)
-                    )}
-                  </View>
-                ))}
-              </View>
-
-              {statusDespesa === "PAGA" && (
-                <Input
-                  label="Data do pagamento"
-                  value={dataPagamento}
-                  onChangeText={(texto: string) =>
-                    setDataPagamento(mascararData(texto))
-                  }
-                  placeholder="DD/MM/AAAA"
-                  keyboardType="numeric"
-                />
-              )}
-            </>
-          )}
-
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginTop: 20,
-              marginBottom: 15,
-            }}
-          >
-            <Text style={styles.label}>Repetir mensalmente</Text>
-            <Switch
-              value={repetir}
-              onValueChange={setRepetir}
-              trackColor={{
-                false: "#555",
-                true: "#482287",
+            <SeletorCategoria
+              tipo={ehReceita ? "RECEITA" : "DESPESA"}
+              categorias={categorias}
+              selecionada={categoriaSelecionada?.id ?? null}
+              aoSelecionar={(_id, categoria) => {
+                setCategoriaSelecionada(categoria);
               }}
-              thumbColor={repetir ? "#B7FF00" : "#FFFFFF"}
+            />
+
+            <Input
+              label="Data"
+              value={data}
+              onChangeText={(texto: string) =>
+                setData(mascararData(texto))
+              }
+              placeholder="DD/MM/AAAA"
+              keyboardType="numeric"
+            />
+
+            <Input
+              label="Descrição"
+              value={descricao}
+              onChangeText={setDescricao}
+              placeholder={exemploDescricao}
+            />
+
+            <Text style={estiloLabel}>Tipo de cadastro</Text>
+
+            <View style={estiloLinha}>
+              {opcao(
+                "Fixa",
+                "FIXA",
+                tipoCadastro === "FIXA",
+                () => setTipoCadastro("FIXA")
+              )}
+
+              {opcao(
+                "Variável",
+                "VARIAVEL",
+                tipoCadastro === "VARIAVEL",
+                () => setTipoCadastro("VARIAVEL")
+              )}
+            </View>
+
+            {ehReceita ? (
+              <>
+                <Text style={estiloLabel}>
+                  Situação da receita
+                </Text>
+
+                <View style={estiloLinha}>
+                  {opcao(
+                    "Recebida",
+                    "RECEBIDA",
+                    statusReceita === "RECEBIDA",
+                    () => setStatusReceita("RECEBIDA")
+                  )}
+
+                  {opcao(
+                    "Pendente",
+                    "PENDENTE",
+                    statusReceita === "PENDENTE",
+                    () => setStatusReceita("PENDENTE")
+                  )}
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={estiloLabel}>
+                  Situação da despesa
+                </Text>
+
+                <View style={estiloLinha}>
+                  {opcao(
+                    "Paga",
+                    "PAGA",
+                    statusDespesa === "PAGA",
+                    () => setStatusDespesa("PAGA")
+                  )}
+
+                  {opcao(
+                    "Pendente",
+                    "PENDENTE",
+                    statusDespesa === "PENDENTE",
+                    () => setStatusDespesa("PENDENTE")
+                  )}
+                </View>
+
+                <Text style={estiloLabel}>
+                  Forma de pagamento
+                </Text>
+
+                <View style={estiloOpcoesPagamento}>
+                  {FORMAS_PAGAMENTO.map((forma) => (
+                    <View
+                      key={forma.value}
+                      style={estiloItemPagamento}
+                    >
+                      {opcao(
+                        forma.label,
+                        forma.value,
+                        formaPagamento === forma.value,
+                        () => setFormaPagamento(forma.value)
+                      )}
+                    </View>
+                  ))}
+                </View>
+
+                {statusDespesa === "PAGA" && (
+                  <Input
+                    label="Data do pagamento"
+                    value={dataPagamento}
+                    onChangeText={(texto: string) =>
+                      setDataPagamento(mascararData(texto))
+                    }
+                    placeholder="DD/MM/AAAA"
+                    keyboardType="numeric"
+                  />
+                )}
+              </>
+            )}
+
+            <View style={estiloLinhaRepetir}>
+              <Text style={estiloLabel}>
+                Repetir mensalmente
+              </Text>
+
+              <Switch
+                value={repetir}
+                onValueChange={setRepetir}
+                trackColor={{
+                  false: "#555",
+                  true: "#482287",
+                }}
+                thumbColor={repetir ? "#B7FF00" : "#FFFFFF"}
+              />
+            </View>
+
+            {!!erro && (
+              <Text
+                style={estiloErro}
+                accessibilityRole="alert"
+              >
+                {erro}
+              </Text>
+            )}
+
+            <Button
+              titulo="Cancelar"
+              onPress={voltar}
+              variante="secundario"
+            />
+
+            <Button
+              titulo={salvando ? "Salvando..." : "Salvar"}
+              onPress={salvar}
+              disabled={salvando}
             />
           </View>
-
-          {!!erro && (
-            <Text
-              style={{
-                color: "#FF6B6B",
-                marginBottom: 15,
-              }}
-            >
-              {erro}
-            </Text>
-          )}
-
-          <Button
-            title="Cancelar"
-            onPress={voltar}
-            variant="secondary"
-          />
-
-          <Button
-            title={salvando ? "Salvando..." : "Salvar"}
-            onPress={salvar}
-            disabled={salvando}
-          />
         </ScrollView>
       </KeyboardAvoidingView>
-    </BackgroundGradient>
+    </View>
   );
 }
