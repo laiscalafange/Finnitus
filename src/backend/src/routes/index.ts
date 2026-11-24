@@ -20,10 +20,12 @@ import configuracoesRoutes from "./configuracoes.routes.js";
 import { criarRotasNotificacoes } from "./notificacoes.routes.js";
 import { prisma } from "../lib/prisma.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+import categoriaRoutes from "./categorias.routes.js";
 
 // Importa as novas rotas financeiras.
 import telaInicialRoutes from "./telaInicial.routes.js";
 import dashboardRoutes from "./dashboard.routes.js";
+
 
 // Cria o roteador principal da API.
 const routes = Router();
@@ -55,6 +57,8 @@ routes.use("/metas", metasRoutes);
 routes.use("/dividas", dividaRoutes);
 routes.use("/reserva", reservaFinanceiraRoutes);
 
+// Rotas de categorias fixas.
+routes.use("/categorias", categoriaRoutes);
 // Rotas de categorias personalizadas.
 routes.use(
   "/categorias-personalizadas",
