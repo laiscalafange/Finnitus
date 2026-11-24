@@ -84,13 +84,38 @@ export default function ResetPassword() {
 
   return (
     <AuthForm
+      layout="topo"
       title="Nova senha"
       subtitle="Use pelo menos 8 caracteres."
       error={error}
+      footer={
+        <>
+          <Button
+            titulo={busy ? "Salvando..." : "Salvar senha"}
+            variante="primario"
+            disabled={busy}
+            onPress={reset}
+          />
+
+          <Button
+            titulo="Solicitar outro código"
+            variante="outline"
+            disabled={busy}
+            onPress={() => {
+              clearRecovery();
+              router.replace({
+                pathname: "/forgotPassword",
+                params: trocando ? { modo: "trocar" } : {},
+              });
+            }}
+          />
+        </>
+      }
     >
       <Input
         label="Nova senha"
         secureTextEntry
+        autoComplete="new-password"
         value={senha}
         onChangeText={setSenha}
         editable={!busy}
@@ -99,33 +124,12 @@ export default function ResetPassword() {
       <Input
         label="Confirme a senha"
         secureTextEntry
+        autoComplete="new-password"
         value={confirmation}
         onChangeText={setConfirmation}
         editable={!busy}
       />
 
-      <Button
-        titulo={
-          busy
-            ? "Salvando..."
-            : "Salvar senha"
-        }
-        disabled={busy}
-        onPress={reset}
-      />
-
-      <Button
-        titulo="Solicitar outro código"
-        variante="outline"
-        disabled={busy}
-        onPress={() => {
-          clearRecovery();
-          router.replace({
-            pathname: "/forgotPassword",
-            params: trocando ? { modo: "trocar" } : {},
-          });
-        }}
-      />
     </AuthForm>
   );
 }
