@@ -15,7 +15,7 @@
       },
       "env": {
         "ANDROID_PACKAGE": "com.finnitus.app",
-        "EXPO_PUBLIC_API_URL": "COLE_A_URL_PUBLICA_DA_API",
+        "EXPO_PUBLIC_API_URL": "https://finnitus-backend.onrender.com",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "162022351876-e3ngcdmsc25r41lni0k887j5fffalo49.apps.googleusercontent.com"
       }
     },
