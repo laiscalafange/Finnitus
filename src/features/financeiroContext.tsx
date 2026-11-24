@@ -41,6 +41,7 @@ import {
 } from './contas/contasData'
 
 import { perfilFinanceiroService } from "../services/perfilFinanceiro"
+import { api } from "../services/api";
 
 export type FinanceiroState = {
   rendaFixa?: number
@@ -60,8 +61,18 @@ export type NovaMeta = {
   valorInicial: number
   dataLimite?: string
 }
+export type StatusReceita = "RECEBIDA" | "PENDENTE";
+export type StatusDespesa = "PAGA" | "PENDENTE";
 
-// Uma transação registrada em "Novo gasto"
+export type TipoCadastro = "FIXA" | "VARIAVEL";
+
+export type FormaPagamento =
+  | "DINHEIRO"
+  | "PIX"
+  | "DEBITO"
+  | "CREDITO"
+  | "BOLETO";
+
 export type Transacao = {
   id: string
   tipo: TipoTransacao
@@ -74,10 +85,15 @@ export type Transacao = {
   tipoRecebimento?: TipoRecebimento
   ate?: string
   vigencias?: VigenciaConta[]
+  categoriaNome?: string
+
+  status?: StatusReceita | StatusDespesa
+  tipoCadastro?: TipoCadastro
+  dataPagamento?: string
+  formaPagamento?: FormaPagamento
 }
 
-// Dados do formulário do Novo gasto
-export type NovaTransacao = Omit<Transacao, 'id'>
+export type NovaTransacao = Omit<Transacao, "id">
 
 // Dados que a pessoa pode alterar numa conta
 export type EdicaoConta = {
@@ -130,7 +146,7 @@ type FinanceiroContextValue = FinanceiroState & {
   excluirMeta: (id: string) => Promise<void>
 
   transacoes: Transacao[]
-  adicionarTransacao: (dados: NovaTransacao) => Transacao
+  adicionarTransacao: (dados: NovaTransacao) => Promise<Transacao>
 
   baixas: Baixa[]
   registrarBaixa: (dados: NovaBaixa) => 'ok' | 'jaRegistrada' | 'naoEncontrada'
@@ -249,6 +265,107 @@ function converterMetaApi(meta: MetaApi): Meta {
     }),
   }
 }
+const CATEGORIAS_PADRAO: Record<string, number> = {
+  // Receitas
+  salario: 19,
+  "renda extra": 20,
+  rendimentos: 21,
+  presente: 22,
+  reembolso: 23,
+  outros_receita: 24,
+  vendas: 25,
+  "aluguel recebido": 26,
+  restituição: 27,
+  bonus: 28,
+
+  // Despesas
+  academia: 14,
+  alimentacao: 4,
+  contas: 7,
+  educacao: 11,
+  lazer: 6,
+  manutencao: 17,
+  mercado: 10,
+  moradia: 12,
+  outros_despesa: 9,
+  pets: 15,
+  presentes: 18,
+  saude: 8,
+  transporte: 5,
+  vestuario: 13,
+  viagem: 16,
+};
+
+function normalizarCategoria(nome: string) {
+  return nome
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function obterCategoriaBanco(
+  categoriaId: string,
+  categoriaNome: string,
+  tipo: "RECEITA" | "DESPESA"
+) {
+  if (categoriaId.startsWith("personalizada-")) {
+    const id = Number(categoriaId.replace("personalizada-", ""));
+
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new Error("Categoria personalizada inválida.");
+    }
+
+    return {
+      id_Categoria: null,
+      id_CategoriaPersonalizada: id,
+    };
+  }
+
+  const nome = categoriaNome
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+
+  const categorias: Record<string, number> = {
+    "salário": 19,
+    "renda extra": 20,
+    rendimentos: 21,
+    presente: 22,
+    reembolso: 23,
+    outros: tipo === "RECEITA" ? 24 : 9,
+    vendas: 25,
+    "aluguel recebido": 26,
+    restituição: 27,
+    bônus: 28,
+    academia: 14,
+    alimentação: 4,
+    contas: 7,
+    educação: 11,
+    lazer: 6,
+    manutenção: 17,
+    mercado: 10,
+    moradia: 12,
+    pets: 15,
+    presentes: 18,
+    saúde: 8,
+    transporte: 5,
+    vestuário: 13,
+    viagem: 16,
+  };
+
+  const id = categorias[nome];
+
+  if (!id) {
+    throw new Error(`Categoria "${categoriaNome}" não encontrada.`);
+  }
+
+  return {
+    id_Categoria: id,
+    id_CategoriaPersonalizada: null,
+  };
+}
 
 export function FinanceiroProvider({
   children,
@@ -345,22 +462,82 @@ export function FinanceiroProvider({
   }, [])
 
   // Guarda a transação do Novo gasto
-  const adicionarTransacao = useCallback(
-    (dados: NovaTransacao): Transacao => {
-      const transacao: Transacao = {
-        id: novoId(),
-        ...dados,
+ const adicionarTransacao = useCallback(
+  async (dados: NovaTransacao): Promise<Transacao> => {
+    const ehReceita = dados.tipo === "entrada";
+
+    const categoria = obterCategoriaBanco(
+    dados.categoriaId,
+    dados.categoriaNome ?? dados.categoriaId,
+    ehReceita ? "RECEITA" : "DESPESA"
+    );
+
+    const frequencia = dados.repetirMensalmente
+      ? "MENSAL"
+      : "UNICA";
+
+    const descricao =
+      dados.descricao?.trim() || dados.categoriaId;
+
+    let resposta: any;
+
+    if (ehReceita) {
+      resposta = await api.post("/receitas", {
+        ...categoria,
+        descricao,
+        valor: dados.valor,
+        data_recebimento: dataTelaParaBackend(dados.data),
+        tipo: dados.tipoCadastro,
+        status: dados.status,
+        frequencia,
+        observacao: dados.observacao,
+      });
+    } else {
+      if (!dados.formaPagamento) {
+        throw new Error("Informe a forma de pagamento.");
       }
 
-      setTransacoes((atual) => [
-        transacao,
-        ...atual,
-      ])
+      if (dados.status === "PAGA" && !dados.dataPagamento) {
+        throw new Error("Informe a data do pagamento.");
+      }
 
-      return transacao
-    },
-    [],
-  )
+      resposta = await api.post("/despesas", {
+        ...categoria,
+        descricao,
+        valor: dados.valor,
+        data_vencimento: dataTelaParaBackend(dados.data),
+        data_pagamento:
+          dados.status === "PAGA"
+            ? dataTelaParaBackend(dados.dataPagamento)
+            : null,
+        tipo: dados.tipoCadastro,
+        frequencia,
+        forma_pagamento: dados.formaPagamento,
+        status: dados.status,
+        observacao: dados.observacao,
+      });
+    }
+
+    const registro = resposta.data.receita ??
+      resposta.data.despesa ??
+      resposta.data;
+
+    const transacao: Transacao = {
+      ...dados,
+      id: String(
+        ehReceita
+          ? registro.id_Receita
+          : registro.id_Despesa
+      ),
+      valor: Number(registro.valor),
+    };
+
+    setTransacoes((atual) => [transacao, ...atual]);
+
+    return transacao;
+  },
+  []
+);
 
   // Marca uma conta fixa como paga/recebida
   const registrarBaixa = useCallback(
