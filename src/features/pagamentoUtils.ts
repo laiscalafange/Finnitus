@@ -101,3 +101,16 @@ export function somarDias(data: Date, dias: number): Date {
 
   return nova;
 }
+export const METODOS_SIMULADOS = [
+  {
+    id: "cartao",
+    titulo: "Cartão",
+    descricao: "Cartão de demonstração •••• 0000. Os dados são fictícios.",
+  },
+  {
+    id: "pix",
+    titulo: "Pix",
+    descricao: "O Pix é demonstrativo. A confirmação acontece aqui no app.",
+  },
+] as const;
+

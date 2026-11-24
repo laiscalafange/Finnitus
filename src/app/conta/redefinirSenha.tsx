@@ -1,27 +1,14 @@
-import { useIdioma } from "@/features/idioma";
 import { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-
 import { Redirect } from "expo-router";
 
-
-import { HeaderInterno } from "../../shared/components/Header";
-import { BackgroundGradient } from "@/shared/components/backgroundGradient";
-import { Input } from "../../shared/components/Input";
-import { Button } from "../../shared/components/Button";
-
-import { authService } from "../../services/auth";
+import { useIdioma } from "@/features/idioma";
 import { useAuth } from "../../features/authContext";
+import { authService } from "../../services/auth";
+import { AuthForm } from "../../shared/components/AuthForm";
+import { Button } from "../../shared/components/Button";
+import { Input } from "../../shared/components/Input";
 import { useAction } from "../../shared/hooks/useAction";
 import { validatePassword } from "../../shared/utils/formValidation";
-
-import { styles } from "../../styles/redefinirSenha";
 
 export default function RedefinirSenha() {
   const { t } = useIdioma();
@@ -29,7 +16,6 @@ export default function RedefinirSenha() {
 
   const [senha, setSenha] = useState("");
   const [confirmacao, setConfirmacao] = useState("");
-
   const { busy, error, run } = useAction();
 
   if (senhaRedefinida) {
@@ -44,60 +30,45 @@ export default function RedefinirSenha() {
   function salvar() {
     void run(async () => {
       validatePassword(senha, confirmacao);
-
       await authService.reset(token, senha);
       await clearSession({ senhaRedefinida: true });
     });
   }
 
   return (
-    <View style={styles.container}>
-      <BackgroundGradient variante="funcional" />
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.conteudo}
-        >
-          <HeaderInterno titulo={t("Redefinir senha")} />
+    <AuthForm
+      layout="topo"
+      title={t("Redefinir senha")}
+      error={error}
+      voltarPara="/conta/trocarSenhaEmail"
+      footer={
+        <Button
+          titulo={busy ? t("Salvando...") : t("Salvar nova senha")}
+          variante="primario"
+          onPress={salvar}
+          disabled={busy}
+        />
+      }
+    >
+      <Input
+        label={t("Nova senha")}
+        placeholder={t("Mín. 8 caracteres")}
+        secureTextEntry
+        autoComplete="new-password"
+        value={senha}
+        onChangeText={setSenha}
+        editable={!busy}
+      />
 
-          <View style={styles.formulario}>
-            <Input
-              label={t("Nova senha")}
-              placeholder={t("Mín. 8 caracteres")}
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-              editable={!busy}
-            />
-
-            <Input
-              label={t("Confirmar nova senha")}
-              placeholder={t("Repita a nova senha")}
-              secureTextEntry
-              value={confirmacao}
-              onChangeText={setConfirmacao}
-              editable={!busy}
-            />
-
-            {error ? (
-              <Text style={styles.erro} accessibilityRole="alert">
-                {error}
-              </Text>
-            ) : null}
-
-            <Button
-              titulo={busy ? t("Salvando...") : t("Salvar nova senha")}
-              variante="terciario"
-              onPress={salvar}
-              disabled={busy}
-            />
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </View>
+      <Input
+        label={t("Confirmar nova senha")}
+        placeholder={t("Repita a nova senha")}
+        secureTextEntry
+        autoComplete="new-password"
+        value={confirmacao}
+        onChangeText={setConfirmacao}
+        editable={!busy}
+      />
+    </AuthForm>
   );
 }

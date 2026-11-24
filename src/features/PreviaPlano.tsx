@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import type { Href } from "expo-router";
-import { ArrowUpRight, Check, Crown, X } from "lucide-react-native";
+import { ArrowUpRight, Crown, X } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "@/shared/components/Button";
 import { Card } from "@/shared/components/Cards";
@@ -14,10 +13,10 @@ type Props = {
   plano: Plano;
   aoFechar: () => void;
   aoAbrirRecurso: (rota: Href) => void;
+  aoSimular: () => void;
 };
 
-export function PreviaPlano({ plano, aoFechar, aoAbrirRecurso }: Props) {
-  const [ativo, setAtivo] = useState(false);
+export function PreviaPlano({ plano, aoFechar, aoAbrirRecurso, aoSimular }: Props) {
 
   return (
     <Modal animationType="slide" onRequestClose={aoFechar}>
@@ -53,14 +52,7 @@ export function PreviaPlano({ plano, aoFechar, aoAbrirRecurso }: Props) {
                 </View>
               </View>
               {plano.teste && <Text style={styles.descricao}>{plano.teste} na proposta do plano.</Text>}
-              {ativo ? (
-                <View style={styles.status} accessibilityLiveRegion="polite">
-                  <Check size={20} color={Cores.destaque.limao} />
-                  <Text style={styles.statusTexto}>Simulação ativa</Text>
-                </View>
-              ) : (
-                <Button titulo="Simular ativação" onPress={() => setAtivo(true)} />
-              )}
+              <Button titulo={plano.periodo ? "Simular compra" : "Simular plano"} onPress={aoSimular} />
             </Card>
 
             <Text accessibilityRole="header" style={styles.secao}>Recursos e exemplos</Text>
