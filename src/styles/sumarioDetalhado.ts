@@ -8,18 +8,17 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Espaço no final pra o último card não colar no fim da tela
   conteudo: {
     paddingBottom: 30,
   },
 
-  // Conteúdo logo abaixo do cabeçalho discreto (HeaderInterno)
   conteudoSobreHeader: {
     paddingTop: 8,
     paddingHorizontal: 16,
   },
 
-  // Gastos e Economias lado a lado
+  // GASTOS E ECONOMIAS
+
   linhaTotais: {
     flexDirection: "row",
     gap: 12,
@@ -28,68 +27,123 @@ export const styles = StyleSheet.create({
   cardTotal: {
     flex: 1,
     gap: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.25)",
+    paddingVertical: 18,
   },
 
   totalRotulo: {
     fontFamily: FONTS.quicksand.medium,
-    fontSize: 13,
-    color: Cores.texto.claro,
+    fontSize: 14,
+    color:  Cores.destaque.limao,
   },
 
   totalValor: {
     fontFamily: FONTS.raleway.extrabold,
-    fontSize: 24,
+    fontSize: 25,
+    
+  },
+
+  // CARDS
+
+  cardPadrao: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(163, 87, 255, 0.25)",
   },
 
   tituloCard: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 16,
+    fontSize: 18,
     color: Cores.destaque.limao,
     marginBottom: 8,
   },
 
-  // Linha de cada categoria: nome à esquerda e valor à direita
+  // GRÁFICO
+
+  graficoContainer: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // CATEGORIAS
+
   linhaCategoria: {
-    marginTop: 12,
+    marginTop: 16,
+    marginBottom: 4,
   },
 
   topoCategoria: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 6,
+    marginBottom: 8,
+    gap: 8,
+  },
+
+  categoriaIdentificacao: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+
+  categoriaPonto: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
 
   categoriaNome: {
+    flexShrink: 1,
     fontFamily: FONTS.quicksand.semibold,
     fontSize: 15,
-    color: Cores.base.branco,
+    color: Cores.destaque.limao,
   },
 
   categoriaValor: {
     fontFamily: FONTS.raleway.bold,
-    fontSize: 14,
-    color: Cores.base.branco,
+    fontSize: 15,
+    color:  Cores.destaque.limao,
   },
 
-  // Trilha da barra (a parte preenchida usa a cor da categoria)
+  categoriaPercentual: {
+    fontFamily: FONTS.quicksand.bold,
+    fontSize: 12,
+    color: "#C7A9F5",
+    minWidth: 46,
+    textAlign: "right",
+  },
+
+  // BARRAS DE PROGRESSO
+
+  progressoLinha: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
   barraFundo: {
-    height: 6,
-    borderRadius: 4,
-    backgroundColor: Cores.overlay.medio,
+    flex: 1,
+    height: 8,
+    borderRadius: 8,
+    backgroundColor: "rgba(13, 17, 18, 0.45)",
     overflow: "hidden",
   },
 
   barraPreenchida: {
     height: "100%",
-    borderRadius: 4,
+    borderRadius: 8,
   },
 
-  // Mensagem quando ainda não há gastos pra mostrar
+  // ESTADO VAZIO
+
   vazio: {
     fontFamily: FONTS.quicksand.medium,
     fontSize: 14,
-    color: Cores.texto.claro,
+    color: "#C7A9F5",
     textAlign: "center",
     marginVertical: 14,
   },

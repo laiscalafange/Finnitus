@@ -16,16 +16,15 @@ type AtividadeHeatmapProps = {
   dias: DiaAtividade[]
 }
 
-// Mesmas cores da tela Atividade (NIVEIS_ATIVIDADE), pra o mesmo dia ter a
-// mesma cor nos dois lugares. Só o "nenhuma" é mais claro aqui, porque o
-// fundo do card é roxo.
 function obterCorNivel(nivel: string) {
   if (nivel === 'nenhuma') {
-    return '#FFFFFF20'
+    return '#6027a157'
   }
 
   return (
-    NIVEIS_ATIVIDADE.find((item) => item.id === nivel)?.cor ?? '#FFFFFF20'
+    NIVEIS_ATIVIDADE.find(
+      item => item.id === nivel
+    )?.cor ?? '#6027a157'
   )
 }
 
@@ -34,13 +33,6 @@ export function HeatmapCard({
   ano,
   dias,
 }: AtividadeHeatmapProps) {
-
-  /*
-   * O card de Atividade ocupa apenas metade da tela.
-   * Por isso não podemos colocar 15 bolinhas em uma única linha.
-   *
-   * Agora são 7 bolinhas por linha.
-   */
   const linhas: DiaAtividade[][] = []
 
   for (let i = 0; i < dias.length; i += 7) {
@@ -49,47 +41,99 @@ export function HeatmapCard({
 
   return (
     <LinearGradient
-      colors={['#3c1e75', '#30096e']}
+      colors={[
+        'rgba(44, 27, 67, 0.77)',
+        'rgba(33, 18, 53, 0.82)',
+      ]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
-      style={styles.duploCard}
+      style={[
+        styles.duploCard,
+        {
+          borderRadius: 16,
+          padding: 12,
+          borderWidth: 1,
+          borderColor: 'rgba(163, 87, 255, 0.25)',
+        },
+      ]}
     >
-
-      {/* TÍTULO */}
       <View style={styles.atividadeHeader}>
-        <Text style={styles.duploTitulo}>
+        <Text
+          style={[
+            styles.duploTitulo,
+            { color: 'Cores.destaque.limao' },
+          ]}
+        >
           Atividade
         </Text>
 
-        <Text style={styles.atividadeSeta}>
+        <Text
+          style={[
+            styles.atividadeSeta,
+            {
+              color: '#C7A9F5',
+              fontSize: 22,
+            },
+          ]}
+        >
           ›
         </Text>
       </View>
 
-      {/* MÊS / ANO */}
       <View style={styles.atividadeMes}>
-        <Text style={styles.duploDescricao}>
+        <Text
+          style={[
+            styles.duploDescricao,
+            {
+              color: '#C7A9F5',
+              fontSize: 12,
+            },
+          ]}
+        >
           {mes}
         </Text>
 
-        <Text style={styles.duploDescricao}>
+        <Text
+          style={[
+            styles.duploDescricao,
+            {
+              color: '#C7A9F5',
+              fontSize: 12,
+            },
+          ]}
+        >
           {ano}
         </Text>
       </View>
 
-      {/* BOLINHAS */}
-      <View style={styles.heatmapGrid}>
+      <View
+        style={[
+          styles.heatmapGrid,
+          { marginTop: 5 },
+        ]}
+      >
         {linhas.map((linha, linhaIndex) => (
           <View
             key={`linha-${linhaIndex}`}
-            style={styles.heatmapLinha}
+            style={[
+              styles.heatmapLinha,
+              {
+                justifyContent: 'flex-start',
+                gap: 3,
+                marginBottom: 6,
+              },
+            ]}
           >
-            {linha.map((dia) => (
+            {linha.map(dia => (
               <View
                 key={dia.data}
                 style={[
                   styles.heatmapBolinha,
                   {
+                    width: '12%',
+                    height: undefined,
+                    aspectRatio: 1,
+                    borderRadius: 5,
                     backgroundColor: obterCorNivel(dia.nivel),
                   },
                 ]}
@@ -99,21 +143,26 @@ export function HeatmapCard({
         ))}
       </View>
 
-      {/* LEGENDA */}
-      <View style={styles.heatmapLegenda}>
-
-        {NIVEIS_ATIVIDADE.filter((nivel) => nivel.id !== 'nenhuma').map(
-          (nivel) => (
+      <View
+        style={[
+          styles.heatmapLegenda,
+          {
+            flexWrap: 'wrap',
+            gap: 5,
+            marginTop: 3,
+          },
+        ]}
+      >
+        {NIVEIS_ATIVIDADE
+          .filter(nivel => nivel.id !== 'nenhuma')
+          .map(nivel => (
             <Legenda
               key={nivel.id}
               cor={nivel.cor}
               label={nivel.rotulo}
             />
-          ),
-        )}
-
+          ))}
       </View>
-
     </LinearGradient>
   )
 }
@@ -127,7 +176,6 @@ function Legenda({
 }) {
   return (
     <View style={styles.legendaItem}>
-
       <View
         style={[
           styles.legendaPonto,
@@ -137,10 +185,17 @@ function Legenda({
         ]}
       />
 
-      <Text style={styles.legendaTexto}>
+      <Text
+        style={[
+          styles.legendaTexto,
+          {
+            color: '#C7A9F5',
+            fontSize: 10,
+          },
+        ]}
+      >
         {label}
       </Text>
-
     </View>
   )
 }
