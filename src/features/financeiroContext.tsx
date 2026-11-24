@@ -1,3 +1,4 @@
+
 import {
   createContext,
   useCallback,
@@ -61,6 +62,7 @@ export type NovaMeta = {
   valorInicial: number
   dataLimite?: string
 }
+
 export type StatusReceita = "RECEBIDA" | "PENDENTE";
 export type StatusDespesa = "PAGA" | "PENDENTE";
 
@@ -265,6 +267,7 @@ function converterMetaApi(meta: MetaApi): Meta {
     }),
   }
 }
+
 const CATEGORIAS_PADRAO: Record<string, number> = {
   // Receitas
   salario: 19,
@@ -301,7 +304,7 @@ function normalizarCategoria(nome: string) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .trim();
+    .trim()
 }
 
 function obterCategoriaBanco(
@@ -322,14 +325,11 @@ function obterCategoriaBanco(
     };
   }
 
-  const nome = categoriaNome
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toLowerCase();
+  const nome = normalizarCategoria(categoriaNome);
 
   const categorias: Record<string, number> = {
-    "salário": 19,
+    // Receitas
+    salario: 19,
     "renda extra": 20,
     rendimentos: 21,
     presente: 22,
@@ -338,20 +338,22 @@ function obterCategoriaBanco(
     vendas: 25,
     "aluguel recebido": 26,
     restituição: 27,
-    bônus: 28,
+    bonus: 28,
+
+    // Despesas
     academia: 14,
-    alimentação: 4,
+    alimentacao: 4,
     contas: 7,
-    educação: 11,
+    educacao: 11,
     lazer: 6,
-    manutenção: 17,
+    manutencao: 17,
     mercado: 10,
     moradia: 12,
     pets: 15,
     presentes: 18,
-    saúde: 8,
+    saude: 8,
     transporte: 5,
-    vestuário: 13,
+    vestuario: 13,
     viagem: 16,
   };
 
@@ -393,6 +395,84 @@ export function FinanceiroProvider({
   // Pagamentos e notificações
   const [baixas, setBaixas] = useState<Baixa[]>([])
   const [notificacoesLidas, setNotificacoesLidas] = useState<string[]>([])
+
+  // Recupera receitas e despesas salvas no banco
+  const carregarTransacoes = useCallback(async (): Promise<void> => {
+    const [resReceitas, resDespesas] = await Promise.all([
+      api.get("/receitas"),
+      api.get("/despesas"),
+    ]);
+
+    const extrairLista = (resposta: any, chave: string) => {
+      const dados = resposta?.data;
+
+      if (Array.isArray(dados)) {
+        return dados;
+      }
+
+      if (Array.isArray(dados?.[chave])) {
+        return dados[chave];
+      }
+
+      if (Array.isArray(dados?.dados)) {
+        return dados.dados;
+      }
+
+      return [];
+    };
+
+    const receitas = extrairLista(resReceitas, "receitas");
+    const despesasCarregadas = extrairLista(resDespesas, "despesas");
+
+    const receitasFormatadas: Transacao[] = receitas.map(
+      (receita: any) => ({
+        id: String(receita.id_Receita ?? receita.id),
+        tipo: "entrada",
+        valor: Number(receita.valor),
+        categoriaId: receita.id_CategoriaPersonalizada
+          ? `personalizada-${receita.id_CategoriaPersonalizada}`
+          : String(receita.id_Categoria ?? ""),
+        categoriaNome: receita.categoria?.nome ?? receita.categoriaNome,
+        data: dataBackendParaTela(
+          receita.data_recebimento ?? receita.dataRecebimento,
+        ) ?? "",
+        descricao: receita.descricao,
+        repetirMensalmente: receita.frequencia === "MENSAL",
+        observacao: receita.observacao ?? undefined,
+        status: receita.status,
+        tipoCadastro: receita.tipo,
+      }),
+    );
+
+    const despesasFormatadas: Transacao[] = despesasCarregadas.map(
+      (despesa: any) => ({
+        id: String(despesa.id_Despesa ?? despesa.id),
+        tipo: "gasto",
+        valor: Number(despesa.valor),
+        categoriaId: despesa.id_CategoriaPersonalizada
+          ? `personalizada-${despesa.id_CategoriaPersonalizada}`
+          : String(despesa.id_Categoria ?? ""),
+        categoriaNome: despesa.categoria?.nome ?? despesa.categoriaNome,
+        data: dataBackendParaTela(
+          despesa.data_vencimento ?? despesa.dataVencimento,
+        ) ?? "",
+        descricao: despesa.descricao,
+        repetirMensalmente: despesa.frequencia === "MENSAL",
+        observacao: despesa.observacao ?? undefined,
+        status: despesa.status,
+        tipoCadastro: despesa.tipo,
+        dataPagamento: dataBackendParaTela(
+          despesa.data_pagamento ?? despesa.dataPagamento,
+        ),
+        formaPagamento: despesa.forma_pagamento ?? despesa.formaPagamento,
+      }),
+    );
+
+    setTransacoes([
+      ...receitasFormatadas,
+      ...despesasFormatadas,
+    ]);
+  }, []);
 
   // Recupera os dados financeiros salvos no banco
   const carregarPerfilFinanceiro = useCallback(async (): Promise<void> => {
@@ -462,82 +542,82 @@ export function FinanceiroProvider({
   }, [])
 
   // Guarda a transação do Novo gasto
- const adicionarTransacao = useCallback(
-  async (dados: NovaTransacao): Promise<Transacao> => {
-    const ehReceita = dados.tipo === "entrada";
+  const adicionarTransacao = useCallback(
+    async (dados: NovaTransacao): Promise<Transacao> => {
+      const ehReceita = dados.tipo === "entrada";
 
-    const categoria = obterCategoriaBanco(
-    dados.categoriaId,
-    dados.categoriaNome ?? dados.categoriaId,
-    ehReceita ? "RECEITA" : "DESPESA"
-    );
+      const categoria = obterCategoriaBanco(
+        dados.categoriaId,
+        dados.categoriaNome ?? dados.categoriaId,
+        ehReceita ? "RECEITA" : "DESPESA"
+      );
 
-    const frequencia = dados.repetirMensalmente
-      ? "MENSAL"
-      : "UNICA";
+      const frequencia = dados.repetirMensalmente
+        ? "MENSAL"
+        : "UNICA";
 
-    const descricao =
-      dados.descricao?.trim() || dados.categoriaId;
+      const descricao =
+        dados.descricao?.trim() || dados.categoriaId;
 
-    let resposta: any;
+      let resposta: any;
 
-    if (ehReceita) {
-      resposta = await api.post("/receitas", {
-        ...categoria,
-        descricao,
-        valor: dados.valor,
-        data_recebimento: dataTelaParaBackend(dados.data),
-        tipo: dados.tipoCadastro,
-        status: dados.status,
-        frequencia,
-        observacao: dados.observacao,
-      });
-    } else {
-      if (!dados.formaPagamento) {
-        throw new Error("Informe a forma de pagamento.");
+      if (ehReceita) {
+        resposta = await api.post("/receitas", {
+          ...categoria,
+          descricao,
+          valor: dados.valor,
+          data_recebimento: dataTelaParaBackend(dados.data),
+          tipo: dados.tipoCadastro,
+          status: dados.status,
+          frequencia,
+          observacao: dados.observacao,
+        });
+      } else {
+        if (!dados.formaPagamento) {
+          throw new Error("Informe a forma de pagamento.");
+        }
+
+        if (dados.status === "PAGA" && !dados.dataPagamento) {
+          throw new Error("Informe a data do pagamento.");
+        }
+
+        resposta = await api.post("/despesas", {
+          ...categoria,
+          descricao,
+          valor: dados.valor,
+          data_vencimento: dataTelaParaBackend(dados.data),
+          data_pagamento:
+            dados.status === "PAGA"
+              ? dataTelaParaBackend(dados.dataPagamento)
+              : null,
+          tipo: dados.tipoCadastro,
+          frequencia,
+          forma_pagamento: dados.formaPagamento,
+          status: dados.status,
+          observacao: dados.observacao,
+        });
       }
 
-      if (dados.status === "PAGA" && !dados.dataPagamento) {
-        throw new Error("Informe a data do pagamento.");
-      }
+      const registro = resposta.data.receita ??
+        resposta.data.despesa ??
+        resposta.data;
 
-      resposta = await api.post("/despesas", {
-        ...categoria,
-        descricao,
-        valor: dados.valor,
-        data_vencimento: dataTelaParaBackend(dados.data),
-        data_pagamento:
-          dados.status === "PAGA"
-            ? dataTelaParaBackend(dados.dataPagamento)
-            : null,
-        tipo: dados.tipoCadastro,
-        frequencia,
-        forma_pagamento: dados.formaPagamento,
-        status: dados.status,
-        observacao: dados.observacao,
-      });
-    }
+      const transacao: Transacao = {
+        ...dados,
+        id: String(
+          ehReceita
+            ? registro.id_Receita
+            : registro.id_Despesa
+        ),
+        valor: Number(registro.valor),
+      };
 
-    const registro = resposta.data.receita ??
-      resposta.data.despesa ??
-      resposta.data;
+      setTransacoes((atual) => [transacao, ...atual]);
 
-    const transacao: Transacao = {
-      ...dados,
-      id: String(
-        ehReceita
-          ? registro.id_Receita
-          : registro.id_Despesa
-      ),
-      valor: Number(registro.valor),
-    };
-
-    setTransacoes((atual) => [transacao, ...atual]);
-
-    return transacao;
-  },
-  []
-);
+      return transacao;
+    },
+    []
+  );
 
   // Marca uma conta fixa como paga/recebida
   const registrarBaixa = useCallback(
@@ -771,6 +851,21 @@ export function FinanceiroProvider({
     },
     [],
   )
+
+  // Carrega receitas e despesas quando o usuário estiver autenticado
+  useEffect(() => {
+    if (!user?.id) {
+      setTransacoes([])
+      return
+    }
+
+    void carregarTransacoes().catch((error) => {
+      console.error(
+        "Erro ao recuperar receitas e despesas:",
+        error,
+      )
+    })
+  }, [user?.id, carregarTransacoes])
 
   // Carrega as informações quando o usuário estiver autenticado
   useEffect(() => {

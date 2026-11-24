@@ -70,6 +70,43 @@ function dataAtualSemHorario() {
   );
 }
 
+function obterStatusRendaMensal(): "RECEBIDA" | "PENDENTE" {
+  const hoje = new Date();
+
+  const primeiroDiaMes = new Date(
+    hoje.getFullYear(),
+    hoje.getMonth(),
+    1
+  );
+
+  let diasUteis = 0;
+  let quintoDiaUtil: Date | null = null;
+
+  const data = new Date(primeiroDiaMes);
+
+  while (quintoDiaUtil === null) {
+    const diaSemana = data.getDay();
+
+    // Segunda a sexta
+    if (diaSemana !== 0 && diaSemana !== 6) {
+      diasUteis++;
+    }
+
+    if (diasUteis === 5) {
+      quintoDiaUtil = new Date(data);
+      quintoDiaUtil.setHours(0, 0, 0, 0);
+    } else {
+      data.setDate(data.getDate() + 1);
+    }
+  }
+
+  const hojeSemHorario = new Date(hoje);
+  hojeSemHorario.setHours(0, 0, 0, 0);
+
+  return hojeSemHorario >= quintoDiaUtil
+    ? "RECEBIDA"
+    : "PENDENTE";
+}
 // SALVAR RENDA FIXA, RENDA VARIÁVEL E DESPESAS
 
 export async function salvarPerfilFinanceiro(
@@ -138,6 +175,7 @@ export async function salvarPerfilFinanceiro(
 
     const dataAtual = dataAtualSemHorario();
 
+    const statusRenda = obterStatusRendaMensal();
     // RENDA FIXA
 
     const rendaFixaExistente = await tx.receita.findFirst({
@@ -167,7 +205,7 @@ export async function salvarPerfilFinanceiro(
             valor: rendaFixa,
             data_recebimento: dataAtual,
             tipo: "FIXA",
-            status: "PENDENTE",
+            status: statusRenda,
             frequencia: "MENSAL",
           },
         });
@@ -212,7 +250,7 @@ export async function salvarPerfilFinanceiro(
             valor: rendaVariavel,
             data_recebimento: dataAtual,
             tipo: "VARIAVEL",
-            status: "PENDENTE",
+            status: statusRenda,
             frequencia: "MENSAL",
           },
         });
