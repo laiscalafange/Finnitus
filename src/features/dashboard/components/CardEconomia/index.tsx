@@ -75,8 +75,8 @@ export function CardEconomia({ dados }: Props) {
         <View style={styles.textos}>
           <Text style={styles.rotulo}>
             {economiaLiquida < 0
-              ? t('Retiradas superaram depósitos')
-              : t('Você economizou')}
+              ? 'Retiradas superaram depósitos'
+              : 'Você economizou'}
           </Text>
 
           <View style={styles.valorLinha}>
