@@ -6,8 +6,8 @@ import { getUserById } from "../services/user.service.js";
 import { HttpError } from "../utils/errors.js";
 import { objectBody, text } from "../utils/validation.js";
 
-const codigosSmtp = new Set([
-  "EAUTH", "ECONNECTION", "ECONNREFUSED", "ECONNRESET", "EDNS",
+const codigosEnvio = new Set([
+  "EAUTH", "EBREVO", "ECONNECTION", "ECONNREFUSED", "ECONNRESET", "EDNS",
   "EENVELOPE", "EMESSAGE", "ESOCKET", "ETIMEDOUT", "ETLS",
 ]);
 
@@ -44,11 +44,11 @@ export async function enviarContato(req: Request, res: Response) {
       text: `De: ${usuario.name} <${usuario.email}>\nAssunto: ${assunto}\n\n${mensagem}`,
     });
   } catch (cause) {
-    const smtp = cause as { code?: unknown; responseCode?: unknown } | null;
-    const codigo = smtp?.code;
-    const status = smtp?.responseCode;
-    console.error("Contate-nos: falha no envio SMTP.", {
-      codigo: typeof codigo === "string" && codigosSmtp.has(codigo) ? codigo : undefined,
+    const erroEnvio = cause as { code?: unknown; responseCode?: unknown } | null;
+    const codigo = erroEnvio?.code;
+    const status = erroEnvio?.responseCode;
+    console.error("Contate-nos: falha no envio por e-mail.", {
+      codigo: typeof codigo === "string" && codigosEnvio.has(codigo) ? codigo : undefined,
       status: typeof status === "number" && Number.isInteger(status) && status >= 400 && status < 600
         ? status
         : undefined,

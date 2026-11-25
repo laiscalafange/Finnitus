@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import { Platform } from "react-native";
 import { api } from "./api";
 
@@ -113,11 +114,22 @@ export const authService = {
   },
 
   forgot: async (email: string) => {
-    const response = await api.post<{ message: string }>(
-      "/auth/forgot-password",
-      { email }
-    );
-    return response.data;
+    try {
+      const response = await api.post<{ message: string }>(
+        "/auth/forgot-password",
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      if (
+        isAxiosError<{ code?: string }>(error) &&
+        error.response?.status === 503 &&
+        error.response.data?.code === "PASSWORD_RECOVERY_UNAVAILABLE"
+      ) {
+        throw new Error("A recuperação de senha está indisponível no momento. Tente novamente mais tarde.");
+      }
+      throw error;
+    }
   },
 
   verify: async (email: string, code: string) => {

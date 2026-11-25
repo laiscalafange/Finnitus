@@ -113,6 +113,9 @@ export const env = {
     ""
   ),
 
+  BREVO_API_KEY: getEnvVarOptional("BREVO_API_KEY", "").trim(),
+  BREVO_SENDER_EMAIL: getEnvVarOptional("BREVO_SENDER_EMAIL", "").trim(),
+
   CONTACT_EMAIL: getEnvVarOptional("CONTACT_EMAIL", "").trim() || "finnitus.contato@gmail.com",
 };
 

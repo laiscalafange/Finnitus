@@ -1,12 +1,24 @@
 module.exports = ({ config }) => {
+  const googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID?.trim();
+  const isAndroidRelease = process.env.EAS_BUILD_PLATFORM === "android" &&
+    ["preview", "production", "release"].includes(process.env.EAS_BUILD_PROFILE);
+
+  if (isAndroidRelease) {
+    const apiUrl = process.env.EXPO_PUBLIC_API_URL?.trim() ?? "";
+    if (!/^https:\/\//i.test(apiUrl) || !URL.canParse(apiUrl)) {
+      throw new Error("Configure uma URL HTTPS em EXPO_PUBLIC_API_URL para o build Android.");
+    }
+    if (!googleWebClientId?.endsWith(".apps.googleusercontent.com")) {
+      throw new Error("Configure EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID para o build Android.");
+    }
+  }
+
   const plugins = [
     ...(config.plugins ?? []),
     "expo-secure-store",
   ];
 
-  const googleEnabled = Boolean(
-    process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
-  );
+  const googleEnabled = Boolean(googleWebClientId);
 
   if (
     googleEnabled &&
