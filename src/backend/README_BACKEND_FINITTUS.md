@@ -189,6 +189,19 @@ Não é necessário criar as tabelas manualmente quando o projeto estiver utiliz
 
 # 8. Arquivo `.env`
 
+## Envio de e-mails no Render
+
+O backend usa o mesmo transporte de e-mail para Contate-nos, recuperação de senha e verificação em duas etapas. Serviços gratuitos do Render bloqueiam as portas SMTP 25, 465 e 587. A API HTTPS do Brevo funciona pela porta 443. [Limites do plano gratuito do Render](https://render.com/docs/free)
+
+1. Verifique o remetente e habilite o envio transacional no Brevo. [Configuração de remetentes](https://help.brevo.com/hc/en-us/articles/208836149-Create-a-new-sender-From-name-and-From-email)
+2. Em **Environment** no serviço do backend no Render, configure `BREVO_API_KEY` com uma chave da API e `BREVO_SENDER_EMAIL` com o endereço de remetente que você verificou.
+3. Defina `CONTACT_EMAIL` se quiser receber as mensagens do Contate-nos em outro endereço. O padrão é `finnitus.contato@gmail.com`.
+4. Faça o deploy do backend e teste o Contate-nos e o recebimento do código de recuperação com uma conta de teste.
+
+Mantenha a chave nas variáveis do backend no Render. Para usar o SMTP em ambientes que permitem acesso a ele, deixe as duas variáveis `BREVO_*` vazias e preencha as variáveis `EMAIL_*` indicadas no `.env.example`.
+
+## Configuração local
+
 Na raiz do backend, crie:
 
 ```text

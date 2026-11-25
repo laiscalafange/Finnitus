@@ -3,7 +3,7 @@ import type { Prisma, TipoDesafio2FA } from "../../generated/prisma/client.js";
 import { env } from "../config/env.js";
 import { prisma } from "../lib/prisma.js";
 import { HttpError } from "../utils/errors.js";
-import { sendEmail } from "./emailService.js";
+import { invalidEmailSettings, sendEmail } from "./emailService.js";
 import { criarSessao } from "./sessao.service.js";
 import { safeSelect, safeUser } from "./user.service.js";
 
@@ -23,11 +23,6 @@ type DesafioEnviado = {
   email: string;
   tipo: TipoDesafio2FA;
 };
-
-function smtpDisponivel() {
-  return Boolean(env.EMAIL_HOST && env.EMAIL_PORT && env.EMAIL_USER &&
-    env.EMAIL_PASSWORD && env.EMAIL_FROM);
-}
 
 function codigoInvalido() {
   return new HttpError(400, "Código inválido ou expirado. Confira o código ou solicite outro.");
@@ -79,7 +74,7 @@ async function criarDesafio(
   tipo: TipoDesafio2FA,
   vinculo: { dispositivo: string } | { sessaoId: string },
 ): Promise<DesafioEnviado> {
-  if (!smtpDisponivel()) {
+  if (invalidEmailSettings().length > 0) {
     throw new HttpError(503, "Verificação por e-mail indisponível.");
   }
 
@@ -225,7 +220,7 @@ export async function configuracao2FA(userId: number) {
     select: { duasEtapasAtiva: true },
   });
   if (!user) throw new HttpError(401, "Usuário não encontrado.");
-  return { ativa: user.duasEtapasAtiva, disponivel: smtpDisponivel() };
+  return { ativa: user.duasEtapasAtiva, disponivel: invalidEmailSettings().length === 0 };
 }
 
 export async function solicitarAlteracao(sessao: SessaoAtual, ativar: boolean) {

@@ -10,6 +10,7 @@ import {
 } from "../services/token.service.js";
 import { concluirPrimeiraEtapa } from "../services/seguranca.service.js";
 import { nomeDispositivo } from "../services/sessao.service.js";
+import { invalidEmailSettings } from "../services/emailService.js";
 
 import {
   requestPasswordReset,
@@ -70,18 +71,29 @@ export async function forgotPassword(
   res: Response,
 ) {
   const email = emailValue(objectBody(req.body).email);
+  const invalidSettings = invalidEmailSettings();
+  if (invalidSettings.length > 0) {
+    console.warn("Recuperação de senha: configuração de e-mail inválida.", {
+      variaveis: invalidSettings,
+    });
+    res.status(503).json({
+      code: "PASSWORD_RECOVERY_UNAVAILABLE",
+      error: "A recuperação de senha está indisponível no momento. Tente novamente mais tarde.",
+    });
+    return;
+  }
 
   try {
     await requestPasswordReset(email);
   } catch {
     console.error(
-      "Falha ao processar recuperação. Verifique o banco e o SMTP.",
+      "Falha ao processar recuperação. Verifique o banco e o serviço de e-mail.",
     );
   }
 
-  // Resposta genérica, inclusive se o envio falhar.
+  // A resposta independe da existência da conta e do resultado do envio.
   res.json({
-    message: "Se o e-mail existir, um código de redefinição foi enviado.",
+    message: "Se houver uma conta com esse e-mail, confira sua caixa de entrada e o spam.",
   });
 }
 
