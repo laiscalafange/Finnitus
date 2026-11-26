@@ -81,7 +81,7 @@ export default function TrocarSenhaCodigo() {
           />
 
           <Text style={styles.aviso}>
-            {t("A API permite até cinco tentativas por código. Um novo pedido invalida o código anterior.")}
+            Cinco tentativas por código são permitidas. Um novo pedido invalida o código anterior.
           </Text>
 
           <Button
