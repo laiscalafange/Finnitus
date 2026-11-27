@@ -1,16 +1,23 @@
 import { View, Text, ScrollView } from "react-native";
 import { BackgroundGradient } from "../../shared/components/backgroundGradient";
 import { styles } from "../../styles/bemVindoStyle";
-import { useRouter } from "expo-router";
+import { useRouter, Redirect } from "expo-router";
 import { Button } from "../../shared/components/Button";
 import { Underline } from "../../shared/components/underline";
 import { ProgressDots } from "../../shared/components/ProgressDots/ProgressDots";
+import { useAuth } from "../../features/authContext";
 
 // Limite do aumento de fonte do sistema (evita o texto estourar a tela)
 const LIMITE_FONTE = 1.1;
 
 export default function BemVindo() {
   const roteador = useRouter();
+
+  const { user } = useAuth();
+
+  if (user) {
+    return <Redirect href="/onboarding/Trilhe" />;
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -22,7 +29,7 @@ export default function BemVindo() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <ProgressDots total={3} atual={1} />
+       
         <Text style={styles.title} maxFontSizeMultiplier={LIMITE_FONTE}>
           Seja
         </Text>
@@ -46,13 +53,9 @@ export default function BemVindo() {
         <Button
           variante="primario"
           titulo="Continuar"
-          onPress={() => roteador.push("/onboarding/Trilhe")}
+          onPress={() => roteador.replace("/inicie")}
         />
-        <Button
-          variante="outline"
-          titulo="Pular"
-          onPress={() => roteador.push("/onboarding/exPlano")}
-        />
+
       </View>
     </View>
   );

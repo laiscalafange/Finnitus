@@ -51,6 +51,9 @@ module.exports = ({ config }) => {
 
     owner: "laiscalafange",
 
+    // Ícone principal do aplicativo
+    icon: "./assets/logo/logo.png",
+
     plugins,
 
     android: {
@@ -59,6 +62,12 @@ module.exports = ({ config }) => {
       package:
         process.env.ANDROID_PACKAGE ||
         "com.finnitus.app",
+
+      // Ícone adaptativo do Android
+      adaptiveIcon: {
+        foregroundImage: "./assets/logo/logo.png",
+        backgroundColor: "#FFFFFF",
+      },
     },
 
     ios: {
