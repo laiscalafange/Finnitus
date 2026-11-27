@@ -181,41 +181,34 @@ function SessionNavigator() {
 
 function NavegacaoProtegida({ user }) {
   const { revisaoFinanceira } = useConfiguracoes();
+
   return (
-    <NotificacoesProvider key={revisaoFinanceira} usuarioId={user?.id}>
+    <NotificacoesProvider
+      key={revisaoFinanceira}
+      usuarioId={user?.id}
+    >
       <FinanceiroProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="legal/[doc]" />
-
-        {/* Rotas sem autenticação */}
-
-        <Stack.Protected guard={!user}>
-          <Stack.Screen name="(auth)" />
-        </Stack.Protected>
-
-        {/* Rotas autenticadas */}
-
-        <Stack.Protected guard={Boolean(user)}>
-          <Stack.Screen name="(tabs)" />
-
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="legal/[doc]" />
           <Stack.Screen name="onboarding" />
 
-          <Stack.Screen name="configuracaoInicial" />
+          <Stack.Protected guard={!user}>
+            <Stack.Screen name="(auth)" />
+          </Stack.Protected>
 
-          <Stack.Screen name="conta" />
+          <Stack.Protected guard={Boolean(user)}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="configuracaoInicial" />
+            <Stack.Screen name="conta" />
 
-          <Stack.Screen name="Premium/Premium" />
-          <Stack.Screen name="Premium/Pagamento" />
-          <Stack.Screen name="Premium/PremiumAtivo" />
+            <Stack.Screen name="Premium/Premium" />
+            <Stack.Screen name="Premium/Pagamento" />
+            <Stack.Screen name="Premium/PremiumAtivo" />
 
-          <Stack.Screen name="Notificacao/Notificacao" />
-        </Stack.Protected>
-      </Stack>
+            <Stack.Screen name="Notificacao/Notificacao" />
+          </Stack.Protected>
+        </Stack>
       </FinanceiroProvider>
     </NotificacoesProvider>
   );

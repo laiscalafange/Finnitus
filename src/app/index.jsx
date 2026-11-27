@@ -1,5 +1,4 @@
 import { Redirect } from "expo-router";
-
 import { useAuth } from "../features/authContext";
 
 export default function Index() {
@@ -7,10 +6,17 @@ export default function Index() {
 
   if (!user) {
     if (senhaRedefinida) {
-      return <Redirect href={{ pathname: "/login", params: { redefinida: "1" } }} />;
+      return (
+        <Redirect
+          href={{
+            pathname: "/login",
+            params: { redefinida: "1" },
+          }}
+        />
+      );
     }
 
-    return <Redirect href="/inicie" />;
+    return <Redirect href="/onboarding/BemVindo" />;
   }
 
   return <Redirect href="/paginaInicial" />;
